@@ -178,7 +178,7 @@
 <span class="step-name">Bước 1: Tính ma trận phản đối xứng $[\mathbf{t}]_\times$</span>
 </div>
 <div class="step-content">
-<p>$$[\mathbf{t}]_\times = \begin{bmatrix} 0 &amp; -t_z &amp; t_y \\ t_z &amp; 0 &amp; -t_x \\ -t_y &amp; t_x &amp; 0 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$$</p>
+<p>$$[\mathbf{t}]_\times = \begin{bmatrix} 0 & -t_z & t_y \\ t_z & 0 & -t_x \\ -t_y & t_x & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.2 \\ 0 & 0.2 & 0 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -187,7 +187,7 @@
 <span class="step-name">Bước 2: Tính ma trận Essential $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R}$</span>
 </div>
 <div class="step-content">
-<p>Do $\mathbf{R} = \mathbf{I}$, ta có: $$\mathbf{E} = [\mathbf{t}]_\times = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$$</p>
+<p>Do $\mathbf{R} = \mathbf{I}$, ta có: $$\mathbf{E} = [\mathbf{t}]_\times = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.2 \\ 0 & 0.2 & 0 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -196,7 +196,7 @@
 <span class="step-name">Bước 3: Nhân ma trận với vector điểm $\mathbf{x}_1$ để tìm đường Epipolar $\mathbf{l}_2 = \mathbf{E} \mathbf{x}_1$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{l}_2 = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix} \begin{bmatrix} 0.1 \\ 0.2 \\ 1.0 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \times 1.0 \\ 0.2 \times 0.2 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix}$$</p>
+<p>$$\mathbf{l}_2 = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.2 \\ 0 & 0.2 & 0 \end{bmatrix} \begin{bmatrix} 0.1 \\ 0.2 \\ 1.0 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \times 1.0 \\ 0.2 \times 0.2 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -273,7 +273,7 @@ void estimateMotion(const cv::Mat&amp; img1, const cv::Mat&amp; img2, const cv::
 <span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
 </div>
 <div class="step-content">
-<p>Ma trận phản đối xứng: $[\mathbf{t}]_\times = \begin{bmatrix} 0 &amp; -t_z &amp; t_y \\ t_z &amp; 0 &amp; -t_x \\ -t_y &amp; t_x &amp; 0 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$.<br/>Vì $\mathbf{R} = \mathbf{I}_3$, ma trận Essential: $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R} = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$.</p>
+<p>Ma trận phản đối xứng: $[\mathbf{t}]_\times = \begin{bmatrix} 0 & -t_z & t_y \\ t_z & 0 & -t_x \\ -t_y & t_x & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.2 \\ 0 & 0.2 & 0 \end{bmatrix}$.<br/>Vì $\mathbf{R} = \mathbf{I}_3$, ma trận Essential: $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R} = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.2 \\ 0 & 0.2 & 0 \end{bmatrix}$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -282,7 +282,7 @@ void estimateMotion(const cv::Mat&amp; img1, const cv::Mat&amp; img2, const cv::
 <span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
 </div>
 <div class="step-content">
-<p>Đường cực trên ảnh 2: $\mathbf{l}_2 = \mathbf{E} \mathbf{x}_1 = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix} \begin{bmatrix} 0.5 \\ 0.2 \\ 1.0 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix}$.<br/>Phương trình đường thẳng cực có dạng: $0 \cdot u_2 - 0.2 \cdot v_2 + 0.04 = 0 \implies v_2 = 0.2$, đúng chuẩn đường nằm ngang do dịch chuyển thuần túy theo trục $X$.</p>
+<p>Đường cực trên ảnh 2: $\mathbf{l}_2 = \mathbf{E} \mathbf{x}_1 = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.2 \\ 0 & 0.2 & 0 \end{bmatrix} \begin{bmatrix} 0.5 \\ 0.2 \\ 1.0 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix}$.<br/>Phương trình đường thẳng cực có dạng: $0 \cdot u_2 - 0.2 \cdot v_2 + 0.04 = 0 \implies v_2 = 0.2$, đúng chuẩn đường nằm ngang do dịch chuyển thuần túy theo trục $X$.</p>
 </div>
 </div>
 <div class="solution-step">

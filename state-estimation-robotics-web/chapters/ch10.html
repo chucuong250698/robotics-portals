@@ -92,11 +92,11 @@
         <div class="formula-card">
 <div class="formula-header">Thuật Toán Căn Chỉnh Dạng Đóng Arun SVD (1987)</div>
           $$\begin{align}
-          \mathbf{p}_c &amp;= \frac{1}{N}\sum \mathbf{p}_i, \quad \mathbf{q}_c = \frac{1}{N}\sum \mathbf{q}_i \quad (\text{Trọng tâm}) \\
-          \mathbf{p}'_i &amp;= \mathbf{p}_i - \mathbf{p}_c, \quad \mathbf{q}'_i = \mathbf{q}_i - \mathbf{q}_c \quad (\text{Trừ tâm}) \\
-          \mathbf{H} &amp;= \sum_{i=1}^N \mathbf{p}'_i (\mathbf{q}'_i)^T \quad (\text{Ma trận tương quan chéo}) \\
-          \mathbf{H} &amp;= \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T \quad (\text{Phân rã SVD}) \\
-          \mathbf{R}^* &amp;= \mathbf{V} \mathbf{U}^T, \quad \mathbf{t}^* = \mathbf{q}_c - \mathbf{R}^* \mathbf{p}_c
+          \mathbf{p}_c &= \frac{1}{N}\sum \mathbf{p}_i, \quad \mathbf{q}_c = \frac{1}{N}\sum \mathbf{q}_i \quad (\text{Trọng tâm}) \\
+          \mathbf{p}'_i &= \mathbf{p}_i - \mathbf{p}_c, \quad \mathbf{q}'_i = \mathbf{q}_i - \mathbf{q}_c \quad (\text{Trừ tâm}) \\
+          \mathbf{H} &= \sum_{i=1}^N \mathbf{p}'_i (\mathbf{q}'_i)^T \quad (\text{Ma trận tương quan chéo}) \\
+          \mathbf{H} &= \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T \quad (\text{Phân rã SVD}) \\
+          \mathbf{R}^* &= \mathbf{V} \mathbf{U}^T, \quad \mathbf{t}^* = \mathbf{q}_c - \mathbf{R}^* \mathbf{p}_c
           \end{align}$$
         </div>
 <p>Nếu $\det(\mathbf{R}^*) = -1$ (phản xạ gương), ta đổi dấu cột cuối: $\mathbf{R}^* = \mathbf{V} \operatorname{diag}(1, 1, \dots, \det(\mathbf{V}\mathbf{U}^T)) \mathbf{U}^T$.</p>
@@ -136,14 +136,14 @@
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tính ma trận tương quan chéo $H = \sum \mathbf{p}'_i (\mathbf{q}'_i)^T$:<br/>• Cặp 1: $\begin{bmatrix} -1 \\ -0.667 \end{bmatrix} [0.667, -1] = \begin{bmatrix} -0.667 &amp; 1.000 \\ -0.444 &amp; 0.667 \end{bmatrix}$<br/>• Cặp 2: $\begin{bmatrix} 1 \\ -0.667 \end{bmatrix} [0.667, 1] = \begin{bmatrix} 0.667 &amp; 1.000 \\ -0.444 &amp; -0.667 \end{bmatrix}$<br/>• Cặp 3: $\begin{bmatrix} 0 \\ 1.333 \end{bmatrix} [-1.333, 0] = \begin{bmatrix} 0 &amp; 0 \\ -1.778 &amp; 0 \end{bmatrix}$<br/>Cộng lại: $H = \begin{bmatrix} 0.000 &amp; 2.000 \\ -2.667 &amp; 0.000 \end{bmatrix}$. Chuẩn hóa tỷ lệ: $H \propto \begin{bmatrix} 0 &amp; 1 \\ -1 &amp; 0 \end{bmatrix}$.</p>
+<p>Tính ma trận tương quan chéo $H = \sum \mathbf{p}'_i (\mathbf{q}'_i)^T$:<br/>• Cặp 1: $\begin{bmatrix} -1 \\ -0.667 \end{bmatrix} [0.667, -1] = \begin{bmatrix} -0.667 & 1.000 \\ -0.444 & 0.667 \end{bmatrix}$<br/>• Cặp 2: $\begin{bmatrix} 1 \\ -0.667 \end{bmatrix} [0.667, 1] = \begin{bmatrix} 0.667 & 1.000 \\ -0.444 & -0.667 \end{bmatrix}$<br/>• Cặp 3: $\begin{bmatrix} 0 \\ 1.333 \end{bmatrix} [-1.333, 0] = \begin{bmatrix} 0 & 0 \\ -1.778 & 0 \end{bmatrix}$<br/>Cộng lại: $H = \begin{bmatrix} 0.000 & 2.000 \\ -2.667 & 0.000 \end{bmatrix}$. Chuẩn hóa tỷ lệ: $H \propto \begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix}$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Phân tích SVD ma trận $H = U \Sigma V^T$ và tìm nghiệm quay $R = V U^T$:<br/>Ma trận $H$ có dạng trực giao thuần túy: $H = \begin{bmatrix} 0 &amp; 1 \\ -1 &amp; 0 \end{bmatrix}$.<br/>Nghiệm SVD cho ra ma trận trực giao: $R^* = \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix}$ (quay $90^\circ$ ngược chiều kim đồng hồ).<br/>Kiểm tra: $\det(R^*) = 0 - (-1) = +1$ (hợp lệ).<br/>Tính vector tịnh tiến:<br/>$$\mathbf{t}^* = \mathbf{q}_c - R^* \mathbf{p}_c = \begin{bmatrix} -1.667 \\ 3.000 \end{bmatrix} - \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix} \begin{bmatrix} 2.000 \\ 1.667 \end{bmatrix} = \begin{bmatrix} -1.667 \\ 3.000 \end{bmatrix} - \begin{bmatrix} -1.667 \\ 2.000 \end{bmatrix} = \begin{bmatrix} 0.000\text{ m} \\ 1.000\text{ m} \end{bmatrix}$$</p>
+<p>Phân tích SVD ma trận $H = U \Sigma V^T$ và tìm nghiệm quay $R = V U^T$:<br/>Ma trận $H$ có dạng trực giao thuần túy: $H = \begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix}$.<br/>Nghiệm SVD cho ra ma trận trực giao: $R^* = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ (quay $90^\circ$ ngược chiều kim đồng hồ).<br/>Kiểm tra: $\det(R^*) = 0 - (-1) = +1$ (hợp lệ).<br/>Tính vector tịnh tiến:<br/>$$\mathbf{t}^* = \mathbf{q}_c - R^* \mathbf{p}_c = \begin{bmatrix} -1.667 \\ 3.000 \end{bmatrix} - \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 2.000 \\ 1.667 \end{bmatrix} = \begin{bmatrix} -1.667 \\ 3.000 \end{bmatrix} - \begin{bmatrix} -1.667 \\ 2.000 \end{bmatrix} = \begin{bmatrix} 0.000\text{ m} \\ 1.000\text{ m} \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">

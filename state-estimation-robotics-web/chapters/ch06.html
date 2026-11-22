@@ -89,8 +89,8 @@
 <div class="formula-card">
 <div class="formula-header">Tiêu Chuẩn Kiểm Định Độ Nhất Quán NEES &amp; NIS</div>
           $$\begin{align}
-          \epsilon_k^{NEES} &amp;= (\mathbf{x}_k - \hat{\mathbf{x}}_k)^T \hat{\mathbf{P}}_k^{-1} (\mathbf{x}_k - \hat{\mathbf{x}}_k) \sim \chi^2_n \\
-          \epsilon_k^{NIS} &amp;= \boldsymbol{\nu}_k^T \mathbf{S}_k^{-1} \boldsymbol{\nu}_k \sim \chi^2_m
+          \epsilon_k^{NEES} &= (\mathbf{x}_k - \hat{\mathbf{x}}_k)^T \hat{\mathbf{P}}_k^{-1} (\mathbf{x}_k - \hat{\mathbf{x}}_k) \sim \chi^2_n \\
+          \epsilon_k^{NIS} &= \boldsymbol{\nu}_k^T \mathbf{S}_k^{-1} \boldsymbol{\nu}_k \sim \chi^2_m
           \end{align}$$
         </div>
 <p>Bộ lọc được gọi là nhất quán nếu giá trị trung bình mẫu của $\epsilon_k$ nằm gọn bên trong khoảng tin cậy hai phía $[\chi^2(1 - \alpha/2), \chi^2(\alpha/2)]$.</p>
@@ -102,7 +102,7 @@
 <p>Phương pháp Robust M-Estimation thay thế hàm chi phí bậc hai $f(r) = \frac{1}{2}r^2$ bằng một hàm suy giảm độ dốc khi phần dư lớn:</p>
 <ul>
 <li><strong>Huber Loss:</strong> Chuyển từ bậc hai sang bậc một khi $|r| \gt k$:
-            $$\rho_H(r) = \begin{cases} \frac{1}{2}r^2 &amp; \text{khi } |r| \le k \\ k|r| - \frac{1}{2}k^2 &amp; \text{khi } |r| \gt k \end{cases} \implies w_H(r) = \begin{cases} 1 &amp; \text{khi } |r| \le k \\ \frac{k}{|r|} &amp; \text{khi } |r| \gt k \end{cases}$$
+            $$\rho_H(r) = \begin{cases} \frac{1}{2}r^2 & \text{khi } |r| \le k \\ k|r| - \frac{1}{2}k^2 & \text{khi } |r| \gt k \end{cases} \implies w_H(r) = \begin{cases} 1 & \text{khi } |r| \le k \\ \frac{k}{|r|} & \text{khi } |r| \gt k \end{cases}$$
           </li>
 <li><strong>Cauchy Loss:</strong> Triệt tiêu mạnh mẽ với hàm logarit:
             $$\rho_C(r) = \frac{c^2}{2} \ln\left(1 + \frac{r^2}{c^2}\right) \implies w_C(r) = \frac{1}{1 + (r/c)^2}$$

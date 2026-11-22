@@ -87,7 +87,7 @@
 <h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
 <p>Toán tử <strong>Hat $(\cdot)^\wedge$</strong> biến một vector $\boldsymbol{\omega} = [\omega_1, \omega_2, \omega_3]^T \in \mathbb{R}^3$ thành ma trận phản đối xứng $3 \times 3$ trong đại số Lie $\mathfrak{so}(3)$:</p>
         $$\begin{equation}
-        \boldsymbol{\omega}^\wedge = \begin{bmatrix} 0 &amp; -\omega_3 &amp; \omega_2 \\ \omega_3 &amp; 0 &amp; -\omega_1 \\ -\omega_2 &amp; \omega_1 &amp; 0 \end{bmatrix} \in \mathfrak{so}(3)
+        \boldsymbol{\omega}^\wedge = \begin{bmatrix} 0 & -\omega_3 & \omega_2 \\ \omega_3 & 0 & -\omega_1 \\ -\omega_2 & \omega_1 & 0 \end{bmatrix} \in \mathfrak{so}(3)
         \end{equation}$$
         <p>Toán tử ngược lại <strong>Vee $(\cdot)^\vee$</strong> rút trích lại vector: $(\boldsymbol{\omega}^\wedge)^\vee = \boldsymbol{\omega}$.</p>
 <div class="formula-card">
@@ -105,12 +105,12 @@
 <h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
 <p>Trong nhóm $SE(3)$, một vector vi phân xoay-tịnh tiến 6 chiều (Twist / Screw) được định nghĩa là $\boldsymbol{\xi} = [\boldsymbol{\rho}^T, \boldsymbol{\psi}^T]^T \in \mathbb{R}^6$. Toán tử Hat trên $\mathfrak{se}(3)$ tạo ma trận $4 \times 4$:</p>
         $$\begin{equation}
-        \boldsymbol{\xi}^\wedge = \begin{bmatrix} \boldsymbol{\psi}^\wedge &amp; \boldsymbol{\rho} \\ \mathbf{0}^T &amp; 0 \end{bmatrix} \in \mathfrak{se}(3)
+        \boldsymbol{\xi}^\wedge = \begin{bmatrix} \boldsymbol{\psi}^\wedge & \boldsymbol{\rho} \\ \mathbf{0}^T & 0 \end{bmatrix} \in \mathfrak{se}(3)
         \end{equation}$$
         <div class="formula-card">
 <div class="formula-header">Toán Tử Liên Hợp Adjoint $\mathrm{Ad}(\mathbf{T})$ &amp; Đổi Hệ Quy Chiếu</div>
           $$\begin{equation}
-          \mathrm{Ad}(\mathbf{T}) = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t}^\wedge \mathbf{R} \\ \mathbf{0} &amp; \mathbf{R} \end{bmatrix} \in \mathbb{R}^{6 \times 6}, \quad \text{với } \mathbf{T} = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t} \\ \mathbf{0}^T &amp; 1 \end{bmatrix}
+          \mathrm{Ad}(\mathbf{T}) = \begin{bmatrix} \mathbf{R} & \mathbf{t}^\wedge \mathbf{R} \\ \mathbf{0} & \mathbf{R} \end{bmatrix} \in \mathbb{R}^{6 \times 6}, \quad \text{với } \mathbf{T} = \begin{bmatrix} \mathbf{R} & \mathbf{t} \\ \mathbf{0}^T & 1 \end{bmatrix}
           \end{equation}$$
         </div>
 <p>Toán tử Adjoint thỏa mãn tính chất nền tảng: $\mathbf{T} \exp(\boldsymbol{\xi}^\wedge) \mathbf{T}^{-1} = \exp\left( (\mathrm{Ad}(\mathbf{T}) \boldsymbol{\xi})^\wedge \right)$. Nó cho phép dịch chuyển tức thời một vector sai số vi phân giữa các hệ quy chiếu khác nhau!</p>
@@ -135,21 +135,21 @@
 <span class="step-num-badge">1</span>
 <span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
 </div>
-<p>Xác định góc quay và vector đơn vị trục quay:<br/>• Góc quay: $\theta = \|\boldsymbol{\omega}\| = \sqrt{0^2 + 0^2 + (\pi/2)^2} = \pi/2\text{ rad} = 90^\circ$.<br/>• Trục quay đơn vị: $\mathbf{a} = \frac{\boldsymbol{\omega}}{\theta} = [0, 0, 1]^T$.<br/>• Toán tử Hat của trục quay:<br/>$$\mathbf{a}^\wedge = \begin{bmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix}, \quad (\mathbf{a}^\wedge)^2 = \begin{bmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix}\begin{bmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix} = \begin{bmatrix} -1 &amp; 0 &amp; 0 \\ 0 &amp; -1 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix}$$</p>
+<p>Xác định góc quay và vector đơn vị trục quay:<br/>• Góc quay: $\theta = \|\boldsymbol{\omega}\| = \sqrt{0^2 + 0^2 + (\pi/2)^2} = \pi/2\text{ rad} = 90^\circ$.<br/>• Trục quay đơn vị: $\mathbf{a} = \frac{\boldsymbol{\omega}}{\theta} = [0, 0, 1]^T$.<br/>• Toán tử Hat của trục quay:<br/>$$\mathbf{a}^\wedge = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}, \quad (\mathbf{a}^\wedge)^2 = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}\begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} = \begin{bmatrix} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & 0 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tính ma trận quay $R$ bằng công thức Rodrigues:<br/>$$\mathbf{R} = \mathbf{I} + \sin(\theta)\mathbf{a}^\wedge + (1 - \cos(\theta))(\mathbf{a}^\wedge)^2$$<br/>Vì $\theta = \pi/2 \implies \sin(\pi/2) = 1$ và $\cos(\pi/2) = 0$:<br/>$$\mathbf{R} = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} + 1 \begin{bmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix} + (1 - 0) \begin{bmatrix} -1 &amp; 0 &amp; 0 \\ 0 &amp; -1 &amp; 0 \\ 0 &amp; 0 &amp; 0 \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$<br/>Ma trận $T \in SE(3)$:<br/>$$\mathbf{T} = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t} \\ \mathbf{0}^T &amp; 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 0 &amp; 1.0 \\ 1 &amp; 0 &amp; 0 &amp; 2.0 \\ 0 &amp; 0 &amp; 1 &amp; 0.0 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
+<p>Tính ma trận quay $R$ bằng công thức Rodrigues:<br/>$$\mathbf{R} = \mathbf{I} + \sin(\theta)\mathbf{a}^\wedge + (1 - \cos(\theta))(\mathbf{a}^\wedge)^2$$<br/>Vì $\theta = \pi/2 \implies \sin(\pi/2) = 1$ và $\cos(\pi/2) = 0$:<br/>$$\mathbf{R} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} + 1 \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} + (1 - 0) \begin{bmatrix} -1 & 0 & 0 \\ 0 & -1 & 0 \\ 0 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix}$$<br/>Ma trận $T \in SE(3)$:<br/>$$\mathbf{T} = \begin{bmatrix} \mathbf{R} & \mathbf{t} \\ \mathbf{0}^T & 1 \end{bmatrix} = \begin{bmatrix} 0 & -1 & 0 & 1.0 \\ 1 & 0 & 0 & 2.0 \\ 0 & 0 & 1 & 0.0 \\ 0 & 0 & 0 & 1 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tính khối $\mathbf{t}^\wedge \mathbf{R}$ trong ma trận Adjoint:<br/>Toán tử Hat của vector $\mathbf{t} = [1, 2, 0]^T$:<br/>$$\mathbf{t}^\wedge = \begin{bmatrix} 0 &amp; -0 &amp; 2 \\ 0 &amp; 0 &amp; -1 \\ -2 &amp; 1 &amp; 0 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 &amp; 2 \\ 0 &amp; 0 &amp; -1 \\ -2 &amp; 1 &amp; 0 \end{bmatrix}$$<br/>Nhân với $\mathbf{R}$:<br/>$$\mathbf{t}^\wedge \mathbf{R} = \begin{bmatrix} 0 &amp; 0 &amp; 2 \\ 0 &amp; 0 &amp; -1 \\ -2 &amp; 1 &amp; 0 \end{bmatrix} \begin{bmatrix} 0 &amp; -1 &amp; 0 \\ 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 &amp; 2 \\ 0 &amp; 0 &amp; -1 \\ 1 &amp; 2 &amp; 0 \end{bmatrix}$$<br/>Tổng hợp ma trận Adjoint $6 \times 6$:<br/>$$\mathrm{Ad}(\mathbf{T}) = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t}^\wedge \mathbf{R} \\ \mathbf{0} &amp; \mathbf{R} \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 0 &amp; 0 &amp; 0 &amp; 2 \\ 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 \\ 0 &amp; 0 &amp; 1 &amp; 1 &amp; 2 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; -1 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
+<p>Tính khối $\mathbf{t}^\wedge \mathbf{R}$ trong ma trận Adjoint:<br/>Toán tử Hat của vector $\mathbf{t} = [1, 2, 0]^T$:<br/>$$\mathbf{t}^\wedge = \begin{bmatrix} 0 & -0 & 2 \\ 0 & 0 & -1 \\ -2 & 1 & 0 \end{bmatrix} = \begin{bmatrix} 0 & 0 & 2 \\ 0 & 0 & -1 \\ -2 & 1 & 0 \end{bmatrix}$$<br/>Nhân với $\mathbf{R}$:<br/>$$\mathbf{t}^\wedge \mathbf{R} = \begin{bmatrix} 0 & 0 & 2 \\ 0 & 0 & -1 \\ -2 & 1 & 0 \end{bmatrix} \begin{bmatrix} 0 & -1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix} = \begin{bmatrix} 0 & 0 & 2 \\ 0 & 0 & -1 \\ 1 & 2 & 0 \end{bmatrix}$$<br/>Tổng hợp ma trận Adjoint $6 \times 6$:<br/>$$\mathrm{Ad}(\mathbf{T}) = \begin{bmatrix} \mathbf{R} & \mathbf{t}^\wedge \mathbf{R} \\ \mathbf{0} & \mathbf{R} \end{bmatrix} = \begin{bmatrix} 0 & -1 & 0 & 0 & 0 & 2 \\ 1 & 0 & 0 & 0 & 0 & -1 \\ 0 & 0 & 1 & 1 & 2 & 0 \\ 0 & 0 & 0 & 0 & -1 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
@@ -170,14 +170,14 @@
 <h4 class="practice-title">Bài tập tự luyện 8.1: Ánh xạ Logarit trên SO(3)</h4>
 </div>
 <div class="practice-statement">
-<strong>Yêu cầu:</strong> Cho ma trận quay $\mathbf{R} = \begin{bmatrix} 0 &amp; 0 &amp; 1 \\ 0 &amp; 1 &amp; 0 \\ -1 &amp; 0 &amp; 0 \end{bmatrix}$. Hãy tính ánh xạ Logarit $\ln(\mathbf{R})^\vee$ để tìm góc quay $\theta$ và vector vận tốc góc $\boldsymbol{\omega}$.
+<strong>Yêu cầu:</strong> Cho ma trận quay $\mathbf{R} = \begin{bmatrix} 0 & 0 & 1 \\ 0 & 1 & 0 \\ -1 & 0 & 0 \end{bmatrix}$. Hãy tính ánh xạ Logarit $\ln(\mathbf{R})^\vee$ để tìm góc quay $\theta$ và vector vận tốc góc $\boldsymbol{\omega}$.
           </div>
 
 <details class="practice-solution">
 <summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
 <div class="practice-solution-body">
 <div class="practice-answer">
-<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Vết ma trận $\text{tr}(\mathbf{R}) = 0 + 1 + 0 = 1$. Góc $\theta = \arccos((1 - 1)/2) = \arccos(0) = \pi/2\text{ rad} = 90^\circ$. Hiệu $\mathbf{R} - \mathbf{R}^T = \begin{bmatrix} 0 &amp; 0 &amp; 2 \\ 0 &amp; 0 &amp; 0 \\ -2 &amp; 0 &amp; 0 \end{bmatrix}$. Vector $\boldsymbol{\omega} = [0, \pi/2, 0]^T$ (quay $90^\circ$ quanh trục Y)!
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Vết ma trận $\text{tr}(\mathbf{R}) = 0 + 1 + 0 = 1$. Góc $\theta = \arccos((1 - 1)/2) = \arccos(0) = \pi/2\text{ rad} = 90^\circ$. Hiệu $\mathbf{R} - \mathbf{R}^T = \begin{bmatrix} 0 & 0 & 2 \\ 0 & 0 & 0 \\ -2 & 0 & 0 \end{bmatrix}$. Vector $\boldsymbol{\omega} = [0, \pi/2, 0]^T$ (quay $90^\circ$ quanh trục Y)!
           </div>
 </div>
 </details>

@@ -169,7 +169,7 @@
 <span class="step-name">Bước 2: Lập ma trận chi phí tổng hợp $\mathbf{C}$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{C} = \begin{bmatrix} 1.0 &amp; 26.0 \\ 19.0 &amp; 2.25 \end{bmatrix}$$</p>
+<p>$$\mathbf{C} = \begin{bmatrix} 1.0 & 26.0 \\ 19.0 & 2.25 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -240,7 +240,7 @@ def associate_detections_to_landmarks(dets, lms, dist_threshold=3.0):
 <h4 class="practice-title">Liên Kết Dữ Liệu Ngữ Nghĩa Bằng Khoảng Cách Mahalanobis</h4>
 </div>
 <div class="practice-statement">
-<p>Hệ thống SLAM phát hiện một vật thể mới loại 'Chair' có ước lượng vị trí $\hat{\mathbf{y}} = [2.05, 1.95]^T\text{ m}$ với ma trận hiệp phương sai đo $\mathbf{R}_y = \begin{bmatrix} 0.04 &amp; 0 \\ 0 &amp; 0.04 \end{bmatrix}$. Trong bản đồ ngữ nghĩa đã có 2 vật thể cùng loại 'Chair': Mốc $M_1$ tại $[2.0, 2.0]^T$ (hiệp phương sai $\mathbf{P}_1 = \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.01 \end{bmatrix}$) và Mốc $M_2$ tại $[2.8, 1.9]^T$ (hiệp phương sai $\mathbf{P}_2 = \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.01 \end{bmatrix}$).<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính khoảng cách Mahalanobis $D_M^2 = (\hat{\mathbf{y}} - \mathbf{m}_i)^T (\mathbf{P}_i + \mathbf{R}_y)^{-1} (\hat{\mathbf{y}} - \mathbf{m}_i)$ tới cả hai mốc.<br/>2) So sánh với ngưỡng phân phối Chi-bình phương bậc tự do $2$ ở mức ý nghĩa $95\%$ ($\chi^2_{2, 0.95} = 5.991$).<br/>3) Xác định vật thể đo được ứng với mốc nào hay là một vật thể hoàn toàn mới.</p>
+<p>Hệ thống SLAM phát hiện một vật thể mới loại 'Chair' có ước lượng vị trí $\hat{\mathbf{y}} = [2.05, 1.95]^T\text{ m}$ với ma trận hiệp phương sai đo $\mathbf{R}_y = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.04 \end{bmatrix}$. Trong bản đồ ngữ nghĩa đã có 2 vật thể cùng loại 'Chair': Mốc $M_1$ tại $[2.0, 2.0]^T$ (hiệp phương sai $\mathbf{P}_1 = \begin{bmatrix} 0.01 & 0 \\ 0 & 0.01 \end{bmatrix}$) và Mốc $M_2$ tại $[2.8, 1.9]^T$ (hiệp phương sai $\mathbf{P}_2 = \begin{bmatrix} 0.01 & 0 \\ 0 & 0.01 \end{bmatrix}$).<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính khoảng cách Mahalanobis $D_M^2 = (\hat{\mathbf{y}} - \mathbf{m}_i)^T (\mathbf{P}_i + \mathbf{R}_y)^{-1} (\hat{\mathbf{y}} - \mathbf{m}_i)$ tới cả hai mốc.<br/>2) So sánh với ngưỡng phân phối Chi-bình phương bậc tự do $2$ ở mức ý nghĩa $95\%$ ($\chi^2_{2, 0.95} = 5.991$).<br/>3) Xác định vật thể đo được ứng với mốc nào hay là một vật thể hoàn toàn mới.</p>
 </div>
 <details class="practice-solution">
 <summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
@@ -251,7 +251,7 @@ def associate_detections_to_landmarks(dets, lms, dist_threshold=3.0):
 <span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
 </div>
 <div class="step-content">
-<p>Ma trận hiệp phương sai tổng hợp: $\mathbf{S}_1 = \mathbf{P}_1 + \mathbf{R}_y = \begin{bmatrix} 0.05 &amp; 0 \\ 0 &amp; 0.05 \end{bmatrix}$, nghịch đảo $\mathbf{S}_1^{-1} = \begin{bmatrix} 20 &amp; 0 \\ 0 &amp; 20 \end{bmatrix}$.<br/>Với $M_1$: Hiệu vị trí $\mathbf{d}_1 = [2.05 - 2.0, 1.95 - 2.0]^T = [0.05, -0.05]^T$. Khoảng cách Mahalanobis: $D_{M1}^2 = 20(0.05)^2 + 20(-0.05)^2 = 20(0.0025 + 0.0025) = 20(0.005) = 0.10$.</p>
+<p>Ma trận hiệp phương sai tổng hợp: $\mathbf{S}_1 = \mathbf{P}_1 + \mathbf{R}_y = \begin{bmatrix} 0.05 & 0 \\ 0 & 0.05 \end{bmatrix}$, nghịch đảo $\mathbf{S}_1^{-1} = \begin{bmatrix} 20 & 0 \\ 0 & 20 \end{bmatrix}$.<br/>Với $M_1$: Hiệu vị trí $\mathbf{d}_1 = [2.05 - 2.0, 1.95 - 2.0]^T = [0.05, -0.05]^T$. Khoảng cách Mahalanobis: $D_{M1}^2 = 20(0.05)^2 + 20(-0.05)^2 = 20(0.0025 + 0.0025) = 20(0.005) = 0.10$.</p>
 </div>
 </div>
 <div class="solution-step">

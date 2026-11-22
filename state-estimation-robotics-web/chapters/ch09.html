@@ -92,8 +92,8 @@
         <p>Với $[\mathbf{a}, \mathbf{b}] = \mathbf{a}^\wedge \mathbf{b}$ là tích có hướng (Lie Bracket) trong $\mathfrak{so}(3)$.</p>
 <p>Khi có một nhiễu xoay nhỏ $\delta \boldsymbol{\phi}$, xấp xỉ tuyến tính BCH đưa về dạng Jacobian trái/phải:</p>
         $$\begin{align}
-        \ln\left( \exp(\delta \boldsymbol{\phi}^\wedge) \exp(\boldsymbol{\phi}^\wedge) \right)^\vee &amp;\approx \boldsymbol{\phi} + \mathbf{J}_l^{-1}(\boldsymbol{\phi}) \delta \boldsymbol{\phi} \quad (\text{Left Jacobian}) \\
-        \ln\left( \exp(\boldsymbol{\phi}^\wedge) \exp(\delta \boldsymbol{\phi}^\wedge) \right)^\vee &amp;\approx \boldsymbol{\phi} + \mathbf{J}_r^{-1}(\boldsymbol{\phi}) \delta \boldsymbol{\phi} \quad (\text{Right Jacobian})
+        \ln\left( \exp(\delta \boldsymbol{\phi}^\wedge) \exp(\boldsymbol{\phi}^\wedge) \right)^\vee &\approx \boldsymbol{\phi} + \mathbf{J}_l^{-1}(\boldsymbol{\phi}) \delta \boldsymbol{\phi} \quad (\text{Left Jacobian}) \\
+        \ln\left( \exp(\boldsymbol{\phi}^\wedge) \exp(\delta \boldsymbol{\phi}^\wedge) \right)^\vee &\approx \boldsymbol{\phi} + \mathbf{J}_r^{-1}(\boldsymbol{\phi}) \delta \boldsymbol{\phi} \quad (\text{Right Jacobian})
         \end{align}$$
       </section>
 <section class="content-section" id="sec-3">
@@ -130,7 +130,7 @@
 <span class="step-num-badge">1</span>
 <span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
 </div>
-<p>Tính tích Lie Bracket $[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \boldsymbol{\phi}_1^\wedge \boldsymbol{\phi}_2$:<br/>• Toán tử Hat của $\boldsymbol{\phi}_1$: $\boldsymbol{\phi}_1^\wedge = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.10 \\ 0 &amp; 0.10 &amp; 0 \end{bmatrix}$.<br/>• Nhân với vector $\boldsymbol{\phi}_2 = [0, 0.10, 0]^T$:<br/>$$[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.10 \\ 0 &amp; 0.10 &amp; 0 \end{bmatrix} \begin{bmatrix} 0 \\ 0.10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 0.01 \end{bmatrix}\text{ rad}$$</p>
+<p>Tính tích Lie Bracket $[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \boldsymbol{\phi}_1^\wedge \boldsymbol{\phi}_2$:<br/>• Toán tử Hat của $\boldsymbol{\phi}_1$: $\boldsymbol{\phi}_1^\wedge = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.10 \\ 0 & 0.10 & 0 \end{bmatrix}$.<br/>• Nhân với vector $\boldsymbol{\phi}_2 = [0, 0.10, 0]^T$:<br/>$$[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.10 \\ 0 & 0.10 & 0 \end{bmatrix} \begin{bmatrix} 0 \\ 0.10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 0.01 \end{bmatrix}\text{ rad}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
@@ -144,7 +144,7 @@
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tính toán ma trận Jacobian bên trái $J_l(\boldsymbol{\phi}_1)$ qua xấp xỉ chuỗi $J_l(\boldsymbol{\phi}) \approx I + \frac{1}{2}\boldsymbol{\phi}^\wedge$:<br/>$$J_l(\boldsymbol{\phi}_1) \approx \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.10 \\ 0 &amp; 0.10 &amp; 0 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; -0.05 \\ 0 &amp; 0.05 &amp; 1 \end{bmatrix}$$<br/>Kiểm chứng tích $J_l(\boldsymbol{\phi}_1) \boldsymbol{\phi}_2$:<br/>$$J_l(\boldsymbol{\phi}_1) \boldsymbol{\phi}_2 = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; -0.05 \\ 0 &amp; 0.05 &amp; 1 \end{bmatrix} \begin{bmatrix} 0 \\ 0.10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0.10 \\ 0.005 \end{bmatrix}$$<br/>Cộng với $\boldsymbol{\phi}_1$: $\boldsymbol{\phi}_1 + J_l(\boldsymbol{\phi}_1)\boldsymbol{\phi}_2 = [0.10, 0.10, 0.005]^T$. Khớp chính xác hoàn toàn với kết quả BCH ở Bước 2!</p>
+<p>Tính toán ma trận Jacobian bên trái $J_l(\boldsymbol{\phi}_1)$ qua xấp xỉ chuỗi $J_l(\boldsymbol{\phi}) \approx I + \frac{1}{2}\boldsymbol{\phi}^\wedge$:<br/>$$J_l(\boldsymbol{\phi}_1) \approx \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.10 \\ 0 & 0.10 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & -0.05 \\ 0 & 0.05 & 1 \end{bmatrix}$$<br/>Kiểm chứng tích $J_l(\boldsymbol{\phi}_1) \boldsymbol{\phi}_2$:<br/>$$J_l(\boldsymbol{\phi}_1) \boldsymbol{\phi}_2 = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & -0.05 \\ 0 & 0.05 & 1 \end{bmatrix} \begin{bmatrix} 0 \\ 0.10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0.10 \\ 0.005 \end{bmatrix}$$<br/>Cộng với $\boldsymbol{\phi}_1$: $\boldsymbol{\phi}_1 + J_l(\boldsymbol{\phi}_1)\boldsymbol{\phi}_2 = [0.10, 0.10, 0.005]^T$. Khớp chính xác hoàn toàn với kết quả BCH ở Bước 2!</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">

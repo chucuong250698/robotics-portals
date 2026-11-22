@@ -190,7 +190,7 @@
 <!-- Mục 5.3 & 5.4 -->
 <h4 id="sec-5-3">5.3 Động học Thuận (Forward Kinematics) &amp; Tích phân Quỹ đạo</h4>
 <p>Từ trạng thái $[x_t, y_t, \theta_t]^T$, sau khoảng thời gian ngắn $\Delta t$ với vận tốc góc $\omega \ne 0$, trạng thái mới được tính toán chính xác bằng phép quay quanh ICC:</p>
-<p>$$\begin{bmatrix} x_{t+\Delta t} \\ y_{t+\Delta t} \\ \theta_{t+\Delta t} \end{bmatrix} = \begin{bmatrix} \cos(\omega \Delta t) &amp; -\sin(\omega \Delta t) &amp; 0 \\ \sin(\omega \Delta t) &amp; \cos(\omega \Delta t) &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} \begin{bmatrix} x_t - \text{ICC}_x \\ y_t - \text{ICC}_y \\ 0 \end{bmatrix} + \begin{bmatrix} \text{ICC}_x \\ \text{ICC}_y \\ \omega \Delta t \end{bmatrix}$$</p>
+<p>$$\begin{bmatrix} x_{t+\Delta t} \\ y_{t+\Delta t} \\ \theta_{t+\Delta t} \end{bmatrix} = \begin{bmatrix} \cos(\omega \Delta t) & -\sin(\omega \Delta t) & 0 \\ \sin(\omega \Delta t) & \cos(\omega \Delta t) & 0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} x_t - \text{ICC}_x \\ y_t - \text{ICC}_y \\ 0 \end{bmatrix} + \begin{bmatrix} \text{ICC}_x \\ \text{ICC}_y \\ \omega \Delta t \end{bmatrix}$$</p>
 <h4 id="sec-5-4">5.4 Động học Ngược (Inverse Kinematics)</h4>
 <p>Khi thuật toán quy hoạch quỹ đạo yêu cầu robot di chuyển với vận tốc dài mong muốn $v$ và vận tốc góc bẻ lái $\omega$, bộ điều khiển động học ngược biến đổi ngược thành lệnh vận tốc góc của từng bánh xe:</p>
 <p>$$\omega_r = \frac{2v + \omega \cdot b}{2r}, \quad \omega_l = \frac{2v - \omega \cdot b}{2r}$$</p>

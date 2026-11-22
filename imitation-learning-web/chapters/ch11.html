@@ -151,7 +151,7 @@
 </div>
 <div class="exercise-statement">
 <p>Camera theo dõi bàn tay con người ghi nhận vận tốc điểm đầu ngón tay trong không gian Descartes 2D là $\mathbf{v}_{\text{human}} = [0.08, -0.04]^T$ m/s. Robot 2 khớp có chiều dài các khâu $l_1 = 0.4$ m, $l_2 = 0.3$ m, đang ở cấu hình góc khớp $q_1 = 30^\circ$ ($0.5236$ rad), $q_2 = 45^\circ$ ($0.7854$ rad). Ma trận Jacobian tính được tại điểm này là:
-          $$\mathbf{J} = \begin{bmatrix} -0.412 &amp; -0.212 \\ 0.559 &amp; 0.212 \end{bmatrix}$$
+          $$\mathbf{J} = \begin{bmatrix} -0.412 & -0.212 \\ 0.559 & 0.212 \end{bmatrix}$$
           Tính định thức $\det(\mathbf{J})$, nghịch đảo $\mathbf{J}^{-1}$, và vector vận tốc góc đặt cho các khớp robot $\dot{\mathbf{q}}$.</p>
 </div>
 <div class="solution-wrapper">
@@ -170,7 +170,7 @@
 <span class="step-name">Bước 2: Tìm ma trận nghịch đảo $\mathbf{J}^{-1}$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{J}^{-1} = \frac{1}{\det(\mathbf{J})} \begin{bmatrix} J_{22} &amp; -J_{12} \\ -J_{21} &amp; J_{11} \end{bmatrix} = \frac{1}{0.031164} \begin{bmatrix} 0.212 &amp; 0.212 \\ -0.559 &amp; -0.412 \end{bmatrix}$$</p><p>$$\mathbf{J}^{-1} \approx \begin{bmatrix} 6.803 &amp; 6.803 \\ -17.937 &amp; -13.220 \end{bmatrix}$$</p>
+<p>$$\mathbf{J}^{-1} = \frac{1}{\det(\mathbf{J})} \begin{bmatrix} J_{22} & -J_{12} \\ -J_{21} & J_{11} \end{bmatrix} = \frac{1}{0.031164} \begin{bmatrix} 0.212 & 0.212 \\ -0.559 & -0.412 \end{bmatrix}$$</p><p>$$\mathbf{J}^{-1} \approx \begin{bmatrix} 6.803 & 6.803 \\ -17.937 & -13.220 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -179,7 +179,7 @@
 <span class="step-name">Bước 3: Thực hiện phép nhân ma trận để tìm vận tốc khớp $\dot{\mathbf{q}}$</span>
 </div>
 <div class="step-content">
-<p>$$\dot{\mathbf{q}} = \mathbf{J}^{-1} \mathbf{v}_{\text{human}} = \begin{bmatrix} 6.803 &amp; 6.803 \\ -17.937 &amp; -13.220 \end{bmatrix} \begin{bmatrix} 0.08 \\ -0.04 \end{bmatrix}$$</p><p>• $\dot{q}_1 = 6.803(0.08) + 6.803(-0.04) = 6.803 \times 0.04 = +0.2721\text{ rad/s}$</p><p>• $\dot{q}_2 = -17.937(0.08) - 13.220(-0.04) = -1.4350 + 0.5288 = -0.9062\text{ rad/s}$</p>
+<p>$$\dot{\mathbf{q}} = \mathbf{J}^{-1} \mathbf{v}_{\text{human}} = \begin{bmatrix} 6.803 & 6.803 \\ -17.937 & -13.220 \end{bmatrix} \begin{bmatrix} 0.08 \\ -0.04 \end{bmatrix}$$</p><p>• $\dot{q}_1 = 6.803(0.08) + 6.803(-0.04) = 6.803 \times 0.04 = +0.2721\text{ rad/s}$</p><p>• $\dot{q}_2 = -17.937(0.08) - 13.220(-0.04) = -1.4350 + 0.5288 = -0.9062\text{ rad/s}$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -244,7 +244,7 @@ class HandRetargetingNode(Node):
 <h4 class="practice-title">Ánh Xạ Động Học Khớp Tay Người Sang Robot Trong Bài Toán Correspondence Problem</h4>
 </div>
 <div class="practice-statement">
-<p>Một hệ thống teleoperation ghi nhận góc xoay cổ tay người có 3 bậc tự do $\mathbf{q}_{\text{human}} \in \mathbb{R}^3$. Robot thao tác chỉ có 2 bậc tự do ở cổ tay $\mathbf{q}_{\text{robot}} \in \mathbb{R}^2$. Ma trận ánh xạ hình thái học (Morphological Mapping) là $\mathbf{M} \in \mathbb{R}^{2 \times 3}$ với $\mathbf{M} = \begin{bmatrix} 1.0 &amp; 0.2 &amp; 0.0 \\ 0.0 &amp; 0.8 &amp; 0.5 \end{bmatrix}$. Góc quay của người đo được là $\mathbf{q}_{\text{human}} = [0.5, -0.2, 0.4]^T\text{ rad}$. Giới hạn khớp của robot là $|q_{\text{robot}, i}| \le 0.6\text{ rad}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính góc khớp mục tiêu mong muốn của robot $\mathbf{q}_{\text{desired}} = \mathbf{M} \mathbf{q}_{\text{human}}$.<br/>2) Kiểm tra giới hạn hành trình khớp và thực hiện bão hòa (Clamping) nếu cần.<br/>3) Đánh giá sai số tái lập tư thế trong không gian thao tác.</p>
+<p>Một hệ thống teleoperation ghi nhận góc xoay cổ tay người có 3 bậc tự do $\mathbf{q}_{\text{human}} \in \mathbb{R}^3$. Robot thao tác chỉ có 2 bậc tự do ở cổ tay $\mathbf{q}_{\text{robot}} \in \mathbb{R}^2$. Ma trận ánh xạ hình thái học (Morphological Mapping) là $\mathbf{M} \in \mathbb{R}^{2 \times 3}$ với $\mathbf{M} = \begin{bmatrix} 1.0 & 0.2 & 0.0 \\ 0.0 & 0.8 & 0.5 \end{bmatrix}$. Góc quay của người đo được là $\mathbf{q}_{\text{human}} = [0.5, -0.2, 0.4]^T\text{ rad}$. Giới hạn khớp của robot là $|q_{\text{robot}, i}| \le 0.6\text{ rad}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính góc khớp mục tiêu mong muốn của robot $\mathbf{q}_{\text{desired}} = \mathbf{M} \mathbf{q}_{\text{human}}$.<br/>2) Kiểm tra giới hạn hành trình khớp và thực hiện bão hòa (Clamping) nếu cần.<br/>3) Đánh giá sai số tái lập tư thế trong không gian thao tác.</p>
 </div>
 <details class="practice-solution">
 <summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
@@ -255,7 +255,7 @@ class HandRetargetingNode(Node):
 <span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
 </div>
 <div class="step-content">
-<p>Tính toán góc khớp mong muốn qua ma trận ánh xạ:<br/>$$\mathbf{q}_{\text{desired}} = \begin{bmatrix} 1.0 &amp; 0.2 &amp; 0.0 \\ 0.0 &amp; 0.8 &amp; 0.5 \end{bmatrix} \begin{bmatrix} 0.5 \\ -0.2 \\ 0.4 \end{bmatrix} = \begin{bmatrix} 1.0(0.5) + 0.2(-0.2) + 0 \\ 0 + 0.8(-0.2) + 0.5(0.4) \end{bmatrix} = \begin{bmatrix} 0.5 - 0.04 \\ -0.16 + 0.20 \end{bmatrix} = \begin{bmatrix} 0.46 \\ 0.04 \end{bmatrix}\text{ rad}$$</p>
+<p>Tính toán góc khớp mong muốn qua ma trận ánh xạ:<br/>$$\mathbf{q}_{\text{desired}} = \begin{bmatrix} 1.0 & 0.2 & 0.0 \\ 0.0 & 0.8 & 0.5 \end{bmatrix} \begin{bmatrix} 0.5 \\ -0.2 \\ 0.4 \end{bmatrix} = \begin{bmatrix} 1.0(0.5) + 0.2(-0.2) + 0 \\ 0 + 0.8(-0.2) + 0.5(0.4) \end{bmatrix} = \begin{bmatrix} 0.5 - 0.04 \\ -0.16 + 0.20 \end{bmatrix} = \begin{bmatrix} 0.46 \\ 0.04 \end{bmatrix}\text{ rad}$$</p>
 </div>
 </div>
 <div class="solution-step">

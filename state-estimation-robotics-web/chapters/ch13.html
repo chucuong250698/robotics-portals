@@ -91,7 +91,7 @@
         \end{equation}$$
         <p>Hệ phương trình chuẩn Gauss-Newton có cấu trúc khối đặc biệt:</p>
         $$\begin{equation}
-        \begin{bmatrix} \mathbf{B} &amp; \mathbf{E} \\ \mathbf{E}^T &amp; \mathbf{C} \end{bmatrix} \begin{bmatrix} \Delta \mathbf{x}_c \\ \Delta \mathbf{x}_l \end{bmatrix} = \begin{bmatrix} \mathbf{v} \\ \mathbf{w} \end{bmatrix}
+        \begin{bmatrix} \mathbf{B} & \mathbf{E} \\ \mathbf{E}^T & \mathbf{C} \end{bmatrix} \begin{bmatrix} \Delta \mathbf{x}_c \\ \Delta \mathbf{x}_l \end{bmatrix} = \begin{bmatrix} \mathbf{v} \\ \mathbf{w} \end{bmatrix}
         \end{equation}$$
         <ul>
 <li>$\mathbf{B} \in \mathbb{R}^{6M \times 6M}$: Khối thông tin giữa các Camera (kích thước nhỏ).</li>
@@ -104,8 +104,8 @@
 <div class="formula-card">
 <div class="formula-header">Triệt Tiêu Phần Bù Schur (Schur Complement Marginalization)</div>
           $$\begin{align}
-          (\mathbf{B} - \mathbf{E} \mathbf{C}^{-1} \mathbf{E}^T) \Delta \mathbf{x}_c &amp;= \mathbf{v} - \mathbf{E} \mathbf{C}^{-1} \mathbf{w} \\
-          \mathbf{H}_{schur} \Delta \mathbf{x}_c &amp;= \mathbf{b}_{schur}
+          (\mathbf{B} - \mathbf{E} \mathbf{C}^{-1} \mathbf{E}^T) \Delta \mathbf{x}_c &= \mathbf{v} - \mathbf{E} \mathbf{C}^{-1} \mathbf{w} \\
+          \mathbf{H}_{schur} \Delta \mathbf{x}_c &= \mathbf{b}_{schur}
           \end{align}$$
         </div>
 <p>Vì $\mathbf{C}$ là ma trận đường chéo khối, nghịch đảo $\mathbf{C}^{-1}$ được tính cực nhanh theo từng khối $3 \times 3$ độc lập với độ phức tạp $O(N)$!</p>
@@ -126,7 +126,7 @@
 </div>
 <h3 class="exercise-title">Triệt Tiêu Phần Bù Schur Cho Hệ Thống 2 Camera &amp; 1 Điểm Mốc 3D</h3>
 <div class="exercise-statement">
-<strong>Đề bài kỹ thuật:</strong> Một hệ thống Visual SLAM thu nhỏ gồm 2 tham số vị trí camera $\Delta \mathbf{x}_c \in \mathbb{R}^2$ và 1 tham số độ sâu điểm mốc $\Delta \mathbf{x}_l \in \mathbb{R}^1$. Hệ phương trình chuẩn Gauss-Newton có các khối số học như sau:<br/>$$B = \begin{bmatrix} 10 &amp; 2 \\ 2 &amp; 8 \end{bmatrix}, \quad E = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \quad C = [5], \quad \mathbf{v} = \begin{bmatrix} 14 \\ 18 \end{bmatrix}, \quad \mathbf{w} = [10]$$<br/>Yêu cầu: (a) Tính phần bù Schur $H_{schur}$ và vector thu gọn $\mathbf{b}_{schur}$; (b) Giải tìm nghiệm bước nhảy camera $\Delta \mathbf{x}_c$; (c) Thế ngược trở lại tìm bước nhảy của điểm mốc $\Delta \mathbf{x}_l$.
+<strong>Đề bài kỹ thuật:</strong> Một hệ thống Visual SLAM thu nhỏ gồm 2 tham số vị trí camera $\Delta \mathbf{x}_c \in \mathbb{R}^2$ và 1 tham số độ sâu điểm mốc $\Delta \mathbf{x}_l \in \mathbb{R}^1$. Hệ phương trình chuẩn Gauss-Newton có các khối số học như sau:<br/>$$B = \begin{bmatrix} 10 & 2 \\ 2 & 8 \end{bmatrix}, \quad E = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \quad C = [5], \quad \mathbf{v} = \begin{bmatrix} 14 \\ 18 \end{bmatrix}, \quad \mathbf{w} = [10]$$<br/>Yêu cầu: (a) Tính phần bù Schur $H_{schur}$ và vector thu gọn $\mathbf{b}_{schur}$; (b) Giải tìm nghiệm bước nhảy camera $\Delta \mathbf{x}_c$; (c) Thế ngược trở lại tìm bước nhảy của điểm mốc $\Delta \mathbf{x}_l$.
           </div>
 <div class="solution-wrapper">
 <div class="solution-step">
@@ -141,14 +141,14 @@
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tính toán ma trận Schur $H_{schur} = B - E C^{-1} E^T$ và vector $\mathbf{b}_{schur} = \mathbf{v} - E C^{-1} \mathbf{w}$:<br/>• Tích ngoài: $E C^{-1} E^T = \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix} [3, 4] = \begin{bmatrix} 1.80 &amp; 2.40 \\ 2.40 &amp; 3.20 \end{bmatrix}$.<br/>• Ma trận Schur:<br/>$$H_{schur} = \begin{bmatrix} 10 &amp; 2 \\ 2 &amp; 8 \end{bmatrix} - \begin{bmatrix} 1.80 &amp; 2.40 \\ 2.40 &amp; 3.20 \end{bmatrix} = \begin{bmatrix} 10 - 1.80 &amp; 2 - 2.40 \\ 2 - 2.40 &amp; 8 - 3.20 \end{bmatrix} = \begin{bmatrix} 8.20 &amp; -0.40 \\ -0.40 &amp; 4.80 \end{bmatrix}$$<br/>• Vector thu gọn:<br/>$$\mathbf{b}_{schur} = \begin{bmatrix} 14 \\ 18 \end{bmatrix} - \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix} [10] = \begin{bmatrix} 14 \\ 18 \end{bmatrix} - \begin{bmatrix} 6.00 \\ 8.00 \end{bmatrix} = \begin{bmatrix} 8.00 \\ 10.00 \end{bmatrix}$$</p>
+<p>Tính toán ma trận Schur $H_{schur} = B - E C^{-1} E^T$ và vector $\mathbf{b}_{schur} = \mathbf{v} - E C^{-1} \mathbf{w}$:<br/>• Tích ngoài: $E C^{-1} E^T = \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix} [3, 4] = \begin{bmatrix} 1.80 & 2.40 \\ 2.40 & 3.20 \end{bmatrix}$.<br/>• Ma trận Schur:<br/>$$H_{schur} = \begin{bmatrix} 10 & 2 \\ 2 & 8 \end{bmatrix} - \begin{bmatrix} 1.80 & 2.40 \\ 2.40 & 3.20 \end{bmatrix} = \begin{bmatrix} 10 - 1.80 & 2 - 2.40 \\ 2 - 2.40 & 8 - 3.20 \end{bmatrix} = \begin{bmatrix} 8.20 & -0.40 \\ -0.40 & 4.80 \end{bmatrix}$$<br/>• Vector thu gọn:<br/>$$\mathbf{b}_{schur} = \begin{bmatrix} 14 \\ 18 \end{bmatrix} - \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix} [10] = \begin{bmatrix} 14 \\ 18 \end{bmatrix} - \begin{bmatrix} 6.00 \\ 8.00 \end{bmatrix} = \begin{bmatrix} 8.00 \\ 10.00 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Giải hệ phương trình camera $H_{schur} \Delta \mathbf{x}_c = \mathbf{b}_{schur}$:<br/>• Định thức: $\det(H_{schur}) = 8.20 \times 4.80 - (-0.40)^2 = 39.36 - 0.16 = 39.20$.<br/>• Nghịch đảo ma trận Schur:<br/>$$H_{schur}^{-1} = \frac{1}{39.20}\begin{bmatrix} 4.80 &amp; 0.40 \\ 0.40 &amp; 8.20 \end{bmatrix}$$<br/>• Nghiệm camera:<br/>$$\Delta \mathbf{x}_c = \frac{1}{39.20}\begin{bmatrix} 4.80(8) + 0.40(10) \\ 0.40(8) + 8.20(10) \end{bmatrix} = \frac{1}{39.20}\begin{bmatrix} 38.40 + 4.00 \\ 3.20 + 82.00 \end{bmatrix} = \frac{1}{39.20}\begin{bmatrix} 42.40 \\ 85.20 \end{bmatrix} = \begin{bmatrix} 1.0816 \\ 2.1735 \end{bmatrix}$$</p>
+<p>Giải hệ phương trình camera $H_{schur} \Delta \mathbf{x}_c = \mathbf{b}_{schur}$:<br/>• Định thức: $\det(H_{schur}) = 8.20 \times 4.80 - (-0.40)^2 = 39.36 - 0.16 = 39.20$.<br/>• Nghịch đảo ma trận Schur:<br/>$$H_{schur}^{-1} = \frac{1}{39.20}\begin{bmatrix} 4.80 & 0.40 \\ 0.40 & 8.20 \end{bmatrix}$$<br/>• Nghiệm camera:<br/>$$\Delta \mathbf{x}_c = \frac{1}{39.20}\begin{bmatrix} 4.80(8) + 0.40(10) \\ 0.40(8) + 8.20(10) \end{bmatrix} = \frac{1}{39.20}\begin{bmatrix} 38.40 + 4.00 \\ 3.20 + 82.00 \end{bmatrix} = \frac{1}{39.20}\begin{bmatrix} 42.40 \\ 85.20 \end{bmatrix} = \begin{bmatrix} 1.0816 \\ 2.1735 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">

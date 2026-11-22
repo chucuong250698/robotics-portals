@@ -87,8 +87,8 @@
 <h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
 <p>Xét hệ thống tuyến tính rời rạc qua các bước thời gian $k = 0, 1, \dots, K$:</p>
         $$\begin{align}
-        \mathbf{x}_k &amp;= \mathbf{A}_{k-1} \mathbf{x}_{k-1} + \mathbf{v}_k + \mathbf{w}_k, \quad \mathbf{w}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k) \\
-        \mathbf{y}_k &amp;= \mathbf{C}_k \mathbf{x}_k + \mathbf{n}_k, \quad \mathbf{n}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)
+        \mathbf{x}_k &= \mathbf{A}_{k-1} \mathbf{x}_{k-1} + \mathbf{v}_k + \mathbf{w}_k, \quad \mathbf{w}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k) \\
+        \mathbf{y}_k &= \mathbf{C}_k \mathbf{x}_k + \mathbf{n}_k, \quad \mathbf{n}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)
         \end{align}$$
         <p>Bài toán Batch MAP tương đương với cực tiểu hóa hàm mục tiêu bình phương tối thiểu có trọng số:</p>
         $$\begin{equation}
@@ -104,9 +104,9 @@
 <div class="formula-card">
 <div class="formula-header">Thuật Toán Làm Mượt Hai Chiều Rauch-Tung-Striebel (RTS Smoother)</div>
           $$\begin{align}
-          \mathbf{K}_k &amp;= \hat{\mathbf{P}}_k \mathbf{A}_k^T (\check{\mathbf{P}}_{k+1})^{-1} \quad (\text{Smoother Gain}) \\
-          \mathbf{x}_k^s &amp;= \hat{\mathbf{x}}_k + \mathbf{K}_k (\mathbf{x}_{k+1}^s - \check{\mathbf{x}}_{k+1}) \\
-          \mathbf{P}_k^s &amp;= \hat{\mathbf{P}}_k + \mathbf{K}_k (\mathbf{P}_{k+1}^s - \check{\mathbf{P}}_{k+1}) \mathbf{K}_k^T
+          \mathbf{K}_k &= \hat{\mathbf{P}}_k \mathbf{A}_k^T (\check{\mathbf{P}}_{k+1})^{-1} \quad (\text{Smoother Gain}) \\
+          \mathbf{x}_k^s &= \hat{\mathbf{x}}_k + \mathbf{K}_k (\mathbf{x}_{k+1}^s - \check{\mathbf{x}}_{k+1}) \\
+          \mathbf{P}_k^s &= \hat{\mathbf{P}}_k + \mathbf{K}_k (\mathbf{P}_{k+1}^s - \check{\mathbf{P}}_{k+1}) \mathbf{K}_k^T
           \end{align}$$
         </div>
 <p>Quy trình RTS Smoother gồm 2 lượt quét:</p>

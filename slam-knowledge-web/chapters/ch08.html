@@ -120,7 +120,7 @@
 <div class="formula-hero">
 <div class="formula-title">Định Nghĩa Ma Trận Dual Quadric $\mathbf{Q}^*$</div>
 <div class="formula-math">
-            $$\mathbf{Q}^* = \mathbf{Z} \begin{bmatrix} s_x^2 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; s_y^2 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; s_z^2 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; -1 \end{bmatrix} \mathbf{Z}^T, \quad \text{với } \mathbf{Z} = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t} \\ \mathbf{0}^T &amp; 1 \end{bmatrix}$$
+            $$\mathbf{Q}^* = \mathbf{Z} \begin{bmatrix} s_x^2 & 0 & 0 & 0 \\ 0 & s_y^2 & 0 & 0 \\ 0 & 0 & s_z^2 & 0 \\ 0 & 0 & 0 & -1 \end{bmatrix} \mathbf{Z}^T, \quad \text{với } \mathbf{Z} = \begin{bmatrix} \mathbf{R} & \mathbf{t} \\ \mathbf{0}^T & 1 \end{bmatrix}$$
           </div>
 <div class="formula-legend">
 <strong>Tính chất tuyệt mỹ:</strong> Khi camera có ma trận phép chiếu $\mathbf{P} = \mathbf{K} [\mathbf{R}_{cw} \mid \mathbf{t}_{cw}] \in \mathbb{R}^{3 \times 4}$ quan sát khối elip 3D này, đường viền bao hình của elip trên ảnh 2D sẽ là một đường <strong>Conic đối ngẫu $\mathbf{C}^* \in \mathbb{R}^{3 \times 3}$</strong> thỏa mãn hệ thức ma trận đóng kín:
@@ -152,7 +152,7 @@
 </div>
 <div class="exercise-statement">
 <p>Camera chuẩn có tiêu cự $f = 1.0$, tâm $(0,0)$ đặt tại gốc tọa độ hướng theo trục $z$: $\mathbf{P} = [\mathbf{I}_{3 \times 3} \mid \mathbf{0}]$. Một vật thể Dual Quadric dạng hình cầu bán kính $r = 1.0$ đặt tại tâm $\mathbf{t} = [0, 0, 5.0]^T$:
-          $$\mathbf{Q}^* = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 5 \\ 0 &amp; 0 &amp; 5 &amp; 24 \end{bmatrix}$$
+          $$\mathbf{Q}^* = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 5 \\ 0 & 0 & 5 & 24 \end{bmatrix}$$
           (với phần tử $(4,4)$ là $t_z^2 - r^2 = 25 - 1 = 24$). Tính ma trận Conic đối ngẫu 2D $\mathbf{C}^* = \mathbf{P} \mathbf{Q}^* \mathbf{P}^T$ và bán kính đường tròn chiếu trên ảnh.</p>
 </div>
 <div class="solution-wrapper">
@@ -162,7 +162,7 @@
 <span class="step-name">Bước 1: Thiết lập ma trận phép chiếu camera $\mathbf{P}$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{P} = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \end{bmatrix}$$</p><p>Phép nhân $\mathbf{P} \mathbf{Q}^*$ tương đương với việc trích xuất 3 hàng đầu tiên của $\mathbf{Q}^*$.</p>
+<p>$$\mathbf{P} = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \end{bmatrix}$$</p><p>Phép nhân $\mathbf{P} \mathbf{Q}^*$ tương đương với việc trích xuất 3 hàng đầu tiên của $\mathbf{Q}^*$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -171,7 +171,7 @@
 <span class="step-name">Bước 2: Thực hiện phép nhân ma trận $\mathbf{P} \mathbf{Q}^*$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{A} = \mathbf{P} \mathbf{Q}^* = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 5 \end{bmatrix}$$</p>
+<p>$$\mathbf{A} = \mathbf{P} \mathbf{Q}^* = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 5 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -180,7 +180,7 @@
 <span class="step-name">Bước 3: Nhân tiếp với $\mathbf{P}^T$ để tìm ma trận Conic 2D $\mathbf{C}^*$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{C}^* = \mathbf{A} \mathbf{P}^T = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \\ 0 &amp; 0 &amp; 0 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
+<p>$$\mathbf{C}^* = \mathbf{A} \mathbf{P}^T = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 5 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \\ 0 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -259,7 +259,7 @@ class BoundingBoxFactor:
 <span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
 </div>
 <div class="step-content">
-<p>Ma trận biến đổi với $\mathbf{R} = \mathbf{I}_3$: $\mathbf{T}_{wo} = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 1.5 \\ 0 &amp; 1 &amp; 0 &amp; 0.0 \\ 0 &amp; 0 &amp; 1 &amp; 0.8 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}$.</p>
+<p>Ma trận biến đổi với $\mathbf{R} = \mathbf{I}_3$: $\mathbf{T}_{wo} = \begin{bmatrix} 1 & 0 & 0 & 1.5 \\ 0 & 1 & 0 & 0.0 \\ 0 & 0 & 1 & 0.8 \\ 0 & 0 & 0 & 1 \end{bmatrix}$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -268,7 +268,7 @@ class BoundingBoxFactor:
 <span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
 </div>
 <div class="step-content">
-<p>Nhân ma trận: $\mathbf{Q}^* = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 1.5 \\ 0 &amp; 1 &amp; 0 &amp; 0.0 \\ 0 &amp; 0 &amp; 1 &amp; 0.8 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 0.09 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 0.09 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0.16 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; -1 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \\ 1.5 &amp; 0 &amp; 0.8 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0.09 - (1.5)^2 &amp; 0 &amp; -1.5 \times 0.8 &amp; -1.5 \\ 0 &amp; 0.09 &amp; 0 &amp; 0 \\ -1.2 &amp; 0 &amp; 0.16 - (0.8)^2 &amp; -0.8 \\ -1.5 &amp; 0 &amp; -0.8 &amp; -1 \end{bmatrix} = \begin{bmatrix} -2.16 &amp; 0 &amp; -1.2 &amp; -1.5 \\ 0 &amp; 0.09 &amp; 0 &amp; 0 \\ -1.2 &amp; 0 &amp; -0.48 &amp; -0.8 \\ -1.5 &amp; 0 &amp; -0.8 &amp; -1.0 \end{bmatrix}$. Biểu diễn gọn gàng 9 tham số hình học của vật thể 3D.</p>
+<p>Nhân ma trận: $\mathbf{Q}^* = \begin{bmatrix} 1 & 0 & 0 & 1.5 \\ 0 & 1 & 0 & 0.0 \\ 0 & 0 & 1 & 0.8 \\ 0 & 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} 0.09 & 0 & 0 & 0 \\ 0 & 0.09 & 0 & 0 \\ 0 & 0 & 0.16 & 0 \\ 0 & 0 & 0 & -1 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 1.5 & 0 & 0.8 & 1 \end{bmatrix} = \begin{bmatrix} 0.09 - (1.5)^2 & 0 & -1.5 \times 0.8 & -1.5 \\ 0 & 0.09 & 0 & 0 \\ -1.2 & 0 & 0.16 - (0.8)^2 & -0.8 \\ -1.5 & 0 & -0.8 & -1 \end{bmatrix} = \begin{bmatrix} -2.16 & 0 & -1.2 & -1.5 \\ 0 & 0.09 & 0 & 0 \\ -1.2 & 0 & -0.48 & -0.8 \\ -1.5 & 0 & -0.8 & -1.0 \end{bmatrix}$. Biểu diễn gọn gàng 9 tham số hình học của vật thể 3D.</p>
 </div>
 </div>
 </div>

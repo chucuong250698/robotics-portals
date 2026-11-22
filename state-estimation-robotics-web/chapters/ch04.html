@@ -89,13 +89,13 @@
 <div class="formula-card">
 <div class="formula-header">Chu Trình Kalman Filter Đầy Đủ</div>
           $$\begin{align}
-          \textbf{Dự đoán (Predict):} \quad &amp; \check{\mathbf{x}}_k = \mathbf{F}_{k-1} \hat{\mathbf{x}}_{k-1} + \mathbf{B}_{k-1} \mathbf{u}_{k-1} \\
-          &amp; \check{\mathbf{P}}_k = \mathbf{F}_{k-1} \hat{\mathbf{P}}_{k-1} \mathbf{F}_{k-1}^T + \mathbf{Q}_{k-1} \\[8pt]
-          \textbf{Cập nhật (Update):} \quad &amp; \boldsymbol{\nu}_k = \mathbf{y}_k - \mathbf{H}_k \check{\mathbf{x}}_k \quad (\text{Innovation / Phần dư}) \\
-          &amp; \mathbf{S}_k = \mathbf{H}_k \check{\mathbf{P}}_k \mathbf{H}_k^T + \mathbf{R}_k \quad (\text{Hiệp phương sai phần dư}) \\
-          &amp; \mathbf{K}_k = \check{\mathbf{P}}_k \mathbf{H}_k^T \mathbf{S}_k^{-1} \quad (\text{Kalman Gain}) \\
-          &amp; \hat{\mathbf{x}}_k = \check{\mathbf{x}}_k + \mathbf{K}_k \boldsymbol{\nu}_k \\
-          &amp; \hat{\mathbf{P}}_k = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \check{\mathbf{P}}_k
+          \textbf{Dự đoán (Predict):} \quad & \check{\mathbf{x}}_k = \mathbf{F}_{k-1} \hat{\mathbf{x}}_{k-1} + \mathbf{B}_{k-1} \mathbf{u}_{k-1} \\
+          & \check{\mathbf{P}}_k = \mathbf{F}_{k-1} \hat{\mathbf{P}}_{k-1} \mathbf{F}_{k-1}^T + \mathbf{Q}_{k-1} \\[8pt]
+          \textbf{Cập nhật (Update):} \quad & \boldsymbol{\nu}_k = \mathbf{y}_k - \mathbf{H}_k \check{\mathbf{x}}_k \quad (\text{Innovation / Phần dư}) \\
+          & \mathbf{S}_k = \mathbf{H}_k \check{\mathbf{P}}_k \mathbf{H}_k^T + \mathbf{R}_k \quad (\text{Hiệp phương sai phần dư}) \\
+          & \mathbf{K}_k = \check{\mathbf{P}}_k \mathbf{H}_k^T \mathbf{S}_k^{-1} \quad (\text{Kalman Gain}) \\
+          & \hat{\mathbf{x}}_k = \check{\mathbf{x}}_k + \mathbf{K}_k \boldsymbol{\nu}_k \\
+          & \hat{\mathbf{P}}_k = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \check{\mathbf{P}}_k
           \end{align}$$
         </div>
 </section>
@@ -123,7 +123,7 @@
 </div>
 <h3 class="exercise-title">Vòng Lặp Predict-Update Của Bộ Lọc Kalman 2D (Vị Trí &amp; Vận Tốc) Cho Xe Tự Hành</h3>
 <div class="exercise-statement">
-<strong>Đề bài kỹ thuật:</strong> Một xe tự hành di chuyển trên đường thẳng với vector trạng thái $\mathbf{x} = [p, v]^T$ (vị trí $p$ và vận tốc $v$). Chu kỳ lấy mẫu $\Delta t = 1.0\text{ s}$. Tại thời điểm ban đầu $k=0$, xe có ước lượng $\hat{\mathbf{x}}_0 = [0\text{ m}, 2\text{ m/s}]^T$ và ma trận hiệp phương sai $P_0 = \begin{bmatrix} 1.0 &amp; 0.0 \\ 0.0 &amp; 0.5 \end{bmatrix}$.<br/>• Ma trận chuyển tiếp: $F = \begin{bmatrix} 1 &amp; \Delta t \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix}$, ma trận nhiễu quá trình $Q = \begin{bmatrix} 0.05 &amp; 0.05 \\ 0.05 &amp; 0.10 \end{bmatrix}$.<br/>• Cảm biến GPS đo trực tiếp vị trí với ma trận đo $H = [1, 0]$ và phương sai nhiễu đo $R = 0.5\text{ m}^2$. Tại bước $k=1$, GPS trả về số đo $y_1 = 2.6\text{ m}$.<br/>Yêu cầu: Hãy tính toán trọn vẹn bước Dự đoán (Predict) và bước Cập nhật (Update) để tìm trạng thái hậu nghiệm $\hat{\mathbf{x}}_1$ và hiệp phương sai $\hat{P}_1$.
+<strong>Đề bài kỹ thuật:</strong> Một xe tự hành di chuyển trên đường thẳng với vector trạng thái $\mathbf{x} = [p, v]^T$ (vị trí $p$ và vận tốc $v$). Chu kỳ lấy mẫu $\Delta t = 1.0\text{ s}$. Tại thời điểm ban đầu $k=0$, xe có ước lượng $\hat{\mathbf{x}}_0 = [0\text{ m}, 2\text{ m/s}]^T$ và ma trận hiệp phương sai $P_0 = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 0.5 \end{bmatrix}$.<br/>• Ma trận chuyển tiếp: $F = \begin{bmatrix} 1 & \Delta t \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$, ma trận nhiễu quá trình $Q = \begin{bmatrix} 0.05 & 0.05 \\ 0.05 & 0.10 \end{bmatrix}$.<br/>• Cảm biến GPS đo trực tiếp vị trí với ma trận đo $H = [1, 0]$ và phương sai nhiễu đo $R = 0.5\text{ m}^2$. Tại bước $k=1$, GPS trả về số đo $y_1 = 2.6\text{ m}$.<br/>Yêu cầu: Hãy tính toán trọn vẹn bước Dự đoán (Predict) và bước Cập nhật (Update) để tìm trạng thái hậu nghiệm $\hat{\mathbf{x}}_1$ và hiệp phương sai $\hat{P}_1$.
           </div>
 <div class="solution-wrapper">
 <div class="solution-step">
@@ -131,21 +131,21 @@
 <span class="step-num-badge">1</span>
 <span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
 </div>
-<p>Bước Dự đoán Tiên nghiệm (Predict Step):<br/>• Trạng thái tiên nghiệm: $\check{\mathbf{x}}_1 = F \hat{\mathbf{x}}_0 = \begin{bmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} 2.0\text{ m} \\ 2.0\text{ m/s} \end{bmatrix}$.<br/>• Hiệp phương sai tiên nghiệm:<br/>$$F P_0 F^T = \begin{bmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0.5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 1 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0.5 \\ 0 &amp; 0.5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 1 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1.5 &amp; 0.5 \\ 0.5 &amp; 0.5 \end{bmatrix}$$<br/>Cộng nhiễu mô hình: $\check{P}_1 = F P_0 F^T + Q = \begin{bmatrix} 1.5 &amp; 0.5 \\ 0.5 &amp; 0.5 \end{bmatrix} + \begin{bmatrix} 0.05 &amp; 0.05 \\ 0.05 &amp; 0.10 \end{bmatrix} = \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix}$.</p>
+<p>Bước Dự đoán Tiên nghiệm (Predict Step):<br/>• Trạng thái tiên nghiệm: $\check{\mathbf{x}}_1 = F \hat{\mathbf{x}}_0 = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} 2.0\text{ m} \\ 2.0\text{ m/s} \end{bmatrix}$.<br/>• Hiệp phương sai tiên nghiệm:<br/>$$F P_0 F^T = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0.5 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 1 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0.5 \\ 0 & 0.5 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 1 & 1 \end{bmatrix} = \begin{bmatrix} 1.5 & 0.5 \\ 0.5 & 0.5 \end{bmatrix}$$<br/>Cộng nhiễu mô hình: $\check{P}_1 = F P_0 F^T + Q = \begin{bmatrix} 1.5 & 0.5 \\ 0.5 & 0.5 \end{bmatrix} + \begin{bmatrix} 0.05 & 0.05 \\ 0.05 & 0.10 \end{bmatrix} = \begin{bmatrix} 1.55 & 0.55 \\ 0.55 & 0.60 \end{bmatrix}$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tính Innovation và Ma trận Hiệp phương sai phần dư $S_1$:<br/>• Phần dư (Innovation): $\nu_1 = y_1 - H \check{\mathbf{x}}_1 = 2.6 - [1, 0]\begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} = 2.6 - 2.0 = +0.60\text{ m}$.<br/>• Hiệp phương sai phần dư: $S_1 = H \check{P}_1 H^T + R = [1, 0] \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} + 0.5 = 1.55 + 0.50 = 2.05\text{ m}^2$.</p>
+<p>Tính Innovation và Ma trận Hiệp phương sai phần dư $S_1$:<br/>• Phần dư (Innovation): $\nu_1 = y_1 - H \check{\mathbf{x}}_1 = 2.6 - [1, 0]\begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} = 2.6 - 2.0 = +0.60\text{ m}$.<br/>• Hiệp phương sai phần dư: $S_1 = H \check{P}_1 H^T + R = [1, 0] \begin{bmatrix} 1.55 & 0.55 \\ 0.55 & 0.60 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} + 0.5 = 1.55 + 0.50 = 2.05\text{ m}^2$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tính Kalman Gain $K_1$ và Cập nhật Hậu nghiệm:<br/>• Hệ số khuếch đại Kalman:<br/>$$K_1 = \check{P}_1 H^T S_1^{-1} = \begin{bmatrix} 1.55 \\ 0.55 \end{bmatrix} \frac{1}{2.05} = \begin{bmatrix} 0.7561 \\ 0.2683 \end{bmatrix}$$<br/>• Cập nhật trạng thái hậu nghiệm:<br/>$$\hat{\mathbf{x}}_1 = \check{\mathbf{x}}_1 + K_1 \nu_1 = \begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} + \begin{bmatrix} 0.7561 \\ 0.2683 \end{bmatrix} \times 0.60 = \begin{bmatrix} 2.0 + 0.4537 \\ 2.0 + 0.1610 \end{bmatrix} = \begin{bmatrix} 2.454\text{ m} \\ 2.161\text{ m/s} \end{bmatrix}$$<br/>• Cập nhật hiệp phương sai hậu nghiệm:<br/>$$\hat{P}_1 = (I - K_1 H) \check{P}_1 = \left( \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} - \begin{bmatrix} 0.7561 &amp; 0 \\ 0.2683 &amp; 0 \end{bmatrix} \right) \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix} = \begin{bmatrix} 0.2439 &amp; 0 \\ -0.2683 &amp; 1 \end{bmatrix} \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix} = \begin{bmatrix} 0.378 &amp; 0.134 \\ 0.134 &amp; 0.452 \end{bmatrix}$$</p>
+<p>Tính Kalman Gain $K_1$ và Cập nhật Hậu nghiệm:<br/>• Hệ số khuếch đại Kalman:<br/>$$K_1 = \check{P}_1 H^T S_1^{-1} = \begin{bmatrix} 1.55 \\ 0.55 \end{bmatrix} \frac{1}{2.05} = \begin{bmatrix} 0.7561 \\ 0.2683 \end{bmatrix}$$<br/>• Cập nhật trạng thái hậu nghiệm:<br/>$$\hat{\mathbf{x}}_1 = \check{\mathbf{x}}_1 + K_1 \nu_1 = \begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} + \begin{bmatrix} 0.7561 \\ 0.2683 \end{bmatrix} \times 0.60 = \begin{bmatrix} 2.0 + 0.4537 \\ 2.0 + 0.1610 \end{bmatrix} = \begin{bmatrix} 2.454\text{ m} \\ 2.161\text{ m/s} \end{bmatrix}$$<br/>• Cập nhật hiệp phương sai hậu nghiệm:<br/>$$\hat{P}_1 = (I - K_1 H) \check{P}_1 = \left( \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} - \begin{bmatrix} 0.7561 & 0 \\ 0.2683 & 0 \end{bmatrix} \right) \begin{bmatrix} 1.55 & 0.55 \\ 0.55 & 0.60 \end{bmatrix} = \begin{bmatrix} 0.2439 & 0 \\ -0.2683 & 1 \end{bmatrix} \begin{bmatrix} 1.55 & 0.55 \\ 0.55 & 0.60 \end{bmatrix} = \begin{bmatrix} 0.378 & 0.134 \\ 0.134 & 0.452 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">

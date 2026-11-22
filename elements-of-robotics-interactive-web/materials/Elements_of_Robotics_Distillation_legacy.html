@@ -1380,7 +1380,7 @@ flowchart TD
 <li><strong>Luận điểm cốt lõi (Key Takeaways):</strong></li>
 <li><em>Hình thức hóa FSM:</em> Một máy trạng thái hữu hạn chuẩn được định nghĩa bởi bộ $M = (S, I, \delta, \lambda, s_0)$, trong đó chuyển trạng thái phụ thuộc vào trạng thái hiện tại $s(t)$ và sự kiện đầu vào $i(t)$.</li>
 <li><em>Sự cần thiết của biến trạng thái:</em> Phản xạ thuần túy bị mắc kẹt trong vòng lặp vô tận khi gặp đối xứng môi trường (ví dụ kẹt ở góc tường vuông). Biến trạng thái cung cấp "bộ nhớ" giúp robot nhớ rằng nó vừa rẽ trái, từ đó quyết định lùi lại hoặc quay tiếp góc lớn hơn.</li>
-<li><em>Hiện tượng rung chuyển đổi (Chattering) &amp; Vùng trễ (Hysteresis):</em> Khi tín hiệu cảm biến dao động quanh ngưỡng kích hoạt, robot sẽ chuyển đổi trạng thái liên tục ở tần số cao gây cháy động cơ hoặc tê liệt vận động. Bắt buộc phải áp dụng vùng trễ (Hysteresis Thresholds: ngưỡng bật $T_{  ext{high}} &gt;$ ngưỡng tắt $T_{   ext{low}}$) hoặc bộ đếm thời gian trễ (debounce timer).</li>
+<li><em>Hiện tượng rung chuyển đổi (Chattering) &amp; Vùng trễ (Hysteresis):</em> Khi tín hiệu cảm biến dao động quanh ngưỡng kích hoạt, robot sẽ chuyển đổi trạng thái liên tục ở tần số cao gây cháy động cơ hoặc tê liệt vận động. Bắt buộc phải áp dụng vùng trễ (Hysteresis Thresholds: ngưỡng bật $T_{  ext{high}} >$ ngưỡng tắt $T_{   ext{low}}$) hoặc bộ đếm thời gian trễ (debounce timer).</li>
 <li><em>Kịch bản Tìm kiếm và Tiếp cận (Search and Approach):</em> Thiết kế FSM kinh điển: Trạng thái <code>SEARCH</code> (quay quét tìm mục tiêu) $  o$ <code>APPROACH</code> (tiến thẳng tới mục tiêu) $   o$ <code>AVOID</code> (né vật cản trung gian) $    o$ <code>DOCK</code> (dừng khi cự ly đạt ngưỡng an toàn).</li>
 <li><strong>Sơ đồ máy trạng thái Search-Approach-Avoid với vùng trễ:</strong></li>
 </ul>
@@ -1508,7 +1508,7 @@ stateDiagram-v2
 <li>Khoảng cách dịch chuyển tâm robot: $d_c = \frac{d_l + d_r}{2}$</li>
 <li>Góc quay hướng thân xe: $\Delta  heta = \frac{d_r - d_l}{b}$</li>
 <li>Cập nhật tư thế (Pose Update) từ chu kỳ $k$ lên $k+1$:<br />
-   $$x_{k+1} = x_k - d_c \sin	heta_k, \quad y_{k+1} = y_k + d_c \cos	heta_k, \quad \phi_{k+1} = \phi_k + \Delta	heta$$</li>
+   $$x_{k+1} = x_k - d_c \sin\theta_k, \quad y_{k+1} = y_k + d_c \cos\theta_k, \quad \phi_{k+1} = \phi_k + \Delta\theta$$</li>
 </ul>
 </li>
 <li><em>Phân tích sai số Odometry (Sự thống trị của sai số góc):</em><ul>
@@ -1757,8 +1757,8 @@ flowchart LR
 <li><strong>Luận điểm cốt lõi (Key Takeaways):</strong></li>
 <li><em>Mô hình Nơ-ron Nhân tạo (McCulloch-Pitts / Perceptron):</em> Tính toán tổng có trọng số của các đầu vào và chuyển qua hàm kích hoạt phi tuyến (Sigmoid, Step, ReLU):<br />
      $$y = f\left(\sum_{i=1}^n w_i x_i + b
-ight)$$</li>
-<li><em>Hiện thực hóa xe Braitenberg bằng Mạng nơ-ron:</em> Chứng minh rằng các hành vi phản xạ cơ bản của Braitenberg (hèn nhát, hung hãn, tình yêu, thám hiểm) thực chất là các mạng nơ-ron 1 lớp với trọng số kích thích mang dấu dương ($w &gt; 0$) và trọng số ức chế mang dấu âm ($w &lt; 0$).</li>
+\right)$$</li>
+<li><em>Hiện thực hóa xe Braitenberg bằng Mạng nơ-ron:</em> Chứng minh rằng các hành vi phản xạ cơ bản của Braitenberg (hèn nhát, hung hãn, tình yêu, thám hiểm) thực chất là các mạng nơ-ron 1 lớp với trọng số kích thích mang dấu dương ($w > 0$) và trọng số ức chế mang dấu âm ($w < 0$).</li>
 <li><em>Kiến trúc topo &amp; Bộ nhớ:</em> Perceptron một lớp chỉ phân loại được các tập dữ liệu phân tách tuyến tính. Để giải quyết bài toán phi tuyến (như cổng logic XOR), mạng cần các tầng ẩn (Multilayer Perceptron - MLP) hoặc các liên kết hồi quy (Recurrent connections) đóng vai trò bộ nhớ lưu vết thời gian.</li>
 <li><em>Quy tắc học Hebb (Hebbian Learning Rule):</em> Nguyên lý học không giám sát kinh điển: <em>"Neurons that fire together, wire together"</em>. Trọng số liên kết giữa hai nơ-ron sẽ tăng lên khi cả hai nơ-ron cùng bị kích hoạt:<br />
      $$\Delta w_{ij} = \eta y_i x_j$$</li>
@@ -1836,7 +1836,7 @@ flowchart TD
 <li><em>Thuật toán BeeClust (Phỏng sinh học loài ong):</em><ul>
 <li>Robot di chuyển ngẫu nhiên trong không gian. Khi hai robot va chạm/gặp nhau, chúng dừng lại và đo lường chất lượng tín hiệu môi trường (nhiệt độ, ánh sáng $T$).</li>
 <li>Thời gian đứng yên đợi ($t_{ ext{wait}}$) tỷ lệ thuận với chất lượng môi trường:<br />
-   $$t_{	ext{wait}} = f(T) = \frac{T^2}{T^2 + k}$$</li>
+   $$t_{\text{wait}} = f(T) = \frac{T^2}{T^2 + k}$$</li>
 <li>Vùng nào có nhiệt độ tối ưu hơn, các robot sẽ dừng lại lâu hơn $ o$ tạo ra "chướng ngại vật hấp dẫn" khiến các robot khác va vào và dừng lại $   o$ <strong>Toàn bộ đàn robot tự động tụ họp về vị trí tối ưu toàn cục mà không cần bất kỳ giao tiếp trực tiếp nào!</strong></li>
 </ul>
 </li>
@@ -1954,12 +1954,12 @@ stateDiagram-v2
 <li><em>Động học thuận (Forward Kinematics - FK):</em> Cho biết các góc quay của các khớp trục $\mathbf{q} = [    heta_1,     heta_2, \dots,  heta_n]^T$, xác định vị trí và hướng của khâu thao tác cuối (End-Effector) trong không gian Descartes:<br />
      $$\mathbf{x} = f(\mathbf{q})$$<br />
      Đối với cánh tay phẳng 2 khâu (2-link planar arm) có chiều dài $l_1, l_2$:<br />
-     $$x = l_1 \cos	heta_1 + l_2 \cos(	heta_1 + 	heta_2)$$<br />
-     $$y = l_1 \sin	heta_1 + l_2 \sin(	heta_1 + 	heta_2)$$</li>
+     $$x = l_1 \cos\theta_1 + l_2 \cos(\theta_1 + \theta_2)$$<br />
+     $$y = l_1 \sin\theta_1 + l_2 \sin(\theta_1 + \theta_2)$$</li>
 <li><em>Động học nghịch (Inverse Kinematics - IK):</em> Cho trước vị trí mong muốn của khâu cuối $(x, y)$, tìm các góc khớp $(    heta_1,     heta_2)$ để đưa cánh tay tới đó. Đây là bài toán phi tuyến phức tạp: có thể có vô số nghiệm, nhiều nghiệm rời rạc (cấu hình khửu tay lên <em>Elbow-Up</em> vs khửu tay xuống <em>Elbow-Down</em>), hoặc vô nghiệm nếu điểm nằm ngoài tầm với (vượt quá bán kính $l_1 + l_2$).</li>
 <li><em>Ma trận biến đổi thuần nhất (Homogeneous Transformation Matrix):</em><ul>
 <li>Biểu diễn đồng thời cả phép quay $\mathbf{R} \in SO(3)$ và phép tịnh tiến $\mathbf{t} \in \mathbb{R}^3$ dưới dạng ma trận khối $4    imes 4$:<br />
-   $$\mathbf{T} = \begin{bmatrix} \mathbf{R}_{3 	imes 3} & \mathbf{t}_{3 	imes 1} \ \mathbf{0}_{1 	imes 3} & 1 \end{bmatrix}$$</li>
+   $$\mathbf{T} = \begin{bmatrix} \mathbf{R}_{3 \times 3} & \mathbf{t}_{3 \times 1} \ \mathbf{0}_{1 \times 3} & 1 \end{bmatrix}$$</li>
 <li>Tính chất nhân chuỗi ma trận: Chuyển đổi tọa độ qua $n$ khớp trục chỉ đơn giản là phép nhân liên tiếp các ma trận thuần nhất:<br />
    $$\mathbf{T}_0^n = \mathbf{T}_0^1 \mathbf{T}_1^2 \cdots \mathbf{T}_{n-1}^n$$</li>
 </ul>
@@ -1989,17 +1989,17 @@ d_l = 2\pi R \omega_l \Delta t, \quad d_r = 2\pi R \omega_r \Delta t
 $$
 <p>Quãng đường tịnh tiến của tâm robot $d_c$ và biến thiên góc hướng $\Delta   heta$ được xác định bởi:</p>
 $$
-d_c = \frac{d_l + d_r}{2}, \quad \Delta	heta = \frac{d_r - d_l}{b}
+d_c = \frac{d_l + d_r}{2}, \quad \Delta\theta = \frac{d_r - d_l}{b}
 $$
 
 <p>Giả sử tại thời điểm bắt đầu chu kỳ, robot ở tư thế $(x_k, y_k, \phi_k)$ (với quy ước góc $\phi$ đo từ trục $+Y$, hoặc từ trục $+X$). Theo hình học vi phân với bước dịch chuyển nhỏ $\Delta t$, tư thế mới tại chu kỳ $k+1$ được cập nhật theo hệ thức:</p>
 $$
 \begin{cases}
-x_{k+1} = x_k - d_c \sin\left(\phi_k + \frac{\Delta	heta}{2}
-ight) \
-y_{k+1} = y_k + d_c \cos\left(\phi_k + \frac{\Delta	heta}{2}
-ight) \
-\phi_{k+1} = \phi_k + \Delta	heta
+x_{k+1} = x_k - d_c \sin\left(\phi_k + \frac{\Delta\theta}{2}
+\right) \
+y_{k+1} = y_k + d_c \cos\left(\phi_k + \frac{\Delta\theta}{2}
+\right) \
+\phi_{k+1} = \phi_k + \Delta\theta
 \end{cases}
 $$
 
@@ -2017,13 +2017,13 @@ $$
 </ul>
 <h4>4.1.2 Bản Chất Trực Giác &amp; Mô Hình Sai Số Tích Lũy Bậc Hai</h4>
 <ul>
-<li><strong>Tại sao góc quay $\Delta    heta = (d_r - d_l)/b$?</strong> Khi $d_r &gt; d_l$, bánh phải đi dài hơn bánh trái, buộc khung xe phải quay quanh một tâm quay tức thời (ICC - Instantaneous Center of Curvature). Tỷ số giữa chênh lệch quãng đường và khoảng cách $b$ chính là định nghĩa góc chắn cung tròn của chuyển động quay.</li>
+<li><strong>Tại sao góc quay $\Delta    heta = (d_r - d_l)/b$?</strong> Khi $d_r > d_l$, bánh phải đi dài hơn bánh trái, buộc khung xe phải quay quanh một tâm quay tức thời (ICC - Instantaneous Center of Curvature). Tỷ số giữa chênh lệch quãng đường và khoảng cách $b$ chính là định nghĩa góc chắn cung tròn của chuyển động quay.</li>
 <li><strong>Sự thống trị của sai số góc:</strong> Nếu bánh xe có sai số đo $p\%$, sau quãng đường dài $d$:</li>
 <li>Sai số cự ly dọc $\Delta s \le \frac{p}{100} d$ (tăng tuyến tính bậc 1 theo $d$).</li>
 <li>Sai số góc hướng $\Delta    heta = 360^\circ \cdot \frac{p}{100} = (3.6p)^\circ$.</li>
 <li>Độ lệch ngang tích lũy:<br />
     $$
-    \Delta y_{	ext{lateral}} = d \sin(\Delta	heta)
+    \Delta y_{\text{lateral}} = d \sin(\Delta\theta)
     $$<br />
     Vì $\Delta  heta$ được duy trì hoặc tích lũy ngẫu nhiên qua từng bước, quỹ đạo robot bị bẻ cong sang hướng khác. Tích phân độ lệch vị trí theo thời gian khiến diện tích vùng bất định phình to theo hình <strong>Elip bất định (Error Ellipse)</strong> có bán trục lớn vuông góc với hướng di chuyển và tỷ lệ với $d^2$.</li>
 </ul>
@@ -2033,7 +2033,7 @@ $$
 <h4>4.2.1 Phương Trình Điều Khiển PID Liên Tục &amp; Rời Rạc Hóa</h4>
 <p>Phương trình điều khiển PID lý thuyết trong miền thời gian liên tục:</p>
 $$
-u(t) = K_p e(t) + K_i \int_0^t e(	au) d	au + K_d \frac{de(t)}{dt}
+u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}
 $$
 <p>trong đó $e(t) = r(t) - y(t)$ là sai số tức thời giữa giá trị đặt $r(t)$ và giá trị đo được $y(t)$.</p>
 <p>Trong máy tính nhúng với chu kỳ lấy mẫu $\Delta t$, phương trình được rời rạc hóa tại bước $k$:</p>
@@ -2043,7 +2043,7 @@ e_k = r_k - y_k \
 P_k = K_p e_k \
 I_k = I_{k-1} + K_i e_k \Delta t \
 D_k = K_d \frac{e_k - e_{k-1}}{\Delta t} \
-u_k^{	ext{raw}} = P_k + I_k + D_k
+u_k^{\text{raw}} = P_k + I_k + D_k
 \end{cases}
 $$
 
@@ -2059,16 +2059,16 @@ $$
   | Tín hiệu điều khiển | $u(t)$ | Mức công suất động cơ (PWM, Lực kéo) | $[V]$ hoặc tỷ lệ $\%$ $[-100\%, 100\%]$ |</li>
 </ul>
 <h4>4.2.2 Cơ Chế Bão Hòa &amp; Thuật Toán Anti-Windup Clamping</h4>
-<p>Khi động cơ bị giới hạn điện áp trong khoảng $[-u_{\max}, +u_{\max}]$, nếu $u_k^{   ext{raw}} &gt; u_{\max}$, động cơ không thể cung cấp thêm công lực. Nếu tiếp tục cộng $e_k \Delta t$ vào $I_k$, giá trị $I_k$ sẽ tăng vọt tới vô cùng. Khi robot đạt tới mục tiêu ($e_k \le 0$), động cơ vẫn tiếp tục chạy với công suất tối đa trong thời gian dài để "xả" hết lượng tích phân dư thừa, gây hiện tượng vọt lố khổng lồ (Overshoot) và dao động phá hủy hệ cơ khí.</p>
+<p>Khi động cơ bị giới hạn điện áp trong khoảng $[-u_{\max}, +u_{\max}]$, nếu $u_k^{   ext{raw}} > u_{\max}$, động cơ không thể cung cấp thêm công lực. Nếu tiếp tục cộng $e_k \Delta t$ vào $I_k$, giá trị $I_k$ sẽ tăng vọt tới vô cùng. Khi robot đạt tới mục tiêu ($e_k \le 0$), động cơ vẫn tiếp tục chạy với công suất tối đa trong thời gian dài để "xả" hết lượng tích phân dư thừa, gây hiện tượng vọt lố khổng lồ (Overshoot) và dao động phá hủy hệ cơ khí.</p>
 <p><strong>Thuật toán kẹp tích phân có điều kiện (Conditional Integration / Clamping):</strong></p>
 $$
 I_k = \begin{cases}
-I_{k-1} & 	ext{nếu } (u_k^{	ext{raw}} \ge u_{\max} 	ext{ VÀ } e_k > 0) 	ext{ HOẶC } (u_k^{	ext{raw}} \le -u_{\max} 	ext{ VÀ } e_k < 0) \
-I_{k-1} + K_i e_k \Delta t & 	ext{trong các trường hợp còn lại}
+I_{k-1} & \text{nếu } (u_k^{\text{raw}} \ge u_{\max} \text{ VÀ } e_k > 0) \text{ HOẶC } (u_k^{\text{raw}} \le -u_{\max} \text{ VÀ } e_k < 0) \
+I_{k-1} + K_i e_k \Delta t & \text{trong các trường hợp còn lại}
 \end{cases}
 $$
 $$
-u_k = 	ext{clip}(P_k + I_k + D_k, -u_{\max}, +u_{\max})
+u_k = \text{clip}(P_k + I_k + D_k, -u_{\max}, +u_{\max})
 $$
 
 <hr />
@@ -2077,28 +2077,28 @@ $$
 <h4>4.3.1 Hai Bước Đệ Quy Cốt Lõi: Prediction &amp; Measurement Update</h4>
 <p>Gọi không gian trạng thái vị trí của robot là tập rời rạc $X = {x_1, x_2, \dots, x_N}$. Niềm tin của robot tại thời điểm $t$ là phân phối xác suất:</p>
 $$
-	ext{Bel}(x_t) = P(x_t \mid z_{1:t}, u_{1:t})
+\text{Bel}(x_t) = P(x_t \mid z_{1:t}, u_{1:t})
 $$
 
 <p>Quy trình cập nhật đệ quy gồm 2 pha toán học chặt chẽ:<br />
 1. <strong>Pha Dự Báo Chuyển Động (Prediction / Motion Update):</strong> Dựa trên định lý xác suất toàn phần và giả thiết Markov bậc 1:<br />
    $$
-   \overline{	ext{Bel}}(x_t) = \sum_{x_{t-1} \in X} P(x_t \mid x_{t-1}, u_t) 	ext{Bel}(x_{t-1})
+   \overline{\text{Bel}}(x_t) = \sum_{x_{t-1} \in X} P(x_t \mid x_{t-1}, u_t) \text{Bel}(x_{t-1})
    $$</p>
 <p>trong đó $P(x_t \mid x_{t-1}, u_t)$ là mô hình chuyển động xác suất (thể hiện hiện tượng trượt bánh). Phép toán này tương đương với phép tích chập (convolution), làm phân tán khối xác suất và làm tăng entropy của hệ thống:<br />
    $$
-   H(\overline{	ext{Bel}}) > H(	ext{Bel}_{t-1})
+   H(\overline{\text{Bel}}) > H(\text{Bel}_{t-1})
    $$
 </p>
 <ol>
 <li><strong>Pha Hiệu Chỉnh Đo Lường (Correction / Measurement Update):</strong> Khi nhận được dữ liệu cảm biến $z_t$, áp dụng Định lý Bayes:<br />
    $$
-   	ext{Bel}(x_t) = \eta \cdot P(z_t \mid x_t) \cdot \overline{	ext{Bel}}(x_t)
+   \text{Bel}(x_t) = \eta \cdot P(z_t \mid x_t) \cdot \overline{\text{Bel}}(x_t)
    $$</li>
 </ol>
 <p>trong đó $P(z_t \mid x_t)$ là mô hình đo lường cảm biến (Sensor Likelihood), và $\eta$ là hệ số chuẩn hóa bắt buộc để tổng xác suất toàn không gian bằng đúng 1:<br />
    $$
-   \eta = \frac{1}{\sum_{x_t \in X} P(z_t \mid x_t) \overline{	ext{Bel}}(x_t)}
+   \eta = \frac{1}{\sum_{x_t \in X} P(z_t \mid x_t) \overline{\text{Bel}}(x_t)}
    $$
 </p>
 <hr />
@@ -2157,7 +2157,7 @@ $$
 <p>Điểm phân cách tối ưu trên trục chiếu:</p>
 $$
 c = \mathbf{w}^T \left( \frac{\boldsymbol{\mu}_1 + \boldsymbol{\mu}_2}{2} 
-ight)
+\right)
 $$
 
 <hr />
@@ -2167,8 +2167,8 @@ $$
 <p>Một hệ quy chiếu ${1}$ quay một góc $ heta$ và tịnh tiến một vector $\mathbf{t} = [x, y]^T$ so với hệ quy chiếu cơ sở ${0}$ được mô tả bởi ma trận thuần nhất $\mathbf{T}_0^1 \in SE(2)$:</p>
 $$
 \mathbf{T}_0^1 = \begin{bmatrix}
-\cos	heta & -\sin	heta & x \
-\sin	heta & \cos	heta & y \
+\cos\theta & -\sin\theta & x \
+\sin\theta & \cos\theta & y \
 0 & 0 & 1
 \end{bmatrix}
 $$
@@ -2180,23 +2180,23 @@ $$
 <h4>4.6.2 Động Học Nghịch Cánh Tay Phẳng 2 Khâu (Inverse Kinematics)</h4>
 <p>Cho trước tọa độ khâu cuối $(x, y)$ và chiều dài hai khâu $l_1, l_2$. Áp dụng định lý hàm số cosin trong tam giác tạo bởi gốc tọa độ, khớp 2 và khâu cuối:</p>
 $$
-x^2 + y^2 = l_1^2 + l_2^2 - 2 l_1 l_2 \cos(180^\circ - 	heta_2) = l_1^2 + l_2^2 + 2 l_1 l_2 \cos	heta_2
+x^2 + y^2 = l_1^2 + l_2^2 - 2 l_1 l_2 \cos(180^\circ - \theta_2) = l_1^2 + l_2^2 + 2 l_1 l_2 \cos\theta_2
 $$
 <p>Suy ra góc khớp thứ hai:</p>
 $$
-\cos	heta_2 = \frac{x^2 + y^2 - l_1^2 - l_2^2}{2 l_1 l_2}
+\cos\theta_2 = \frac{x^2 + y^2 - l_1^2 - l_2^2}{2 l_1 l_2}
 $$
 <p>Điều kiện tồn tại nghiệm (khâu cuối nằm trong không gian làm việc):</p>
 $$
-|\cos	heta_2| \le 1 \iff |l_1 - l_2| \le \sqrt{x^2 + y^2} \le l_1 + l_2
+|\cos\theta_2| \le 1 \iff |l_1 - l_2| \le \sqrt{x^2 + y^2} \le l_1 + l_2
 $$
 <p>Hai nghiệm đối xứng (Khửu tay lên / Khửu tay xuống):</p>
 $$
-\sin	heta_2 = \pm \sqrt{1 - \cos^2	heta_2} \implies 	heta_2 = 	ext{atan2}(\pm\sqrt{1 - \cos^2	heta_2}, \cos	heta_2)
+\sin\theta_2 = \pm \sqrt{1 - \cos^2\theta_2} \implies \theta_2 = \text{atan2}(\pm\sqrt{1 - \cos^2\theta_2}, \cos\theta_2)
 $$
 <p>Góc khớp thứ nhất $ heta_1$:</p>
 $$
-	heta_1 = 	ext{atan2}(y, x) - 	ext{atan2}(l_2 \sin	heta_2, l_1 + l_2 \cos	heta_2)
+\theta_1 = \text{atan2}(y, x) - \text{atan2}(l_2 \sin\theta_2, l_1 + l_2 \cos\theta_2)
 $$
 
 <hr />
@@ -2225,25 +2225,25 @@ $$
 <ol>
 <li><strong>Quãng đường di chuyển của từng bánh xe ($d_l, d_r$):</strong><br />
    $$
-   d_l = 2 \pi R \cdot n_l = 2 	imes 3.14159 	imes 0.03 	imes 1.0 \approx 0.1885	ext{ m}
+   d_l = 2 \pi R \cdot n_l = 2 \times 3.14159 \times 0.03 \times 1.0 \approx 0.1885\text{ m}
    $$</li>
 </ol>
 $$
-   d_r = 2 \pi R \cdot n_r = 2 	imes 3.14159 	imes 0.03 	imes 1.5 \approx 0.2827	ext{ m}
+   d_r = 2 \pi R \cdot n_r = 2 \times 3.14159 \times 0.03 \times 1.5 \approx 0.2827\text{ m}
    $$
 
 <ol>
 <li>
 <p><strong>Quãng đường dịch chuyển của tâm robot ($d_c$):</strong><br />
    $$
-   d_c = \frac{d_l + d_r}{2} = \frac{0.1885 + 0.2827}{2} = \frac{0.4712}{2} = 0.2356	ext{ m}
+   d_c = \frac{d_l + d_r}{2} = \frac{0.1885 + 0.2827}{2} = \frac{0.4712}{2} = 0.2356\text{ m}
    $$
 </p>
 </li>
 <li>
 <p><strong>Biến thiên góc hướng thân xe ($\Delta  heta$):</strong><br />
    $$
-   \Delta	heta = \frac{d_r - d_l}{b} = \frac{0.2827 - 0.1885}{0.16} = \frac{0.0942}{0.16} = 0.5888	ext{ rad}
+   \Delta\theta = \frac{d_r - d_l}{b} = \frac{0.2827 - 0.1885}{0.16} = \frac{0.0942}{0.16} = 0.5888\text{ rad}
    $$</p>
 </li>
 </ol>
@@ -2251,33 +2251,33 @@ $$
 <ol>
 <li><strong>Góc hướng trung bình hiệu dụng trong chu kỳ:</strong><br />
    $$
-   \phi_{	ext{avg}} = \phi_0 + \frac{\Delta	heta}{2} = \frac{\pi}{2} + \frac{0.5888}{2} = 1.5708 + 0.2944 = 1.8652	ext{ rad}
+   \phi_{\text{avg}} = \phi_0 + \frac{\Delta\theta}{2} = \frac{\pi}{2} + \frac{0.5888}{2} = 1.5708 + 0.2944 = 1.8652\text{ rad}
    $$</li>
 </ol>
 <p>Đổi sang độ: $\phi_{ ext{avg}} = 90^\circ + 16.868^\circ = 106.868^\circ$.</p>
 <ol>
 <li><strong>Độ dịch chuyển tọa độ theo hệ quy chiếu toàn cục ($\Delta x, \Delta y$):</strong><br />
    $$
-   \cos(\phi_{	ext{avg}}) = \cos(106.868^\circ) \approx -0.2902
+   \cos(\phi_{\text{avg}}) = \cos(106.868^\circ) \approx -0.2902
    $$</li>
 </ol>
 $$
-   \sin(\phi_{	ext{avg}}) = \sin(106.868^\circ) \approx 0.9570
+   \sin(\phi_{\text{avg}}) = \sin(106.868^\circ) \approx 0.9570
    $$
 $$
-   \Delta x = d_c \cos(\phi_{	ext{avg}}) = 0.2356 	imes (-0.2902) \approx -0.0684	ext{ m}
+   \Delta x = d_c \cos(\phi_{\text{avg}}) = 0.2356 \times (-0.2902) \approx -0.0684\text{ m}
    $$
 $$
-   \Delta y = d_c \sin(\phi_{	ext{avg}}) = 0.2356 	imes 0.9570 \approx 0.2255	ext{ m}
+   \Delta y = d_c \sin(\phi_{\text{avg}}) = 0.2356 \times 0.9570 \approx 0.2255\text{ m}
    $$
 
 <div class="stepper-step"><div class="stepper-step-header"><span class="stepper-num">3</span><span>Bước 3: Tổng hợp phương trình &amp; Ra kết quả cuối cùng (Final Computation)</span></div>
 <p>Tư thế mới của robot tại $t = 1.0   ext{ s}$:</p>
 $$
 \begin{cases}
-x_1 = x_0 + \Delta x = 0.000 - 0.0684 = -0.0684	ext{ m} = -6.84	ext{ cm} \
-y_1 = y_0 + \Delta y = 0.000 + 0.2255 = 0.2255	ext{ m} = 22.55	ext{ cm} \
-\phi_1 = \phi_0 + \Delta	heta = 1.5708 + 0.5888 = 2.1596	ext{ rad} \approx 123.736^\circ
+x_1 = x_0 + \Delta x = 0.000 - 0.0684 = -0.0684\text{ m} = -6.84\text{ cm} \
+y_1 = y_0 + \Delta y = 0.000 + 0.2255 = 0.2255\text{ m} = 22.55\text{ cm} \
+\phi_1 = \phi_0 + \Delta\theta = 1.5708 + 0.5888 = 2.1596\text{ rad} \approx 123.736^\circ
 \end{cases}
 $$
 
@@ -2286,7 +2286,7 @@ $$
 <li><strong>Ý nghĩa vật lý:</strong> Do bánh phải quay nhanh hơn bánh trái $50\%$, robot bị bẻ lái vòng sang bên trái một góc $33.74^\circ$. Tọa độ $x$ chuyển từ $0$ sang âm ($-6.84  ext{ cm}$) phản ánh chính xác xu hướng dạt sang trái, trong khi vẫn tịnh tiến dọc trục $+Y$ được một đoạn lớn $22.55    ext{ cm}$.</li>
 <li><strong>Bán kính cong quỹ đạo (Radius of Curvature):</strong><br />
   $$
-  R_c = \frac{d_c}{\Delta	heta} = \frac{0.2356}{0.5888} \approx 0.400	ext{ m} = 40.0	ext{ cm}
+  R_c = \frac{d_c}{\Delta\theta} = \frac{0.2356}{0.5888} \approx 0.400\text{ m} = 40.0\text{ cm}
   $$</li>
 </ul>
 <p>Quỹ đạo là một cung tròn có bán kính $40  ext{ cm}$.<br />
@@ -2316,58 +2316,58 @@ $$
 <li>
 <p><strong>Tính sai số tức thời bước hiện tại ($e_k$):</strong><br />
    $$
-   e_k = r - y_k = 2.00 - 1.60 = 0.40	ext{ m}
+   e_k = r - y_k = 2.00 - 1.60 = 0.40\text{ m}
    $$
 </p>
 </li>
 <li>
 <p><strong>Tính thành phần Tỉ lệ ($P_k$):</strong><br />
    $$
-   P_k = K_p 	imes e_k = 2.50 	imes 0.40 = 1.00	ext{ V}
+   P_k = K_p \times e_k = 2.50 \times 0.40 = 1.00\text{ V}
    $$
 </p>
 </li>
 <li>
 <p><strong>Tính thành phần Vi phân ($D_k$):</strong><br />
    $$
-   \frac{de}{dt} \approx \frac{e_k - e_{k-1}}{\Delta t} = \frac{0.40 - 0.70}{0.10} = \frac{-0.30}{0.10} = -3.00	ext{ m/s}
+   \frac{de}{dt} \approx \frac{e_k - e_{k-1}}{\Delta t} = \frac{0.40 - 0.70}{0.10} = \frac{-0.30}{0.10} = -3.00\text{ m/s}
    $$</p>
 </li>
 </ol>
 $$
-   D_k = K_d 	imes \frac{de}{dt} = 0.40 	imes (-3.00) = -1.20	ext{ V}
+   D_k = K_d \times \frac{de}{dt} = 0.40 \times (-3.00) = -1.20\text{ V}
    $$
 <p><em>(Lưu ý: Dấu âm thể hiện robot đang lao về đích rất nhanh với vận tốc $0.3   ext{ m}/0.1 ext{ s} = 3 ext{ m/s}$, khâu vi phân đóng vai trò đạp phanh).</em></p>
 <ol>
 <li><strong>Tính thành phần Tích phân ứng viên ($I_k^{ ext{cand}}$):</strong><br />
    $$
-   \Delta I = K_i 	imes e_k 	imes \Delta t = 1.00 	imes 0.40 	imes 0.10 = 0.04	ext{ V}
+   \Delta I = K_i \times e_k \times \Delta t = 1.00 \times 0.40 \times 0.10 = 0.04\text{ V}
    $$</li>
 </ol>
 $$
-   I_k^{	ext{cand}} = I_{k-1} + \Delta I = 0.60 + 0.04 = 0.64	ext{ V}
+   I_k^{\text{cand}} = I_{k-1} + \Delta I = 0.60 + 0.04 = 0.64\text{ V}
    $$
 
 <ol>
 <li><strong>Tính tổng tín hiệu điều khiển thô chưa bão hòa ($u_k^{ ext{raw}}$):</strong><br />
    $$
-   u_k^{	ext{raw}} = P_k + I_k^{	ext{cand}} + D_k = 1.00 + 0.64 + (-1.20) = 0.44	ext{ V}
+   u_k^{\text{raw}} = P_k + I_k^{\text{cand}} + D_k = 1.00 + 0.64 + (-1.20) = 0.44\text{ V}
    $$
 </li>
 </ol>
 <div class="stepper-step"><div class="stepper-step-header"><span class="stepper-num">3</span><span>Bước 3: Kiểm tra Bão hòa &amp; Tính kết quả cuối cùng (Final Computation)</span></div>
 <ul>
-<li>So sánh với ngưỡng bão hòa: $|u_k^{   ext{raw}}| = 0.44   ext{ V} &lt; u_{\max} = 1.50   ext{ V}$.</li>
+<li>So sánh với ngưỡng bão hòa: $|u_k^{   ext{raw}}| = 0.44   ext{ V} < u_{\max} = 1.50   ext{ V}$.</li>
 <li>
 <p>Hệ thống không bị bão hòa cơ cấu chấp hành $\implies$ Chấp nhận giá trị tích phân mới:<br />
   $$
-  I_k = I_k^{	ext{cand}} = 0.64	ext{ V}
+  I_k = I_k^{\text{cand}} = 0.64\text{ V}
   $$</p>
 </li>
 <li>
 <p>Tín hiệu điện áp xuất ra động cơ tại chu kỳ $k$:<br />
   $$
-  u_k = u_k^{	ext{raw}} = 0.44	ext{ V}
+  u_k = u_k^{\text{raw}} = 0.44\text{ V}
   $$
 </p>
 </li>
@@ -3388,7 +3388,7 @@ L 700.507832 91.108
 <li>
 <p><strong>Niềm tin tiên nghiệm ban đầu tại $t=0$ (chưa biết gì):</strong><br />
   $$
-  	ext{Bel}(x_0) = [P(c_1), P(c_2), P(c_3), P(c_4)] = [0.25, 0.25, 0.25, 0.25]
+  \text{Bel}(x_0) = [P(c_1), P(c_2), P(c_3), P(c_4)] = [0.25, 0.25, 0.25, 0.25]
   $$</p>
 </li>
 <li>
@@ -3407,25 +3407,25 @@ L 700.507832 91.108
 <p>Tính niềm tin dự báo $\overline{    ext{Bel}}(x_1) = \sum_{x_0} P(x_1 \mid x_0)     ext{Bel}(x_0)$:<br />
 - <strong>Tại ô $c_1$:</strong> Chỉ có thể đến từ việc ở $c_1$ và bị trượt bánh:<br />
   $$
-  \overline{	ext{Bel}}(c_1) = P(c_1 \mid c_1) 	ext{Bel}(c_1) = 0.2 	imes 0.25 = 0.05
+  \overline{\text{Bel}}(c_1) = P(c_1 \mid c_1) \text{Bel}(c_1) = 0.2 \times 0.25 = 0.05
   $$</p>
 <ul>
 <li>
 <p><strong>Tại ô $c_2$:</strong> Có thể do ở $c_1$ tiến sang, hoặc ở $c_2$ bị trượt:<br />
   $$
-  \overline{	ext{Bel}}(c_2) = P(c_2 \mid c_1)	ext{Bel}(c_1) + P(c_2 \mid c_2)	ext{Bel}(c_2) = (0.8 	imes 0.25) + (0.2 	imes 0.25) = 0.20 + 0.05 = 0.25
+  \overline{\text{Bel}}(c_2) = P(c_2 \mid c_1)\text{Bel}(c_1) + P(c_2 \mid c_2)\text{Bel}(c_2) = (0.8 \times 0.25) + (0.2 \times 0.25) = 0.20 + 0.05 = 0.25
   $$</p>
 </li>
 <li>
 <p><strong>Tại ô $c_3$:</strong> Có thể do ở $c_2$ tiến sang, hoặc ở $c_3$ bị trượt:<br />
   $$
-  \overline{	ext{Bel}}(c_3) = P(c_3 \mid c_2)	ext{Bel}(c_2) + P(c_3 \mid c_3)	ext{Bel}(c_3) = (0.8 	imes 0.25) + (0.2 	imes 0.25) = 0.20 + 0.05 = 0.25
+  \overline{\text{Bel}}(c_3) = P(c_3 \mid c_2)\text{Bel}(c_2) + P(c_3 \mid c_3)\text{Bel}(c_3) = (0.8 \times 0.25) + (0.2 \times 0.25) = 0.20 + 0.05 = 0.25
   $$</p>
 </li>
 <li>
 <p><strong>Tại ô $c_4$:</strong> Có thể do ở $c_3$ tiến sang, hoặc ở $c_4$ đâm tường đứng yên:<br />
   $$
-  \overline{	ext{Bel}}(c_4) = P(c_4 \mid c_3)	ext{Bel}(c_3) + P(c_4 \mid c_4)	ext{Bel}(c_4) = (0.8 	imes 0.25) + (1.0 	imes 0.25) = 0.20 + 0.25 = 0.45
+  \overline{\text{Bel}}(c_4) = P(c_4 \mid c_3)\text{Bel}(c_3) + P(c_4 \mid c_4)\text{Bel}(c_4) = (0.8 \times 0.25) + (1.0 \times 0.25) = 0.20 + 0.25 = 0.45
   $$
 </p>
 </li>
@@ -3435,22 +3435,22 @@ L 700.507832 91.108
 <p>Cảm biến ghi nhận: $z =     ext{"Thấy mốc"}$.<br />
 1. <strong>Nhân với hàm hợp lý (Likelihood) chưa chuẩn hóa $  ext{Bel}^*(x_1) = P(z \mid x_1) \overline{  ext{Bel}}(x_1)$:</strong><br />
    $$
-   	ext{Bel}^*(c_1) = P(	ext{Thấy} \mid c_1) 	imes \overline{	ext{Bel}}(c_1) = 0.10 	imes 0.05 = 0.005
+   \text{Bel}^*(c_1) = P(\text{Thấy} \mid c_1) \times \overline{\text{Bel}}(c_1) = 0.10 \times 0.05 = 0.005
    $$</p>
 $$
-   	ext{Bel}^*(c_2) = P(	ext{Thấy} \mid c_2) 	imes \overline{	ext{Bel}}(c_2) = 0.80 	imes 0.25 = 0.200
+   \text{Bel}^*(c_2) = P(\text{Thấy} \mid c_2) \times \overline{\text{Bel}}(c_2) = 0.80 \times 0.25 = 0.200
    $$
 $$
-   	ext{Bel}^*(c_3) = P(	ext{Thấy} \mid c_3) 	imes \overline{	ext{Bel}}(c_3) = 0.10 	imes 0.25 = 0.025
+   \text{Bel}^*(c_3) = P(\text{Thấy} \mid c_3) \times \overline{\text{Bel}}(c_3) = 0.10 \times 0.25 = 0.025
    $$
 $$
-   	ext{Bel}^*(c_4) = P(	ext{Thấy} \mid c_4) 	imes \overline{	ext{Bel}}(c_4) = 0.80 	imes 0.45 = 0.360
+   \text{Bel}^*(c_4) = P(\text{Thấy} \mid c_4) \times \overline{\text{Bel}}(c_4) = 0.80 \times 0.45 = 0.360
    $$
 
 <ol>
 <li><strong>Tính tổng hệ số chuẩn hóa ($\eta$):</strong><br />
    $$
-   \sum_{i=1}^4 	ext{Bel}^*(c_i) = 0.005 + 0.200 + 0.025 + 0.360 = 0.590
+   \sum_{i=1}^4 \text{Bel}^*(c_i) = 0.005 + 0.200 + 0.025 + 0.360 = 0.590
    $$</li>
 </ol>
 $$
@@ -3460,17 +3460,17 @@ $$
 <ol>
 <li><strong>Phân phối xác suất niềm tin chuẩn hóa cuối cùng $  ext{Bel}(x_1)$:</strong><br />
    $$
-   	ext{Bel}(c_1) = \frac{0.005}{0.590} \approx 0.0085 \quad (0.85\%)
+   \text{Bel}(c_1) = \frac{0.005}{0.590} \approx 0.0085 \quad (0.85\%)
    $$</li>
 </ol>
 $$
-   	ext{Bel}(c_2) = \frac{0.200}{0.590} \approx 0.3390 \quad (33.90\%)
+   \text{Bel}(c_2) = \frac{0.200}{0.590} \approx 0.3390 \quad (33.90\%)
    $$
 $$
-   	ext{Bel}(c_3) = \frac{0.025}{0.590} \approx 0.0424 \quad (4.24\%)
+   \text{Bel}(c_3) = \frac{0.025}{0.590} \approx 0.0424 \quad (4.24\%)
    $$
 $$
-   	ext{Bel}(c_4) = \frac{0.360}{0.590} \approx 0.6102 \quad (61.02\%)
+   \text{Bel}(c_4) = \frac{0.360}{0.590} \approx 0.6102 \quad (61.02\%)
    $$
 
 <div class="stepper-step"><div class="stepper-step-header"><span class="stepper-num">4</span><span>Bước 4: Diễn giải ý nghĩa kỹ thuật &amp; Giảm thiểu Entropy (Interpretation)</span></div>

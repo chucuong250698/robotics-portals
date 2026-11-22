@@ -189,7 +189,7 @@
 <span class="step-name">Bước 3: Lập ma trận thông tin $\mathbf{H}$ và vector $\mathbf{b}$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{H} = \mathbf{J}_{01}^T \mathbf{J}_{01} + \mathbf{J}_{12}^T \mathbf{J}_{12} + \mathbf{J}_{20}^T \mathbf{J}_{20} = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0 \end{bmatrix} + \begin{bmatrix} 1 &amp; -1 \\ -1 &amp; 1 \end{bmatrix} + \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 2 &amp; -1 \\ -1 &amp; 2 \end{bmatrix}$$</p><p>Vector $\mathbf{b} = \sum \mathbf{J}^T \Omega e = \begin{bmatrix} 0 \\ -1 \end{bmatrix} (1.0) (-0.2) = \begin{bmatrix} 0 \\ +0.2 \end{bmatrix}$.</p>
+<p>$$\mathbf{H} = \mathbf{J}_{01}^T \mathbf{J}_{01} + \mathbf{J}_{12}^T \mathbf{J}_{12} + \mathbf{J}_{20}^T \mathbf{J}_{20} = \begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix} + \begin{bmatrix} 1 & -1 \\ -1 & 1 \end{bmatrix} + \begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 2 & -1 \\ -1 & 2 \end{bmatrix}$$</p><p>Vector $\mathbf{b} = \sum \mathbf{J}^T \Omega e = \begin{bmatrix} 0 \\ -1 \end{bmatrix} (1.0) (-0.2) = \begin{bmatrix} 0 \\ +0.2 \end{bmatrix}$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -198,7 +198,7 @@
 <span class="step-name">Bước 4: Giải hệ phương trình $\mathbf{H} \Delta\mathbf{x} = -\mathbf{b}$ &amp; Cập nhật</span>
 </div>
 <div class="step-content">
-<p>Nghịch đảo ma trận $2 \times 2$: $\det(\mathbf{H}) = 4 - 1 = 3 \Rightarrow \mathbf{H}^{-1} = \frac{1}{3} \begin{bmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{bmatrix}$</p><p>$$\begin{bmatrix} \Delta x_1 \\ \Delta x_2 \end{bmatrix} = -\frac{1}{3} \begin{bmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{bmatrix} \begin{bmatrix} 0 \\ 0.2 \end{bmatrix} = \begin{bmatrix} -0.0667 \\ -0.1333 \end{bmatrix}$$</p><p>Tư thế sau nắn chỉnh: $x_1 = 1.933$ m, $x_2 = 3.867$ m. Toàn bộ sai số vòng lặp $-0.2$ m được phân bổ phân tán đều dọc theo chuỗi cạnh!</p>
+<p>Nghịch đảo ma trận $2 \times 2$: $\det(\mathbf{H}) = 4 - 1 = 3 \Rightarrow \mathbf{H}^{-1} = \frac{1}{3} \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}$</p><p>$$\begin{bmatrix} \Delta x_1 \\ \Delta x_2 \end{bmatrix} = -\frac{1}{3} \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix} \begin{bmatrix} 0 \\ 0.2 \end{bmatrix} = \begin{bmatrix} -0.0667 \\ -0.1333 \end{bmatrix}$$</p><p>Tư thế sau nắn chỉnh: $x_1 = 1.933$ m, $x_2 = 3.867$ m. Toàn bộ sai số vòng lặp $-0.2$ m được phân bổ phân tán đều dọc theo chuỗi cạnh!</p>
 </div>
 </div>
 
@@ -270,7 +270,7 @@ if __name__ == '__main__':
 <span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
 </div>
 <div class="step-content">
-<p>Vector phần dư sai số: $e_1 = (x_2 - x_1) - d_{12} = 2.1 - 0 - 2.0 = 0.1\text{ m}$; $e_2 = (x_3 - x_2) - d_{23} = 4.1 - 2.1 - 2.0 = 0.0\text{ m}$; $e_3 = (x_3 - x_1) - d_{13} = 4.1 - 0 - 3.6 = 0.5\text{ m}$.<br/>Ma trận Jacobian theo biến cần tối ưu $\Delta\mathbf{x} = [\Delta x_2, \Delta x_3]^T$: $\mathbf{J} = \begin{bmatrix} 1 &amp; 0 \\ -1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix}$.</p>
+<p>Vector phần dư sai số: $e_1 = (x_2 - x_1) - d_{12} = 2.1 - 0 - 2.0 = 0.1\text{ m}$; $e_2 = (x_3 - x_2) - d_{23} = 4.1 - 2.1 - 2.0 = 0.0\text{ m}$; $e_3 = (x_3 - x_1) - d_{13} = 4.1 - 0 - 3.6 = 0.5\text{ m}$.<br/>Ma trận Jacobian theo biến cần tối ưu $\Delta\mathbf{x} = [\Delta x_2, \Delta x_3]^T$: $\mathbf{J} = \begin{bmatrix} 1 & 0 \\ -1 & 1 \\ 0 & 1 \end{bmatrix}$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -279,7 +279,7 @@ if __name__ == '__main__':
 <span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
 </div>
 <div class="step-content">
-<p>Ma trận thông tin trọng số $\mathbf{\Omega} = \text{diag}(10, 10, 5)$.<br/>Hessian: $\mathbf{H} = \mathbf{J}^T \mathbf{\Omega} \mathbf{J} = \begin{bmatrix} 1 &amp; -1 &amp; 0 \\ 0 &amp; 1 &amp; 1 \end{bmatrix} \begin{bmatrix} 10 &amp; 0 &amp; 0 \\ 0 &amp; 10 &amp; 0 \\ 0 &amp; 0 &amp; 5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ -1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 20 &amp; -10 \\ -10 &amp; 15 \end{bmatrix}$.<br/>Vector gradient: $\mathbf{b} = \mathbf{J}^T \mathbf{\Omega} \mathbf{e} = \begin{bmatrix} 10(0.1) - 10(0.0) \\ 10(0.0) + 5(0.5) \end{bmatrix} = \begin{bmatrix} 1.0 \\ 2.5 \end{bmatrix}$.</p>
+<p>Ma trận thông tin trọng số $\mathbf{\Omega} = \text{diag}(10, 10, 5)$.<br/>Hessian: $\mathbf{H} = \mathbf{J}^T \mathbf{\Omega} \mathbf{J} = \begin{bmatrix} 1 & -1 & 0 \\ 0 & 1 & 1 \end{bmatrix} \begin{bmatrix} 10 & 0 & 0 \\ 0 & 10 & 0 \\ 0 & 0 & 5 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ -1 & 1 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 20 & -10 \\ -10 & 15 \end{bmatrix}$.<br/>Vector gradient: $\mathbf{b} = \mathbf{J}^T \mathbf{\Omega} \mathbf{e} = \begin{bmatrix} 10(0.1) - 10(0.0) \\ 10(0.0) + 5(0.5) \end{bmatrix} = \begin{bmatrix} 1.0 \\ 2.5 \end{bmatrix}$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -288,7 +288,7 @@ if __name__ == '__main__':
 <span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
 </div>
 <div class="step-content">
-<p>Giải hệ $\begin{bmatrix} 20 &amp; -10 \\ -10 &amp; 15 \end{bmatrix} \begin{bmatrix} \Delta x_2 \\ \Delta x_3 \end{bmatrix} = \begin{bmatrix} -1.0 \\ -2.5 \end{bmatrix}$. Định thức: $\det = 20 \times 15 - 100 = 200$.<br/>Nghịch đảo: $\mathbf{H}^{-1} = \frac{1}{200} \begin{bmatrix} 15 &amp; 10 \\ 10 &amp; 20 \end{bmatrix}$.<br/>Số gia: $\begin{bmatrix} \Delta x_2 \\ \Delta x_3 \end{bmatrix} = \frac{1}{200} \begin{bmatrix} 15(-1) + 10(-2.5) \\ 10(-1) + 20(-2.5) \end{bmatrix} = \begin{bmatrix} -0.20 \\ -0.30 \end{bmatrix}$.<br/>Tư thế tối ưu mới: $x_2 = 2.1 - 0.2 = 1.9\text{ m}$; $x_3 = 4.1 - 0.3 = 3.8\text{ m}$. Sai số vòng lặp được phân bổ đều một cách tối ưu toán học.</p>
+<p>Giải hệ $\begin{bmatrix} 20 & -10 \\ -10 & 15 \end{bmatrix} \begin{bmatrix} \Delta x_2 \\ \Delta x_3 \end{bmatrix} = \begin{bmatrix} -1.0 \\ -2.5 \end{bmatrix}$. Định thức: $\det = 20 \times 15 - 100 = 200$.<br/>Nghịch đảo: $\mathbf{H}^{-1} = \frac{1}{200} \begin{bmatrix} 15 & 10 \\ 10 & 20 \end{bmatrix}$.<br/>Số gia: $\begin{bmatrix} \Delta x_2 \\ \Delta x_3 \end{bmatrix} = \frac{1}{200} \begin{bmatrix} 15(-1) + 10(-2.5) \\ 10(-1) + 20(-2.5) \end{bmatrix} = \begin{bmatrix} -0.20 \\ -0.30 \end{bmatrix}$.<br/>Tư thế tối ưu mới: $x_2 = 2.1 - 0.2 = 1.9\text{ m}$; $x_3 = 4.1 - 0.3 = 3.8\text{ m}$. Sai số vòng lặp được phân bổ đều một cách tối ưu toán học.</p>
 </div>
 </div>
 </div>

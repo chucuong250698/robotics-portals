@@ -189,7 +189,7 @@
 <span class="step-name">Bước 3: Tính góc quay $\theta$</span>
 </div>
 <div class="step-content">
-<p>Góc quay làm cho vector $\Delta p^B$ trùng với $\Delta p^A$:</p><p>$$\theta = \theta_A - \theta_B = 0^\circ - (-90^\circ) = +90^\circ \quad (\frac{\pi}{2}\text{ rad})$$</p><p>Ma trận quay: $$\mathbf{R} = \begin{bmatrix} \cos(90^\circ) &amp; -\sin(90^\circ) \\ \sin(90^\circ) &amp; \cos(90^\circ) \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix}$$</p>
+<p>Góc quay làm cho vector $\Delta p^B$ trùng với $\Delta p^A$:</p><p>$$\theta = \theta_A - \theta_B = 0^\circ - (-90^\circ) = +90^\circ \quad (\frac{\pi}{2}\text{ rad})$$</p><p>Ma trận quay: $$\mathbf{R} = \begin{bmatrix} \cos(90^\circ) & -\sin(90^\circ) \\ \sin(90^\circ) & \cos(90^\circ) \end{bmatrix} = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -198,7 +198,7 @@
 <span class="step-name">Bước 4: Tính vector tịnh tiến $\mathbf{t} = \bar{p}^A - \mathbf{R} \bar{p}^B$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{R} \bar{p}^B = \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix} \begin{bmatrix} 2.0 \\ -2.5 \end{bmatrix} = \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix}$$</p><p>$$\mathbf{t} = \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix} - \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix} = \begin{bmatrix} 0.0 \\ 0.0 \end{bmatrix}$$</p><p>Phép biến đổi đồng dạng cứng: Quay một góc $+90^\circ$ quanh gốc tọa độ. Bản đồ Robot B được xoay khớp hoàn hảo vào khung tham chiếu của Robot A!</p>
+<p>$$\mathbf{R} \bar{p}^B = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} 2.0 \\ -2.5 \end{bmatrix} = \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix}$$</p><p>$$\mathbf{t} = \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix} - \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix} = \begin{bmatrix} 0.0 \\ 0.0 \end{bmatrix}$$</p><p>Phép biến đổi đồng dạng cứng: Quay một góc $+90^\circ$ quanh gốc tọa độ. Bản đồ Robot B được xoay khớp hoàn hảo vào khung tham chiếu của Robot A!</p>
 </div>
 </div>
 
@@ -271,7 +271,7 @@ private:
 <span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
 </div>
 <div class="step-content">
-<p>Ma trận biến đổi $SE(2)$ với $\theta = 90^\circ$ ($\cos=0, \sin=1$):<br/>$$\mathbf{T}_{AB} = \begin{bmatrix} \cos\theta &amp; -\sin\theta &amp; x_{AB} \\ \sin\theta &amp; \cos\theta &amp; y_{AB} \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 4.0 \\ 1 &amp; 0 &amp; 2.0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
+<p>Ma trận biến đổi $SE(2)$ với $\theta = 90^\circ$ ($\cos=0, \sin=1$):<br/>$$\mathbf{T}_{AB} = \begin{bmatrix} \cos\theta & -\sin\theta & x_{AB} \\ \sin\theta & \cos\theta & y_{AB} \\ 0 & 0 & 1 \end{bmatrix} = \begin{bmatrix} 0 & -1 & 4.0 \\ 1 & 0 & 2.0 \\ 0 & 0 & 1 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -280,7 +280,7 @@ private:
 <span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
 </div>
 <div class="step-content">
-<p>Tọa độ vật cản trong hệ $A$ dạng thuần nhất: $\begin{bmatrix} x_A \\ y_A \\ 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 4.0 \\ 1 &amp; 0 &amp; 2.0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 1.0 \\ 0.5 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 - 0.5 + 4.0 \\ 1.0 + 0 + 2.0 \\ 1 \end{bmatrix} = \begin{bmatrix} 3.5 \\ 3.0 \\ 1 \end{bmatrix}$.<br/>Vậy vật cản nằm tại tọa độ $(3.5\text{ m}, 3.0\text{ m})$ trong bản đồ của Robot $A$.</p>
+<p>Tọa độ vật cản trong hệ $A$ dạng thuần nhất: $\begin{bmatrix} x_A \\ y_A \\ 1 \end{bmatrix} = \begin{bmatrix} 0 & -1 & 4.0 \\ 1 & 0 & 2.0 \\ 0 & 0 & 1 \end{bmatrix} \begin{bmatrix} 1.0 \\ 0.5 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 - 0.5 + 4.0 \\ 1.0 + 0 + 2.0 \\ 1 \end{bmatrix} = \begin{bmatrix} 3.5 \\ 3.0 \\ 1 \end{bmatrix}$.<br/>Vậy vật cản nằm tại tọa độ $(3.5\text{ m}, 3.0\text{ m})$ trong bản đồ của Robot $A$.</p>
 </div>
 </div>
 <div class="solution-step">

@@ -92,8 +92,8 @@
         <p>Với $\mathbf{w}(t)$ là quá trình nhiễu trắng Gauss liên tục và $\mathbf{Q}_c$ là ma trận mật độ phổ năng lượng.</p>
 <p>Nghiệm của phương trình SDE giữa hai mốc thời gian chốt (Knot Points) $t_i$ và $t_j$ sinh ra hàm chuyển tiếp và ma trận hiệp phương sai tích phân:</p>
         $$\begin{align}
-        \boldsymbol{\Phi}(t, t_i) &amp;= \exp\left( \mathbf{A}(t - t_i) \right) \\
-        \mathbf{Q}_{ij} &amp;= \int_{t_i}^{t_j} \boldsymbol{\Phi}(t_j, s) \mathbf{L}(s) \mathbf{Q}_c \mathbf{L}(s)^T \boldsymbol{\Phi}(t_j, s)^T ds
+        \boldsymbol{\Phi}(t, t_i) &= \exp\left( \mathbf{A}(t - t_i) \right) \\
+        \mathbf{Q}_{ij} &= \int_{t_i}^{t_j} \boldsymbol{\Phi}(t_j, s) \mathbf{L}(s) \mathbf{Q}_c \mathbf{L}(s)^T \boldsymbol{\Phi}(t_j, s)^T ds
         \end{align}$$
       </section>
 <section class="content-section" id="sec-3">
@@ -101,9 +101,9 @@
 <div class="formula-card">
 <div class="formula-header">Công Thức Nội Suy Dạng Đóng Barfoot GP Interpolation</div>
           $$\begin{align}
-          \mathbf{x}(\tau) &amp;= \boldsymbol{\Lambda}(\tau) \mathbf{x}_i + \boldsymbol{\Psi}(\tau) \mathbf{x}_j, \quad \tau \in [t_i, t_j] \\
-          \boldsymbol{\Lambda}(\tau) &amp;= \boldsymbol{\Phi}(\tau, t_i) - \mathbf{Q}_{i,\tau} \boldsymbol{\Phi}(t_j, \tau)^T \mathbf{Q}_{ij}^{-1} \boldsymbol{\Phi}(t_j, t_i) \\
-          \boldsymbol{\Psi}(\tau) &amp;= \mathbf{Q}_{i,\tau} \boldsymbol{\Phi}(t_j, \tau)^T \mathbf{Q}_{ij}^{-1}
+          \mathbf{x}(\tau) &= \boldsymbol{\Lambda}(\tau) \mathbf{x}_i + \boldsymbol{\Psi}(\tau) \mathbf{x}_j, \quad \tau \in [t_i, t_j] \\
+          \boldsymbol{\Lambda}(\tau) &= \boldsymbol{\Phi}(\tau, t_i) - \mathbf{Q}_{i,\tau} \boldsymbol{\Phi}(t_j, \tau)^T \mathbf{Q}_{ij}^{-1} \boldsymbol{\Phi}(t_j, t_i) \\
+          \boldsymbol{\Psi}(\tau) &= \mathbf{Q}_{i,\tau} \boldsymbol{\Phi}(t_j, \tau)^T \mathbf{Q}_{ij}^{-1}
           \end{align}$$
         </div>
 <p>Đây là <strong>công thức nội suy dạng đóng tối ưu không chệch BLUE</strong> trên không gian liên tục: Trạng thái tại thời điểm bất kỳ $\tau$ được tính toán trực tiếp từ hai nút lân cận $t_i, t_j$ với độ phức tạp $O(1)$ mà không phụ thuộc vào độ dài toàn bộ quỹ đạo!</p>
@@ -129,21 +129,21 @@
 <span class="step-num-badge">1</span>
 <span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
 </div>
-<p>Xác định các ma trận động học và hiệp phương sai tích phân:<br/>• Ma trận chuyển tiếp: $\Phi(\tau) = \begin{bmatrix} 1 &amp; \tau \\ 0 &amp; 1 \end{bmatrix}$.<br/>Với khoảng thời gian $T = 1.0\\text{ s}$ và $\tau = 0.5\\text{ s}$:<br/>$$\Phi(0.5) = \begin{bmatrix} 1 &amp; 0.5 \\ 0 &amp; 1 \end{bmatrix}, \quad \Phi(1.0) = \begin{bmatrix} 1 &amp; 1.0 \\ 0 &amp; 1 \end{bmatrix}$$<br/>• Ma trận hiệp phương sai tích phân $Q(t) = \begin{bmatrix} \frac{1}{3}t^3 &amp; \frac{1}{2}t^2 \\ \frac{1}{2}t^2 &amp; t \end{bmatrix} Q_c$:<br/>$$Q(0.5) = \begin{bmatrix} 0.5^3 / 3 &amp; 0.5^2 / 2 \\ 0.5^2 / 2 &amp; 0.5 \end{bmatrix} = \begin{bmatrix} 0.04167 &amp; 0.12500 \\ 0.12500 &amp; 0.50000 \end{bmatrix}$$<br/>$$Q(1.0) = \begin{bmatrix} 1/3 &amp; 1/2 \\ 1/2 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0.33333 &amp; 0.50000 \\ 0.50000 &amp; 1.00000 \end{bmatrix}$$</p>
+<p>Xác định các ma trận động học và hiệp phương sai tích phân:<br/>• Ma trận chuyển tiếp: $\Phi(\tau) = \begin{bmatrix} 1 & \tau \\ 0 & 1 \end{bmatrix}$.<br/>Với khoảng thời gian $T = 1.0\\text{ s}$ và $\tau = 0.5\\text{ s}$:<br/>$$\Phi(0.5) = \begin{bmatrix} 1 & 0.5 \\ 0 & 1 \end{bmatrix}, \quad \Phi(1.0) = \begin{bmatrix} 1 & 1.0 \\ 0 & 1 \end{bmatrix}$$<br/>• Ma trận hiệp phương sai tích phân $Q(t) = \begin{bmatrix} \frac{1}{3}t^3 & \frac{1}{2}t^2 \\ \frac{1}{2}t^2 & t \end{bmatrix} Q_c$:<br/>$$Q(0.5) = \begin{bmatrix} 0.5^3 / 3 & 0.5^2 / 2 \\ 0.5^2 / 2 & 0.5 \end{bmatrix} = \begin{bmatrix} 0.04167 & 0.12500 \\ 0.12500 & 0.50000 \end{bmatrix}$$<br/>$$Q(1.0) = \begin{bmatrix} 1/3 & 1/2 \\ 1/2 & 1 \end{bmatrix} = \begin{bmatrix} 0.33333 & 0.50000 \\ 0.50000 & 1.00000 \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tính nghịch đảo $Q(1.0)^{-1}$ và ma trận trọng số $\Psi(0.5)$:<br/>• Định thức $\det(Q(1.0)) = \frac{1}{3}(1) - (\frac{1}{2})^2 = \frac{1}{3} - \frac{1}{4} = \frac{1}{12} \approx 0.08333$.<br/>$$Q(1.0)^{-1} = 12 \begin{bmatrix} 1.00000 &amp; -0.50000 \\ -0.50000 &amp; 0.33333 \end{bmatrix} = \begin{bmatrix} 12 &amp; -6 \\ -6 &amp; 4 \end{bmatrix}$$<br/>• Khoảng cách từ $\tau$ đến $t_2$: $T - \tau = 0.5\\text{ s} \implies \Phi(T - \tau)^T = \Phi(0.5)^T = \begin{bmatrix} 1 &amp; 0 \\ 0.5 &amp; 1 \end{bmatrix}$.<br/>Tích ma trận trọng số $\Psi(0.5) = Q(0.5) \Phi(0.5)^T Q(1.0)^{-1}$:<br/>Tích 1: $Q(0.5) \Phi(0.5)^T = \begin{bmatrix} 0.04167 &amp; 0.125 \\ 0.125 &amp; 0.5 \end{bmatrix}\begin{bmatrix} 1 &amp; 0 \\ 0.5 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0.10417 &amp; 0.125 \\ 0.37500 &amp; 0.5 \end{bmatrix}$.<br/>Tích 2: $\Psi(0.5) = \begin{bmatrix} 0.10417 &amp; 0.125 \\ 0.37500 &amp; 0.5 \end{bmatrix}\begin{bmatrix} 12 &amp; -6 \\ -6 &amp; 4 \end{bmatrix} = \begin{bmatrix} 0.50000 &amp; -0.12500 \\ 1.50000 &amp; -0.25000 \end{bmatrix}$.<br/>• Trọng số nút 1: $\Lambda(0.5) = \Phi(0.5) - \Psi(0.5)\Phi(1.0) = \begin{bmatrix} 0.50000 &amp; 0.12500 \\ -1.50000 &amp; 0.25000 \end{bmatrix}$.</p>
+<p>Tính nghịch đảo $Q(1.0)^{-1}$ và ma trận trọng số $\Psi(0.5)$:<br/>• Định thức $\det(Q(1.0)) = \frac{1}{3}(1) - (\frac{1}{2})^2 = \frac{1}{3} - \frac{1}{4} = \frac{1}{12} \approx 0.08333$.<br/>$$Q(1.0)^{-1} = 12 \begin{bmatrix} 1.00000 & -0.50000 \\ -0.50000 & 0.33333 \end{bmatrix} = \begin{bmatrix} 12 & -6 \\ -6 & 4 \end{bmatrix}$$<br/>• Khoảng cách từ $\tau$ đến $t_2$: $T - \tau = 0.5\\text{ s} \implies \Phi(T - \tau)^T = \Phi(0.5)^T = \begin{bmatrix} 1 & 0 \\ 0.5 & 1 \end{bmatrix}$.<br/>Tích ma trận trọng số $\Psi(0.5) = Q(0.5) \Phi(0.5)^T Q(1.0)^{-1}$:<br/>Tích 1: $Q(0.5) \Phi(0.5)^T = \begin{bmatrix} 0.04167 & 0.125 \\ 0.125 & 0.5 \end{bmatrix}\begin{bmatrix} 1 & 0 \\ 0.5 & 1 \end{bmatrix} = \begin{bmatrix} 0.10417 & 0.125 \\ 0.37500 & 0.5 \end{bmatrix}$.<br/>Tích 2: $\Psi(0.5) = \begin{bmatrix} 0.10417 & 0.125 \\ 0.37500 & 0.5 \end{bmatrix}\begin{bmatrix} 12 & -6 \\ -6 & 4 \end{bmatrix} = \begin{bmatrix} 0.50000 & -0.12500 \\ 1.50000 & -0.25000 \end{bmatrix}$.<br/>• Trọng số nút 1: $\Lambda(0.5) = \Phi(0.5) - \Psi(0.5)\Phi(1.0) = \begin{bmatrix} 0.50000 & 0.12500 \\ -1.50000 & 0.25000 \end{bmatrix}$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tổng hợp trạng thái nội suy $\mathbf{x}(0.5) = \Lambda(0.5)\mathbf{x}_1 + \Psi(0.5)\mathbf{x}_2$:<br/>• Tác động từ nút 1 ($\mathbf{x}_1 = [0, 2]^T$):<br/>$$\Lambda(0.5)\mathbf{x}_1 = \begin{bmatrix} 0.50000 &amp; 0.12500 \\ -1.50000 &amp; 0.25000 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} 0.25000 \\ 0.50000 \end{bmatrix}$$<br/>• Tác động từ nút 2 ($\mathbf{x}_2 = [2.5, 3]^T$):<br/>$$\Psi(0.5)\mathbf{x}_2 = \begin{bmatrix} 0.50000 &amp; -0.12500 \\ 1.50000 &amp; -0.25000 \end{bmatrix} \begin{bmatrix} 2.5 \\ 3 \end{bmatrix} = \begin{bmatrix} 1.25000 - 0.37500 \\ 3.75000 - 0.75000 \end{bmatrix} = \begin{bmatrix} 0.87500 \\ 3.00000 \end{bmatrix}$$<br/>• Cộng lại:<br/>$$\mathbf{x}(0.5) = \begin{bmatrix} 0.25000 + 0.87500 \\ 0.50000 + 3.00000 \end{bmatrix} = \begin{bmatrix} 1.12500\text{ m} \\ 3.50000\text{ m/s} \end{bmatrix}$$</p>
+<p>Tổng hợp trạng thái nội suy $\mathbf{x}(0.5) = \Lambda(0.5)\mathbf{x}_1 + \Psi(0.5)\mathbf{x}_2$:<br/>• Tác động từ nút 1 ($\mathbf{x}_1 = [0, 2]^T$):<br/>$$\Lambda(0.5)\mathbf{x}_1 = \begin{bmatrix} 0.50000 & 0.12500 \\ -1.50000 & 0.25000 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} 0.25000 \\ 0.50000 \end{bmatrix}$$<br/>• Tác động từ nút 2 ($\mathbf{x}_2 = [2.5, 3]^T$):<br/>$$\Psi(0.5)\mathbf{x}_2 = \begin{bmatrix} 0.50000 & -0.12500 \\ 1.50000 & -0.25000 \end{bmatrix} \begin{bmatrix} 2.5 \\ 3 \end{bmatrix} = \begin{bmatrix} 1.25000 - 0.37500 \\ 3.75000 - 0.75000 \end{bmatrix} = \begin{bmatrix} 0.87500 \\ 3.00000 \end{bmatrix}$$<br/>• Cộng lại:<br/>$$\mathbf{x}(0.5) = \begin{bmatrix} 0.25000 + 0.87500 \\ 0.50000 + 3.00000 \end{bmatrix} = \begin{bmatrix} 1.12500\text{ m} \\ 3.50000\text{ m/s} \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
@@ -164,14 +164,14 @@
 <h4 class="practice-title">Bài tập tự luyện 14.1: Tính hiệp phương sai nội suy</h4>
 </div>
 <div class="practice-statement">
-<strong>Yêu cầu:</strong> Sử dụng công thức hiệp phương sai nội suy GP $P(	au) = Q(	au) - \Psi(	au) Q(T) \Psi(	au)^T$. Hãy tính phương sai vị trí tại $t = 0.5\text{ s}$ và chứng minh rằng độ bất định đạt cực đại tại điểm chính giữa hai nút thời gian.
+<strong>Yêu cầu:</strong> Sử dụng công thức hiệp phương sai nội suy GP $P(\tau) = Q(\tau) - \Psi(\tau) Q(T) \Psi(\tau)^T$. Hãy tính phương sai vị trí tại $t = 0.5\text{ s}$ và chứng minh rằng độ bất định đạt cực đại tại điểm chính giữa hai nút thời gian.
           </div>
 
 <details class="practice-solution">
 <summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
 <div class="practice-solution-body">
 <div class="practice-answer">
-<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Tại hai đầu mút $	au = 0$ và $	au = T$, phương sai nội suy bằng 0 (khớp hoàn toàn với knot points). Tại điểm chính giữa $	au = 0.5$, phương sai vị trí đạt giá trị cực đại xấp xỉ $0.0104\text{ m}^2$ phản ánh sự thiếu hụt quan sát trung gian.
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Tại hai đầu mút $\tau = 0$ và $\tau = T$, phương sai nội suy bằng 0 (khớp hoàn toàn với knot points). Tại điểm chính giữa $\tau = 0.5$, phương sai vị trí đạt giá trị cực đại xấp xỉ $0.0104\text{ m}^2$ phản ánh sự thiếu hụt quan sát trung gian.
           </div>
 </div>
 </details>

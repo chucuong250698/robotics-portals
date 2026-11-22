@@ -87,8 +87,8 @@
 <h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
 <p>Xét hệ thống phi tuyến tổng quát:</p>
         $$\begin{align}
-        \mathbf{x}_k &amp;= \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_{k-1}) + \mathbf{w}_k \\
-        \mathbf{y}_k &amp;= \mathbf{h}(\mathbf{x}_k) + \mathbf{n}_k
+        \mathbf{x}_k &= \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_{k-1}) + \mathbf{w}_k \\
+        \mathbf{y}_k &= \mathbf{h}(\mathbf{x}_k) + \mathbf{n}_k
         \end{align}$$
         <p><strong>1. Extended Kalman Filter (EKF):</strong> Tuyến tính hóa Taylor bậc 1 quanh ước lượng gần nhất:</p>
         $$\begin{equation}
@@ -101,9 +101,9 @@
 <div class="formula-card">
 <div class="formula-header">Phép Biến Đổi Unscented (Unscented Transform - UT)</div>
           $$\begin{align}
-          \boldsymbol{\mathcal{X}}_0 &amp;= \hat{\mathbf{x}} \\
-          \boldsymbol{\mathcal{X}}_i &amp;= \hat{\mathbf{x}} + \left(\sqrt{(n + \lambda)\mathbf{P}}\right)_i, \quad i = 1, \dots, n \\
-          \boldsymbol{\mathcal{X}}_{i+n} &amp;= \hat{\mathbf{x}} - \left(\sqrt{(n + \lambda)\mathbf{P}}\right)_i, \quad i = 1, \dots, n
+          \boldsymbol{\mathcal{X}}_0 &= \hat{\mathbf{x}} \\
+          \boldsymbol{\mathcal{X}}_i &= \hat{\mathbf{x}} + \left(\sqrt{(n + \lambda)\mathbf{P}}\right)_i, \quad i = 1, \dots, n \\
+          \boldsymbol{\mathcal{X}}_{i+n} &= \hat{\mathbf{x}} - \left(\sqrt{(n + \lambda)\mathbf{P}}\right)_i, \quad i = 1, \dots, n
           \end{align}$$
         </div>
 <p>Với $n$ là số chiều trạng thái, UT sinh ra chính xác $2n+1$ điểm Sigma Points. Mỗi điểm được truyền qua hàm phi tuyến thực sự $\boldsymbol{\mathcal{Y}}_i = \mathbf{h}(\boldsymbol{\mathcal{X}}_i)$, sau đó tái tổng hợp lại kỳ vọng và hiệp phương sai theo trọng số $W_i^{(m)}, W_i^{(c)}$.</p>
@@ -121,7 +121,7 @@
 </div>
 <h3 class="exercise-title">Ước Lượng Vị Trí Bằng EKF Với Cảm Biến Đo Góc Phương Vị Phi Tuyến</h3>
 <div class="exercise-statement">
-<strong>Đề bài kỹ thuật:</strong> Robot hoạt động tại tọa độ tiên nghiệm $\check{\mathbf{x}} = [p_x, p_y]^T = [2.0, 2.0]^T\text{ m}$ với hiệp phương sai $\check{P} = \begin{bmatrix} 0.25 &amp; 0.0 \\ 0.0 &amp; 0.25 \end{bmatrix}\text{ m}^2$. Robot quan sát một cột mốc đã biết vị trí tại $\mathbf{m} = [10.0, 10.0]^T\text{ m}$. Cảm biến đo góc phương vị ngắm mốc: $h(\mathbf{x}) = \arctan\left(\frac{m_y - p_y}{m_x - p_x}\right)$. Cảm biến trả về góc đo được $\theta_{meas} = 0.820\text{ rad}$. Phương sai nhiễu đo góc $R = (0.02\text{ rad})^2 = 0.0004\text{ rad}^2$. Yêu cầu: Hãy tính toán ma trận Jacobian đo $H$, hệ số Kalman Gain $K$ và ước lượng vị trí cập nhật $\hat{\mathbf{x}}$ của EKF.
+<strong>Đề bài kỹ thuật:</strong> Robot hoạt động tại tọa độ tiên nghiệm $\check{\mathbf{x}} = [p_x, p_y]^T = [2.0, 2.0]^T\text{ m}$ với hiệp phương sai $\check{P} = \begin{bmatrix} 0.25 & 0.0 \\ 0.0 & 0.25 \end{bmatrix}\text{ m}^2$. Robot quan sát một cột mốc đã biết vị trí tại $\mathbf{m} = [10.0, 10.0]^T\text{ m}$. Cảm biến đo góc phương vị ngắm mốc: $h(\mathbf{x}) = \arctan\left(\frac{m_y - p_y}{m_x - p_x}\right)$. Cảm biến trả về góc đo được $\theta_{meas} = 0.820\text{ rad}$. Phương sai nhiễu đo góc $R = (0.02\text{ rad})^2 = 0.0004\text{ rad}^2$. Yêu cầu: Hãy tính toán ma trận Jacobian đo $H$, hệ số Kalman Gain $K$ và ước lượng vị trí cập nhật $\hat{\mathbf{x}}$ của EKF.
           </div>
 <div class="solution-wrapper">
 <div class="solution-step">
@@ -143,7 +143,7 @@
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tính Innovation, Kalman Gain và cập nhật trạng thái:<br/>• Phần dư đo: $\nu = \theta_{meas} - \check{\theta} = 0.8200 - 0.7854 = +0.0346\text{ rad}$.<br/>• Hiệp phương sai phần dư:<br/>$$S = H \check{P} H^T + R = [0.0625, -0.0625] \begin{bmatrix} 0.25 &amp; 0 \\ 0 &amp; 0.25 \end{bmatrix} \begin{bmatrix} 0.0625 \\ -0.0625 \end{bmatrix} + 0.0004 = 0.25(0.0625^2 + 0.0625^2) + 0.0004 = 0.001953 + 0.0004 = 0.002353\text{ rad}^2$$<br/>• Kalman Gain:<br/>$$K = \check{P} H^T S^{-1} = \begin{bmatrix} 0.25 \times 0.0625 \\ 0.25 \times (-0.0625) \end{bmatrix} \frac{1}{0.002353} = \begin{bmatrix} 0.015625 \\ -0.015625 \end{bmatrix} \times 424.99 = \begin{bmatrix} +6.640 \\ -6.640 \end{bmatrix}$$<br/>• Cập nhật trạng thái:<br/>$$\hat{\mathbf{x}} = \check{\mathbf{x}} + K \nu = \begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} + \begin{bmatrix} +6.640 \\ -6.640 \end{bmatrix} \times 0.0346 = \begin{bmatrix} 2.0 + 0.230 \\ 2.0 - 0.230 \end{bmatrix} = \begin{bmatrix} 2.230\text{ m} \\ 1.770\text{ m} \end{bmatrix}$$</p>
+<p>Tính Innovation, Kalman Gain và cập nhật trạng thái:<br/>• Phần dư đo: $\nu = \theta_{meas} - \check{\theta} = 0.8200 - 0.7854 = +0.0346\text{ rad}$.<br/>• Hiệp phương sai phần dư:<br/>$$S = H \check{P} H^T + R = [0.0625, -0.0625] \begin{bmatrix} 0.25 & 0 \\ 0 & 0.25 \end{bmatrix} \begin{bmatrix} 0.0625 \\ -0.0625 \end{bmatrix} + 0.0004 = 0.25(0.0625^2 + 0.0625^2) + 0.0004 = 0.001953 + 0.0004 = 0.002353\text{ rad}^2$$<br/>• Kalman Gain:<br/>$$K = \check{P} H^T S^{-1} = \begin{bmatrix} 0.25 \times 0.0625 \\ 0.25 \times (-0.0625) \end{bmatrix} \frac{1}{0.002353} = \begin{bmatrix} 0.015625 \\ -0.015625 \end{bmatrix} \times 424.99 = \begin{bmatrix} +6.640 \\ -6.640 \end{bmatrix}$$<br/>• Cập nhật trạng thái:<br/>$$\hat{\mathbf{x}} = \check{\mathbf{x}} + K \nu = \begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} + \begin{bmatrix} +6.640 \\ -6.640 \end{bmatrix} \times 0.0346 = \begin{bmatrix} 2.0 + 0.230 \\ 2.0 - 0.230 \end{bmatrix} = \begin{bmatrix} 2.230\text{ m} \\ 1.770\text{ m} \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">

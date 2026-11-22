@@ -126,7 +126,7 @@
 </div>
 <h3 class="exercise-title">Outlier Gating Cho Cảm Biến LiDAR 2D Bằng Khoảng Cách Mahalanobis</h3>
 <div class="exercise-statement">
-<strong>Đề bài kỹ thuật:</strong> Robot ước lượng vị trí một cột mốc trong bản đồ với kỳ vọng tiên nghiệm $\boldsymbol{\mu} = [10.0, 2.0]^T\text{ m}$ và ma trận hiệp phương sai sai số $\boldsymbol{\Sigma} = \begin{bmatrix} 0.09 &amp; 0.04 \\ 0.04 &amp; 0.09 \end{bmatrix}\text{ m}^2$. Cảm biến LiDAR quét về một điểm mốc quan sát được tại tọa độ $\mathbf{y} = [10.6, 2.4]^T\text{ m}$. Với mức ý nghĩa $\alpha = 0.05$ (độ tin cậy $95\%$), hãy: (a) Chuyển đổi phân phối tiên nghiệm sang dạng thông tin $(\mathbf{Y}, \mathbf{y}_v)$; (b) Tính khoảng cách Mahalanobis bình phương $d_M^2$; (c) Ra quyết định chấp nhận hay loại bỏ phép đo.
+<strong>Đề bài kỹ thuật:</strong> Robot ước lượng vị trí một cột mốc trong bản đồ với kỳ vọng tiên nghiệm $\boldsymbol{\mu} = [10.0, 2.0]^T\text{ m}$ và ma trận hiệp phương sai sai số $\boldsymbol{\Sigma} = \begin{bmatrix} 0.09 & 0.04 \\ 0.04 & 0.09 \end{bmatrix}\text{ m}^2$. Cảm biến LiDAR quét về một điểm mốc quan sát được tại tọa độ $\mathbf{y} = [10.6, 2.4]^T\text{ m}$. Với mức ý nghĩa $\alpha = 0.05$ (độ tin cậy $95\%$), hãy: (a) Chuyển đổi phân phối tiên nghiệm sang dạng thông tin $(\mathbf{Y}, \mathbf{y}_v)$; (b) Tính khoảng cách Mahalanobis bình phương $d_M^2$; (c) Ra quyết định chấp nhận hay loại bỏ phép đo.
           </div>
 <div class="solution-wrapper">
 <div class="solution-step">
@@ -141,14 +141,14 @@
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tính nghịch đảo ma trận hiệp phương sai (Information Matrix) $\mathbf{Y} = \boldsymbol{\Sigma}^{-1}$:<br/>$\det(\boldsymbol{\Sigma}) = 0.09 \times 0.09 - 0.04^2 = 0.0081 - 0.0016 = 0.0065$.<br/>$$\mathbf{Y} = \boldsymbol{\Sigma}^{-1} = \frac{1}{0.0065}\begin{bmatrix} 0.09 &amp; -0.04 \\ -0.04 &amp; 0.09 \end{bmatrix} = \begin{bmatrix} 13.846 &amp; -6.154 \\ -6.154 &amp; 13.846 \end{bmatrix}\text{ m}^{-2}$$<br/>Information Vector: $\mathbf{y}_v = \mathbf{Y} \boldsymbol{\mu} = \begin{bmatrix} 13.846(10) - 6.154(2) \\ -6.154(10) + 13.846(2) \end{bmatrix} = \begin{bmatrix} 126.154 \\ -33.848 \end{bmatrix}$.</p>
+<p>Tính nghịch đảo ma trận hiệp phương sai (Information Matrix) $\mathbf{Y} = \boldsymbol{\Sigma}^{-1}$:<br/>$\det(\boldsymbol{\Sigma}) = 0.09 \times 0.09 - 0.04^2 = 0.0081 - 0.0016 = 0.0065$.<br/>$$\mathbf{Y} = \boldsymbol{\Sigma}^{-1} = \frac{1}{0.0065}\begin{bmatrix} 0.09 & -0.04 \\ -0.04 & 0.09 \end{bmatrix} = \begin{bmatrix} 13.846 & -6.154 \\ -6.154 & 13.846 \end{bmatrix}\text{ m}^{-2}$$<br/>Information Vector: $\mathbf{y}_v = \mathbf{Y} \boldsymbol{\mu} = \begin{bmatrix} 13.846(10) - 6.154(2) \\ -6.154(10) + 13.846(2) \end{bmatrix} = \begin{bmatrix} 126.154 \\ -33.848 \end{bmatrix}$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tính khoảng cách Mahalanobis bình phương:<br/>$$d_M^2 = \mathbf{e}^T \mathbf{Y} \mathbf{e} = [0.6, 0.4] \begin{bmatrix} 13.846 &amp; -6.154 \\ -6.154 &amp; 13.846 \end{bmatrix} \begin{bmatrix} 0.6 \\ 0.4 \end{bmatrix}$$<br/>Tích trung gian: $\mathbf{Y}\mathbf{e} = \begin{bmatrix} 13.846(0.6) - 6.154(0.4) \\ -6.154(0.6) + 13.846(0.4) \end{bmatrix} = \begin{bmatrix} 8.308 - 2.462 \\ -3.692 + 5.538 \end{bmatrix} = \begin{bmatrix} 5.846 \\ 1.846 \end{bmatrix}$.<br/>Nhân vô hướng: $d_M^2 = 0.6(5.846) + 0.4(1.846) = 3.508 + 0.738 = 4.246$.<br/>Độ lệch chuẩn chuẩn hóa: $d_M = \sqrt{4.246} \approx 2.060\sigma$.</p>
+<p>Tính khoảng cách Mahalanobis bình phương:<br/>$$d_M^2 = \mathbf{e}^T \mathbf{Y} \mathbf{e} = [0.6, 0.4] \begin{bmatrix} 13.846 & -6.154 \\ -6.154 & 13.846 \end{bmatrix} \begin{bmatrix} 0.6 \\ 0.4 \end{bmatrix}$$<br/>Tích trung gian: $\mathbf{Y}\mathbf{e} = \begin{bmatrix} 13.846(0.6) - 6.154(0.4) \\ -6.154(0.6) + 13.846(0.4) \end{bmatrix} = \begin{bmatrix} 8.308 - 2.462 \\ -3.692 + 5.538 \end{bmatrix} = \begin{bmatrix} 5.846 \\ 1.846 \end{bmatrix}$.<br/>Nhân vô hướng: $d_M^2 = 0.6(5.846) + 0.4(1.846) = 3.508 + 0.738 = 4.246$.<br/>Độ lệch chuẩn chuẩn hóa: $d_M = \sqrt{4.246} \approx 2.060\sigma$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">

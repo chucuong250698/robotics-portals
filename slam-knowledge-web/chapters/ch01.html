@@ -121,7 +121,7 @@
 <div class="formula-hero">
 <div class="formula-title">Phương Trình Động Học Vi Sai Thuận</div>
 <div class="formula-math">
-            $$\begin{bmatrix} v \\ \omega \end{bmatrix} = \begin{bmatrix} \frac{r}{2} &amp; \frac{r}{2} \\ \frac{r}{b} &amp; -\frac{r}{b} \end{bmatrix} \begin{bmatrix} \omega_R \\ \omega_L \end{bmatrix}$$
+            $$\begin{bmatrix} v \\ \omega \end{bmatrix} = \begin{bmatrix} \frac{r}{2} & \frac{r}{2} \\ \frac{r}{b} & -\frac{r}{b} \end{bmatrix} \begin{bmatrix} \omega_R \\ \omega_L \end{bmatrix}$$
           </div>
 <div class="formula-legend">
 <strong>Ý nghĩa các đại lượng:</strong>
@@ -206,7 +206,7 @@
 <span class="step-name">Bước 2: Tính ma trận Jacobian theo điều khiển $\mathbf{G}_u = \frac{\partial \mathbf{f}}{\partial \mathbf{u}}$</span>
 </div>
 <div class="step-content">
-<p>Vector điều khiển $\mathbf{u} = [\Delta s, \Delta \theta]^T$:</p><p>$$\mathbf{G}_u = \begin{bmatrix} \cos\theta_0 &amp; 0 \\ \sin\theta_0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} \cos(0) &amp; 0 \\ \sin(0) &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}$$</p>
+<p>Vector điều khiển $\mathbf{u} = [\Delta s, \Delta \theta]^T$:</p><p>$$\mathbf{G}_u = \begin{bmatrix} \cos\theta_0 & 0 \\ \sin\theta_0 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} \cos(0) & 0 \\ \sin(0) & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 0 \\ 0 & 1 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -215,7 +215,7 @@
 <span class="step-name">Bước 3: Lập ma trận hiệp phương sai nhiễu điều khiển $\mathbf{M}$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{M} = \begin{bmatrix} \sigma_s^2 &amp; 0 \\ 0 &amp; \sigma_\theta^2 \end{bmatrix} = \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.0025 \end{bmatrix}$$</p><p>Ma trận lan truyền nhiễu: $\mathbf{Q} = \mathbf{G}_u \mathbf{M} \mathbf{G}_u^T$.</p>
+<p>$$\mathbf{M} = \begin{bmatrix} \sigma_s^2 & 0 \\ 0 & \sigma_\theta^2 \end{bmatrix} = \begin{bmatrix} 0.01 & 0 \\ 0 & 0.0025 \end{bmatrix}$$</p><p>Ma trận lan truyền nhiễu: $\mathbf{Q} = \mathbf{G}_u \mathbf{M} \mathbf{G}_u^T$.</p>
 </div>
 </div>
 <div class="solution-step">
@@ -224,7 +224,7 @@
 <span class="step-name">Bước 4: Tính ma trận hiệp phương sai mới $\mathbf{P}_1$</span>
 </div>
 <div class="step-content">
-<p>$$\mathbf{P}_1 = \mathbf{G}_u \mathbf{M} \mathbf{G}_u^T = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.0025 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0.01 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0.0025 \end{bmatrix}$$</p><p>Độ không chắc chắn theo trục $x$ là $\sigma_x = \sqrt{0.01} = 0.1$ m, theo góc hướng là $\sigma_\theta = \sqrt{0.0025} = 0.05$ rad ($\approx 2.86^\circ$).</p>
+<p>$$\mathbf{P}_1 = \mathbf{G}_u \mathbf{M} \mathbf{G}_u^T = \begin{bmatrix} 1 & 0 \\ 0 & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 0.01 & 0 \\ 0 & 0.0025 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix} = \begin{bmatrix} 0.01 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0.0025 \end{bmatrix}$$</p><p>Độ không chắc chắn theo trục $x$ là $\sigma_x = \sqrt{0.01} = 0.1$ m, theo góc hướng là $\sigma_\theta = \sqrt{0.0025} = 0.05$ rad ($\approx 2.86^\circ$).</p>
 </div>
 </div>
 
@@ -320,7 +320,7 @@ private:
 <span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
 </div>
 <div class="step-content">
-<p>Góc quay của robot vi sai được tính từ độ chênh lệch dịch chuyển 2 bánh xe: $\Delta\theta = \frac{\Delta s_R - \Delta s_L}{b}$. Do đó ma trận Jacobian theo vector đo bánh xe là $\mathbf{J}_\theta = \begin{bmatrix} \frac{\partial\theta}{\partial s_R} &amp; \frac{\partial\theta}{\partial s_L} \end{bmatrix} = \begin{bmatrix} \frac{1}{b} &amp; -\frac{1}{b} \end{bmatrix} = \begin{bmatrix} 2.5 &amp; -2.5 \end{bmatrix}$.</p>
+<p>Góc quay của robot vi sai được tính từ độ chênh lệch dịch chuyển 2 bánh xe: $\Delta\theta = \frac{\Delta s_R - \Delta s_L}{b}$. Do đó ma trận Jacobian theo vector đo bánh xe là $\mathbf{J}_\theta = \begin{bmatrix} \frac{\partial\theta}{\partial s_R} & \frac{\partial\theta}{\partial s_L} \end{bmatrix} = \begin{bmatrix} \frac{1}{b} & -\frac{1}{b} \end{bmatrix} = \begin{bmatrix} 2.5 & -2.5 \end{bmatrix}$.</p>
 </div>
 </div>
 <div class="solution-step">

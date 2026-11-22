@@ -152,7 +152,7 @@
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tính ma trận Fisher tổng hợp $\mathcal{I}(\mathbf{x}) = \sum_{i=1}^3 \frac{1}{\sigma_i^2} H_i^T H_i$:<br/>• $\mathcal{I}_1 = \frac{1}{0.04}\begin{bmatrix} 0.8621 &amp; 0.3449 \\ 0.3449 &amp; 0.1379 \end{bmatrix} = \begin{bmatrix} 21.553 &amp; 8.623 \\ 8.623 &amp; 3.448 \end{bmatrix}$<br/>• $\mathcal{I}_2 = \frac{1}{0.09}\begin{bmatrix} 0.8621 &amp; -0.3449 \\ -0.3449 &amp; 0.1379 \end{bmatrix} = \begin{bmatrix} 9.579 &amp; -3.832 \\ -3.832 &amp; 1.532 \end{bmatrix}$<br/>• $\mathcal{I}_3 = \frac{1}{0.25}\begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 4.000 \end{bmatrix}$<br/>Tổng Fisher Matrix: $\mathcal{I}(\mathbf{x}) = \begin{bmatrix} 31.132 &amp; 4.791 \\ 4.791 &amp; 8.980 \end{bmatrix}\text{ m}^{-2}$.<br/>Nghịch đảo để tìm CRLB: $\det(\mathcal{I}) = 31.132 \times 8.980 - 4.791^2 = 256.611$.<br/>$$\boldsymbol{\Sigma}_{CRLB} = \mathcal{I}^{-1} = \frac{1}{256.611}\begin{bmatrix} 8.980 &amp; -4.791 \\ -4.791 &amp; 31.132 \end{bmatrix} = \begin{bmatrix} 0.0350 &amp; -0.0187 \\ -0.0187 &amp; 0.1213 \end{bmatrix}\text{ m}^2$$</p>
+<p>Tính ma trận Fisher tổng hợp $\mathcal{I}(\mathbf{x}) = \sum_{i=1}^3 \frac{1}{\sigma_i^2} H_i^T H_i$:<br/>• $\mathcal{I}_1 = \frac{1}{0.04}\begin{bmatrix} 0.8621 & 0.3449 \\ 0.3449 & 0.1379 \end{bmatrix} = \begin{bmatrix} 21.553 & 8.623 \\ 8.623 & 3.448 \end{bmatrix}$<br/>• $\mathcal{I}_2 = \frac{1}{0.09}\begin{bmatrix} 0.8621 & -0.3449 \\ -0.3449 & 0.1379 \end{bmatrix} = \begin{bmatrix} 9.579 & -3.832 \\ -3.832 & 1.532 \end{bmatrix}$<br/>• $\mathcal{I}_3 = \frac{1}{0.25}\begin{bmatrix} 0 & 0 \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 0 & 0 \\ 0 & 4.000 \end{bmatrix}$<br/>Tổng Fisher Matrix: $\mathcal{I}(\mathbf{x}) = \begin{bmatrix} 31.132 & 4.791 \\ 4.791 & 8.980 \end{bmatrix}\text{ m}^{-2}$.<br/>Nghịch đảo để tìm CRLB: $\det(\mathcal{I}) = 31.132 \times 8.980 - 4.791^2 = 256.611$.<br/>$$\boldsymbol{\Sigma}_{CRLB} = \mathcal{I}^{-1} = \frac{1}{256.611}\begin{bmatrix} 8.980 & -4.791 \\ -4.791 & 31.132 \end{bmatrix} = \begin{bmatrix} 0.0350 & -0.0187 \\ -0.0187 & 0.1213 \end{bmatrix}\text{ m}^2$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
@@ -180,7 +180,7 @@
 <summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
 <div class="practice-solution-body">
 <div class="practice-answer">
-<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Khoảng cách $r_4 = 8.0\text{ m} \implies H_4 = [0, 1]$. Lượng thông tin bổ sung $\Delta \mathcal{I}_4 = \frac{1}{0.0225}[0, 0; 0, 1] = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 44.44 \end{bmatrix}$. Phần tử $\mathcal{I}_{22}$ mới $= 8.98 + 44.44 = 53.42\text{ m}^{-2}$. Kết quả: $\sigma_{y,min}$ giảm mạnh từ $0.348\text{ m}$ xuống còn xấp xỉ $0.137\text{ m}$!
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Khoảng cách $r_4 = 8.0\text{ m} \implies H_4 = [0, 1]$. Lượng thông tin bổ sung $\Delta \mathcal{I}_4 = \frac{1}{0.0225}[0, 0; 0, 1] = \begin{bmatrix} 0 & 0 \\ 0 & 44.44 \end{bmatrix}$. Phần tử $\mathcal{I}_{22}$ mới $= 8.98 + 44.44 = 53.42\text{ m}^{-2}$. Kết quả: $\sigma_{y,min}$ giảm mạnh từ $0.348\text{ m}$ xuống còn xấp xỉ $0.137\text{ m}$!
           </div>
 </div>
 </details>

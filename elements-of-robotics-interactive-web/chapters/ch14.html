@@ -185,7 +185,7 @@
 <h4 class="practice-title">Chiếu Tối Ưu Bằng Phân Tích Biệt Thức Tuyến Tính Fisher LDA</h4>
 </div>
 <div class="practice-statement">
-<p>Robot phân loại 2 bề mặt sàn (Gỗ vs Thảm) bằng 2 cảm biến (độ rung $x_1$ và dòng tải $x_2$). Lớp 1 (Gỗ) có vector kỳ vọng $\mathbf{m}_1 = [2.0, 1.0]^T$. Lớp 2 (Thảm) có $\mathbf{m}_2 = [4.0, 3.0]^T$. Ma trận phân tán trong lớp gộp (Within-Class Scatter Matrix) là $\mathbf{S}_W = \begin{bmatrix} 2.0 &amp; 0.5 \\ 0.5 &amp; 1.0 \end{bmatrix}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính vector chênh lệch kỳ vọng $\Delta\mathbf{m} = \mathbf{m}_1 - \mathbf{m}_2$.<br/>2) Tính định thức và ma trận nghịch đảo $\mathbf{S}_W^{-1}$.<br/>3) Tính vector chiếu tối ưu Fisher $\mathbf{w} = \mathbf{S}_W^{-1} (\mathbf{m}_1 - \mathbf{m}_2)$ giúp tối đa hóa tỷ số Rayleigh.</p>
+<p>Robot phân loại 2 bề mặt sàn (Gỗ vs Thảm) bằng 2 cảm biến (độ rung $x_1$ và dòng tải $x_2$). Lớp 1 (Gỗ) có vector kỳ vọng $\mathbf{m}_1 = [2.0, 1.0]^T$. Lớp 2 (Thảm) có $\mathbf{m}_2 = [4.0, 3.0]^T$. Ma trận phân tán trong lớp gộp (Within-Class Scatter Matrix) là $\mathbf{S}_W = \begin{bmatrix} 2.0 & 0.5 \\ 0.5 & 1.0 \end{bmatrix}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính vector chênh lệch kỳ vọng $\Delta\mathbf{m} = \mathbf{m}_1 - \mathbf{m}_2$.<br/>2) Tính định thức và ma trận nghịch đảo $\mathbf{S}_W^{-1}$.<br/>3) Tính vector chiếu tối ưu Fisher $\mathbf{w} = \mathbf{S}_W^{-1} (\mathbf{m}_1 - \mathbf{m}_2)$ giúp tối đa hóa tỷ số Rayleigh.</p>
 </div>
 <details class="practice-solution">
 <summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
@@ -205,7 +205,7 @@
 <span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
 </div>
 <div class="step-content">
-<p>Nghịch đảo ma trận $\mathbf{S}_W$:<br/>$\det(\mathbf{S}_W) = (2.0)(1.0) - (0.5)(0.5) = 2.0 - 0.25 = 1.75 = \frac{7}{4}$.<br/>$$\mathbf{S}_W^{-1} = \frac{1}{1.75} \begin{bmatrix} 1.0 &amp; -0.5 \\ -0.5 &amp; 2.0 \end{bmatrix} = \begin{bmatrix} 0.5714 &amp; -0.2857 \\ -0.2857 &amp; 1.1429 \end{bmatrix}$$</p>
+<p>Nghịch đảo ma trận $\mathbf{S}_W$:<br/>$\det(\mathbf{S}_W) = (2.0)(1.0) - (0.5)(0.5) = 2.0 - 0.25 = 1.75 = \frac{7}{4}$.<br/>$$\mathbf{S}_W^{-1} = \frac{1}{1.75} \begin{bmatrix} 1.0 & -0.5 \\ -0.5 & 2.0 \end{bmatrix} = \begin{bmatrix} 0.5714 & -0.2857 \\ -0.2857 & 1.1429 \end{bmatrix}$$</p>
 </div>
 </div>
 <div class="solution-step">
@@ -214,7 +214,7 @@
 <span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
 </div>
 <div class="step-content">
-<p>Vector chiếu tối ưu Fisher:<br/>$$\mathbf{w} = \begin{bmatrix} 0.5714 &amp; -0.2857 \\ -0.2857 &amp; 1.1429 \end{bmatrix} \begin{bmatrix} -2.0 \\ -2.0 \end{bmatrix} = \begin{bmatrix} -1.1428 + 0.5714 \\ 0.5714 - 2.2858 \end{bmatrix} = \begin{bmatrix} -0.5714 \\ -1.7144 \end{bmatrix}$$<br/>Chuẩn hóa theo thành phần đầu: $\mathbf{w}^* \propto [1.0, 3.0]^T$. Chiếu dữ liệu lên trục này giúp tách biệt tối đa giữa sàn Gỗ và Thảm, giảm thiểu tối đa chồng lấn phân phối.</p>
+<p>Vector chiếu tối ưu Fisher:<br/>$$\mathbf{w} = \begin{bmatrix} 0.5714 & -0.2857 \\ -0.2857 & 1.1429 \end{bmatrix} \begin{bmatrix} -2.0 \\ -2.0 \end{bmatrix} = \begin{bmatrix} -1.1428 + 0.5714 \\ 0.5714 - 2.2858 \end{bmatrix} = \begin{bmatrix} -0.5714 \\ -1.7144 \end{bmatrix}$$<br/>Chuẩn hóa theo thành phần đầu: $\mathbf{w}^* \propto [1.0, 3.0]^T$. Chiếu dữ liệu lên trục này giúp tách biệt tối đa giữa sàn Gỗ và Thảm, giảm thiểu tối đa chồng lấn phân phối.</p>
 </div>
 </div>
 </div>

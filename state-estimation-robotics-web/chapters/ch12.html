@@ -89,16 +89,16 @@
 <div class="formula-card">
 <div class="formula-header">Công Thức Tiền Tích Phân IMU Trên Nhóm Lie (Forster 2017)</div>
           $$\begin{align}
-          \Delta \mathbf{R}_{ij} &amp;= \prod_{k=i}^{j-1} \exp\left( (\tilde{\boldsymbol{\omega}}_k - \mathbf{b}_i^g)^\wedge \Delta t \right) \\
-          \Delta \mathbf{v}_{ij} &amp;= \sum_{k=i}^{j-1} \Delta \mathbf{R}_{ik} (\tilde{\mathbf{a}}_k - \mathbf{b}_i^a) \Delta t \\
-          \Delta \mathbf{p}_{ij} &amp;= \sum_{k=i}^{j-1} \left( \Delta \mathbf{v}_{ik} \Delta t + \frac{1}{2} \Delta \mathbf{R}_{ik} (\tilde{\mathbf{a}}_k - \mathbf{b}_i^a) \Delta t^2 \right)
+          \Delta \mathbf{R}_{ij} &= \prod_{k=i}^{j-1} \exp\left( (\tilde{\boldsymbol{\omega}}_k - \mathbf{b}_i^g)^\wedge \Delta t \right) \\
+          \Delta \mathbf{v}_{ij} &= \sum_{k=i}^{j-1} \Delta \mathbf{R}_{ik} (\tilde{\mathbf{a}}_k - \mathbf{b}_i^a) \Delta t \\
+          \Delta \mathbf{p}_{ij} &= \sum_{k=i}^{j-1} \left( \Delta \mathbf{v}_{ik} \Delta t + \frac{1}{2} \Delta \mathbf{R}_{ik} (\tilde{\mathbf{a}}_k - \mathbf{b}_i^a) \Delta t^2 \right)
           \end{align}$$
         </div>
 <p>Quan hệ giữa các đại lượng tiền tích phân cục bộ và trạng thái toàn cục trong hệ quy chiếu thế giới $W$:</p>
         $$\begin{align}
-        \mathbf{R}_j &amp;= \mathbf{R}_i \Delta \mathbf{R}_{ij} \exp\left( (\mathbf{J}_{ij}^{\Delta R} \delta \mathbf{b}_i^g)^\wedge \right) \\
-        \mathbf{v}_j &amp;= \mathbf{v}_i + \mathbf{g}^W \Delta t_{ij} + \mathbf{R}_i \left( \Delta \mathbf{v}_{ij} + \mathbf{J}_{ij}^{\Delta v, g} \delta \mathbf{b}_i^g + \mathbf{J}_{ij}^{\Delta v, a} \delta \mathbf{b}_i^a \right) \\
-        \mathbf{p}_j &amp;= \mathbf{p}_i + \mathbf{v}_i \Delta t_{ij} + \frac{1}{2}\mathbf{g}^W \Delta t_{ij}^2 + \mathbf{R}_i \left( \Delta \mathbf{p}_{ij} + \mathbf{J}_{ij}^{\Delta p, g} \delta \mathbf{b}_i^g + \mathbf{J}_{ij}^{\Delta p, a} \delta \mathbf{b}_i^a \right)
+        \mathbf{R}_j &= \mathbf{R}_i \Delta \mathbf{R}_{ij} \exp\left( (\mathbf{J}_{ij}^{\Delta R} \delta \mathbf{b}_i^g)^\wedge \right) \\
+        \mathbf{v}_j &= \mathbf{v}_i + \mathbf{g}^W \Delta t_{ij} + \mathbf{R}_i \left( \Delta \mathbf{v}_{ij} + \mathbf{J}_{ij}^{\Delta v, g} \delta \mathbf{b}_i^g + \mathbf{J}_{ij}^{\Delta v, a} \delta \mathbf{b}_i^a \right) \\
+        \mathbf{p}_j &= \mathbf{p}_i + \mathbf{v}_i \Delta t_{ij} + \frac{1}{2}\mathbf{g}^W \Delta t_{ij}^2 + \mathbf{R}_i \left( \Delta \mathbf{p}_{ij} + \mathbf{J}_{ij}^{\Delta p, g} \delta \mathbf{b}_i^g + \mathbf{J}_{ij}^{\Delta p, a} \delta \mathbf{b}_i^a \right)
         \end{align}$$
       </section>
 <section class="content-section" id="sec-3">
@@ -126,21 +126,21 @@
 <span class="step-num-badge">1</span>
 <span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
 </div>
-<p>Tích lũy nhịp 1 ($k=1 \to 2$):<br/>• Vector góc xoay bước 1: $\delta \boldsymbol{\theta}_1 = \tilde{\boldsymbol{\omega}}_1 \Delta t = [0, 0, 0.01]^T\text{ rad}$.<br/>• Ma trận quay bước 1 (xấp xỉ góc nhỏ):<br/>$$\Delta \mathbf{R}_{12} = \exp(\delta \boldsymbol{\theta}_1^\wedge) \approx \begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$<br/>• Biến thiên vận tốc: $\Delta \mathbf{v}_{12} = \tilde{\mathbf{a}}_1 \Delta t = [1.00 \times 0.10, 0, 0]^T = [0.10, 0, 0]^T\text{ m/s}$.<br/>• Biến thiên vị trí: $\Delta \mathbf{p}_{12} = \frac{1}{2}\tilde{\mathbf{a}}_1 \Delta t^2 = \frac{1}{2}[1.00 \times 0.01, 0, 0]^T = [0.005, 0, 0]^T\text{ m}$.</p>
+<p>Tích lũy nhịp 1 ($k=1 \to 2$):<br/>• Vector góc xoay bước 1: $\delta \boldsymbol{\theta}_1 = \tilde{\boldsymbol{\omega}}_1 \Delta t = [0, 0, 0.01]^T\text{ rad}$.<br/>• Ma trận quay bước 1 (xấp xỉ góc nhỏ):<br/>$$\Delta \mathbf{R}_{12} = \exp(\delta \boldsymbol{\theta}_1^\wedge) \approx \begin{bmatrix} 1 & -0.01 & 0 \\ 0.01 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$$<br/>• Biến thiên vận tốc: $\Delta \mathbf{v}_{12} = \tilde{\mathbf{a}}_1 \Delta t = [1.00 \times 0.10, 0, 0]^T = [0.10, 0, 0]^T\text{ m/s}$.<br/>• Biến thiên vị trí: $\Delta \mathbf{p}_{12} = \frac{1}{2}\tilde{\mathbf{a}}_1 \Delta t^2 = \frac{1}{2}[1.00 \times 0.01, 0, 0]^T = [0.005, 0, 0]^T\text{ m}$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">2</span>
 <span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
 </div>
-<p>Tích lũy nhịp 2 ($k=2 \to 3$):<br/>• Vector góc xoay bước 2: $\delta \boldsymbol{\theta}_2 = \tilde{\boldsymbol{\omega}}_2 \Delta t = [0, 0, 0.01]^T\text{ rad}$.<br/>• Góc quay tổng hợp: $\Delta \mathbf{R}_{13} = \Delta \mathbf{R}_{12} \exp(\delta \boldsymbol{\theta}_2^\wedge) \approx \begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}\begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; -0.02 &amp; 0 \\ 0.02 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$.</p>
+<p>Tích lũy nhịp 2 ($k=2 \to 3$):<br/>• Vector góc xoay bước 2: $\delta \boldsymbol{\theta}_2 = \tilde{\boldsymbol{\omega}}_2 \Delta t = [0, 0, 0.01]^T\text{ rad}$.<br/>• Góc quay tổng hợp: $\Delta \mathbf{R}_{13} = \Delta \mathbf{R}_{12} \exp(\delta \boldsymbol{\theta}_2^\wedge) \approx \begin{bmatrix} 1 & -0.01 & 0 \\ 0.01 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}\begin{bmatrix} 1 & -0.01 & 0 \\ 0.01 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} = \begin{bmatrix} 1 & -0.02 & 0 \\ 0.02 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$.</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
 <span class="step-num-badge">3</span>
 <span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
 </div>
-<p>Tổng hợp biến thiên vận tốc và vị trí cục bộ:<br/>• Gia tốc nhịp 2 quy đổi về hệ quy chiếu 1: $\Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 = \begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}\begin{bmatrix} 1.00 \\ 0 \\ 0 \end{bmatrix} = \begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix}\text{ m/s}^2$.<br/>• Vận tốc tích lũy:<br/>$$\Delta \mathbf{v}_{13} = \Delta \mathbf{v}_{12} + \Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 \Delta t = \begin{bmatrix} 0.10 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix} \times 0.10 = \begin{bmatrix} 0.20\text{ m/s} \\ 0.001\text{ m/s} \\ 0.000\text{ m/s} \end{bmatrix}$$<br/>• Vị trí tích lũy:<br/>$$\Delta \mathbf{p}_{13} = \Delta \mathbf{p}_{12} + \Delta \mathbf{v}_{12} \Delta t + \frac{1}{2}\Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 \Delta t^2 = \begin{bmatrix} 0.005 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 0.10 \times 0.10 \\ 0 \\ 0 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix} \times 0.01 = \begin{bmatrix} 0.005 + 0.010 + 0.005 \\ 0 + 0 + 0.00005 \\ 0 \end{bmatrix} = \begin{bmatrix} 0.02000\text{ m} \\ 0.00005\text{ m} \\ 0.00000\text{ m} \end{bmatrix}$$</p>
+<p>Tổng hợp biến thiên vận tốc và vị trí cục bộ:<br/>• Gia tốc nhịp 2 quy đổi về hệ quy chiếu 1: $\Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 = \begin{bmatrix} 1 & -0.01 & 0 \\ 0.01 & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}\begin{bmatrix} 1.00 \\ 0 \\ 0 \end{bmatrix} = \begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix}\text{ m/s}^2$.<br/>• Vận tốc tích lũy:<br/>$$\Delta \mathbf{v}_{13} = \Delta \mathbf{v}_{12} + \Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 \Delta t = \begin{bmatrix} 0.10 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix} \times 0.10 = \begin{bmatrix} 0.20\text{ m/s} \\ 0.001\text{ m/s} \\ 0.000\text{ m/s} \end{bmatrix}$$<br/>• Vị trí tích lũy:<br/>$$\Delta \mathbf{p}_{13} = \Delta \mathbf{p}_{12} + \Delta \mathbf{v}_{12} \Delta t + \frac{1}{2}\Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 \Delta t^2 = \begin{bmatrix} 0.005 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 0.10 \times 0.10 \\ 0 \\ 0 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix} \times 0.01 = \begin{bmatrix} 0.005 + 0.010 + 0.005 \\ 0 + 0 + 0.00005 \\ 0 \end{bmatrix} = \begin{bmatrix} 0.02000\text{ m} \\ 0.00005\text{ m} \\ 0.00000\text{ m} \end{bmatrix}$$</p>
 </div>
 <div class="solution-step">
 <div class="solution-step-header">
