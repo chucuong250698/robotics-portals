@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 03: Động Học Vi Phân & Tĩnh Học Robot | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -112,29 +112,29 @@
         <p>Quan hệ vận tốc giữa không gian khớp $\dot{\mathbf{q}} \in \mathbb{R}^n$ và không gian thao tác $\mathbf{v}_e = [\dot{\mathbf{p}}_e^T, \boldsymbol{\omega}_e^T]^T \in \mathbb{R}^6$:</p>
         <div class="formula-card">
           <div class="formula-header">Ma Trận Jacobian Hình Học & Công Thức Từng Cột</div>
-          $$\begin{equation}
+          $$
           \mathbf{v}_e = \begin{bmatrix} \dot{\mathbf{p}}_e \\ \boldsymbol{\omega}_e \end{bmatrix} = J(\mathbf{q}) \dot{\mathbf{q}} = \begin{bmatrix} J_P(\mathbf{q}) \\ J_O(\mathbf{q}) \end{bmatrix} \dot{\mathbf{q}}
-          \end{equation}$$
+          $$
           <p>Với khớp quay (Revolute joint $i$):</p>
-          $$\begin{equation}
+          $$
           J_{Pi} = \mathbf{z}_{i-1} \times (\mathbf{p}_e - \mathbf{p}_{i-1}), \qquad J_{Oi} = \mathbf{z}_{i-1}
-          \end{equation}$$
+          $$
           <p>Với khớp tịnh tiến (Prismatic joint $i$):</p>
-          $$\begin{equation}
+          $$
           J_{Pi} = \mathbf{z}_{i-1}, \qquad J_{Oi} = \mathbf{0}
-          \end{equation}$$
+          $$
         </div>
 
         <p>Khi robot tiếp cận điểm kỳ dị ($\det(J) \approx 0$), thuật toán <strong>Damped Least-Squares (DLS / Levenberg-Marquardt)</strong> bảo toàn tính ổn định bằng cách thêm trọng số suy giảm $\lambda \gt 0$:</p>
         <div class="formula-card">
           <div class="formula-header">Nghịch Đảo Damped Least-Squares (DLS) & Giải Thuật CLIK</div>
-          $$\begin{equation}
+          $$
           J^*(\mathbf{q}) = J^T(\mathbf{q}) \left( J(\mathbf{q}) J^T(\mathbf{q}) + \lambda^2 I \right)^{-1}
-          \end{equation}$$
+          $$
           <p>Giải thuật <strong>Closed-Loop Inverse Kinematics (CLIK)</strong> tích hợp phản hồi triệt tiêu sai số trôi dạt tích phân (Drift):</p>
-          $$\begin{equation}
+          $$
           \dot{\mathbf{q}} = J^\dagger(\mathbf{q}) \left( \dot{\mathbf{x}}_d + K_P (\mathbf{x}_d - \mathbf{x}_e) \right) + (I - J^\dagger(\mathbf{q}) J(\mathbf{q})) \dot{\mathbf{q}}_0
-          \end{equation}$$
+          $$
           <p>Toán tử chiếu không gian rỗng $(I - J^\dagger J)$ cho phép robot dư thừa bậc tự do ($n \gt m$) thực hiện nhiệm vụ phụ $\dot{\mathbf{q}}_0$ (như tránh va chạm, tối ưu chỉ số Yoshikawa) mà không làm lệch quỹ đạo điểm đầu công tác.</p>
         </div>
         
@@ -239,11 +239,11 @@
           <div class="sim-controls-grid">
             
             <div class="control-group">
-              <label>Góc khớp 1 ($q_1$): <span id="sim03-q1-val">45</span>°</label>
+              <label>Góc khớp 1 (q₁): <span id="sim03-q1-val">45</span>°</label>
               <input type="range" id="sim03-q1" min="-180" max="180" step="5" value="45">
             </div>
             <div class="control-group">
-              <label>Góc khớp 2 ($q_2$): <span id="sim03-q2-val">60</span>°</label>
+              <label>Góc khớp 2 (q₂): <span id="sim03-q2-val">60</span>°</label>
               <input type="range" id="sim03-q2" min="1" max="179" step="1" value="60">
             </div>
         

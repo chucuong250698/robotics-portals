@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 11: Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -89,7 +89,7 @@
           <span class="page-source-badge">📖 Siciliano et al. (2025), Chương 11, Trang 551–590</span>
         </div>
         <h1 class="chapter-title">Chương 11: Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</h1>
-        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Khớp đàn hồi, Hộp số Harmonic Drive, Mô hình rút gọn Spong & Mô hình đầy đủ, Nhiễu loạn kỳ dị (Singular Perturbation), Tuyến tính hóa phản hồi chính xác (Exact Linearization)</p>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Khớp đàn hồi, Hộp số Harmonic Drive, Mô hình rút gọn Spong & Mô hình đầy đủ, Nhiễu loạn kỳ dị <em>(Singular Perturbation)</em>, Tuyến tính hóa phản hồi chính xác <em>(Exact Linearization)</em></p>
       </header>
 
       <!-- Section 1: Overview -->
@@ -101,9 +101,7 @@
           <p>Trong các dòng robot thế hệ mới — từ robot cộng tác siêu nhẹ (Cobots như Universal Robots UR, Franka Emika Panda) đến robot hình người (Humanoid Robots như Tesla Optimus, Figure 01, Boston Dynamics Atlas) — yêu cầu giảm tối đa khối lượng tự thân và kích thước khớp nối đã dẫn đến việc ứng dụng phổ biến các bộ truyền động bánh răng sóng đàn hồi (Harmonic Drive), bộ truyền động Cycloidal, hoặc cơ cấu truyền động dây cáp kéo (tendon-driven). Tuy nhiên, các bộ truyền động này mang bản chất <strong>Đàn Hồi Xoắn Khớp (Joint Elasticity / Compliance)</strong> rất lớn.</p>
           <p>Nếu người kỹ sư tiếp tục áp dụng các mô hình động lực học tay máy cứng cổ điển (Rigid Robot Dynamics) của thế kỷ 20, cánh tay robot khi chuyển động ở vận tốc cao hoặc dừng đột ngột sẽ sinh ra các <em>dao động cộng hưởng rung lắc dữ dội quanh khớp</em>. Hiện tượng này phá hủy hoàn toàn độ chính xác định vị ở khâu tác động cuối, làm văng lắc chi tiết gắp và có thể gây mất ổn định vòng điều khiển. <strong>Chương 11 độc quyền của ấn bản 2025</strong> giải quyết căn bản bài toán này bằng cách xây dựng mô hình toán học giải tích chính xác cho hệ thống khớp đàn hồi và thiết kế các bộ điều khiển phi tuyến cấp cao triệt tiêu triệt để rung chấn cơ học.</p>
         </div>
-        <p>Bản chất vật lý của khớp đàn hồi là sự xuất hiện của độ lệch góc tương đối giữa góc quay của rotor động cơ $\boldsymbol{\theta}_m$ (đã quy đổi qua tỷ số truyền hộp số $N$) và góc quay thực tế của khâu liên kết $\mathbf{q}$:</p>
-        $$\boldsymbol{\tau}_J = \mathbf{K} (\boldsymbol{\theta}_m - \mathbf{q})$$
-        <p>trong đó $\mathbf{K} = \text{diag}(k_1, \dots, k_n)$ là ma trận độ cứng xoắn của các khớp đàn hồi, và $\boldsymbol{\tau}_J$ là mô-men xoắn thực tế truyền qua lò xo khớp tác dụng lên khâu liên kết.</p>
+        <p>Bản chất vật lý của khớp đàn hồi là sự xuất hiện của độ lệch góc tương đối giữa góc quay của rotor động cơ $\boldsymbol{\theta}_m$ (đã quy đổi qua tỷ số truyền hộp số $N$) và góc quay thực tế của khâu liên kết $\mathbf{q}$:</p> $$\boldsymbol{\tau}_J = \mathbf{K} (\boldsymbol{\theta}_m - \mathbf{q})$$ <p> trong đó $\mathbf{K} = \text{diag}(k_1, \dots, k_n)$ là ma trận độ cứng xoắn của các khớp đàn hồi, và $\boldsymbol{\tau}_J$ là mô-men xoắn thực tế truyền qua lò xo khớp tác dụng lên khâu liên kết.</p>
     
       </section>
 
@@ -116,28 +114,20 @@
         <h3>1. Mô Hình Rút Gọn Spong (Spong's Reduced Model, 1987)</h3>
         <p>Dưới giả thiết vận tốc góc của rotor động cơ chỉ phụ thuộc vào góc quay của trục chính nó và bỏ qua động năng ghép chéo giữa rotor và khâu trước (giả thiết Spong), hệ phương trình vi phân chuyển động tách thành hai khối phương trình vi phân bậc hai ghép nối đàn hồi:</p>
         $$\mathbf{B}(\mathbf{q})\ddot{\mathbf{q}} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q})$$
-        $$\mathbf{J}_m \ddot{\boldsymbol{\theta}}_m + \mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q}) = \boldsymbol{\tau}$$
-        <p>trong đó $\mathbf{B}(\mathbf{q}) \in \mathbb{R}^{n \times n}$ là ma trận quán tính của các khâu, $\mathbf{J}_m = \text{diag}(J_{m1}, \dots, J_{mn})$ là ma trận quán tính của các rotor động cơ sau hộp số, và $\boldsymbol{\tau} \in \mathbb{R}^n$ là vector mô-men điện từ do động cơ sinh ra. Đây là một <strong>Hệ thống thiếu cơ cấu chấp hành (Underactuated System)</strong>: có $2n$ bậc tự do tọa độ $(\mathbf{q}, \boldsymbol{\theta}_m)$ nhưng chỉ có $n$ tín hiệu điều khiển $\boldsymbol{\tau}$!</p>
+        $$\mathbf{J}_m \ddot{\boldsymbol{\theta}}_m + \mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q}) = \boldsymbol{\tau}$$ <p> trong đó $\mathbf{B}(\mathbf{q}) \in \mathbb{R}^{n \times n}$ là ma trận quán tính của các khâu, $\mathbf{J}_m = \text{diag}(J_{m1}, \dots, J_{mn})$ là ma trận quán tính của các rotor động cơ sau hộp số, và $\boldsymbol{\tau} \in \mathbb{R}^n$ là vector mô-men điện từ do động cơ sinh ra. Đây là một <strong> Hệ thống thiếu cơ cấu chấp hành (Underactuated System)</strong>: có $2n$ bậc tự do tọa độ $(\mathbf{q}, \boldsymbol{\theta}_m)$ nhưng chỉ có $n$ tín hiệu điều khiển $\boldsymbol{\tau}$!</p>
 
-        <h3>2. Phương Pháp Nhiễu Loạn Kỳ Dị (Singular Perturbation)</h3>
+        <h3>2. Phương Pháp Nhiễu Loạn Kỳ Dị <em>(Singular Perturbation)</em></h3>
         <p>Khi độ cứng của khớp rất lớn, ta đặt $\mathbf{K} = \frac{1}{\epsilon^2}\mathbf{K}_0$ với tham số nhỏ $\epsilon \to 0$. Đặt biến độ biến dạng đàn hồi nhanh $\mathbf{z} = \mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q})$. Khi đó hệ thống phân rã thành hai hệ con ở hai thang thời gian khác nhau:</p>
         <ul>
-          <li><strong>Hệ chậm (Slow Subsystem, $\epsilon = 0$):</strong> Mô tả chuyển động cứng toàn cục của robot $\mathbf{B}(\mathbf{q})\ddot{\mathbf{q}} + \mathbf{C}\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau}_s$, tương đương với mô hình robot cứng truyền thống với quán tính tổng $\mathbf{B}_t(\mathbf{q}) = \mathbf{B}(\mathbf{q}) + \mathbf{J}_m$.</li>
-          <li><strong>Hệ nhanh (Fast Subsystem):</strong> Mô tả dao động đàn hồi cao tần quanh vị trí cân bằng quasistatic: $\frac{d^2\mathbf{z}}{d\tau^2} + \mathbf{K}_0(\mathbf{J}_m^{-1} + \mathbf{B}^{-1}(\mathbf{q}))\mathbf{z} = \dots$. Bộ điều khiển nhanh được thiết kế để bổ sung hệ số cản ảo dập tắt các dao động này.</li>
+          <li><strong>Hệ chậm (Slow Subsystem, $\epsilon = 0$): </strong> Mô tả chuyển động cứng toàn cục của robot $\mathbf{B}(\mathbf{q})\ddot{\mathbf{q}} + \mathbf{C}\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau}_s$, tương đương với mô hình robot cứng truyền thống với quán tính tổng $\mathbf{B}_t(\mathbf{q}) = \mathbf{B}(\mathbf{q}) + \mathbf{J}_m$.</li> <li><strong>Hệ nhanh (Fast Subsystem):</strong> Mô tả dao động đàn hồi cao tần quanh vị trí cân bằng quasistatic: $\frac{d^2\mathbf{z}}{d\tau^2} + \mathbf{K}_0(\mathbf{J}_m^{-1} + \mathbf{B}^{-1}(\mathbf{q}))\mathbf{z} = \dots$. Bộ điều khiển nhanh được thiết kế để bổ sung hệ số cản ảo dập tắt các dao động này.</li>
         </ul>
 
         <h3>3. Điều Khiển Điểm Dừng PD Có Bù Trọng Lực (Tomei, 1991)</h3>
-        <p>Để đưa robot về vị trí góc khâu mong muốn $\mathbf{q}_d$, ta sử dụng bộ điều khiển chỉ đo các biến của rotor động cơ $(\boldsymbol{\theta}_m, \dot{\boldsymbol{\theta}}_m)$:</p>
-        $$\boldsymbol{\tau} = \mathbf{g}(\mathbf{q}_d) + \mathbf{K}_P (\boldsymbol{\theta}_{md} - \boldsymbol{\theta}_m) - \mathbf{K}_D \dot{\boldsymbol{\theta}}_m$$
-        <p>với vị trí cân bằng rotor mục tiêu được tính bù biến dạng đàn hồi trọng lực: $\boldsymbol{\theta}_{md} = \mathbf{q}_d + \mathbf{K}^{-1}\mathbf{g}(\mathbf{q}_d)$.</p>
-        <p><strong>Định lý ổn định Lyapunov:</strong> Hệ kín đạt tính ổn định tiệm cận toàn cục nếu ma trận khuếch đại $\mathbf{K}_P$ thỏa mãn điều kiện độ cứng vượt ngưỡng cực tiểu trọng lực:</p>
-        $$\lambda_{\min}(\mathbf{K}_P) \gt \alpha_g = \sup_{\mathbf{q}} \left\| \frac{\partial \mathbf{g}(\mathbf{q})}{\partial \mathbf{q}} \right\|$$
+        <p>Để đưa robot về vị trí góc khâu mong muốn $\mathbf{q}_d$, ta sử dụng bộ điều khiển chỉ đo các biến của rotor động cơ $(\boldsymbol{\theta}_m, \dot{\boldsymbol{\theta}}_m)$:</p> $$\boldsymbol{\tau} = \mathbf{g}(\mathbf{q}_d) + \mathbf{K}_P (\boldsymbol{\theta}_{md} - \boldsymbol{\theta}_m) - \mathbf{K}_D \dot{\boldsymbol{\theta}}_m$$ <p> với vị trí cân bằng rotor mục tiêu được tính bù biến dạng đàn hồi trọng lực: $\boldsymbol{\theta}_{md} = \mathbf{q}_d + \mathbf{K}^{-1}\mathbf{g}(\mathbf{q}_d)$.</p> <p><strong>Định lý ổn định Lyapunov:</strong> Hệ kín đạt tính ổn định tiệm cận toàn cục nếu ma trận khuếch đại $\mathbf{K}_P$ thỏa mãn điều kiện độ cứng vượt ngưỡng cực tiểu trọng lực:</p> $$\lambda_{\min}(\mathbf{K}_P) \gt \alpha_g = \sup_{\mathbf{q}} \left\| \frac{\partial \mathbf{g}(\mathbf{q})}{\partial \mathbf{q}} \right\|$$
 
         <h3>4. Tuyến Tính Hóa Phản Hồi Trạng Thái Chính Xác (Exact Feedback Linearization)</h3>
-        <p>Khác biệt căn bản với các hệ thống underactuated thông thường, hệ robot khớp đàn hồi theo mô hình Spong sở hữu một đặc tính toán học kỳ diệu được phát hiện bởi De Luca (1998): nếu chọn vector biến ra phẳng chính là góc các khâu liên kết $\mathbf{y} = \mathbf{q}$, đạo hàm liên tiếp biến ra đến cấp 4:</p>
-        $$\mathbf{y} = \mathbf{q}, \quad \dot{\mathbf{y}} = \dot{\mathbf{q}}, \quad \ddot{\mathbf{y}} = \mathbf{B}^{-1}(\mathbf{q})[\mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q}) - \mathbf{n}(\mathbf{q}, \dot{\mathbf{q}})]$$
-        $$\mathbf{y}^{(3)} = \frac{d}{dt}\ddot{\mathbf{y}}, \quad \mathbf{y}^{(4)} = \mathbf{B}^{-1}\mathbf{K}\mathbf{J}_m^{-1}\boldsymbol{\tau} + \mathbf{f}_{nl}(\mathbf{q}, \dot{\mathbf{q}}, \boldsymbol{\theta}_m, \dot{\boldsymbol{\theta}}_m) = \mathbf{v}$$
-        <p>Tổng bậc tương đối của hệ là $r = 4n$, đúng bằng số chiều của không gian trạng thái $4n$! Điều này chứng minh hệ <strong>không có động học zero (No Zero Dynamics)</strong>, cho phép tuyến tính hóa chính xác toàn bộ hệ thống sang $n$ chuỗi 4 tích phân độc lập $\frac{d^4 q_i}{dt^4} = v_i$ để điều khiển bám quỹ đạo hoàn hảo!</p>
+        <p>Khác biệt căn bản với các hệ thống underactuated thông thường, hệ robot khớp đàn hồi theo mô hình Spong sở hữu một đặc tính toán học kỳ diệu được phát hiện bởi De Luca (1998): nếu chọn vector biến ra phẳng chính là góc các khâu liên kết $\mathbf{y} = \mathbf{q}$, đạo hàm liên tiếp biến ra đến cấp 4:</p> $$\mathbf{y} = \mathbf{q}, \quad \dot{\mathbf{y}} = \dot{\mathbf{q}}, \quad \ddot{\mathbf{y}} = \mathbf{B}^{-1}(\mathbf{q})[\mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q}) - \mathbf{n}(\mathbf{q}, \dot{\mathbf{q}})]$$
+        $$\mathbf{y}^{(3)} = \frac{d}{dt}\ddot{\mathbf{y}}, \quad \mathbf{y}^{(4)} = \mathbf{B}^{-1}\mathbf{K}\mathbf{J}_m^{-1}\boldsymbol{\tau} + \mathbf{f}_{nl}(\mathbf{q}, \dot{\mathbf{q}}, \boldsymbol{\theta}_m, \dot{\boldsymbol{\theta}}_m) = \mathbf{v}$$ <p> Tổng bậc tương đối của hệ là $r = 4n$, đúng bằng số chiều của không gian trạng thái $4n$! Điều này chứng minh hệ <strong> không có động học zero (No Zero Dynamics)</strong>, cho phép tuyến tính hóa chính xác toàn bộ hệ thống sang $n$ chuỗi 4 tích phân độc lập $\frac{d^4 q_i}{dt^4} = v_i$ để điều khiển bám quỹ đạo hoàn hảo!</p>
     
       </section>
 
@@ -148,9 +138,7 @@
         <h3>Công Nghệ Cảm Biến Kép & Cấu Trúc Điều Khiển Triệt Rung Trong Sản Xuất</h3>
         <p>Để hiện thực hóa các giải thuật điều khiển khớp đàn hồi trên robot công nghiệp thế hệ mới, các nhà sản xuất tích hợp cấu trúc phần cứng chuyên dụng:</p>
         <ul>
-          <li><strong>Bộ mã hóa vòng quay kép (Dual Encoders):</strong> Mỗi khớp được trang bị đồng thời 2 encoder: một encoder quang/từ đo góc rotor $\boldsymbol{\theta}_m$ trước hộp số, và một encoder tuyệt đối 19-bit đo chính xác góc khâu $\mathbf{q}$ sau hộp số.</li>
-          <li><strong>Đo mô-men xoắn khớp thời gian thực (Joint Torque Sensing - JTS):</strong> Khớp nối tích hợp cảm biến đo biến dạng cầu Wheatstone (Strain Gauges) đo trực tiếp lực xoắn $\boldsymbol{\tau}_J = \mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q})$, loại bỏ nhu cầu lấy đạo hàm số bậc cao chứa nhiễu.</li>
-          <li><strong>Bộ lọc định hình xung đầu vào (Input Shaping / Zero Vibration ZV Filters):</strong> Tích chập xung lệnh chuyển động với các xung trễ pha nửa chu kỳ dao động tự nhiên $\tau_d = \frac{\pi}{\omega_n}$ để triệt tiêu dao động tồn lưu ở khâu tác động cuối.</li>
+          <li><strong>Bộ mã hóa vòng quay kép (Dual Encoders):</strong> Mỗi khớp được trang bị đồng thời 2 encoder: một encoder quang/từ đo góc rotor $\boldsymbol{\theta}_m$ trước hộp số, và một encoder tuyệt đối 19-bit đo chính xác góc khâu $\mathbf{q}$ sau hộp số.</li> <li><strong>Đo mô-men xoắn khớp thời gian thực (Joint Torque Sensing - JTS):</strong> Khớp nối tích hợp cảm biến đo biến dạng cầu Wheatstone (Strain Gauges) đo trực tiếp lực xoắn $\boldsymbol{\tau}_J = \mathbf{K}(\boldsymbol{\theta}_m - \mathbf{q})$, loại bỏ nhu cầu lấy đạo hàm số bậc cao chứa nhiễu.</li> <li><strong>Bộ lọc định hình xung đầu vào (Input Shaping / Zero Vibration ZV Filters):</strong> Tích chập xung lệnh chuyển động với các xung trễ pha nửa chu kỳ dao động tự nhiên $\tau_d = \frac{\pi}{\omega_n}$ để triệt tiêu dao động tồn lưu ở khâu tác động cuối.</li>
         </ul>
 
         <h4>Triển Khai Trong ROS 2 Control (Effort Controllers with State Observers)</h4>
@@ -167,7 +155,7 @@
             <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Phản Hồi Trạng Thái Khử Dao Động Cho Cánh Tay 1 Khớp Đàn Hồi</h3>
           </div>
           <div class="exercise-statement">
-            <p>Một khớp robot đơn có tính đàn hồi (Single Flexible Joint Manipulator) chuyển động quay trong mặt phẳng nằm ngang (không chịu tác dụng của trọng lực). Các thông số vật lý định lượng thực nghiệm của hệ thống:<br>• Quán tính của khâu liên kết: $J = 0.20\text{ kg}\cdot\text{m}^2$<br>• Quán tính của rotor động cơ (đã quy đổi qua hộp số): $J_m = 0.05\text{ kg}\cdot\text{m}^2$<br>• Độ cứng đàn hồi xoắn của khớp: $k = 400.0\text{ N}\cdot\text{m/rad}$<br>• Hệ số cản nhớt nội tại khớp: $d_s = 0.50\text{ N}\cdot\text{m}\cdot\text{s/rad}$<br><br>Cần điều khiển đưa góc của khâu liên kết $q$ từ trạng thái nghỉ tại gốc $q(0) = \dot{q}(0) = \theta_m(0) = \dot{\theta}_m(0) = 0$ tới vị trí góc mong muốn $q_d = 1.00\text{ rad}$.<br><br>Hãy thực hiện: (1) Tính tần số dao động tự nhiên của khớp đàn hồi $\omega_n$ khi rotor bị khóa chặt và khi toàn hệ tự do; (2) Thiết lập phương trình không gian trạng thái tuyến tính bậc 4 với vector trạng thái $\mathbf{x} = [q, \dot{q}, \theta_m, \dot{\theta}_m]^T$; (3) Sử dụng phương pháp gán cực (Pole Placement) để xác định vector hồi tiếp trạng thái $\mathbf{K}_{fb} = [k_1, k_2, k_3, k_4]$ sao cho 4 cực của hệ kín nằm tại các vị trí mong muốn: $\{-10, -10, -15, -15\}\text{ s}^{-1}$; (4) Xác định hệ số khuếch đại đặt trước đầu vào $k_{pre}$ để triệt tiêu sai số xác lập của góc khâu ($q_{ss} = q_d$), và tính giá trị mô-men điều khiển ban đầu $\tau(0)$.</p>
+            <p>Một khớp robot đơn có tính đàn hồi (Single Flexible Joint Manipulator) chuyển động quay trong mặt phẳng nằm ngang (không chịu tác dụng của trọng lực). Các thông số vật lý định lượng thực nghiệm của hệ thống:<br>• Quán tính của khâu liên kết: $J = 0.20\text{ kg}\cdot\text{m}^2$ <br> • Quán tính của rotor động cơ (đã quy đổi qua hộp số): $J_m = 0.05\text{ kg}\cdot\text{m}^2$ <br> • Độ cứng đàn hồi xoắn của khớp: $k = 400.0\text{ N}\cdot\text{m/rad}$ <br> • Hệ số cản nhớt nội tại khớp: $d_s = 0.50\text{ N}\cdot\text{m}\cdot\text{s/rad}$ <br> <br>Cần điều khiển đưa góc của khâu liên kết $q$ từ trạng thái nghỉ tại gốc $q(0) = \dot{q}(0) = \theta_m(0) = \dot{\theta}_m(0) = 0$ tới vị trí góc mong muốn $q_d = 1.00\text{ rad}$. <br> <br>Hãy thực hiện: (1) Tính tần số dao động tự nhiên của khớp đàn hồi $\omega_n$ khi rotor bị khóa chặt và khi toàn hệ tự do; (2) Thiết lập phương trình không gian trạng thái tuyến tính bậc 4 với vector trạng thái $\mathbf{x} = [q, \dot{q}, \theta_m, \dot{\theta}_m]^T$; (3) Sử dụng phương pháp gán cực (Pole Placement) để xác định vector hồi tiếp trạng thái $\mathbf{K}_{fb} = [k_1, k_2, k_3, k_4]$ sao cho 4 cực của hệ kín nằm tại các vị trí mong muốn: $\{-10, -10, -15, -15\}\text{ s}^{-1}$; (4) Xác định hệ số khuếch đại đặt trước đầu vào $k_{pre}$ để triệt tiêu sai số xác lập của góc khâu ($q_{ss} = q_d$), và tính giá trị mô-men điều khiển ban đầu $\tau(0)$.</p>
           </div>
 
           <div class="solution-wrapper">
@@ -180,7 +168,7 @@
                 <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
               </div>
               <div class="step-content">
-                <p>Tính tần số dao động tự nhiên của khớp đàn hồi:<br>• Khi rotor bị khóa chặt ($\theta_m = 0$), phương trình chuyển động của khâu là $J \ddot{q} + k q = 0$. Tần số dao động tự nhiên riêng của khâu là:<br>$$\omega_{link} = \sqrt{\frac{k}{J}} = \sqrt{\frac{400.0}{0.20}} = \sqrt{2000} \approx 44.72\text{ rad/s} \quad (\approx 7.12\text{ Hz})$$<br>• Khi toàn hệ tự do, quán tính tương đương quy đổi của hệ hai vật khối lượng nối bởi lò xo là $J_{eq} = \frac{J \cdot J_m}{J + J_m} = \frac{0.20 \cdot 0.05}{0.20 + 0.05} = \frac{0.01}{0.25} = 0.04\text{ kg}\cdot\text{m}^2$.<br>Tần số dao động chống cộng hưởng tự do (Anti-resonance / Joint natural frequency):<br>$$\omega_n = \sqrt{\frac{k}{J_{eq}}} = \sqrt{\frac{400.0}{0.04}} = \sqrt{10000} = 100.0\text{ rad/s} \quad (\approx 15.92\text{ Hz})$$<br>Nếu không có bộ điều khiển dập tắt dao động, khớp sẽ rung rền ở tần số $100\text{ rad/s}$.</p>
+                <p>Tính tần số dao động tự nhiên của khớp đàn hồi:<br>• Khi rotor bị khóa chặt ($\theta_m = 0$), phương trình chuyển động của khâu là $J \ddot{q} + k q = 0$. Tần số dao động tự nhiên riêng của khâu là: <br> $$\omega_{link} = \sqrt{\frac{k}{J}} = \sqrt{\frac{400.0}{0.20}} = \sqrt{2000} \approx 44.72\text{ rad/s} \quad (\approx 7.12\text{ Hz})$$ <br> • Khi toàn hệ tự do, quán tính tương đương quy đổi của hệ hai vật khối lượng nối bởi lò xo là $J_{eq} = \frac{J \cdot J_m}{J + J_m} = \frac{0.20 \cdot 0.05}{0.20 + 0.05} = \frac{0.01}{0.25} = 0.04\text{ kg}\cdot\text{m}^2$. <br> Tần số dao động chống cộng hưởng tự do (Anti-resonance / Joint natural frequency):<br>$$\omega_n = \sqrt{\frac{k}{J_{eq}}} = \sqrt{\frac{400.0}{0.04}} = \sqrt{10000} = 100.0\text{ rad/s} \quad (\approx 15.92\text{ Hz})$$ <br> Nếu không có bộ điều khiển dập tắt dao động, khớp sẽ rung rền ở tần số $100\text{ rad/s}$.</p>
               </div>
             </div>
 
@@ -191,7 +179,7 @@
                 <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
               </div>
               <div class="step-content">
-                <p>Thiết lập mô hình không gian trạng thái tuyến tính bậc 4:<br>Phương trình vi phân mô hình Spong (bỏ qua cản nhớt nhỏ để thiết kế gán cực danh định):<br>$$J \ddot{q} = k(\theta_m - q) \implies \ddot{q} = -\frac{k}{J} q + \frac{k}{J} \theta_m = -2000 q + 2000 \theta_m$$<br>$$J_m \ddot{\theta}_m = -k(\theta_m - q) + \tau \implies \ddot{\theta}_m = \frac{k}{J_m} q - \frac{k}{J_m} \theta_m + \frac{1}{J_m} \tau = 8000 q - 8000 \theta_m + 20.0 \tau$$<br>Với vector trạng thái $\mathbf{x} = [x_1, x_2, x_3, x_4]^T = [q, \dot{q}, \theta_m, \dot{\theta}_m]^T$, phương trình trạng thái $\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}\tau$ có các ma trận:<br>$$\mathbf{A} = \begin{bmatrix} 0 & 1 & 0 & 0 \\ -2000 & 0 & 2000 & 0 \\ 0 & 0 & 0 & 1 \\ 8000 & 0 & -8000 & 0 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0 \\ 0 \\ 0 \\ 20.0 \end{bmatrix}$$<br>Đa thức đặc trưng vòng hở của ma trận $\mathbf{A}$ là: $\det(s\mathbf{I} - \mathbf{A}) = s^4 + 10000 s^2 = s^2(s^2 + 100^2)$. Hệ có 2 cực tại gốc và 2 cực ảo thuần túy tại $\pm 100 j$ (dao động không tắt).</p>
+                <p>Thiết lập mô hình không gian trạng thái tuyến tính bậc 4:<br>Phương trình vi phân mô hình Spong (bỏ qua cản nhớt nhỏ để thiết kế gán cực danh định):<br>$$J \ddot{q} = k(\theta_m - q) \implies \ddot{q} = -\frac{k}{J} q + \frac{k}{J} \theta_m = -2000 q + 2000 \theta_m$$ <br> $$J_m \ddot{\theta}_m = -k(\theta_m - q) + \tau \implies \ddot{\theta}_m = \frac{k}{J_m} q - \frac{k}{J_m} \theta_m + \frac{1}{J_m} \tau = 8000 q - 8000 \theta_m + 20.0 \tau$$ <br> Với vector trạng thái $\mathbf{x} = [x_1, x_2, x_3, x_4]^T = [q, \dot{q}, \theta_m, \dot{\theta}_m]^T$, phương trình trạng thái $\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}\tau$ có các ma trận: <br> $$\mathbf{A} = \begin{bmatrix} 0 & 1 & 0 & 0 \\ -2000 & 0 & 2000 & 0 \\ 0 & 0 & 0 & 1 \\ 8000 & 0 & -8000 & 0 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0 \\ 0 \\ 0 \\ 20.0 \end{bmatrix}$$ <br> Đa thức đặc trưng vòng hở của ma trận $\mathbf{A}$ là: $\det(s\mathbf{I} - \mathbf{A}) = s^4 + 10000 s^2 = s^2(s^2 + 100^2)$. Hệ có 2 cực tại gốc và 2 cực ảo thuần túy tại $\pm 100 j$ (dao động không tắt).</p>
               </div>
             </div>
 
@@ -202,7 +190,7 @@
                 <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
               </div>
               <div class="step-content">
-                <p>Xác định vector hồi tiếp trạng thái $\mathbf{K}_{fb}$ bằng phương pháp gán cực:<br>Đa thức đặc trưng mong muốn của hệ kín có 4 cực tại $\{-10, -10, -15, -15\}$:<br>$$P_d(s) = (s + 10)^2 (s + 15)^2 = (s^2 + 20s + 100)(s^2 + 30s + 225)$$<br>Khai triển tích đa thức bậc 4:<br>$$P_d(s) = s^4 + (20 + 30)s^3 + (225 + 600 + 100)s^2 + (20 \cdot 225 + 30 \cdot 100)s + (100 \cdot 225)$$<br>$$P_d(s) = s^4 + 50 s^3 + 925 s^2 + 7500 s + 22500$$<br>Đa thức đặc trưng của hệ kín với luật điều khiển $\tau = -\mathbf{K}_{fb} \mathbf{x} + k_{pre} q_d$ với $\mathbf{K}_{fb} = [k_1, k_2, k_3, k_4]$ là:<br>$$\det(s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K}_{fb})) = s^4 + 20 k_4 s^3 + (10000 + 20 k_3) s^2 + (40000 k_4 + 40000 k_2) s + (40000 k_3 + 40000 k_1) \dots$$<br>Đồng nhất hệ số với $P_d(s)$:<br>• Hệ số của $s^3$: $20 k_4 = 50 \implies k_4 = \frac{50}{20} = 2.50\text{ N}\cdot\text{s/rad}$<br>• Hệ số của $s^2$: $10000 + 20 k_3 = 925 \implies 20 k_3 = 925 - 10000 = -9075 \implies k_3 = -453.75\text{ N}\cdot\text{m/rad}$<br>Phương trình vi phân giải tích chi tiết (theo công thức Ackermann):<br>Tính toán đầy đủ qua ma trận điều khiển được $\mathcal{C} = [\mathbf{B}, \mathbf{A}\mathbf{B}, \mathbf{A}^2\mathbf{B}, \mathbf{A}^3\mathbf{B}]$ cho ra vector chính xác:<br>$$\mathbf{K}_{fb} = [k_1, k_2, k_3, k_4] = [454.875, \quad 8.750, \quad -453.750, \quad 2.500]$$</p>
+                <p>Xác định vector hồi tiếp trạng thái $\mathbf{K}_{fb}$ bằng phương pháp gán cực: <br> Đa thức đặc trưng mong muốn của hệ kín có 4 cực tại $\{-10, -10, -15, -15\}$: <br> $$P_d(s) = (s + 10)^2 (s + 15)^2 = (s^2 + 20s + 100)(s^2 + 30s + 225)$$ <br> Khai triển tích đa thức bậc 4:<br>$$P_d(s) = s^4 + (20 + 30)s^3 + (225 + 600 + 100)s^2 + (20 \cdot 225 + 30 \cdot 100)s + (100 \cdot 225)$$ <br> $$P_d(s) = s^4 + 50 s^3 + 925 s^2 + 7500 s + 22500$$ <br> Đa thức đặc trưng của hệ kín với luật điều khiển $\tau = -\mathbf{K}_{fb} \mathbf{x} + k_{pre} q_d$ với $\mathbf{K}_{fb} = [k_1, k_2, k_3, k_4]$ là: <br> $$\det(s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K}_{fb})) = s^4 + 20 k_4 s^3 + (10000 + 20 k_3) s^2 + (40000 k_4 + 40000 k_2) s + (40000 k_3 + 40000 k_1) \dots$$ <br> Đồng nhất hệ số với $P_d(s)$: <br> • Hệ số của $s^3$: $20 k_4 = 50 \implies k_4 = \frac{50}{20} = 2.50\text{ N}\cdot\text{s/rad}$ <br> • Hệ số của $s^2$: $10000 + 20 k_3 = 925 \implies 20 k_3 = 925 - 10000 = -9075 \implies k_3 = -453.75\text{ N}\cdot\text{m/rad}$ <br> Phương trình vi phân giải tích chi tiết (theo công thức Ackermann):<br>Tính toán đầy đủ qua ma trận điều khiển được $\mathcal{C} = [\mathbf{B}, \mathbf{A}\mathbf{B}, \mathbf{A}^2\mathbf{B}, \mathbf{A}^3\mathbf{B}]$ cho ra vector chính xác: <br> $$\mathbf{K}_{fb} = [k_1, k_2, k_3, k_4] = [454.875, \quad 8.750, \quad -453.750, \quad 2.500]$$</p>
               </div>
             </div>
 
@@ -213,7 +201,7 @@
                 <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
               </div>
               <div class="step-content">
-                <p>Tính hệ số đặt trước $k_{pre}$ và mô-men khởi động $\tau(0)$:<br>Ở trạng thái xác lập khi $q = q_d = 1.00\text{ rad}$ và các vận tốc triệt tiêu ($\dot{q} = \dot{\theta}_m = 0$), khớp đàn hồi không tải có $\theta_m = q = 1.00\text{ rad}$. Lệnh điều khiển là:<br>$$\tau_{ss} = -k_1 q_{ss} - k_3 \theta_{mss} + k_{pre} q_d = -(k_1 + k_3) q_d + k_{pre} q_d = 0$$<br>(vì không có trọng lực và ngoại lực, mô-men xác lập bằng 0). Do đó:<br>$$k_{pre} = k_1 + k_3 = 454.875 + (-453.750) = 1.125\text{ N}\cdot\text{m/rad}$$<br>Tại thời điểm khởi động $t = 0$, trạng thái robot ở gốc $\mathbf{x}(0) = \mathbf{0}$:<br>$$\tau(0) = -\mathbf{K}_{fb} \mathbf{x}(0) + k_{pre} q_d = 0 + 1.125 \cdot 1.00 = +1.125\text{ N}\cdot\text{m}$$<br><strong>Biện luận vật lý:</strong> Mô-men ban đầu $1.125\text{ N}\cdot\text{m}$ bơm năng lượng tăng tốc hệ thống. Nhờ phản hồi trạng thái toàn phần phối hợp giữa góc rotor và góc khâu, 4 cực nằm hoàn toàn trên trục thực âm loại bỏ 100% hiện tượng rung lắc dao động tự nhiên $100\text{ rad/s}$, góc khâu bám mượt mà tới $1.0\text{ rad}$ mà không có độ vọt lố.</p>
+                <p>Tính hệ số đặt trước $k_{pre}$ và mô-men khởi động $\tau(0)$: <br> Ở trạng thái xác lập khi $q = q_d = 1.00\text{ rad}$ và các vận tốc triệt tiêu ($\dot{q} = \dot{\theta}_m = 0$), khớp đàn hồi không tải có $\theta_m = q = 1.00\text{ rad}$. Lệnh điều khiển là: <br> $$\tau_{ss} = -k_1 q_{ss} - k_3 \theta_{mss} + k_{pre} q_d = -(k_1 + k_3) q_d + k_{pre} q_d = 0$$ <br> (vì không có trọng lực và ngoại lực, mô-men xác lập bằng 0). Do đó:<br>$$k_{pre} = k_1 + k_3 = 454.875 + (-453.750) = 1.125\text{ N}\cdot\text{m/rad}$$ <br> Tại thời điểm khởi động $t = 0$, trạng thái robot ở gốc $\mathbf{x}(0) = \mathbf{0}$: <br> $$\tau(0) = -\mathbf{K}_{fb} \mathbf{x}(0) + k_{pre} q_d = 0 + 1.125 \cdot 1.00 = +1.125\text{ N}\cdot\text{m}$$ <br> <strong>Biện luận vật lý:</strong> Mô-men ban đầu $1.125\text{ N}\cdot\text{m}$ bơm năng lượng tăng tốc hệ thống. Nhờ phản hồi trạng thái toàn phần phối hợp giữa góc rotor và góc khâu, 4 cực nằm hoàn toàn trên trục thực âm loại bỏ 100% hiện tượng rung lắc dao động tự nhiên $100\text{ rad/s}$, góc khâu bám mượt mà tới $1.0\text{ rad}$ mà không có độ vọt lố.</p>
               </div>
             </div>
 
@@ -240,7 +228,7 @@
             
         <button class="btn-sim-action" onclick="toggleSim11()">Khởi chạy / Tạm dừng</button>
         <button class="btn-sim-reset" onclick="resetSim11()">Thiết lập lại</button>
-        <label class="sim-label">Độ cứng khớp $K$: <input type="range" id="sim11-k" min="100" max="1000" step="50" value="400" onchange="updateSim11Params()"></label>
+        <label class="sim-label">Độ cứng khớp (K): <input type="range" id="sim11-k" min="100" max="1000" step="50" value="400" onchange="updateSim11Params()"></label>
         <label class="sim-label">Bộ điều khiển: 
           <select id="sim11-ctrl" onchange="updateSim11Ctrl()">
             <option value="state_feedback">Phản hồi trạng thái (Khử rung)</option>
@@ -358,7 +346,7 @@ int main() {
           <details class="practice-details">
             <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
             <div class="practice-answer">
-              <p>Hằng số Lipschitz của trọng lực: $\alpha_g = \sup_q |\frac{\partial g}{\partial q}| = \sup_q |-mgl\sin q| = mgl = 5.886\text{ N}\cdot\text{m/rad}$.<br>Theo định lý Tomei, để ma trận Hessian của hàm thế năng Lyapunov xác định dương trên toàn không gian cấu hình, độ cứng khuếch đại động cơ phải thỏa mãn: $K_P \gt \alpha_g = 5.886\text{ N}\cdot\text{m/rad}$.<br>Trên thực tế kỹ thuật, người ta thường chọn $K_P \ge 2\alpha_g \approx 12.0\text{ N}\cdot\text{m/rad}$ để đảm bảo độ dự trữ ổn định và tốc độ đáp ứng mong muốn.</p>
+              <p>Hằng số Lipschitz của trọng lực: $\alpha_g = \sup_q |\frac{\partial g}{\partial q}| = \sup_q |-mgl\sin q| = mgl = 5.886\text{ N}\cdot\text{m/rad}$. <br> Theo định lý Tomei, để ma trận Hessian của hàm thế năng Lyapunov xác định dương trên toàn không gian cấu hình, độ cứng khuếch đại động cơ phải thỏa mãn: $K_P> \alpha_g = 5.886\text{ N}\cdot\text{m/rad}$. <br> Trên thực tế kỹ thuật, người ta thường chọn $K_P \ge 2\alpha_g \approx 12.0\text{ N}\cdot\text{m/rad}$ để đảm bảo độ dự trữ ổn định và tốc độ đáp ứng mong muốn.</p>
             </div>
           </details>
         </div>

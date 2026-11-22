@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 01: Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -117,20 +117,20 @@
         <p>Bậc tự do (Degrees of Freedom - DOF) của một cơ cấu chuyển động được xác định bởi công thức kinh điển <strong>Chebyshev - Grübler - Kutzbach</strong>:</p>
         <div class="formula-card">
           <div class="formula-header">Công Thức Bậc Tự Do Chebyshev - Grübler - Kutzbach</div>
-          $$\begin{equation}
+          $$
           M = \lambda (N - 1 - j) + \sum_{i=1}^j f_i
-          \end{equation}$$
+          $$
           <p>Trong đó $\lambda = 6$ cho không gian 3D tổng quát ($\lambda = 3$ cho chuyển động phẳng 2D), $N$ là tổng số khâu liên kết (bao gồm cả khâu đế cố định $N_0 = 1$), $j$ là tổng số khớp nối, và $f_i$ là số bậc tự do tương đối cho phép bởi khớp thứ $i$. Với khớp quay $R$ hoặc khớp tịnh tiến $P$ tiêu chuẩn, $f_i = 1$.</p>
         </div>
 
         <p>Trong phân hệ truyền động khớp, động cơ điện quay với vận tốc góc $\omega_m$ và sinh mô-men $\tau_m$, dẫn động tải quay với vận tốc $\omega_l$ thông qua hộp giảm tốc tỉ số truyền $k_r = \omega_m / \omega_l \gt 1$ và hiệu suất cơ khí $\eta \in (0, 1]$:</p>
         <div class="formula-card">
           <div class="formula-header">Mô Hình Ghép Nối Quán Tính & Động Học Truyền Động Khớp</div>
-          $$\begin{align}
+          $$\begin{aligned}
           J_{eq} &= J_m + \frac{J_l}{k_r^2 \eta} \\
           B_{eq} &= B_m + \frac{B_l}{k_r^2 \eta} \\
           \tau_l &= k_r \eta \tau_m
-          \end{align}$$
+          \end{aligned}$$
           <p>Mô-men quán tính tải $J_l$ khi phản xạ về trục động cơ bị suy giảm theo bình phương tỉ số truyền $k_r^2$. Để tối ưu hóa băng thông điều khiển và khả năng tăng tốc của khớp, quy tắc phối hợp quán tính (Inertia Matching) khuyến nghị tỉ lệ quán tính quy đổi $J_l' / J_m = J_l / (k_r^2 \eta J_m) \approx 1.0$ (hoặc trong khoảng an toàn $0.5 \le J_l'/J_m \le 2.0$).</p>
         </div>
         
@@ -231,11 +231,11 @@
           <div class="sim-controls-grid">
             
             <div class="control-group">
-              <label>Chiều dài khâu 1 ($l_1$): <span id="sim01-l1-val">100 px</span></label>
+              <label>Chiều dài khâu 1 (l₁): <span id="sim01-l1-val">100 px</span></label>
               <input type="range" id="sim01-l1" min="50" max="150" step="5" value="100">
             </div>
             <div class="control-group">
-              <label>Chiều dài khâu 2 ($l_2$): <span id="sim01-l2-val">75 px</span></label>
+              <label>Chiều dài khâu 2 (l₂): <span id="sim01-l2-val">75 px</span></label>
               <input type="range" id="sim01-l2" min="40" max="120" step="5" value="75">
             </div>
         
@@ -340,7 +340,7 @@ int main() {
             <h4 class="practice-title">Bài tập tự luyện 1.1: Tính độ phân giải góc khớp của bộ mã hóa quang học</h4>
           </div>
           <div class="practice-statement">
-            <p>Khớp quay của robot trên sử dụng một bộ mã hóa quang gia số (Quadrature Incremental Optical Encoder) có $N = 2048$ xung trên mỗi vòng quay (PPR) gắn trực tiếp trên trục động cơ trước hộp số $k_r = 100$. Tín hiệu được mạch phần cứng giải mã vuông pha 4x (Quadrature 4x decoding). Hãy tính: 1) Số đếm xung trên mỗi vòng quay của trục đầu ra sau hộp số. 2) Độ phân giải góc nhỏ nhất $\Delta q$ của khớp robot tính bằng radian và độ.</p>
+            <p>Khớp quay của robot trên sử dụng một bộ mã hóa quang gia số <em>(Quadrature Incremental Optical Encoder)</em> có $N = 2048$ xung trên mỗi vòng quay (PPR) gắn trực tiếp trên trục động cơ trước hộp số $k_r = 100$. Tín hiệu được mạch phần cứng giải mã vuông pha 4x <em>(Quadrature 4x decoding)</em>. Hãy tính: 1) Số đếm xung trên mỗi vòng quay của trục đầu ra sau hộp số. 2) Độ phân giải góc nhỏ nhất $\Delta q$ của khớp robot tính bằng radian và độ.</p>
           </div>
           <details class="practice-details">
             <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>

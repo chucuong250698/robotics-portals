@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 05: Động Lực Học Robot Manipulator | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -112,9 +112,9 @@
         <p>Phương trình động lực học Euler-Lagrange tổng quát của cánh tay robot $n$ bậc tự do:</p>
         <div class="formula-card">
           <div class="formula-header">Phương Trình Chuyển Động Euler-Lagrange Dạng Ma Trận</div>
-          $$\begin{equation}
+          $$
           B(\mathbf{q})\ddot{\mathbf{q}} + C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau}
-          \end{equation}$$
+          $$
           <p>Trong đó $\mathcal{T} = \frac{1}{2}\dot{\mathbf{q}}^T B(\mathbf{q})\dot{\mathbf{q}}$ là động năng toàn phần, $B(\mathbf{q}) = B^T(\mathbf{q}) \gt 0$ là ma trận quán tính đối xứng xác định dương, $C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}}$ là vector lực Coriolis và ly tâm xây dựng từ các ký hiệu Christoffel, và $\mathbf{g}(\mathbf{q}) = \frac{\partial \mathcal{U}}{\partial \mathbf{q}}$ là vector mô-men trọng lực.</p>
         </div>
 
@@ -122,13 +122,13 @@
         <div class="formula-card">
           <div class="formula-header">Ba Tính Chất Vật Lý & Toán Học Cốt Lõi</div>
           <ol>
-            <li><strong>Tính phản đối xứng & Bảo toàn năng lượng (Passivity):</strong> Ma trận $N(\mathbf{q}, \dot{\mathbf{q}}) = \dot{B}(\mathbf{q}) - 2C(\mathbf{q}, \dot{\mathbf{q}})$ là ma trận phản đối xứng (Skew-symmetric):
+            <li><strong>Tính phản đối xứng & Bảo toàn năng lượng (Passivity):</strong> Ma trận $N(\mathbf{q}, \dot{\mathbf{q}}) = \dot{B}(\mathbf{q}) - 2C(\mathbf{q}, \dot{\mathbf{q}})$ là ma trận phản đối xứng <em>(Skew-symmetric)</em>:
               $$\mathbf{x}^T \left( \dot{B}(\mathbf{q}) - 2C(\mathbf{q}, \dot{\mathbf{q}}) \right) \mathbf{x} = 0, \quad \forall \mathbf{x} \in \mathbb{R}^n$$
               Hệ quả: Đạo hàm động năng $\dot{\mathcal{T}} = \dot{\mathbf{q}}^T (\boldsymbol{\tau} - \mathbf{g})$, công suất cơ học bảo toàn hoàn hảo.
             </li>
-            <li><strong>Tuyến tính theo thông số động lực học (Linearity in Dynamic Parameters):</strong>
+            <li><strong>Tuyến tính theo thông số động lực học <em>(Linearity in Dynamic Parameters)</em>:</strong>
               $$B(\mathbf{q})\ddot{\mathbf{q}} + C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = Y(\mathbf{q}, \dot{\mathbf{q}}, \ddot{\mathbf{q}}) \boldsymbol{\pi}$$
-              với $Y$ là ma trận hồi quy (Regressor) và $\boldsymbol{\pi}$ là vector thông số quán tính cơ sở (Base Inertial Parameters). Đây là cơ sở toán học để nhận dạng thông số hệ thống và thiết kế bộ điều khiển thích nghi.
+              với $Y$ là ma trận hồi quy (Regressor) và $\boldsymbol{\pi}$ là vector thông số quán tính cơ sở <em>(Base Inertial Parameters)</em>. Đây là cơ sở toán học để nhận dạng thông số hệ thống và thiết kế bộ điều khiển thích nghi.
             </li>
             <li><strong>Tính bị chặn:</strong> Các ma trận đều bị chặn trên theo chuẩn: $\|C(\mathbf{q}, \dot{\mathbf{q}})\| \le k_C \|\dot{\mathbf{q}}\|$, $\|\mathbf{g}(\mathbf{q})\| \le k_g$.</li>
           </ol>
@@ -237,11 +237,11 @@
           <div class="sim-controls-grid">
             
             <div class="control-group">
-              <label>Khối lượng khâu 2 ($m_2$): <span id="sim05-mass-val">2.0 kg</span></label>
+              <label>Khối lượng khâu 2 (m₂): <span id="sim05-mass-val">2.0 kg</span></label>
               <input type="range" id="sim05-mass" min="0.5" max="5.0" step="0.5" value="2.0">
             </div>
             <div class="control-group">
-              <label>Gia tốc trọng trường $g$: <span id="sim05-gravity-val">9.8 m/s²</span></label>
+              <label>Gia tốc trọng trường (g): <span id="sim05-gravity-val">9.8 m/s²</span></label>
               <input type="range" id="sim05-gravity" min="0.0" max="20.0" step="0.5" value="9.8">
             </div>
         
@@ -348,7 +348,7 @@ int main() {
             <h4 class="practice-title">Bài tập tự luyện 5.1: Kiểm chứng tính chất phản đối xứng của ma trận (Ḃ - 2C)</h4>
           </div>
           <div class="practice-statement">
-            <p>Dựa trên ma trận quán tính $B(q)$ và ma trận Coriolis $C(q, \dot{q})$ của robot 2R ở trên, hãy chứng minh bằng đại số ma trận rằng ma trận $N = \dot{B} - 2C$ là ma trận phản đối xứng (Skew-symmetric), tức là $N + N^T = 0$.</p>
+            <p>Dựa trên ma trận quán tính $B(q)$ và ma trận Coriolis $C(q, \dot{q})$ của robot 2R ở trên, hãy chứng minh bằng đại số ma trận rằng ma trận $N = \dot{B} - 2C$ là ma trận phản đối xứng <em>(Skew-symmetric)</em>, tức là $N + N^T = 0$.</p>
           </div>
           <details class="practice-details">
             <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 06: Điều Khiển Chuyển Động Robot | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -111,34 +111,34 @@
         <p>1. Bộ điều khiển PD có bù trọng lực (Gravity Compensation - Ổn định toàn cục theo hàm Lyapunov):</p>
         <div class="formula-card">
           <div class="formula-header">Luật Điều Khiển PD Có Bù Trọng Lực & Ổn Định Lyapunov</div>
-          $$\begin{equation}
+          $$
           \boldsymbol{\tau} = K_P (\mathbf{q}_d - \mathbf{q}) - K_D \dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})
-          \end{equation}$$
+          $$
           <p>Chứng minh tính ổn định tiệm cận toàn cục: Chọn hàm Lyapunov ứng viên đại diện cho tổng động năng và thế năng đàn hồi ảo:</p>
-          $$\begin{equation}
+          $$
           V(\mathbf{q}, \dot{\mathbf{q}}) = \frac{1}{2} \dot{\mathbf{q}}^T B(\mathbf{q}) \dot{\mathbf{q}} + \frac{1}{2} (\mathbf{q}_d - \mathbf{q})^T K_P (\mathbf{q}_d - \mathbf{q}) \gt 0
-          \end{equation}$$
+          $$
           <p>Lấy đạo hàm theo thời gian và áp dụng tính chất ma trận phản đối xứng $\dot{\mathbf{q}}^T (\dot{B} - 2C)\dot{\mathbf{q}} = 0$:</p>
-          $$\begin{equation}
+          $$
           \dot{V} = -\dot{\mathbf{q}}^T K_D \dot{\mathbf{q}} \le 0
-          \end{equation}$$
+          $$
           <p>Theo nguyên lý bất biến LaSalle (LaSalle's Invariance Principle), hệ thống hội tụ tiệm cận toàn cục về điểm cân bằng mong muốn $\mathbf{q} \to \mathbf{q}_d, \dot{\mathbf{q}} \to \mathbf{0}$.</p>
         </div>
 
         <p>2. Điều khiển Tuyến Tính Hóa Hồi Tiếp (Computed Torque Control / Inverse Dynamics):</p>
         <div class="formula-card">
           <div class="formula-header">Luật Tuyến Tính Hóa Hồi Tiếp Computed Torque Control</div>
-          $$\begin{equation}
+          $$
           \boldsymbol{\tau} = B(\mathbf{q}) \mathbf{y} + C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})
-          \end{equation}$$
+          $$
           <p>với tín hiệu gia tốc ảo mong muốn $\mathbf{y}$ kết hợp phản hồi PID/PD:</p>
-          $$\begin{equation}
+          $$
           \mathbf{y} = \ddot{\mathbf{q}}_d + K_D (\dot{\mathbf{q}}_d - \dot{\mathbf{q}}) + K_P (\mathbf{q}_d - \mathbf{q})
-          \end{equation}$$
+          $$
           <p>Thay luật điều khiển vào phương trình động học $B\ddot{\mathbf{q}} + C\dot{\mathbf{q}} + \mathbf{g} = \boldsymbol{\tau}$, do $B(\mathbf{q})$ luôn khả nghịch xác định dương, ta thu được phương trình vi phân sai số tuyến tính thuần nhất hoàn hảo:</p>
-          $$\begin{equation}
+          $$
           \ddot{\mathbf{e}} + K_D \dot{\mathbf{e}} + K_P \mathbf{e} = \mathbf{0}
-          \end{equation}$$
+          $$
         </div>
         
       </section>
@@ -249,11 +249,11 @@
               </select>
             </div>
             <div class="control-group">
-              <label>Hệ số vị trí $K_P$: <span id="sim06-kp-val">100</span></label>
+              <label>Hệ số vị trí (KP): <span id="sim06-kp-val">100</span></label>
               <input type="range" id="sim06-kp" min="20" max="300" step="10" value="100">
             </div>
             <div class="control-group">
-              <label>Hệ số vận tốc $K_D$: <span id="sim06-kd-val">20</span></label>
+              <label>Hệ số vận tốc (KD): <span id="sim06-kd-val">20</span></label>
               <input type="range" id="sim06-kd" min="5" max="50" step="1" value="20">
             </div>
         
@@ -343,7 +343,7 @@ int main() {
         <div class="practice-box">
           <div class="practice-header">
             <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
-            <h4 class="practice-title">Bài tập tự luyện 6.1: Thiết kế bộ điều khiển PD có bù trọng lực (Gravity Cancellation)</h4>
+            <h4 class="practice-title">Bài tập tự luyện 6.1: Thiết kế bộ điều khiển PD có bù trọng lực <em>(Gravity Cancellation)</em></h4>
           </div>
           <div class="practice-statement">
             <p>Cho cánh tay robot trên ở vị trí đặt trước cố định $q_d = 45^\circ = \pi/4\text{ rad}$. Hãy thiết kế luật điều khiển PD bù trọng lực $\tau = K_P (q_d - q) - K_D \dot{q} + mgl\cos q$ sao cho khi cánh tay lệch $5^\circ$ ($0.0873\text{ rad}$), mô-men hồi phục ban đầu sinh ra là $\tau_{rec} = 15.0\text{ N}\cdot\text{m}$. Tính các hệ số $K_P, K_D$ để đáp ứng suy giảm tới hạn.</p>

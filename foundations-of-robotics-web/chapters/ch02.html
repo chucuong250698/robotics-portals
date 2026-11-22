@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 02: Động Học Cánh Tay Robot & Định Hướng Không Gian 3D | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -111,27 +111,27 @@
         <p>Ma trận quay $R \in SO(3)$ mô tả phép quay vật rắn thỏa mãn tính trực giao chuẩn $R^T R = I$ và $\det(R) = +1$. Công thức <strong>Rodrigues</strong> liên kết vector trục quay đơn vị $\mathbf{u} = [u_x, u_y, u_z]^T$ và góc quay $\theta$:</p>
         <div class="formula-card">
           <div class="formula-header">Công Thức Quay Rodrigues & Biểu Diễn Unit Quaternion</div>
-          $$\begin{equation}
+          $$
           R(\mathbf{u}, \theta) = I + \sin\theta S(\mathbf{u}) + (1 - \cos\theta) S^2(\mathbf{u})
-          \end{equation}$$
+          $$
           <p>với $S(\mathbf{u})$ là ma trận phản đối xứng (Skew-symmetric matrix) biểu diễn tích có hướng $\mathbf{u} \times \mathbf{v} = S(\mathbf{u})\mathbf{v}$.</p>
           <p>Định hướng theo <strong>Unit Quaternion</strong> $\mathcal{Q} = \{\eta, \boldsymbol{\epsilon}\}$ gồm phần vô hướng $\eta = \cos(\theta/2)$ và phần vector $\boldsymbol{\epsilon} = \mathbf{u}\sin(\theta/2)$, thỏa mãn ràng buộc mặt cầu 4 chiều $\eta^2 + \boldsymbol{\epsilon}^T \boldsymbol{\epsilon} = 1$. Ma trận quay tương ứng được tính toán hoàn toàn bằng các phép nhân đại số không chứa hàm lượng giác:</p>
-          $$\begin{equation}
+          $$
           R(\eta, \boldsymbol{\epsilon}) = (\eta^2 - \boldsymbol{\epsilon}^T \boldsymbol{\epsilon}) I + 2 \boldsymbol{\epsilon} \boldsymbol{\epsilon}^T + 2 \eta S(\boldsymbol{\epsilon})
-          \end{equation}$$
+          $$
         </div>
 
         <p>Quy ước <strong>Denavit-Hartenberg (DH)</strong> chuẩn hóa việc gắn hệ trục tọa độ lên từng khâu với 4 thông số hình học $(a_i, \alpha_i, d_i, \theta_i)$. Ma trận biến đổi đồng nhất $A_i^{i-1}(q_i) \in SE(3)$ giữa hai khâu kế tiếp:</p>
         <div class="formula-card">
           <div class="formula-header">Ma Trận Biến Đổi Đồng Nhất Denavit-Hartenberg $A_i^{i-1}$</div>
-          $$\begin{equation}
+          $$
           A_i^{i-1}(q_i) = \begin{bmatrix}
           \cos\theta_i & -\sin\theta_i \cos\alpha_i & \sin\theta_i \sin\alpha_i & a_i \cos\theta_i \\
           \sin\theta_i & \cos\theta_i \cos\alpha_i & -\cos\theta_i \sin\alpha_i & a_i \sin\theta_i \\
           0 & \sin\alpha_i & \cos\alpha_i & d_i \\
           0 & 0 & 0 & 1
           \end{bmatrix}
-          \end{equation}$$
+          $$
           <p>Mô hình động học thuận tổng thể của robot $n$ bậc tự do: $T_n^0(\mathbf{q}) = A_1^0(q_1) A_2^1(q_2) \cdots A_n^{n-1}(q_n)$.</p>
         </div>
         
@@ -231,7 +231,7 @@
           <div class="sim-controls-grid">
             
             <div class="control-group">
-              <label>Góc Roll ($\phi$): <span id="sim02-roll-val">25°</span></label>
+              <label>Góc Roll (φ): <span id="sim02-roll-val">25°</span></label>
               <input type="range" id="sim02-roll" min="-90" max="90" step="5" value="25">
             </div>
             <div class="control-group">
@@ -239,7 +239,7 @@
               <input type="range" id="sim02-pitch" min="-90" max="90" step="5" value="35">
             </div>
             <div class="control-group">
-              <label>Góc Yaw ($\psi$): <span id="sim02-yaw-val">45°</span></label>
+              <label>Góc Yaw (ψ): <span id="sim02-yaw-val">45°</span></label>
               <input type="range" id="sim02-yaw" min="-180" max="180" step="5" value="45">
             </div>
         
@@ -335,14 +335,14 @@ int main() {
         <div class="summary-box">
           <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
           <ul class="summary-list">
-            <li><strong>Biểu diễn định hướng:</strong> $SO(3)$ trực giao, Unit Quaternion $\mathbb{S}^3$ không bị khóa trục (Gimbal Lock), là chuẩn mực truyền thông tf2 trong ROS 2.</li><li><strong>Quy ước Denavit-Hartenberg:</strong> Chuẩn hóa 4 tham số $(a_i, \alpha_i, d_i, \theta_i)$ cho chuỗi khâu động học.</li><li><strong>Động học nghịch Pieper:</strong> Robot có cổ tay cầu cho phép phân rã độc lập vị trí tâm cổ tay 3-DOF và hướng cổ tay 3-DOF.</li><li><strong>Đa nghiệm động học:</strong> Hệ thống luôn tồn tại nhiều bộ nghiệm góc khớp (Elbow-up/down, Left/Right arm), cần tiêu chí tối ưu hóa quỹ đạo để lựa chọn nghiệm chuyển động mượt nhất.</li>
+            <li><strong>Biểu diễn định hướng:</strong> $SO(3)$ trực giao, Unit Quaternion $\mathbb{S}^3$ không bị khóa trục (Gimbal Lock), là chuẩn mực truyền thông tf2 trong ROS 2.</li><li><strong>Quy ước Denavit-Hartenberg:</strong> Chuẩn hóa 4 tham số $(a_i, \alpha_i, d_i, \theta_i)$ cho chuỗi khâu động học.</li><li><strong>Động học nghịch Pieper:</strong> Robot có cổ tay cầu cho phép phân rã độc lập vị trí tâm cổ tay 3-DOF và hướng cổ tay 3-DOF.</li><li><strong>Đa nghiệm động học:</strong> Hệ thống luôn tồn tại nhiều bộ nghiệm góc khớp <em>(Elbow-up/down, Left/Right arm)</em>, cần tiêu chí tối ưu hóa quỹ đạo để lựa chọn nghiệm chuyển động mượt nhất.</li>
           </ul>
         </div>
 
         <div class="practice-box">
           <div class="practice-header">
             <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
-            <h4 class="practice-title">Bài tập tự luyện 2.1: Tính nghiệm cấu hình khửu tay hạ (Elbow-down)</h4>
+            <h4 class="practice-title">Bài tập tự luyện 2.1: Tính nghiệm cấu hình khửu tay hạ <em>(Elbow-down)</em></h4>
           </div>
           <div class="practice-statement">
             <p>Với cùng bài toán robot 3R trên, hãy giải nghiệm góc khớp $(q_1, q_2, q_3)$ cho cấu hình khửu tay hướng xuống (Elbow-down, $q_2 \gt 0$) để tới cùng tọa độ đích $(0.60\text{ m}, 0.45\text{ m}, 30^\circ)$.</p>

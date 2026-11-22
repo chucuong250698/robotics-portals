@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chương 10: Điều Khiển Tương Tác Lực & Trở Kháng | Foundations of Robotics 2025</title>
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261121">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,8 +12,8 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\(', '\)']],
-        displayMath: [['$$', '$$'], ['\[', '\]']],
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
         processEscapes: true
       },
       options: {
@@ -118,28 +118,20 @@
         <h3>1. Khái Niệm Trở Kháng & Dẫn Nạp Cơ Học</h3>
         <p>Theo định nghĩa của Neville Hogan (1985), một hệ vật lý tương tác với môi trường có thể biểu diễn như một <strong>Trở kháng cơ học (Impedance)</strong> hoặc <strong>Dẫn nạp cơ học (Admittance)</strong>:</p>
         <ul>
-          <li><strong>Impedance:</strong> Nhận đầu vào là chuyển động (độ dời, vận tốc), sinh ra đầu ra là lực tương tác: $\text{Motion} \to \text{Force}$.</li>
-          <li><strong>Admittance:</strong> Nhận đầu vào là lực tác dụng từ môi trường, sinh ra đầu ra là chuyển động thích ứng: $\text{Force} \to \text{Motion}$.</li>
+          <li><strong>Impedance:</strong> Nhận đầu vào là chuyển động (độ dời, vận tốc), sinh ra đầu ra là lực tương tác: $\text{Motion} \to \text{Force}$.</li> <li><strong>Admittance:</strong> Nhận đầu vào là lực tác dụng từ môi trường, sinh ra đầu ra là chuyển động thích ứng: $\text{Force} \to \text{Motion}$.</li>
         </ul>
         <p>Mục tiêu của bộ điều khiển trở kháng Cartesian là gán cho khâu tác động cuối một hành vi động lực học mục tiêu giống như một hệ cơ học khối lượng - lò xo - giảm chấn ảo:</p>
-        $$\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{h}_e$$
-        <p>trong đó $\mathbf{x}_d$ là quỹ đạo vị trí danh định trong không gian tự do, $\mathbf{M}_d \gt \mathbf{0}$ là ma trận khối lượng biểu kiến (apparent inertia), $\mathbf{D}_d \gt \mathbf{0}$ là ma trận cản nhớt (damping), và $\mathbf{K}_d \gt \mathbf{0}$ là ma trận độ cứng ảo (stiffness).</p>
+        $$\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{h}_e$$ <p> trong đó $\mathbf{x}_d$ là quỹ đạo vị trí danh định trong không gian tự do, $\mathbf{M}_d> \mathbf{0}$ là ma trận khối lượng biểu kiến (apparent inertia), $\mathbf{D}_d> \mathbf{0}$ là ma trận cản nhớt (damping), và $\mathbf{K}_d> \mathbf{0}$ là ma trận độ cứng ảo (stiffness).</p>
 
         <h3>2. Luật Điều Khiển Trở Kháng Trong Không Gian Khớp</h3>
-        <p>Dựa trên phương pháp động lực học nghịch đảo (Inverse Dynamics) và ma trận Jacobian $\mathbf{J}(\mathbf{q})$ liên hệ $\dot{\mathbf{x}} = \mathbf{J}(\mathbf{q})\dot{\mathbf{q}}$ và $\ddot{\mathbf{x}} = \mathbf{J}(\mathbf{q})\ddot{\mathbf{q}} + \dot{\mathbf{J}}(\mathbf{q})\dot{\mathbf{q}}$:</p>
-        $$\boldsymbol{\tau} = \mathbf{B}(\mathbf{q})\mathbf{y} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) + \mathbf{J}^T(\mathbf{q})\mathbf{h}_e$$
-        <p>với vector gia tốc khớp ảo $\mathbf{y}$ được thiết kế triệt tiêu phi tuyến và gán trở kháng mục tiêu:</p>
-        $$\mathbf{y} = \mathbf{J}^{-1}(\mathbf{q})\mathbf{M}_d^{-1}\left( \mathbf{M}_d \ddot{\mathbf{x}}_d + \mathbf{D}_d(\dot{\mathbf{x}}_d - \dot{\mathbf{x}}) + \mathbf{K}_d(\mathbf{x}_d - \mathbf{x}) - \mathbf{h}_e \right) - \mathbf{J}^{-1}(\mathbf{q})\dot{\mathbf{J}}(\mathbf{q})\dot{\mathbf{q}}$$
-        <p>Thay $\boldsymbol{\tau}$ vào phương trình động lực học của robot, ta thu được chính xác quan hệ trở kháng mong muốn ở khâu tác động cuối.</p>
+        <p>Dựa trên phương pháp động lực học nghịch đảo (Inverse Dynamics) và ma trận Jacobian $\mathbf{J}(\mathbf{q})$ liên hệ $\dot{\mathbf{x}} = \mathbf{J}(\mathbf{q})\dot{\mathbf{q}}$ và $\ddot{\mathbf{x}} = \mathbf{J}(\mathbf{q})\ddot{\mathbf{q}} + \dot{\mathbf{J}}(\mathbf{q})\dot{\mathbf{q}}$:</p> $$\boldsymbol{\tau} = \mathbf{B}(\mathbf{q})\mathbf{y} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) + \mathbf{J}^T(\mathbf{q})\mathbf{h}_e$$ <p> với vector gia tốc khớp ảo $\mathbf{y}$ được thiết kế triệt tiêu phi tuyến và gán trở kháng mục tiêu:</p> $$\mathbf{y} = \mathbf{J}^{-1}(\mathbf{q})\mathbf{M}_d^{-1}\left( \mathbf{M}_d \ddot{\mathbf{x}}_d + \mathbf{D}_d(\dot{\mathbf{x}}_d - \dot{\mathbf{x}}) + \mathbf{K}_d(\mathbf{x}_d - \mathbf{x}) - \mathbf{h}_e \right) - \mathbf{J}^{-1}(\mathbf{q})\dot{\mathbf{J}}(\mathbf{q})\dot{\mathbf{q}}$$ <p> Thay $\boldsymbol{\tau}$ vào phương trình động lực học của robot, ta thu được chính xác quan hệ trở kháng mong muốn ở khâu tác động cuối.</p>
 
         <h3>3. Điều Khiển Lai Lực/Chuyển Động (Hybrid Force/Motion Control)</h3>
         <p>Theo nguyên lý Mason (Mason's Constraint Frame), tại mọi điểm tiếp xúc, không gian 6 chiều luôn phân rã thành hai không gian con trực giao:</p>
         <ul>
-          <li><strong>Ràng buộc tự nhiên (Natural Constraints):</strong> Do hình học môi trường áp đặt (ví dụ: trên bề mặt bàn cứng không ma sát, vận tốc theo phương pháp tuyến $v_n = 0$ và lực tiếp tuyến $f_t = 0$).</li>
-          <li><strong>Ràng buộc nhân tạo (Artificial Constraints):</strong> Là các biến điều khiển mà robot được phép kiểm soát (ví dụ: điều khiển lực ép pháp tuyến $f_n = f_d$ và vận tốc di chuyển tiếp tuyến $v_t = v_d$).</li>
+          <li><strong>Ràng buộc tự nhiên (Natural Constraints):</strong> Do hình học môi trường áp đặt (ví dụ: trên bề mặt bàn cứng không ma sát, vận tốc theo phương pháp tuyến $v_n = 0$ và lực tiếp tuyến $f_t = 0$).</li> <li><strong>Ràng buộc nhân tạo (Artificial Constraints):</strong> Là các biến điều khiển mà robot được phép kiểm soát (ví dụ: điều khiển lực ép pháp tuyến $f_n = f_d$ và vận tốc di chuyển tiếp tuyến $v_t = v_d$).</li>
         </ul>
-        <p>Sử dụng ma trận chiếu lựa chọn đường chéo $\mathbf{S} = \text{diag}(s_1, \dots, s_6)$ với $s_i \in \{0, 1\}$. Thành phần điều khiển chuyển động được chiếu qua ma trận $\mathbf{S}$, trong khi thành phần điều khiển lực được chiếu qua ma trận bù trực giao $\mathbf{I} - \mathbf{S}$:</p>
-        $$\boldsymbol{\tau} = \mathbf{J}^T(\mathbf{q}) \left( \mathbf{S} \mathbf{F}_{motion} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \right)$$
+        <p>Sử dụng ma trận chiếu lựa chọn đường chéo $\mathbf{S} = \text{diag}(s_1, \dots, s_6)$ với $s_i \in \{0, 1\}$. Thành phần điều khiển chuyển động được chiếu qua ma trận $\mathbf{S}$, trong khi thành phần điều khiển lực được chiếu qua ma trận bù trực giao $\mathbf{I} - \mathbf{S}$:</p> $$\boldsymbol{\tau} = \mathbf{J}^T(\mathbf{q}) \left( \mathbf{S} \mathbf{F}_{motion} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \right)$$
         <p>Cấu trúc này đảm bảo hai vòng lặp điều khiển lực và vị trí hoàn toàn không xung đột (decoupled), triệt tiêu hiện tượng giằng co gây mất ổn định.</p>
     
       </section>
@@ -171,7 +163,7 @@
             <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Trở Kháng (Impedance Control) 1 Bậc Tự Do Tiếp Xúc Môi Trường Đàn Hồi</h3>
           </div>
           <div class="exercise-statement">
-            <p>Một khâu tác động cuối của robot chuyển động tịnh tiến theo phương ngang $x$ tiếp xúc với một bức tường đàn hồi cố định. Bề mặt bức tường nằm tại vị trí $x_e = 0.500\text{ m}$ với độ cứng đàn hồi của tường $k_e = 5000\text{ N/m}$. Robot có khối lượng quán tính tương đương $m = 4.0\text{ kg}$.<br><br>Bộ điều khiển trở kháng Cartesian được thiết kế với các thông số mong muốn: khối lượng biểu kiến $m_d = 2.0\text{ kg}$, hệ số cản $d_d = 80.0\text{ N}\cdot\text{s/m}$, hệ số độ cứng ảo $k_d = 200.0\text{ N/m}$. Quỹ đạo danh định không tải đưa ra là vị trí lấn sâu ảo vào bên trong tường $x_d = 0.525\text{ m}$ (nghĩa là điểm mong muốn nằm sau mặt tường $25\text{ mm}$). Môi trường không có lực cản nhớt ($d_e = 0$).<br><br>Hãy thực hiện: (1) Thiết lập phương trình cân bằng lực ở trạng thái xác lập (steady-state); (2) Tính toán vị trí dừng thực tế xác lập $x_{ss}$ của khâu tác động cuối; (3) Tính toán độ lớn lực tiếp xúc xác lập $F_{ss}$ tác dụng lên tường; (4) Tính tần số dao động riêng $\omega_n$ và hệ số tắt dần $\zeta$ của hệ ghép nối (coupled system) để chứng minh hệ thống không bị dao động rung lắc nguy hiểm.</p>
+            <p>Một khâu tác động cuối của robot chuyển động tịnh tiến theo phương ngang $x$ tiếp xúc với một bức tường đàn hồi cố định. Bề mặt bức tường nằm tại vị trí $x_e = 0.500\text{ m}$ với độ cứng đàn hồi của tường $k_e = 5000\text{ N/m}$. Robot có khối lượng quán tính tương đương $m = 4.0\text{ kg}$. <br> <br>Bộ điều khiển trở kháng Cartesian được thiết kế với các thông số mong muốn: khối lượng biểu kiến $m_d = 2.0\text{ kg}$, hệ số cản $d_d = 80.0\text{ N}\cdot\text{s/m}$, hệ số độ cứng ảo $k_d = 200.0\text{ N/m}$. Quỹ đạo danh định không tải đưa ra là vị trí lấn sâu ảo vào bên trong tường $x_d = 0.525\text{ m}$ (nghĩa là điểm mong muốn nằm sau mặt tường $25\text{ mm}$). Môi trường không có lực cản nhớt ($d_e = 0$). <br> <br>Hãy thực hiện: (1) Thiết lập phương trình cân bằng lực ở trạng thái xác lập (steady-state); (2) Tính toán vị trí dừng thực tế xác lập $x_{ss}$ của khâu tác động cuối; (3) Tính toán độ lớn lực tiếp xúc xác lập $F_{ss}$ tác dụng lên tường; (4) Tính tần số dao động riêng $\omega_n$ và hệ số tắt dần $\zeta$ của hệ ghép nối (coupled system) để chứng minh hệ thống không bị dao động rung lắc nguy hiểm.</p>
           </div>
 
           <div class="solution-wrapper">
@@ -184,7 +176,7 @@
                 <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
               </div>
               <div class="step-content">
-                <p>Thiết lập phương trình cân bằng trạng thái xác lập (Steady-State):<br>Khi robot tiếp xúc và dừng ổn định tại vị trí xác lập $x_{ss}$ (vận tốc $\dot{x} = 0$, gia tốc $\ddot{x} = 0$), phương trình động lực học trở kháng rút gọn thành:<br>$$k_d (x_d - x_{ss}) = F_{ss}$$<br>Mặt khác, lực phản kháng đàn hồi từ bức tường tác dụng ngược lại robot theo định luật Hooke là:<br>$$F_e = k_e (x_{ss} - x_e)$$<br>Ở trạng thái cân bằng xác lập, ngoại lực từ môi trường bằng lực tác dụng từ trở kháng: $F_{ss} = F_e$. Do đó ta có phương trình cân bằng lực:<br>$$k_d (x_d - x_{ss}) = k_e (x_{ss} - x_e)$$<br>Phương trình này cho thấy vị trí cân bằng cuối cùng là sự thỏa hiệp giữa độ cứng điều khiển $k_d$ và độ cứng môi trường $k_e$.</p>
+                <p>Thiết lập phương trình cân bằng trạng thái xác lập (Steady-State):<br>Khi robot tiếp xúc và dừng ổn định tại vị trí xác lập $x_{ss}$ (vận tốc $\dot{x} = 0$, gia tốc $\ddot{x} = 0$), phương trình động lực học trở kháng rút gọn thành: <br> $$k_d (x_d - x_{ss}) = F_{ss}$$ <br> Mặt khác, lực phản kháng đàn hồi từ bức tường tác dụng ngược lại robot theo định luật Hooke là:<br>$$F_e = k_e (x_{ss} - x_e)$$ <br> Ở trạng thái cân bằng xác lập, ngoại lực từ môi trường bằng lực tác dụng từ trở kháng: $F_{ss} = F_e$. Do đó ta có phương trình cân bằng lực: <br> $$k_d (x_d - x_{ss}) = k_e (x_{ss} - x_e)$$ <br> Phương trình này cho thấy vị trí cân bằng cuối cùng là sự thỏa hiệp giữa độ cứng điều khiển $k_d$ và độ cứng môi trường $k_e$.</p>
               </div>
             </div>
 
@@ -195,7 +187,7 @@
                 <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
               </div>
               <div class="step-content">
-                <p>Tính toán vị trí dừng thực tế xác lập $x_{ss}$:<br>Biến đổi phương trình đại số bậc nhất từ Bước 1:<br>$$(k_d + k_e) x_{ss} = k_d x_d + k_e x_e \implies x_{ss} = \frac{k_d x_d + k_e x_e}{k_d + k_e}$$<br>Thay các giá trị số cụ thể: $k_d = 200.0\text{ N/m}$, $k_e = 5000.0\text{ N/m}$, $x_d = 0.525\text{ m}$, $x_e = 0.500\text{ m}$:<br>$$k_d + k_e = 200 + 5000 = 5200\text{ N/m}$$<br>$$k_d x_d = 200 \cdot 0.525 = 105.0\text{ N}\cdot\text{m}$$<br>$$k_e x_e = 5000 \cdot 0.500 = 2500.0\text{ N}\cdot\text{m}$$<br>$$k_d x_d + k_e x_e = 105.0 + 2500.0 = 2605.0\text{ N}\cdot\text{m}$$<br>Vị trí dừng xác lập là:<br>$$x_{ss} = \frac{2605.0}{5200} \approx 0.50096\text{ m}$$<br>Độ lún thực tế vào tường: $\Delta x = x_{ss} - x_e = 0.50096 - 0.50000 = 0.00096\text{ m} = 0.96\text{ mm}$.</p>
+                <p>Tính toán vị trí dừng thực tế xác lập $x_{ss}$: <br> Biến đổi phương trình đại số bậc nhất từ Bước 1:<br>$$(k_d + k_e) x_{ss} = k_d x_d + k_e x_e \implies x_{ss} = \frac{k_d x_d + k_e x_e}{k_d + k_e}$$ <br> Thay các giá trị số cụ thể: $k_d = 200.0\text{ N/m}$, $k_e = 5000.0\text{ N/m}$, $x_d = 0.525\text{ m}$, $x_e = 0.500\text{ m}$: <br> $$k_d + k_e = 200 + 5000 = 5200\text{ N/m}$$ <br> $$k_d x_d = 200 \cdot 0.525 = 105.0\text{ N}\cdot\text{m}$$ <br> $$k_e x_e = 5000 \cdot 0.500 = 2500.0\text{ N}\cdot\text{m}$$ <br> $$k_d x_d + k_e x_e = 105.0 + 2500.0 = 2605.0\text{ N}\cdot\text{m}$$ <br> Vị trí dừng xác lập là:<br>$$x_{ss} = \frac{2605.0}{5200} \approx 0.50096\text{ m}$$ <br> Độ lún thực tế vào tường: $\Delta x = x_{ss} - x_e = 0.50096 - 0.50000 = 0.00096\text{ m} = 0.96\text{ mm}$.</p>
               </div>
             </div>
 
@@ -206,7 +198,7 @@
                 <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
               </div>
               <div class="step-content">
-                <p>Tính toán lực tiếp xúc xác lập $F_{ss}$:<br>Có thể tính lực tiếp xúc theo một trong hai cách tương đương:<br>• Cách 1 (qua độ biến dạng của tường):<br>$$F_{ss} = k_e (x_{ss} - x_e) = 5000 \cdot 0.0009615 = 4.8077\text{ N} \approx 4.81\text{ N}$$<br>• Cách 2 (qua độ lệch vị trí danh định của trở kháng):<br>$$\Delta x_d = x_d - x_{ss} = 0.525 - 0.5009615 = 0.0240385\text{ m}$$<br>$$F_{ss} = k_d \Delta x_d = 200 \cdot 0.0240385 = 4.8077\text{ N} \approx 4.81\text{ N}$$<br>Cả hai cách đều cho kết quả chính xác $F_{ss} = 4.81\text{ N}$. Lực ép này hoàn toàn nằm trong tầm an toàn của cánh tay robot.</p>
+                <p>Tính toán lực tiếp xúc xác lập $F_{ss}$: <br> Có thể tính lực tiếp xúc theo một trong hai cách tương đương:<br>• Cách 1 (qua độ biến dạng của tường):<br>$$F_{ss} = k_e (x_{ss} - x_e) = 5000 \cdot 0.0009615 = 4.8077\text{ N} \approx 4.81\text{ N}$$ <br> • Cách 2 (qua độ lệch vị trí danh định của trở kháng):<br>$$\Delta x_d = x_d - x_{ss} = 0.525 - 0.5009615 = 0.0240385\text{ m}$$ <br> $$F_{ss} = k_d \Delta x_d = 200 \cdot 0.0240385 = 4.8077\text{ N} \approx 4.81\text{ N}$$ <br> Cả hai cách đều cho kết quả chính xác $F_{ss} = 4.81\text{ N}$. Lực ép này hoàn toàn nằm trong tầm an toàn của cánh tay robot.</p>
               </div>
             </div>
 
@@ -217,7 +209,7 @@
                 <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
               </div>
               <div class="step-content">
-                <p>Phân tích động thái hệ ghép nối (Coupled Dynamic Stability):<br>Phương trình vi phân tổng quát của hệ kín khi tiếp xúc với bức tường đàn hồi ($F_e = k_e(x - x_e)$):<br>$$m_d \ddot{x} + d_d \dot{x} + k_d (x - x_d) = -k_e (x - x_e)$$<br>$$m_d \ddot{x} + d_d \dot{x} + (k_d + k_e) x = k_d x_d + k_e x_e$$<br>Phương trình đặc trưng vi phân bậc hai có dạng: $s^2 + 2\zeta \omega_n s + \omega_n^2 = 0$.<br>Độ cứng tương đương tổng cộng: $k_{eq} = k_d + k_e = 200 + 5000 = 5200\text{ N/m}$.<br>Tần số dao động tự nhiên của hệ ghép nối:<br>$$\omega_n = \sqrt{\frac{k_{eq}}{m_d}} = \sqrt{\frac{5200}{2.0}} = \sqrt{2600} \approx 50.99\text{ rad/s} \quad (\approx 8.12\text{ Hz})$$<br>Hệ số tắt dần $\zeta$ (Damping Ratio):<br>$$2\zeta \omega_n = \frac{d_d}{m_d} = \frac{80.0}{2.0} = 40.0\text{ s}^{-1} \implies \zeta = \frac{40.0}{2 \cdot 50.99} = \frac{40.0}{101.98} \approx 0.392$$<br><strong>Biện luận vật lý & Ứng dụng điều khiển:</strong> Khi tiếp xúc với tường cứng, tần số riêng tăng vọt từ $\omega_{n0} = \sqrt{200/2} = 10\text{ rad/s}$ lên $51\text{ rad/s}$, làm hệ số cản giảm từ $\zeta_0 = \frac{80}{2 \cdot 2 \cdot 10} = 2.0$ (tắt dần quá mức) xuống $\zeta = 0.392$ (dưới cản nhẹ). Mặc dù có độ vọt lố nhỏ trong thời gian quá độ ngắn, hệ thống hoàn toàn ổn định tiệm cận (vì $\zeta \gt 0$ và $\omega_n \gt 0$), không xảy ra va đập hay tự kích dao động chattering phá hủy tiếp xúc.</p>
+                <p>Phân tích động thái hệ ghép nối (Coupled Dynamic Stability):<br>Phương trình vi phân tổng quát của hệ kín khi tiếp xúc với bức tường đàn hồi ($F_e = k_e(x - x_e)$): <br> $$m_d \ddot{x} + d_d \dot{x} + k_d (x - x_d) = -k_e (x - x_e)$$ <br> $$m_d \ddot{x} + d_d \dot{x} + (k_d + k_e) x = k_d x_d + k_e x_e$$ <br> Phương trình đặc trưng vi phân bậc hai có dạng: $s^2 + 2\zeta \omega_n s + \omega_n^2 = 0$. <br> Độ cứng tương đương tổng cộng: $k_{eq} = k_d + k_e = 200 + 5000 = 5200\text{ N/m}$. <br> Tần số dao động tự nhiên của hệ ghép nối:<br>$$\omega_n = \sqrt{\frac{k_{eq}}{m_d}} = \sqrt{\frac{5200}{2.0}} = \sqrt{2600} \approx 50.99\text{ rad/s} \quad (\approx 8.12\text{ Hz})$$ <br> Hệ số tắt dần $\zeta$ (Damping Ratio): <br> $$2\zeta \omega_n = \frac{d_d}{m_d} = \frac{80.0}{2.0} = 40.0\text{ s}^{-1} \implies \zeta = \frac{40.0}{2 \cdot 50.99} = \frac{40.0}{101.98} \approx 0.392$$ <br> <strong>Biện luận vật lý & Ứng dụng điều khiển:</strong> Khi tiếp xúc với tường cứng, tần số riêng tăng vọt từ $\omega_{n0} = \sqrt{200/2} = 10\text{ rad/s}$ lên $51\text{ rad/s}$, làm hệ số cản giảm từ $\zeta_0 = \frac{80}{2 \cdot 2 \cdot 10} = 2.0$ (tắt dần quá mức) xuống $\zeta = 0.392$ (dưới cản nhẹ). Mặc dù có độ vọt lố nhỏ trong thời gian quá độ ngắn, hệ thống hoàn toàn ổn định tiệm cận (vì $\zeta \gt 0$ và $\omega_n \gt 0$), không xảy ra va đập hay tự kích dao động chattering phá hủy tiếp xúc.</p>
               </div>
             </div>
 
@@ -244,9 +236,9 @@
             
         <button class="btn-sim-action" onclick="toggleSim10()">Khởi chạy / Tạm dừng</button>
         <button class="btn-sim-reset" onclick="resetSim10()">Thiết lập lại</button>
-        <label class="sim-label">Độ cứng ảo $K_d$: <input type="range" id="sim10-kd" min="50" max="500" step="50" value="200" onchange="updateSim10Params()"></label>
-        <label class="sim-label">Độ cứng tường $K_e$: <input type="range" id="sim10-ke" min="1000" max="10000" step="1000" value="5000" onchange="updateSim10Params()"></label>
-        <label class="sim-label">Vị trí đích $x_d$: <input type="range" id="sim10-xd" min="0.48" max="0.55" step="0.005" value="0.525" onchange="updateSim10Params()"></label>
+        <label class="sim-label">Độ cứng ảo (Kd): <input type="range" id="sim10-kd" min="50" max="500" step="50" value="200" onchange="updateSim10Params()"></label>
+        <label class="sim-label">Độ cứng tường (Ke): <input type="range" id="sim10-ke" min="1000" max="10000" step="1000" value="5000" onchange="updateSim10Params()"></label>
+        <label class="sim-label">Vị trí đích (xd): <input type="range" id="sim10-xd" min="0.48" max="0.55" step="0.005" value="0.525" onchange="updateSim10Params()"></label>
     
           </div>
           <div class="sim-telemetry-box">
@@ -356,7 +348,7 @@ int main() {
           <details class="practice-details">
             <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
             <div class="practice-answer">
-              <p>Độ cứng tương đương mới: $k_{eq} = k_d + k_{e2} = 200 + 20000 = 20200\text{ N/m}$.<br>Tần số riêng mới: $\omega_n = \sqrt{k_{eq} / m_d} = \sqrt{20200 / 2.0} = \sqrt{10100} \approx 100.499\text{ rad/s}$.<br>Để đạt hệ số tắt dần $\zeta = 0.707$:<br>$$d_d = 2 \zeta m_d \omega_n = 2 \cdot 0.707 \cdot 2.0 \cdot 100.499 \approx 284.2\text{ N}\cdot\text{s/m}$$.<br>Bộ điều khiển cần tăng hệ số cản từ $80\text{ N}\cdot\text{s/m}$ lên $284.2\text{ N}\cdot\text{s/m}$ để triệt tiêu hoàn toàn rung lắc va chạm khi tiếp xúc với môi trường kim loại siêu cứng.</p>
+              <p>Độ cứng tương đương mới: $k_{eq} = k_d + k_{e2} = 200 + 20000 = 20200\text{ N/m}$. <br> Tần số riêng mới: $\omega_n = \sqrt{k_{eq} / m_d} = \sqrt{20200 / 2.0} = \sqrt{10100} \approx 100.499\text{ rad/s}$. <br> Để đạt hệ số tắt dần $\zeta = 0.707$: <br> $$d_d = 2 \zeta m_d \omega_n = 2 \cdot 0.707 \cdot 2.0 \cdot 100.499 \approx 284.2\text{ N}\cdot\text{s/m}$$. <br> Bộ điều khiển cần tăng hệ số cản từ $80\text{ N}\cdot\text{s/m}$ lên $284.2\text{ N}\cdot\text{s/m}$ để triệt tiêu hoàn toàn rung lắc va chạm khi tiếp xúc với môi trường kim loại siêu cứng.</p>
             </div>
           </details>
         </div>
