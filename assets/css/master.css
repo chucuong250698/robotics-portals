@@ -3580,3 +3580,39 @@ body.chapter-page {
     flex-direction: column;
   }
 }
+
+/* Portal Card Book Title & Author Meta Box */
+.portal-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.15rem;
+  padding: 0.75rem 1rem;
+  background: rgba(37, 99, 235, 0.04);
+  border-radius: 10px;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-left: 4px solid var(--primary);
+  font-size: 0.88rem;
+}
+.portal-card-meta .meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  line-height: 1.5;
+}
+.portal-card-meta .meta-label {
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  font-size: 0.82rem;
+  letter-spacing: 0.2px;
+}
+.portal-card-meta .book-title-val {
+  font-weight: 600;
+  color: var(--primary);
+  font-style: italic;
+}
+.portal-card-meta .author-val {
+  color: var(--text-main);
+  font-weight: 500;
+}
