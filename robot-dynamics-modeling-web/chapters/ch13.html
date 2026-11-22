@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -233,7 +238,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim13-stats" class="sim-telemetry-text">Quỹ đạo pha trong không gian $(\Phi, \Psi)$ quay tròn tạo chu trình giới hạn bùng áp khi tắt van, và co cụm tức thì về điểm cân bằng khi bật van CCV.</p>
+            <p id="sim13-stats" class="sim-telemetry-text tex2jax_ignore">Quỹ đạo pha trong không gian $(\Phi, \Psi)$ quay tròn tạo chu trình giới hạn bùng áp khi tắt van, và co cụm tức thì về điểm cân bằng khi bật van CCV.</p>
           </div>
         </div>
       </section>

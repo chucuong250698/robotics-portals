@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -351,7 +356,7 @@ Nhờ khả năng phán đoán tương tự trực giác của kỹ sư vận h�
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim10-stats" class="sim-telemetry-text">Mức nước $h$: 1.000 m | Mức đặt $h_d$: 1.000 m | Sai số $e$: 0.000 m | $\dot{e}$: 0.000 m/s | Đầu ra Fuzzy $\Delta K_p$: +1.42, $\Delta K_d$: +0.28 | Luật kích hoạt: Rule #5 [ZO, ZO -> ZO]</p>
+            <p id="sim10-stats" class="sim-telemetry-text tex2jax_ignore">Mức nước $h$: 1.000 m | Mức đặt $h_d$: 1.000 m | Sai số $e$: 0.000 m | $\dot{e}$: 0.000 m/s | Đầu ra Fuzzy $\Delta K_p$: +1.42, $\Delta K_d$: +0.28 | Luật kích hoạt: Rule #5 [ZO, ZO -> ZO]</p>
           </div>
         </div>
       </section>

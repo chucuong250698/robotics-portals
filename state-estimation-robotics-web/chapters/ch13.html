@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -200,7 +205,7 @@
 <input id="sim13-spy" max="1" min="0" step="1" type="range" value="1"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim13-stats">Quan sát cấu trúc ma trận hình mũi tên Arrowhead: khối đường chéo điểm mốc bị triệt tiêu biến mất sau bước khử Schur.</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim13-stats">Quan sát cấu trúc ma trận hình mũi tên Arrowhead: khối đường chéo điểm mốc bị triệt tiêu biến mất sau bước khử Schur.</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

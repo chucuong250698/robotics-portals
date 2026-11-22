@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -196,7 +201,7 @@
 <input id="sim09-arm" max="10.0" min="1.0" step="0.5" type="range" value="5.0"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim09-stats">Quan sát elip hiệp phương sai bị uốn cong theo cung tròn hình quả chuối (Banana distribution) do tính chất phi tuyến của Lie.</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim09-stats">Quan sát elip hiệp phương sai bị uốn cong theo cung tròn hình quả chuối (Banana distribution) do tính chất phi tuyến của Lie.</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

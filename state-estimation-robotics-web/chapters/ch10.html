@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -195,7 +200,7 @@
 <input id="sim10-noise" max="0.3" min="0.0" step="0.02" type="range" value="0.05"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim10-stats">Kéo slider số bước lặp từ 0 đến 10 để thấy đám mây điểm màu đỏ tự động xoay và hút chặt vào đường viền màu xanh.</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim10-stats">Kéo slider số bước lặp từ 0 đến 10 để thấy đám mây điểm màu đỏ tự động xoay và hút chặt vào đường viền màu xanh.</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -342,7 +347,7 @@ Biện luận: Tín hiệu mô-men xoắn $u = -1.87\text{ N}\cdot\text{m}$ lậ
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim09-stats" class="sim-telemetry-text">Mặt trượt $s(t) = c e + \dot{e}$: 0.000 | Tín hiệu $u(t)$: 1.25 N | Hiện tượng Chattering: Triệt tiêu ($\epsilon = 0.15$) | Sai số xác lập $e_{ss}$: 0.001 m | Horizon MPC: $N_p = 15$</p>
+            <p id="sim09-stats" class="sim-telemetry-text tex2jax_ignore">Mặt trượt $s(t) = c e + \dot{e}$: 0.000 | Tín hiệu $u(t)$: 1.25 N | Hiện tượng Chattering: Triệt tiêu ($\epsilon = 0.15$) | Sai số xác lập $e_{ss}$: 0.001 m | Horizon MPC: $N_p = 15$</p>
           </div>
         </div>
       </section>

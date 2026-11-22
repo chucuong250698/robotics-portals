@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -235,7 +240,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim10-stats" class="sim-telemetry-text">Đồ thị năng lượng Hamiltonian kín $\mathcal{H}_d(t)$ giảm đơn điệu về 0 theo thời gian nhờ số hạng tiêu tán ma sát được bơm vào ($K_d$).</p>
+            <p id="sim10-stats" class="sim-telemetry-text tex2jax_ignore">Đồ thị năng lượng Hamiltonian kín $\mathcal{H}_d(t)$ giảm đơn điệu về 0 theo thời gian nhờ số hạng tiêu tán ma sát được bơm vào ($K_d$).</p>
           </div>
         </div>
       </section>

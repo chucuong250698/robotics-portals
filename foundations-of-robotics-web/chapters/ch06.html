@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -255,7 +260,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim06-stats" class="sim-telemetry-text">Computed Torque Control triệt tiêu hoàn toàn sai số theo dõi quỹ đạo; PID thông thường bị trễ pha và võng vị trí dưới tác động của trọng lực.</p>
+            <p id="sim06-stats" class="sim-telemetry-text tex2jax_ignore">Computed Torque Control triệt tiêu hoàn toàn sai số theo dõi quỹ đạo; PID thông thường bị trễ pha và võng vị trí dưới tác động của trọng lực.</p>
           </div>
         </div>
       </section>

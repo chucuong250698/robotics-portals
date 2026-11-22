@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -192,7 +197,7 @@
 <input id="sim12-comp" max="1" min="0" step="1" type="range" value="1"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim12-stats">Quan sát quỹ đạo dự đoán IMU được nắn khớp hoàn hảo với các khung hình camera nhờ cập nhật Jacobian bậc 1.</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim12-stats">Quan sát quỹ đạo dự đoán IMU được nắn khớp hoàn hảo với các khung hình camera nhờ cập nhật Jacobian bậc 1.</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

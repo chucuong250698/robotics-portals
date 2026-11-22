@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -233,7 +238,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim14-stats" class="sim-telemetry-text">Đường màu đỏ (Explicit Euler) xoắn ốc phình to nổ tung, đường xanh dương (Symplectic Euler) vẽ thành elip khép kín vĩnh cửu trong không gian pha.</p>
+            <p id="sim14-stats" class="sim-telemetry-text tex2jax_ignore">Đường màu đỏ (Explicit Euler) xoắn ốc phình to nổ tung, đường xanh dương (Symplectic Euler) vẽ thành elip khép kín vĩnh cửu trong không gian pha.</p>
           </div>
         </div>
       </section>

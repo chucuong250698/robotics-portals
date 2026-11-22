@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -202,7 +207,7 @@
 <input id="sim07-yaw" max="180" min="-180" step="5" type="range" value="0"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim07-stats">Kéo Pitch đến đúng 90° để quan sát trục Roll và trục Yaw trùng khít lên nhau, làm mất 1 bậc tự do (Gimbal Lock)!</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim07-stats">Kéo Pitch đến đúng 90° để quan sát trục Roll và trục Yaw trùng khít lên nhau, làm mất 1 bậc tự do (Gimbal Lock)!</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

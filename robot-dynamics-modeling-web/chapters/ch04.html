@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -226,7 +231,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim04-stats" class="sim-telemetry-text">Quan sát buồng áp suất đổi màu xanh dương đậm khi áp suất tăng và chuyển động tịnh tiến có độ nén dầu của piston.</p>
+            <p id="sim04-stats" class="sim-telemetry-text tex2jax_ignore">Quan sát buồng áp suất đổi màu xanh dương đậm khi áp suất tăng và chuyển động tịnh tiến có độ nén dầu của piston.</p>
           </div>
         </div>
       </section>

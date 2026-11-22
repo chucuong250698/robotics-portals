@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -201,7 +206,7 @@
 <input id="sim03-lag" max="5" min="1" step="1" type="range" value="3"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim03-stats">Quan sát đường xanh lục (RTS Smoother) uốn mượt mà và bám sát quỹ đạo thực hơn hẳn đường đỏ (Forward Filter).</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim03-stats">Quan sát đường xanh lục (RTS Smoother) uốn mượt mà và bám sát quỹ đạo thực hơn hẳn đường đỏ (Forward Filter).</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

@@ -162,7 +162,7 @@ window.initSim01 = function() {
       const area = (Math.PI * (rMax * rMax - rMin * rMin) / 100).toFixed(0);
       const curX = ((xe - ox) / 10).toFixed(1);
       const curY = ((oy - ye) / 10).toFixed(1);
-      stats.innerHTML = `Vị trí khâu tác động cuối: <b>P_e = [${curX}, ${curY}] cm</b> | Bán kính cực đại $R_{max} = ${((l1+l2)/10).toFixed(1)}$ cm | Bán kính cực tiểu $R_{min} = ${(rMin/10).toFixed(1)}$ cm | Diện tích vùng làm việc: <b>${area} cm²</b>`;
+      stats.innerHTML = `Vị trí khâu tác động cuối: <b>P_e = [${curX}, ${curY}] cm</b> | Bán kính cực đại <b>R_max = ${((l1+l2)/10).toFixed(1)} cm</b> | Bán kính cực tiểu <b>R_min = ${(rMin/10).toFixed(1)} cm</b> | Diện tích vùng làm việc: <b>${area} cm²</b>`;
     }
 
     window._forSimHandles['01'] = requestAnimationFrame(render);
@@ -323,7 +323,7 @@ window.initSim02 = function() {
     drawArrow(pOrigin, pZ, '#3b82f6', 'Z_b (Yaw)');
 
     if (stats) {
-      stats.innerHTML = `Unit Quaternion: <b>q = [${qw.toFixed(3)}, ${qx.toFixed(3)}i, ${qy.toFixed(3)}j, ${qz.toFixed(3)}k]</b> | Chuẩn: $\\|q\\| = ${(Math.sqrt(qw*qw+qx*qx+qy*qy+qz*qz)).toFixed(3)}$ | Tránh điểm kỳ dị vặn góc (Gimbal Lock).`;
+      stats.innerHTML = `Unit Quaternion: <b>q = [${qw.toFixed(3)}, ${qx.toFixed(3)}i, ${qy.toFixed(3)}j, ${qz.toFixed(3)}k]</b> | Chuẩn: <b>||q|| = ${(Math.sqrt(qw*qw+qx*qx+qy*qy+qz*qz)).toFixed(3)}</b> | Tránh điểm kỳ dị vặn góc (Gimbal Lock).`;
     }
 
     window._forSimHandles['02'] = requestAnimationFrame(render);
@@ -457,7 +457,7 @@ window.initSim03 = function() {
     }
 
     if (stats) {
-      stats.innerHTML = `Chỉ số Yoshikawa: <b>w = ${wYoshikawa.toFixed(3)}</b> | $\\det(J) = ${detJ.toFixed(3)}$ | Tỉ số bán trục $\\sigma_1 / \\sigma_2 = ${(axisA / Math.max(0.1, axisB)).toFixed(2)}$ ${isSingular ? '<span style="color:#ef4444;font-weight:700;">(Kỳ dị biên/trong!)</span>' : ''}`;
+      stats.innerHTML = `Chỉ số Yoshikawa: <b>w = ${wYoshikawa.toFixed(3)}</b> | <b>det(J) = ${detJ.toFixed(3)}</b> | Tỉ số bán trục <b>σ₁/σ₂ = ${(axisA / Math.max(0.1, axisB)).toFixed(2)}</b> ${isSingular ? '<span style="color:#ef4444;font-weight:700;">(Kỳ dị biên/trong!)</span>' : ''}`;
     }
 
     window._forSimHandles['03'] = requestAnimationFrame(render);
@@ -896,7 +896,7 @@ window.initSim07 = function() {
 
     if (stats) {
       const R_m = Math.abs(omega) > 0.05 ? (v / omega).toFixed(2) + ' m' : '∞';
-      stats.innerHTML = `Vận tốc tịnh tiến: <b>v = ${v.toFixed(1)} m/s</b> | Vận tốc góc: <b>ω = ${omega.toFixed(2)} rad/s</b> | Bán kính quay vòng: <b>R = ${R_m}</b> | Ràng buộc phi holonomic: <b>$\\dot{y}\\cos\\theta - \\dot{x}\\sin\\theta = 0$</b> (Không trượt ngang).`;
+      stats.innerHTML = `Vận tốc tịnh tiến: <b>v = ${v.toFixed(1)} m/s</b> | Vận tốc góc: <b>ω = ${omega.toFixed(2)} rad/s</b> | Bán kính quay vòng: <b>R = ${R_m}</b> | Ràng buộc phi holonomic: <b>ẏ·cos(θ) - ẋ·sin(θ) = 0</b> (Không trượt ngang).`;
     }
 
     window._forSimHandles['07'] = requestAnimationFrame(render);
@@ -1007,7 +1007,7 @@ window.initSim08 = function() {
     }
 
     if (stats) {
-      stats.innerHTML = `Mô hình: <b>Image-Based Visual Servoing (IBVS)</b> | Chuẩn sai số điểm ảnh: <b>$\\|e\\| = ${totalError.toFixed(1)}$ px</b> | Ma trận tương tác $L_e$ hội tụ tiệm cận mũ với hệ số $\\lambda = ${lambda.toFixed(1)}$.`;
+      stats.innerHTML = `Mô hình: <b>Image-Based Visual Servoing (IBVS)</b> | Chuẩn sai số điểm ảnh: <b>||e|| = ${totalError.toFixed(1)} px</b> | Ma trận tương tác L_e hội tụ tiệm cận mũ với hệ số λ = ${lambda.toFixed(1)}.`;
     }
 
     window._forSimHandles['08'] = requestAnimationFrame(render);
@@ -1146,7 +1146,7 @@ window.initSim09 = function() {
     }
 
     if (stats) {
-      stats.innerHTML = `Lực tổng hợp: <b>F = -∇U_att - ∇U_rep</b> | Khoảng cách đích: <b>${dGoal.toFixed(1)} px</b> | Thế hút: $k_{att} = ${Katt.toFixed(1)}$ | Thế đẩy: $k_{rep} = ${Krep.toFixed(0)}$`;
+      stats.innerHTML = `Lực tổng hợp: <b>F = -∇U_att - ∇U_rep</b> | Khoảng cách đích: <b>${dGoal.toFixed(1)} px</b> | Thế hút: <b>k_att = ${Katt.toFixed(1)}</b> | Thế đẩy: <b>k_rep = ${Krep.toFixed(0)}</b>`;
     }
 
     window._forSimHandles['09'] = requestAnimationFrame(render);
@@ -1251,7 +1251,7 @@ window.initSim10 = function() {
 
     if (stats) {
       const isContact = x > wallX;
-      stats.innerHTML = `Trạng thái: <b>${isContact ? '<span style="color:#ef4444">TIẾP XÚC ĐÀN HỒI (Contact Phase)</span>' : 'CHUYỂN ĐỘNG TỰ DO (Free Motion)'}</b> | Lực tiếp xúc: <b>F_ext = ${Math.abs(fExt).toFixed(1)} N</b> | Độ biến dạng lún: <b>${Math.max(0, x - wallX).toFixed(1)} px</b> | Độ cứng ảo $K_d = ${Kd.toFixed(0)}$ N/m.`;
+      stats.innerHTML = `Trạng thái: <b>${isContact ? '<span style="color:#ef4444">TIẾP XÚC ĐÀN HỒI (Contact Phase)</span>' : 'CHUYỂN ĐỘNG TỰ DO (Free Motion)'}</b> | Lực tiếp xúc: <b>F_ext = ${Math.abs(fExt).toFixed(1)} N</b> | Độ biến dạng lún: <b>${Math.max(0, x - wallX).toFixed(1)} px</b> | Độ cứng ảo <b>K_d = ${Kd.toFixed(0)} N/m</b>.`;
     }
 
     window._forSimHandles['10'] = requestAnimationFrame(render);
@@ -1454,7 +1454,7 @@ window.initSim12 = function() {
     ctx.stroke();
 
     if (stats) {
-      stats.innerHTML = `Lực nội bóp giữ (Internal Force): <b>F_int = ${fInt.toFixed(0)} N</b> | Ma trận Grasp Matrix $G$: Đảm bảo không trượt rơi vật mà không phá hủy cấu trúc | Tải hợp tác: <b>m = ${mass.toFixed(1)} kg</b>.`;
+      stats.innerHTML = `Lực nội bóp giữ (Internal Force): <b>F_int = ${fInt.toFixed(0)} N</b> | Ma trận Grasp Matrix G: Đảm bảo không trượt rơi vật mà không phá hủy cấu trúc | Tải hợp tác: <b>m = ${mass.toFixed(1)} kg</b>.`;
     }
 
     window._forSimHandles['12'] = requestAnimationFrame(render);

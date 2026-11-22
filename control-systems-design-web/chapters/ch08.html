@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -336,7 +341,7 @@ Biện luận tính khả thi vật lý trong công nghiệp 4IR:<br>
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim08-stats" class="sim-telemetry-text">Chu kỳ trích mẫu $T_s$: 0.050 s ($f_s = 20.0\text{ Hz}$) | Tần số Nyquist $f_N$: 10.0 Hz | Hiện tượng Aliasing: Không (Thỏa mãn Shannon) | Sai số trễ pha ZOH: $\approx 9.0^\circ$ tại 1 Hz</p>
+            <p id="sim08-stats" class="sim-telemetry-text tex2jax_ignore">Chu kỳ trích mẫu $T_s$: 0.050 s ($f_s = 20.0\text{ Hz}$) | Tần số Nyquist $f_N$: 10.0 Hz | Hiện tượng Aliasing: Không (Thỏa mãn Shannon) | Sai số trễ pha ZOH: $\approx 9.0^\circ$ tại 1 Hz</p>
           </div>
         </div>
       </section>

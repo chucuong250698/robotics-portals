@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -245,7 +250,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim03-stats" class="sim-telemetry-text">Ellipsoid màu xanh dương thể hiện khả năng sinh vận tốc; khi góc q2 tiến về 0° hoặc 180°, ellipsoid xẹp dẹt hoàn toàn thành đoạn thẳng thể hiện sự xuất hiện của điểm kỳ dị.</p>
+            <p id="sim03-stats" class="sim-telemetry-text tex2jax_ignore">Ellipsoid màu xanh dương thể hiện khả năng sinh vận tốc; khi góc q2 tiến về 0° hoặc 180°, ellipsoid xẹp dẹt hoàn toàn thành đoạn thẳng thể hiện sự xuất hiện của điểm kỳ dị.</p>
           </div>
         </div>
       </section>

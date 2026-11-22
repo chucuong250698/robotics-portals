@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -237,7 +242,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim01-stats" class="sim-telemetry-text">Vùng bao xuyến thể hiện không gian với tới được (Reachable Workspace: rMin = |l1 - l2|, rMax = l1 + l2).</p>
+            <p id="sim01-stats" class="sim-telemetry-text tex2jax_ignore">Vùng bao xuyến thể hiện không gian với tới được (Reachable Workspace: rMin = |l1 - l2|, rMax = l1 + l2).</p>
           </div>
         </div>
       </section>

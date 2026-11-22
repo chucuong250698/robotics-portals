@@ -12,12 +12,17 @@
 <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
       },
       options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
         skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
       }
     };
   </script>
@@ -195,7 +200,7 @@
 <input id="sim14-qc" max="3.0" min="0.2" step="0.2" type="range" value="1.0"/>
 </div>
 </div>
-<div class="sim-stats-panel" id="sim14-stats">Kéo thanh trượt $\tau$ để xem con trỏ GP nội suy mượt mà từng vị trí và vector vận tốc tiếp tuyến dọc theo đường cong STEAM.</div>
+<div class="sim-stats-panel tex2jax_ignore" id="sim14-stats">Kéo thanh trượt $\tau$ để xem con trỏ GP nội suy mượt mà từng vị trí và vector vận tốc tiếp tuyến dọc theo đường cong STEAM.</div>
 </div>
 </section>
 <section class="content-section" id="sec-6">

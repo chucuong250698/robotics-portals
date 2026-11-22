@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -339,7 +344,7 @@ Biện luận chất lượng công nghiệp 4IR:<br>
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim06-stats" class="sim-telemetry-text">Tần số cắt biên độ $\omega_{gc}$: 2.85 rad/s | Độ dự trữ pha (PM): +48.2° | Tần số cắt pha $\omega_{pc}$: 6.12 rad/s | Độ dự trữ biên (GM): +14.5 dB | Hệ thống: Ổn định bền vững</p>
+            <p id="sim06-stats" class="sim-telemetry-text tex2jax_ignore">Tần số cắt biên độ $\omega_{gc}$: 2.85 rad/s | Độ dự trữ pha (PM): +48.2° | Tần số cắt pha $\omega_{pc}$: 6.12 rad/s | Độ dự trữ biên (GM): +14.5 dB | Hệ thống: Ổn định bền vững</p>
           </div>
         </div>
       </section>

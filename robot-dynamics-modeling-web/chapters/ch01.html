@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -227,7 +232,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim01-stats" class="sim-telemetry-text">Kéo biên độ góc tăng cao để thấy đường đỏ (phi tuyến thực tế) trôi lệch pha và méo mó rõ rệt so với đường xanh (xấp xỉ tuyến tính).</p>
+            <p id="sim01-stats" class="sim-telemetry-text tex2jax_ignore">Kéo biên độ góc tăng cao để thấy đường đỏ (phi tuyến thực tế) trôi lệch pha và méo mó rõ rệt so với đường xanh (xấp xỉ tuyến tính).</p>
           </div>
         </div>
       </section>

@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -339,7 +344,7 @@ Phân tích bản chất cơ học của luật điều khiển $\mathbf{u} = -\
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim07-stats" class="sim-telemetry-text">Vị trí xe $x$: 0.00 m | Góc con lắc $\theta$: 0.000 rad (0.0°) | Lực điều khiển $u$: 0.00 N | Ma trận khuếch đại LQR $\mathbf{K} = [-10.00, -14.28, 98.65, 21.14]$ | Trạng thái: Cân bằng tiệm cận</p>
+            <p id="sim07-stats" class="sim-telemetry-text tex2jax_ignore">Vị trí xe $x$: 0.00 m | Góc con lắc $\theta$: 0.000 rad (0.0°) | Lực điều khiển $u$: 0.00 N | Ma trận khuếch đại LQR $\mathbf{K} = [-10.00, -14.28, 98.65, 21.14]$ | Trạng thái: Cân bằng tiệm cận</p>
           </div>
         </div>
       </section>

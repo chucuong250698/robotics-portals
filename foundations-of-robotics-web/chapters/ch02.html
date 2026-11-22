@@ -12,9 +12,14 @@
   <script>
     window.MathJax = {
       tex: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        inlineMath: [['$', '$'], ['\(', '\)']],
+        displayMath: [['$$', '$$'], ['\[', '\]']],
         processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
       },
       svg: {
         fontCache: 'global'
@@ -241,7 +246,7 @@
           </div>
           <div class="sim-telemetry-box">
             <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
-            <p id="sim02-stats" class="sim-telemetry-text">Khung tọa độ 3D động xoay theo thứ tự Z-Y-X (Yaw-Pitch-Roll); hiển thị ma trận xoay R và vector hướng trực tuyến.</p>
+            <p id="sim02-stats" class="sim-telemetry-text tex2jax_ignore">Khung tọa độ 3D động xoay theo thứ tự Z-Y-X (Yaw-Pitch-Roll); hiển thị ma trận xoay R và vector hướng trực tuyến.</p>
           </div>
         </div>
       </section>
