@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: Động Học Hệ Cơ Khí & Cơ Cấu Khép Kín | Analytical System Dynamics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình ASD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Đa Miền & Động Học</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 02</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Analytical System Dynamics • Brian C. Fabien</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+        <span class="sidebar-badge">8 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-2-1">
+            <span class="nav-text">2.1 Động Học Hệ Cơ Khí</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-1">
+            <span class="nav-text">2.1.1 Khung Cố Định & Tịnh Tiến</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-3">
+            <span class="nav-text">2.1.3 Điểm Thuộc Khung Quay (Poisson)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-4">
+            <span class="nav-text">2.1.4 Khung Di Động & Gia Tốc Coriolis</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-5">
+            <span class="nav-text">2.1.5 Góc Euler & Ma Trận Biến Đổi</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-2">
+            <span class="nav-text">2.2 Cơ Cấu Cơ Khí Khép Kín</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-2-1">
+            <span class="nav-text">2.2.1 Bậc Tự Do Gruebler-Kutzbach</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-2-2">
+            <span class="nav-text">2.2.2 Phương Trình Vòng Lặp Vị Trí</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-3">
+            <span class="nav-text">2.3 Động Học Hệ Thống Mạng (Graph)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-worked">
+            <span class="nav-text">Ví Dụ Số 4 Bước: Cơ Cấu 4 Khâu</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-sim">
+            <span class="nav-text">Mô Phỏng 60 FPS: 4 Khâu & Coriolis</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-ros2">
+            <span class="nav-text">Cầu Nối ROS 2 (tf2_ros Kinematic Chain)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-summary">
+            <span class="nav-text">📝 Tóm Tắt & Câu Hỏi Tự Luyện</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-track-1">TRACK 1: CƠ SỞ ĐA MIỀN & ĐỘNG HỌC</span>
+          <span class="hero-ch-badge">CHƯƠNG 02</span>
+        </div>
+        <h1 class="chapter-title">Động Học Hệ Cơ Khí & Cơ Cấu Khép Kín</h1>
+        <p class="chapter-subtitle">
+          Giải mã chuyển động tương đối trong không gian 3D, bản chất của lực và gia tốc Coriolis, 
+          tiêu chuẩn bậc tự do Gruebler-Kutzbach và phương pháp vòng lặp vector khép kín trong cơ cấu máy.
+        </p>
+      </div>
+
+      <!-- Mục 2.1 -->
+      <section id="sec-2-1" class="content-section">
+        <h2>2.1 Động Học Hệ Cơ Khí (Mechanical Systems Kinematics)</h2>
+        <p>
+          Mục tiêu cốt lõi của động học giải tích là xác định biểu thức giải tích của vị trí và vận tốc làm đầu vào cho hàm Lagrange $L(q, \dot{q}) = T^* - V$. Để làm được điều này, ta cần thiết lập mối quan hệ giữa các hệ quy chiếu di động và hệ quy chiếu quán tính cố định.
+        </p>
+
+        <div class="why-matters-box">
+          <div class="why-matters-header">💡 VÌ SAO ĐIỀU NÀY QUAN TRỌNG ĐỐI VỚI ROBOTICS & ĐIỀU KHIỂN?</div>
+          <div class="why-matters-body">
+            Khi robot quay (ví dụ: bệ xoay của cánh tay máy hoặc xe tự hành vào cua), mọi hạt chuyển động tương đối trên thân robot đều chịu tác dụng của <strong>Gia tốc Coriolis $\mathbf{a}_c = 2\boldsymbol{\omega} \times \mathbf{v}_{rel}$</strong>. Nếu bỏ qua thành phần này, mô hình động lực học sẽ dự báo sai hoàn toàn tải trọng mô-men xoắn lên ổ bi và động cơ, dẫn đến rung lắc và sai lệch bám quỹ đạo nghiêm trọng.
+          </div>
+        </div>
+
+        <h3 id="sec-2-1-1">2.1.1 & 2.1.2 Điểm Chuyển Động Trong Hệ Quy Chiếu Cố Định & Tịnh Tiến</h3>
+        <p>
+          Gọi hệ quy chiếu quán tính cố định là $\{O, \mathbf{i}, \mathbf{j}, \mathbf{k}\}$ và hệ tịnh tiến có gốc tại $O'$ là $\{O', \mathbf{i}', \mathbf{j}', \mathbf{k}'\}$ với $\mathbf{i}' \parallel \mathbf{i}, \mathbf{j}' \parallel \mathbf{j}, \mathbf{k}' \parallel \mathbf{k}$.
+          Vị trí của hạt $P$:
+          $$\mathbf{r}_P = \mathbf{r}_{O'} + \mathbf{r}_{P/O'}$$
+          Đạo hàm theo thời gian cho vận tốc và gia tốc:
+          $$\mathbf{v}_P = \mathbf{v}_{O'} + \mathbf{v}_{P/O'}, \quad \mathbf{a}_P = \mathbf{a}_{O'} + \mathbf{a}_{P/O'}$$
+        </p>
+
+        <h3 id="sec-2-1-3">2.1.3 Điểm Thuộc Hệ Quy Chiếu Quay & Công Thức Poisson</h3>
+        <p>
+          Khi hệ quy chiếu $\{O, \mathbf{i}', \mathbf{j}', \mathbf{k}'\}$ quay với vector vận tốc góc $\boldsymbol{\omega}$ quanh gốc $O$, đạo hàm theo thời gian của các vector đơn vị cơ sở tuân theo <strong>Công thức Poisson</strong>:
+          $$\frac{d\mathbf{i}'}{dt} = \boldsymbol{\omega} \times \mathbf{i}', \quad \frac{d\mathbf{j}'}{dt} = \boldsymbol{\omega} \times \mathbf{j}', \quad \frac{d\mathbf{k}'}{dt} = \boldsymbol{\omega} \times \mathbf{k}'$$
+          Đối với một điểm $P$ cố định trên khung quay ($\mathbf{r} = x'\mathbf{i}' + y'\mathbf{j}' + z'\mathbf{k}'$ với $x', y', z'$ là hằng số):
+          $$\mathbf{v}_P = \boldsymbol{\omega} \times \mathbf{r}_P$$
+        </p>
+
+        <h3 id="sec-2-1-4">2.1.4 Điểm Chuyển Động Trong Hệ Quy Chiếu Di Động Tổng Quát</h3>
+        <p>
+          Trường hợp tổng quát nhất: Khung quy chiếu di động vừa tịnh tiến với vận tốc $\mathbf{v}_O'$, vừa quay với vận tốc góc $\boldsymbol{\omega}$, và điểm $P$ di chuyển tương đối bên trong khung với vận tốc $\mathbf{v}_{rel} = \dot{x}'\mathbf{i}' + \dot{y}'\mathbf{j}' + \dot{z}'\mathbf{k}'$.
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Định Lý Hợp Vận Tốc & Gia Tốc Coriolis Toàn Diện</div>
+          <div class="formula-math">
+            $$\mathbf{v}_P = \mathbf{v}_{O'} + \boldsymbol{\omega} \times \mathbf{r}_{rel} + \mathbf{v}_{rel}$$
+            $$\mathbf{a}_P = \mathbf{a}_{O'} + \dot{\boldsymbol{\omega}} \times \mathbf{r}_{rel} + \boldsymbol{\omega} \times (\boldsymbol{\omega} \times \mathbf{r}_{rel}) + \mathbf{a}_{rel} + 2\boldsymbol{\omega} \times \mathbf{v}_{rel}$$
+          </div>
+          <div class="formula-legend">
+            <strong>Bóc tách 5 thành phần gia tốc:</strong>
+            <br>1. $\mathbf{a}_{O'}$: Gia tốc tịnh tiến của gốc khung di động.
+            <br>2. $\dot{\boldsymbol{\omega}} \times \mathbf{r}_{rel}$: Gia tốc tiếp tuyến (Euler acceleration do gia tốc góc gây ra).
+            <br>3. $\boldsymbol{\omega} \times (\boldsymbol{\omega} \times \mathbf{r}_{rel})$: Gia tốc hướng tâm (Centripetal acceleration kéo về trục quay).
+            <br>4. $\mathbf{a}_{rel}$: Gia tốc tương đối quan sát từ bên trong khung di động.
+            <br>5. $\mathbf{a}_{cor} = 2\boldsymbol{\omega} \times \mathbf{v}_{rel}$: <strong>Gia tốc Coriolis</strong> xuất hiện do sự tương tác giữa chuyển động tịnh tiến tương đối và chuyển động quay của hệ quy chiếu.
+          </div>
+        </div>
+
+        <h3 id="sec-2-1-5">2.1.5 Góc Euler & Ma Trận Biến Đổi Tọa Độ (Euler Angles)</h3>
+        <p>
+          Định hướng không gian 3D của vật rắn được xác định qua chuỗi 3 phép quay liên tiếp (Quy ước Z-Y-X Tait-Bryan / Hàng không: Yaw $\psi$, Pitch $\theta$, Roll $\phi$):
+          $$\mathbf{R}(\psi, \theta, \phi) = \mathbf{R}_z(\psi) \mathbf{R}_y(\theta) \mathbf{R}_x(\phi)$$
+          Quan hệ giữa đạo hàm góc Euler và vector vận tốc góc trong hệ tọa độ thân $\boldsymbol{\omega}_b$:
+          $$\begin{bmatrix} \omega_x \\ \omega_y \\ \omega_z \end{bmatrix}_b = \begin{bmatrix} 1 & 0 & -\sin\theta \\ 0 & \cos\phi & \sin\phi\cos\theta \\ 0 & -\sin\phi & \cos\phi\cos\theta \end{bmatrix} \begin{bmatrix} \dot{\phi} \\ \dot{\theta} \\ \dot{\psi} \end{bmatrix}$$
+        </p>
+      </section>
+
+      <!-- Mục 2.2 -->
+      <section id="sec-2-2" class="content-section">
+        <h2>2.2 Phân Tích Cơ Cấu Cơ Khí Khép Kín (Mechanisms)</h2>
+        <p>
+          Khác với cánh tay máy dạng chuỗi động học hở (Open Kinematic Chain), các cơ cấu cơ khí khép kín (như cơ cấu 4 khâu, cơ cấu tay quay - con trượt, hệ thống treo xe hơi) chứa các vòng lặp hình học bắt buộc phải thỏa mãn các phương trình liên kết tọa độ.
+        </p>
+
+        <h3 id="sec-2-2-1">2.2.1 Phân Tích Bậc Tự Do (Mobility Analysis: Gruebler-Kutzbach)</h3>
+        <p>
+          Bậc tự do (Degrees of Freedom - DOF) của một cơ cấu là số lượng biến độc lập cần thiết để xác định vị trí của tất cả các khâu:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Tiêu Chuẩn Bậc Tự Do Gruebler-Kutzbach</div>
+          <div class="formula-math">
+            $$\text{Phẳng (2D): } m = 3(n - 1) - 2 j_1 - j_2$$
+            $$\text{Không gian (3D): } m = 6(n - 1) - \sum_{i=1}^j (6 - f_i)$$
+          </div>
+          <div class="formula-legend">
+            $n$: Tổng số khâu (kể cả khâu giá cố định), $j_1$: Số khớp loại 1 (1 DOF: khớp quay R, khớp tịnh tiến P), $j_2$: Số khớp loại 2 (2 DOF: tiếp xúc cam-con lăn), $f_i$: Bậc tự do của khớp thứ $i$.
+          </div>
+        </div>
+
+        <h3 id="sec-2-2-2">2.2.2 Phân Tích Động Học Qua Phương Trình Vòng Lặp Vị Trí (Loop-Closure Equations)</h3>
+        <p>
+          Xét cơ cấu 4 khâu phẳng $O_2 A B O_4$ với các vector khâu $\mathbf{r}_1$ (giá), $\mathbf{r}_2$ (tay quay), $\mathbf{r}_3$ (thanh truyền coupler), $\mathbf{r}_4$ (cần lắc rocker).
+          Phương trình vòng vector khép kín:
+          $$\mathbf{r}_2 + \mathbf{r}_3 - \mathbf{r}_4 - \mathbf{r}_1 = \mathbf{0}$$
+          Chiếu lên trục tọa độ $x$ và $y$:
+          $$r_2 \cos\theta_2 + r_3 \cos\theta_3 - r_4 \cos\theta_4 - r_1 = 0$$
+          $$r_2 \sin\theta_2 + r_3 \sin\theta_3 - r_4 \sin\theta_4 = 0$$
+          Phương trình vi phân vận tốc nhận được qua đạo hàm theo thời gian:
+          $$\begin{bmatrix} -r_3 \sin\theta_3 & r_4 \sin\theta_4 \\ r_3 \cos\theta_3 & -r_4 \cos\theta_4 \end{bmatrix} \begin{bmatrix} \omega_3 \\ \omega_4 \end{bmatrix} = \begin{bmatrix} r_2 \sin\theta_2 \\ -r_2 \cos\theta_2 \end{bmatrix} \omega_2 \iff \mathbf{J}_c \dot{\mathbf{q}}_{dep} = \mathbf{b} \dot{q}_{indep}$$
+        </p>
+      </section>
+
+      <!-- Mục 2.3 -->
+      <section id="sec-2-3" class="content-section">
+        <h2>2.3 Động Học Hệ Thống Mạng (Network Systems & Graph Theory)</h2>
+        <p>
+          Động học không chỉ giới hạn trong cơ học mà còn áp dụng cho cấu trúc topo của mạng lưới đường ống thủy lực và mạch điện:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Ma trận liên thuộc (Incidence Matrix) $\mathbf{A}$:</strong> Biểu diễn kết nối giữa $n_n$ nút và $n_b$ nhánh. Định luật dòng Kirchhoff tổng quát: $\mathbf{A} \mathbf{f} = \mathbf{0}$.</li>
+          <li><strong>Ma trận vòng cơ bản (Fundamental Loop Matrix) $\mathbf{B}$:</strong> Biểu diễn các chu trình độc lập. Định luật thế Kirchhoff tổng quát: $\mathbf{B} \mathbf{e} = \mathbf{0}$.</li>
+          <li><strong>Định lý Tellegen:</strong> Tổng công suất tức thời trong mọi đồ thị liên kết bằng 0: $\mathbf{e}^T \mathbf{f} = 0$, chứng minh tính bảo toàn công suất hệ thống mà không cần biết tính chất tuyến tính hay phi tuyến của từng phần tử.</li>
+        </ul>
+      </section>
+
+      <!-- Mục Worked Example -->
+      <section id="sec-2-worked" class="content-section">
+        <h2>Ví Dụ Tính Số 4 Bước Chuẩn Học Thuật</h2>
+        <div class="worked-step-card">
+          <div class="worked-header">
+            <h4>BÀI TOÁN: TÍNH VẬN TỐC GÓC & GIA TỐC CORIOLIS CỦA CƠ CẤU 4 KHÂU</h4>
+            <span class="badge badge-primary">Chuyên Đề Động Học Freudenstein & Coriolis</span>
+          </div>
+          <p>
+            Cho cơ cấu 4 khâu phẳng có chiều dài các khâu: $r_1 = 200\text{ mm}$ (giá), $r_2 = 80\text{ mm}$ (tay quay chủ động), $r_3 = 180\text{ mm}$ (thanh truyền), $r_4 = 140\text{ mm}$ (cần lắc).
+            Tại thời điểm khảo sát, góc quay chủ động $\theta_2 = 60^\circ$ và quay với vận tốc góc không đổi $\omega_2 = 10\text{ rad/s}$ ngược chiều kim đồng hồ.
+          </p>
+
+          <div class="worked-step-grid">
+            <div class="worked-step-col">
+              <h5>Bước 1: Giải Vị Trí Vòng Lặp Bằng Phương Trình Freudenstein</h5>
+              <p>Hệ số Freudenstein:</p>
+              $$K_1 = \frac{r_1}{r_2} = \frac{200}{80} = 2.50$$
+              $$K_2 = \frac{r_1}{r_4} = \frac{200}{140} \approx 1.4286$$
+              $$K_3 = \frac{r_1^2 + r_2^2 - r_3^2 + r_4^2}{2 r_2 r_4} = \frac{40000 + 6400 - 32400 + 19600}{2 \times 80 \times 140} = \frac{33600}{22400} = 1.50$$
+              <p>Giải phương trình $K_1 \cos\theta_4 - K_2 \cos\theta_2 + K_3 = \cos(\theta_2 - \theta_4)$ thu được:</p>
+              $$\theta_4 \approx 84.63^\circ = 1.477\text{ rad}, \quad \theta_3 \approx 28.45^\circ = 0.4965\text{ rad}$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 2: Thiết Lập Ma Trận Jacobian Vận Tốc & Tính $\omega_3, \omega_4$</h5>
+              <p>Ráp số vào hệ ma trận vận tốc $\mathbf{J}_c \boldsymbol{\omega} = \mathbf{b}$:</p>
+              $$\mathbf{J}_c = \begin{bmatrix} -180 \sin(28.45^\circ) & 140 \sin(84.63^\circ) \\ 180 \cos(28.45^\circ) & -140 \cos(84.63^\circ) \end{bmatrix} = \begin{bmatrix} -85.75 & 139.38 \\ 158.26 & -13.10 \end{bmatrix}$$
+              $$\mathbf{b} = \begin{bmatrix} 80 \sin(60^\circ) \\ -80 \cos(60^\circ) \end{bmatrix} \times 10 = \begin{bmatrix} 692.82 \\ -400.00 \end{bmatrix}\text{ mm/s}$$
+              <p>Nghịch đảo ma trận giải ra vận tốc góc:</p>
+              $$\omega_3 = -2.25\text{ rad/s}, \quad \omega_4 = 3.58\text{ rad/s}$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 3: Xác Định Vận Tốc Điểm Coupler & Vận Tốc Tương Đối</h5>
+              <p>Vận tốc khớp A (đầu tay quay):</p>
+              $$\mathbf{v}_A = \omega_2 \times r_2 = 10 \times 0.08 = 0.80\text{ m/s}$$
+              $$\mathbf{v}_A = (-0.80 \sin 60^\circ)\mathbf{i} + (0.80 \cos 60^\circ)\mathbf{j} = -0.693\mathbf{i} + 0.400\mathbf{j}\text{ [m/s]}$$
+              <p>Xét một con trượt di chuyển dọc thanh truyền $r_3$ với tốc độ tương đối $v_{rel} = 0.50\text{ m/s}$ hướng từ A đến B.</p>
+              $$\mathbf{v}_{rel} = (0.50 \cos 28.45^\circ)\mathbf{i}' + (0.50 \sin 28.45^\circ)\mathbf{j}' = 0.440\mathbf{i} + 0.238\mathbf{j}\text{ [m/s]}$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 4: Tính Toán Vector Gia Tốc Coriolis & Ý Nghĩa Kỹ Thuật</h5>
+              <p>Khung di động gắn trên thanh truyền quay với $\boldsymbol{\omega}_3 = -2.25\mathbf{k}\text{ [rad/s]}$.</p>
+              $$\mathbf{a}_c = 2 (\boldsymbol{\omega}_3 \times \mathbf{v}_{rel}) = 2 (-2.25\mathbf{k}) \times (0.440\mathbf{i} + 0.238\mathbf{j})$$
+              $$\mathbf{a}_c = 2 \times [-0.990\mathbf{j} + 0.536\mathbf{i}] = 1.072\mathbf{i} - 1.980\mathbf{j}\text{ [m/s}^2\text{]}$$
+              $$\|\mathbf{a}_c\| = 2 \times |\omega_3| \times v_{rel} = 2 \times 2.25 \times 0.50 = 2.25\text{ m/s}^2$$
+              <div class="highlight-result-box">
+                <strong>ĐÁP SỐ CHUẨN XÁC:</strong> $\omega_3 = -2.25\text{ rad/s}$; $\omega_4 = 3.58\text{ rad/s}$; Gia tốc Coriolis đạt $2.25\text{ m/s}^2$ vuông góc với thanh truyền, tạo ra áp lực tiếp xúc lớn lên rãnh trượt.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Mô Phỏng Canvas 2D 60 FPS -->
+      <section id="sec-2-sim" class="content-section">
+        <h2>Phòng Thí Nghiệm Tương Tác: Cơ Cấu 4 Khâu & Đường Cong Coupler</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">CANVAS 2D • 60 FPS REALTIME</span>
+            <span class="sim-title">Mô Phỏng Động Học Cơ Cấu 4 Khâu Phẳng & Vector Gia Tốc Coriolis</span>
+          </div>
+          <div class="sim-canvas-wrapper" style="text-align: center; padding: 1.25rem; background: var(--sim-bg);">
+            <canvas id="sim-canvas-02" width="700" height="340" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);"></canvas>
+          </div>
+          <div class="sim-controls" style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color); align-items: center;">
+            <label style="font-size: 0.85rem; font-weight: 600;">Vận tốc góc ω₂ (rad/s): 
+              <input type="range" id="sim2-omega" min="0.5" max="4.0" step="0.25" value="1.5">
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600;">Chiều dài tay quay r₂ (px): 
+              <input type="range" id="sim2-crank" min="40" max="80" step="5" value="60">
+            </label>
+            <button id="sim2-reset" class="btn btn-primary" style="padding: 0.4rem 1rem;">Đặt Lại Vết Quỹ Đạo</button>
+          </div>
+          <div style="padding: 0.75rem 1.25rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-surface);">
+            💡 <em>Trực quan hóa:</em> Vết màu hồng cánh sen vẽ đường cong Coupler của điểm P. Mũi tên đỏ thể hiện vector gia tốc Coriolis $\mathbf{a}_c$ biến thiên theo thời gian.
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Cầu Nối ROS 2 -->
+      <section id="sec-2-ros2" class="content-section">
+        <h2>Cầu Nối Kiến Trúc Thực Tế: tf2_ros & Robot Kinematic Chain</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-bridge-header">
+            <span class="badge badge-accent">ROS 2 TF2 & ROBOT STATE PUBLISHER</span>
+            <h4>Phát Sóng Tọa Độ Chuỗi Khép Kín & Bù Gia Tốc Coriolis Cho IMU</h4>
+          </div>
+          <p>
+            Trong các robot song song (Parallel Linkages) như Delta Robot hay cơ cấu Stewart platform, <code>robot_state_publisher</code> chuẩn của ROS 2 chỉ hỗ trợ cây tọa độ dạng cây hở (URDF Tree). Để giải vòng lặp khép kín, ta phát sóng TF tùy chỉnh và giải nghiệm Jacobian thời gian thực:
+          </p>
+          <div class="code-card">
+            <div class="code-header">
+              <span>closed_loop_tf_broadcaster.cpp</span>
+              <span class="code-badge">C++20</span>
+            </div>
+            <pre><code>// Broadcast biến đổi tọa độ và bù Coriolis cho cảm biến IMU trên Coupler
+#include "rclcpp/rclcpp.hpp"
+#include "tf2_ros/transform_broadcaster.h"
+#include "geometry_msgs/msg/transform_stamped.hpp"
+
+void publishCouplerFrame(double theta2, double omega2) {
+  // Giải phương trình khép kín vòng lặp
+  double theta3, theta4, omega3;
+  solveFreudenstein(theta2, omega2, theta3, theta4, omega3);
+
+  geometry_msgs::msg::TransformStamped tf_msg;
+  tf_msg.header.stamp = node-&gt;now();
+  tf_msg.header.frame_id = "base_link";
+  tf_msg.child_frame_id = "coupler_link";
+
+  // Vị trí khớp A
+  tf_msg.transform.translation.x = r2 * cos(theta2);
+  tf_msg.transform.translation.y = r2 * sin(theta2);
+  tf_msg.transform.translation.z = 0.0;
+
+  // Góc quay coupler
+  tf2::Quaternion q;
+  q.setRPY(0.0, 0.0, theta3);
+  tf_msg.transform.rotation.x = q.x();
+  tf_msg.transform.rotation.y = q.y();
+  tf_msg.transform.rotation.z = q.z();
+  tf_msg.transform.rotation.w = q.w();
+
+  tf_broadcaster-&gt;sendTransform(tf_msg);
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Tóm Tắt & Câu Hỏi Tự Luyện -->
+      <section id="sec-2-summary" class="content-section">
+        <h2>📝 Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <h4>GHI NHỚ CỐT LÕI CHƯƠNG 02</h4>
+          <ol class="academic-list">
+            <li><strong>Gia tốc toàn phần:</strong> Gồm 5 số hạng: tịnh tiến gốc $\mathbf{a}_{O'}$, Euler $\dot{\boldsymbol{\omega}}\times\mathbf{r}$, hướng tâm $\boldsymbol{\omega}\times(\boldsymbol{\omega}\times\mathbf{r})$, tương đối $\mathbf{a}_{rel}$, và Coriolis $2\boldsymbol{\omega}\times\mathbf{v}_{rel}$.</li>
+            <li><strong>Công thức Poisson:</strong> $\frac{d\mathbf{e}}{dt} = \boldsymbol{\omega} \times \mathbf{e}$ là chìa khóa đạo hàm mọi vector trong hệ quy chiếu quay.</li>
+            <li><strong>Tiêu chuẩn Gruebler:</strong> $m = 3(n-1) - 2j_1 - j_2$ xác định bậc tự do cơ cấu phẳng. Cơ cấu 4 khâu có $n=4, j_1=4 \implies m = 3(3) - 8 = 1$ DOF.</li>
+            <li><strong>Phương trình vòng lặp Freudenstein:</strong> Biến đổi ràng buộc hình học phi tuyến thành quan hệ vi phân tuyến tính qua ma trận Jacobian $\mathbf{J}_c$.</li>
+          </ol>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+          <h4>Câu hỏi tự luyện 2.1: Cơ cấu tay quay con trượt (Slider-Crank Mechanism)</h4>
+          <p>
+            Một cơ cấu tay quay con trượt trong động cơ đốt trong có bán kính tay quay $r = 50\text{ mm}$, chiều dài thanh truyền $L = 150\text{ mm}$.
+            Tay quay quay đều với tốc độ $N = 3000\text{ vòng/phút}$ ($\omega = 100\pi\text{ rad/s}$).
+          </p>
+          <p>
+            <strong>Yêu cầu:</strong>
+            1) Tính bậc tự do của cơ cấu theo tiêu chuẩn Gruebler.
+            2) Viết phương trình vòng khép kín tọa độ vị trí của quả piston $x_p(\theta)$.
+            3) Tính vận tốc và gia tốc cực đại của piston, xác định thời điểm góc $\theta$ xuất hiện gia tốc cực đại.
+          </p>
+        </div>
+      </section>
+
+      <!-- Pagination Footer -->
+      <nav class="chapter-pagination">
+        <a href="ch01.html" class="pagination-link prev">
+          <span class="pagination-sub">Trang trước</span>
+          <span class="pagination-title">← Chương 01: Biểu Diễn Hệ Thống Thống Nhất</span>
+        </a>
+        <a href="ch03.html" class="pagination-link next">
+          <span class="pagination-sub">Trang sau</span>
+          <span class="pagination-title">Chương 03: Phương Trình Chuyển Động Lagrange →</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · Giáo trình chuyên khảo cao học Springer</p>
+      <p>Tác giả: <strong>GS. Brian C. Fabien</strong> (University of Washington) • Biên soạn: Viện Tri Thức Robotics</p>
+      <div style="margin-top: 0.75rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="../index.html" class="card-action-link">← Về Portal Hub ASD</a>
+        <span style="color: var(--text-subtle);">•</span>
+        <a href="../../index.html" class="card-action-link">Trang Chủ Master Robotics Portals ↗</a>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

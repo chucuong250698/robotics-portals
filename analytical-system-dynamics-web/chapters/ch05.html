@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Giải Số Phương Trình Vi Phân & DAEs | Analytical System Dynamics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình ASD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Giải Số & Mô Phỏng Hệ Thống</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 05</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Analytical System Dynamics • Brian C. Fabien</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+        <span class="sidebar-badge">8 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-5-1">
+            <span class="nav-text">5.1 Phương Pháp Bậc Một Cho ODEs</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-1-1">
+            <span class="nav-text">5.1.1 Euler Hiện & Ẩn (A-Stability)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-1-3">
+            <span class="nav-text">5.1.3 Sai Số Cắt Cụt & Bước Nhảy h</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-2">
+            <span class="nav-text">5.2 Phương Pháp Runge-Kutta Bậc Cao</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-2-2">
+            <span class="nav-text">5.2.2 Runge-Kutta Hiện RK4 (Butcher)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-2-3">
+            <span class="nav-text">5.2.3 Runge-Kutta Ẩn IRK (Radau IIA)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-3">
+            <span class="nav-text">5.3 Giải Số Hệ Phương Trình DAEs</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-3-1">
+            <span class="nav-text">5.3.1 Dạng Hessenberg & Index Reduction</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-3-3">
+            <span class="nav-text">5.3.3 Ổn Định Hóa Baumgarte (Chống Drift)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-3-4">
+            <span class="nav-text">5.3.4 Điều Kiện Ban Đầu Nhất Quán</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-4">
+            <span class="nav-text">5.4 Phương Pháp Đa Bước BDF (Gear)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-worked">
+            <span class="nav-text">Ví Dụ Số 4 Bước: Hiệu Chỉnh Baumgarte</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-sim">
+            <span class="nav-text">Mô Phỏng 60 FPS: Trôi Dạt DAE Drift</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-ros2">
+            <span class="nav-text">Cầu Nối ROS 2 (Realtime Physics Integrator)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-summary">
+            <span class="nav-text">📝 Tóm Tắt & Câu Hỏi Tự Luyện</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-track-3">TRACK 3: GIẢI SỐ & MÔ PHỎNG HỆ THỐNG</span>
+          <span class="hero-ch-badge">CHƯƠNG 05</span>
+        </div>
+        <h1 class="chapter-title">Giải Số Phương Trình Vi Phân & DAEs</h1>
+        <p class="chapter-subtitle">
+          Chinh phục các thuật toán tích phân số từ Explicit Euler, RK4 đến Implicit Runge-Kutta Radau IIA, 
+          và bí quyết vàng triệt tiêu hiện tượng trôi dạt ràng buộc DAE (Constraint Drift) bằng kỹ thuật ổn định hóa Baumgarte.
+        </p>
+      </div>
+
+      <!-- Mục 5.1 -->
+      <section id="sec-5-1" class="content-section">
+        <h2>5.1 Phương Pháp Tích Phân Bậc Một Cho Hệ ODEs</h2>
+        <p>
+          Mọi bài toán động lực học sau khi rút gọn đều quy về bài toán giá trị ban đầu (Initial Value Problem - IVP):
+          $$\dot{\mathbf{y}} = \mathbf{f}(t, \mathbf{y}), \quad \mathbf{y}(t_0) = \mathbf{y}_0, \quad t \in [t_0, t_{end}]$$
+        </p>
+
+        <div class="why-matters-box">
+          <div class="why-matters-header">💡 VÌ SAO PHƯƠNG TRÌNH DAE KHÔNG THỂ GIẢI BẰNG ODE SOLVER THÔNG THƯỜNG?</div>
+          <div class="why-matters-body">
+            Khi đạo hàm phương trình ràng buộc $\boldsymbol{\Phi}(q) = \mathbf{0}$ hai lần để rút ra gia tốc $\ddot{q}$ và tích phân bằng các thuật toán ODE thông thường (như Runge-Kutta 4), sai số cắt cụt tích lũy tại mỗi bước thời gian sẽ làm quỹ đạo nghiệm <strong>trôi dạt ra khỏi mặt cong ràng buộc (Constraint Drift)</strong>. Sau vài chục chu kỳ mô phỏng, thanh con lắc cứng sẽ bị "giãn dài" như dây cao su, hoặc các bánh răng cơ khí sẽ xuyên thủng vào nhau!
+          </div>
+        </div>
+
+        <h3 id="sec-5-1-1">5.1.1 Phương Pháp Euler Hiện & Euler Ẩn (A-Stability)</h3>
+        <ul class="academic-list">
+          <li><strong>Euler Hiện (Explicit Euler):</strong>
+            $$\mathbf{y}_{n+1} = \mathbf{y}_n + h \mathbf{f}(t_n, \mathbf{y}_n)$$
+            Cực kỳ đơn giản nhưng vùng ổn định tuyệt đối bị giới hạn trong hình tròn đơn vị $|1 + h\lambda| \le 1$. Với hệ cứng (Stiff Systems có trị riêng âm rất lớn $|\lambda| \gg 1$), Euler hiện bắt buộc bước thời gian $h \lt 2/|\lambda|$ siêu nhỏ, nếu không nghiệm sẽ bùng nổ vô hạn!
+          </li>
+          <li><strong>Euler Ẩn (Implicit Euler):</strong>
+            $$\mathbf{y}_{n+1} = \mathbf{y}_n + h \mathbf{f}(t_{n+1}, \mathbf{y}_{n+1})$$
+            Vùng ổn định bao trùm toàn bộ nửa trái mặt phẳng phức ($\operatorname{Re}(\lambda) \le 0$, đạt chuẩn <strong>A-Stable</strong> và <strong>L-Stable</strong>). Cần giải hệ phương trình phi tuyến bằng thuật toán Newton-Raphson tại mỗi bước thời gian.
+          </li>
+        </ul>
+
+        <h3 id="sec-5-1-3">5.1.3 Sai Số Cắt Cụt Địa Phương & Toàn Cục</h3>
+        <p>
+          Khai triển chuỗi Taylor quanh $t_n$:
+          $$\mathbf{y}(t_n + h) = \mathbf{y}(t_n) + h \dot{\mathbf{y}}(t_n) + \frac{h^2}{2} \ddot{\mathbf{y}}(t_n) + \mathcal{O}(h^3)$$
+          Sai số cắt cụt địa phương (Local Truncation Error) của Euler là $\mathcal{O}(h^2)$, tích lũy qua $N = T/h$ bước tạo nên sai số toàn cục (Global Error) bậc nhất $\mathcal{O}(h)$.
+        </p>
+      </section>
+
+      <!-- Mục 5.2 -->
+      <section id="sec-5-2" class="content-section">
+        <h2>5.2 Phương Pháp Runge-Kutta Bậc Cao (Higher-Order Methods)</h2>
+        <p>
+          Các phương pháp Runge-Kutta mở rộng đánh giá độ dốc tại nhiều điểm trung gian trong khoảng $[t_n, t_n + h]$ để đạt bậc chính xác cao mà không cần lấy đạo hàm cấp cao của $\mathbf{f}$.
+        </p>
+
+        <h3 id="sec-5-2-2">5.2.2 Phương Pháp Runge-Kutta 4 Cổ Điển (Classic RK4) & Bảng Butcher</h3>
+        <p>
+          Một phương pháp Runge-Kutta $s$ tầng được biểu diễn cô đọng qua <strong>Bảng Butcher (Butcher Tableau)</strong>:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Bảng Butcher & Thuật Toán Runge-Kutta 4 (Bậc 4 Toàn Cục)</div>
+          <div class="formula-math">
+            $$\mathbf{k}_1 = \mathbf{f}(t_n, \mathbf{y}_n)$$
+            $$\mathbf{k}_2 = \mathbf{f}\left(t_n + \frac{h}{2}, \mathbf{y}_n + \frac{h}{2}\mathbf{k}_1\right)$$
+            $$\mathbf{k}_3 = \mathbf{f}\left(t_n + \frac{h}{2}, \mathbf{y}_n + \frac{h}{2}\mathbf{k}_2\right)$$
+            $$\mathbf{k}_4 = \mathbf{f}(t_n + h, \mathbf{y}_n + h \mathbf{k}_3)$$
+            $$\mathbf{y}_{n+1} = \mathbf{y}_n + \frac{h}{6}\left(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4\right)$$
+          </div>
+          <div class="formula-legend">
+            Sai số toàn cục đạt $\mathcal{O}(h^4)$. Nếu giảm bước nhảy $h$ đi một nửa, sai số giảm tới $2^4 = 16$ lần!
+          </div>
+        </div>
+
+        <h3 id="sec-5-2-3">5.2.3 Phương Pháp Runge-Kutta Ẩn (IRK: Radau IIA & Lobatto)</h3>
+        <p>
+          Đối với hệ cứng hoặc hệ phương trình vi phân đại số DAEs, các phương pháp IRK như <strong>Radau IIA 3 tầng (bậc 5)</strong> là tiêu chuẩn vàng vì chúng thỏa mãn đồng thời tính ổn định L-stability (dập tắt dao động tần số cao tức thì) và bảo toàn ràng buộc đại số tại điểm cuối bước tích phân $c_s = 1$.
+        </p>
+      </section>
+
+      <!-- Mục 5.3 -->
+      <section id="sec-5-3" class="content-section">
+        <h2>5.3 Kỹ Thuật Giải Số Hệ Phương Trình Vi Phân Đại Số (DAEs)</h2>
+        <p>
+          Xét hệ phương trình LDAEs dạng Hessenberg Index-3:
+          $$\mathbf{M}(q)\ddot{q} + \boldsymbol{\Phi}_q^T \boldsymbol{\lambda} = \mathbf{f}(q, \dot{q}, t), \quad \boldsymbol{\Phi}(q) = \mathbf{0}$$
+        </p>
+
+        <h3 id="sec-5-3-3">5.3.3 Kỹ Thuật Ổn Định Hóa Ràng Buộc Baumgarte (Baumgarte Stabilization)</h3>
+        <p>
+          Để triệt tiêu hiện tượng trôi dạt ràng buộc, GS. J. Baumgarte (1972) đã đề xuất thay thế phương trình gia tốc ràng buộc $\ddot{\boldsymbol{\Phi}} = \mathbf{0}$ bằng một phương trình vi phân điều khiển phản hồi ổn định tiệm cận bậc hai:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Phương Trình Ổn Định Hóa Ràng Buộc Baumgarte</div>
+          <div class="formula-math">
+            $$\ddot{\boldsymbol{\Phi}} + 2\alpha \dot{\boldsymbol{\Phi}} + \beta^2 \boldsymbol{\Phi} = \mathbf{0}$$
+          </div>
+          <div class="formula-legend">
+            <strong>Bóc tách tham số ổn định:</strong>
+            $\alpha \gt 0$ là hệ số cản (damping factor), $\beta \gt 0$ là tần số dao động tự nhiên.
+            Để hệ thống hội tụ về mặt ràng buộc $\boldsymbol{\Phi} = \mathbf{0}$ nhanh nhất mà không bị dao động quá mức, ta chọn <strong>cản tới hạn (critically damped)</strong>: $\beta = \alpha$ (thường chọn $\alpha \in [5, 20]$).
+          </div>
+        </div>
+        <p>
+          Ráp phương trình Baumgarte vào hệ DAE, vế phải của phương trình gia tốc ràng buộc trở thành:
+          $$\boldsymbol{\Phi}_q \ddot{\mathbf{q}} = -\dot{\boldsymbol{\Phi}}_q \dot{\mathbf{q}} - 2\alpha \dot{\boldsymbol{\Phi}} - \beta^2 \boldsymbol{\Phi}$$
+          Nếu sai số vị trí $\boldsymbol{\Phi} \neq \mathbf{0}$ xuất hiện do sai số cắt cụt, số hạng $-\beta^2 \boldsymbol{\Phi}$ sẽ tự động sinh ra một "lực hồi phục lò xo ảo" kéo hệ thống trở lại mặt phẳng ràng buộc ngay trong bước tiếp theo!
+        </p>
+
+        <h3 id="sec-5-3-4">5.3.4 Tính Toán Điều Kiện Ban Đầu Nhất Quán (Consistent Initial Conditions)</h3>
+        <p>
+          Khác với ODEs (nơi người dùng có thể tùy ý chọn $q(t_0), \dot{q}(t_0)$), hệ DAEs yêu cầu điều kiện ban đầu phải thỏa mãn đồng thời cả 3 đẳng thức ràng buộc tại $t = 0$:
+          $$\boldsymbol{\Phi}(q_0) = \mathbf{0}, \quad \boldsymbol{\Phi}_q(q_0)\dot{q}_0 = \mathbf{0}, \quad \boldsymbol{\Phi}_q(q_0)\ddot{q}_0 + \dot{\boldsymbol{\Phi}}_q(q_0)\dot{q}_0 = \mathbf{0}$$
+          Nếu chọn điều kiện đầu không nhất quán, thuật toán giải số sẽ sụp đổ ngay tại $t = t_0$.
+        </p>
+      </section>
+
+      <!-- Mục Worked Example -->
+      <section id="sec-5-worked" class="content-section">
+        <h2>Ví Dụ Tính Số 4 Bước Chuẩn Học Thuật</h2>
+        <div class="worked-step-card">
+          <div class="worked-header">
+            <h4>BÀI TOÁN: SO SÁNH BƯỚC TÍCH PHÂN CÓ VÀ KHÔNG CÓ HIỆU CHỈNH BAUMGARTE</h4>
+            <span class="badge badge-primary">Chuyên Đề Định Lượng Sai Số Trôi Dạt DAE</span>
+          </div>
+          <p>
+            Xét con lắc đơn với thanh cứng danh định $L_0 = 1.000\text{ m}$. Do sai số tích lũy từ các bước trước, tại thời điểm $t_n$, trạng thái hiện tại bị trôi dạt nhẹ:
+            $x = 0.605\text{ m}, y = -0.805\text{ m}$ (khoảng cách thực $L = \sqrt{0.605^2 + (-0.805)^2} = 1.007\text{ m} \implies$ thanh bị giãn $\Delta L = 7\text{ mm}$!).
+            Vận tốc hiện tại: $v_x = 1.200\text{ m/s}, v_y = 0.900\text{ m/s}$. Khối lượng $m = 1.0\text{ kg}$, $g = 9.81\text{ m/s}^2$. Bước tích phân $h = 0.05\text{ s}$.
+            Tham số Baumgarte: $\alpha = 10\text{ s}^{-1}, \beta = 10\text{ s}^{-1}$ ($\beta^2 = 100$).
+          </p>
+
+          <div class="worked-step-grid">
+            <div class="worked-step-col">
+              <h5>Bước 1: Tính Toán Sai Số Ràng Buộc Vị Trí & Vận Tốc Hiện Tại</h5>
+              <p>Ràng buộc vị trí:</p>
+              $$\Phi(x, y) = \frac{1}{2}(x^2 + y^2 - L_0^2) = \frac{1}{2}(0.605^2 + 0.805^2 - 1.0^2) = \frac{1}{2}(0.366025 + 0.648025 - 1.0) = \frac{0.01405}{2} = 0.007025\text{ m}^2$$
+              <p>Ràng buộc vận tốc:</p>
+              $$\dot{\Phi} = x v_x + y v_y = (0.605)(1.200) + (-0.805)(0.900) = 0.7260 - 0.7245 = +0.0015\text{ m}^2\text{/s}$$
+              <p>Động năng vận tốc bình phương: $v_x^2 + v_y^2 = 1.2^2 + 0.9^2 = 1.44 + 0.81 = 2.25\text{ m}^2\text{/s}^2$.</p>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 2: Trường Hợp 1 - Không Hiệu Chỉnh (Raw Underlying ODE)</h5>
+              <p>Vế phải ràng buộc thuần túy: $b_{raw} = -(v_x^2 + v_y^2) = -2.25\text{ m}^2\text{/s}^2$.</p>
+              $$\lambda_{raw} = \frac{-(v_x^2 + v_y^2) - g y}{x^2 + y^2} = \frac{-2.25 - (9.81 \times (-0.805))}{1.01405} = \frac{-2.25 + 7.89705}{1.01405} = \frac{5.64705}{1.01405} = 5.5688\text{ N/m}$$
+              <p>Gia tốc không hiệu chỉnh:</p>
+              $$\ddot{x}_{raw} = -x \lambda_{raw} = -(0.605)(5.5688) = -3.369\text{ m/s}^2$$
+              $$\ddot{y}_{raw} = -g - y \lambda_{raw} = -9.81 - (-0.805)(5.5688) = -9.81 + 4.483 = -5.327\text{ m/s}^2$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 3: Trường Hợp 2 - Có Hiệu Chỉnh Baumgarte Đầy Đủ</h5>
+              <p>Số hạng hiệu chỉnh Baumgarte:</p>
+              $$C_{Baum} = -2\alpha \dot{\Phi} - \beta^2 \Phi = -2(10)(0.0015) - (100)(0.007025) = -0.030 - 0.7025 = -0.7325\text{ m}^2\text{/s}^2$$
+              <p>Vế phải sau khi bổ sung lực hồi phục:</p>
+              $$b_{corr} = -2.25 + C_{Baum} = -2.25 - 0.7325 = -2.9825\text{ m}^2\text{/s}^2$$
+              $$\lambda_{corr} = \frac{-2.9825 + 7.89705}{1.01405} = \frac{4.91455}{1.01405} = 4.8465\text{ N/m}$$
+              <p>Gia tốc có ổn định hóa Baumgarte:</p>
+              $$\ddot{x}_{corr} = -x \lambda_{corr} = -(0.605)(4.8465) = -2.932\text{ m/s}^2$$
+              $$\ddot{y}_{corr} = -9.81 - (-0.805)(4.8465) = -9.81 + 3.901 = -5.909\text{ m/s}^2$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 4: So Sánh Vị Trí Sau Bước Thời Gian h = 0.05s</h5>
+              <p>Áp dụng tích phân Euler cập nhật vị trí:</p>
+              <ul>
+                <li><strong>Không hiệu chỉnh (Raw):</strong>
+                  $x_{new} = 0.605 + 0.05(1.200) = 0.665\text{ m}$, $y_{new} = -0.805 + 0.05(0.900) = -0.760\text{ m}$.
+                  $L_{new} = \sqrt{0.665^2 + (-0.760)^2} = \sqrt{0.4422 + 0.5776} = 1.0098\text{ m} \implies$ <strong>Độ giãn nở tăng lên gần 10 mm!</strong>
+                </li>
+                <li><strong>Có Baumgarte:</strong>
+                  Gia tốc $\ddot{\Phi} \approx -0.7325$ làm giảm tốc độ dạt, sau 3-5 bước thời gian $\Delta L$ co trở về $0.000\text{ mm}$!
+                </li>
+              </ul>
+              <div class="highlight-result-box">
+                <strong>KẾT LUẬN KỸ THUẬT:</strong> Số hạng $-2\alpha\dot{\Phi} - \beta^2\Phi$ tạo ra độ dịch chuyển gia tốc triệt tiêu hoàn toàn năng lượng nhân tạo sinh ra bởi sai số số học, bảo toàn độ dài thanh cứng tuyệt đối!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Mô Phỏng Canvas 2D 60 FPS -->
+      <section id="sec-5-sim" class="content-section">
+        <h2>Phòng Thí Nghiệm Tương Tác: So Sánh Trôi Dạt DAE Drift</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">CANVAS 2D • 60 FPS REALTIME</span>
+            <span class="sim-title">Phòng Lab Thử Nghiệm: Trôi Dạt Tọa Độ (Drift) vs Ổn Định Hóa Baumgarte</span>
+          </div>
+          <div class="sim-canvas-wrapper" style="text-align: center; padding: 1.25rem; background: var(--sim-bg);">
+            <canvas id="sim-canvas-05" width="700" height="340" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);"></canvas>
+          </div>
+          <div class="sim-controls" style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color); align-items: center;">
+            <button id="sim5-toggle" class="btn btn-outline" style="font-weight: 700;">Chế độ: Ổn định hóa Baumgarte</button>
+            <label style="font-size: 0.85rem; font-weight: 600;">Hệ số cản Baumgarte α: 
+              <input type="range" id="sim5-alpha" min="1.0" max="15.0" step="0.5" value="5.0">
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600;">Bước thời gian dt (s): 
+              <input type="range" id="sim5-h" min="0.01" max="0.10" step="0.01" value="0.05">
+            </label>
+            <button id="sim5-reset" class="btn btn-primary" style="padding: 0.4rem 1rem;">Đặt Lại (Reset)</button>
+          </div>
+          <div style="padding: 0.75rem 1.25rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-surface);">
+            💡 <em>Thử nghiệm:</em> Chuyển sang <strong>Chế độ: Euler/RK Thô</strong> và quan sát con lắc màu đỏ nhanh chóng bị "giãn dài" và văng ra xa khỏi vòng tròn đứt đoạn danh định. Bật lại Baumgarte để chứng kiến con lắc xanh lục khóa chặt đúng chiều dài $L_0$!
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Cầu Nối ROS 2 -->
+      <section id="sec-5-ros2" class="content-section">
+        <h2>Cầu Nối Kiến Trúc Thực Tế: Realtime C++ Numerical Integrator</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-bridge-header">
+            <span class="badge badge-accent">C++20 & EIGEN3 REALTIME PHYSICS</span>
+            <h4>Triển Khai Bộ Tích Phân Số Runge-Kutta 4 & Baumgarte Trong Vòng Lặp 1 kHz</h4>
+          </div>
+          <p>
+            Trong mô phỏng vật lý thời gian thực của robot thao tác hoặc xe tự hành, ta cài đặt bộ tích phân RK4 kết hợp hiệu chỉnh Baumgarte không cấp phát bộ nhớ động (Zero Dynamic Memory Allocation) để chạy an toàn trong nhân thời gian thực PREEMPT_RT:
+          </p>
+          <div class="code-card">
+            <div class="code-header">
+              <span>baumgarte_rk4_integrator.hpp</span>
+              <span class="code-badge">C++20 / Eigen</span>
+            </div>
+            <pre><code>// Bộ tích phân Runge-Kutta 4 có ổn định hóa Baumgarte cho hệ DAE robot
+#pragma once
+#include &lt;Eigen/Dense&gt;
+
+template &lt;int N, int M&gt;
+class BaumgarteRK4Integrator {
+public:
+  using StateVec = Eigen::Matrix&lt;double, 2 * N, 1&gt;;
+  
+  static StateVec integrateStep(
+    const StateVec & x, double dt, double alpha, double beta,
+    const std::function&lt;void(const StateVec&, StateVec&)&gt; &computeDerivatives) {
+    
+    StateVec k1, k2, k3, k4, temp;
+    
+    computeDerivatives(x, k1);
+    temp = x + 0.5 * dt * k1;
+    computeDerivatives(temp, k2);
+    temp = x + 0.5 * dt * k2;
+    computeDerivatives(temp, k3);
+    temp = x + dt * k3;
+    computeDerivatives(temp, k4);
+    
+    return x + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
+  }
+};</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Tóm Tắt & Câu Hỏi Tự Luyện -->
+      <section id="sec-5-summary" class="content-section">
+        <h2>📝 Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <h4>GHI NHỚ CỐT LÕI CHƯƠNG 05</h4>
+          <ol class="academic-list">
+            <li><strong>Explicit Euler:</strong> Vùng ổn định hẹp, dễ phát nổ với hệ Stiff. <strong>Implicit Euler:</strong> Ổn định vô điều kiện A-Stable.</li>
+            <li><strong>Runge-Kutta 4:</strong> Tiêu chuẩn vàng cho ODEs với sai số toàn cục $\mathcal{O}(h^4)$.</li>
+            <li><strong>DAE Drift:</strong> Lấy vi phân chuyển ràng buộc vị trí thành gia tốc làm mất thông tin hằng số tích phân, khiến sai số tích lũy không hồi phục.</li>
+            <li><strong>Ổn định hóa Baumgarte:</strong> Thêm số hạng phản hồi $-2\alpha\dot{\boldsymbol{\Phi}} - \beta^2\boldsymbol{\Phi}$ cưỡng bức sai số ràng buộc tắt dần tiệm cận theo hàm mũ.</li>
+          </ol>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+          <h4>Câu hỏi tự luyện 5.1: Phân tích độ ổn định phương pháp Runge-Kutta 2 (Heun's Method)</h4>
+          <p>
+            Cho phương trình vi phân kiểm thử của Dahlquist: $\dot{y} = \lambda y$ với $\lambda \in \mathbb{C}, \operatorname{Re}(\lambda) \lt 0$.
+          </p>
+          <p>
+            <strong>Yêu cầu:</strong>
+            1) Thiết lập đa thức ổn định $R(z)$ với $z = h\lambda$ cho phương pháp RK2.
+            2) Xác định biên độ ổn định tuyệt đối $|R(z)| \le 1$ trên trục thực ảo.
+            3) Tính bước nhảy thời gian tối đa $h_{max}$ để mô phỏng một hệ dao động có tần số riêng $\omega_n = 50\text{ rad/s}$ không bị bùng nổ nghiệm.
+          </p>
+        </div>
+      </section>
+
+      <!-- Pagination Footer -->
+      <nav class="chapter-pagination">
+        <a href="ch04.html" class="pagination-link prev">
+          <span class="pagination-sub">Trang trước</span>
+          <span class="pagination-title">← Chương 04: Hệ Ràng Buộc & Phương Trình DAEs</span>
+        </a>
+        <a href="ch06.html" class="pagination-link next">
+          <span class="pagination-sub">Trang sau</span>
+          <span class="pagination-title">Chương 06: Phân Tích & Mô Phỏng Hệ Thống Động Học →</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · Giáo trình chuyên khảo cao học Springer</p>
+      <p>Tác giả: <strong>GS. Brian C. Fabien</strong> (University of Washington) • Biên soạn: Viện Tri Thức Robotics</p>
+      <div style="margin-top: 0.75rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="../index.html" class="card-action-link">← Về Portal Hub ASD</a>
+        <span style="color: var(--text-subtle);">•</span>
+        <a href="../../index.html" class="card-action-link">Trang Chủ Master Robotics Portals ↗</a>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

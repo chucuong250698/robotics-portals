@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Phương Trình Chuyển Động Lagrange | Analytical System Dynamics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình ASD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Giải Tích Lagrange & Ràng Buộc DAE</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 03</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Analytical System Dynamics • Brian C. Fabien</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+        <span class="sidebar-badge">7 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-3-1">
+            <span class="nav-text">3.1 Động Lực Học Giải Tích (D'Alembert)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-1-1">
+            <span class="nav-text">3.1.1 Tọa Độ Suy Rộng (q)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-1-2">
+            <span class="nav-text">3.1.2 Độ Dời Ảo (δq)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-1-3">
+            <span class="nav-text">3.1.3 Công Ảo & Nguyên Lý D'Alembert</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-2">
+            <span class="nav-text">3.2 Thiết Lập Phương Trình Lagrange</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-3">
+            <span class="nav-text">3.3 Ứng Dụng Đa Miền Cơ - Điện - Thủy</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-1">
+            <span class="nav-text">3.3.1 Hệ Cơ Khí (Cart-Pole & Con Lắc)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-2">
+            <span class="nav-text">3.3.2 Hệ Mạch Điện Tử (RLC Lagrangian)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-3">
+            <span class="nav-text">3.3.3 Hệ Thủy Lực & Khí Nén</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-worked">
+            <span class="nav-text">Ví Dụ Số 4 Bước: Xe Con Lắc Ngược</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-sim">
+            <span class="nav-text">Mô Phỏng 60 FPS: Con Lắc Kép Hỗn Loạn</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-ros2">
+            <span class="nav-text">Cầu Nối ROS 2 (Cart-Pole Gazebo Sim)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-summary">
+            <span class="nav-text">📝 Tóm Tắt & Câu Hỏi Tự Luyện</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-track-2">TRACK 2: GIẢI TÍCH LAGRANGE & RÀNG BUỘC DAE</span>
+          <span class="hero-ch-badge">CHƯƠNG 03</span>
+        </div>
+        <h1 class="chapter-title">Phương Trình Chuyển Động Lagrange</h1>
+        <p class="chapter-subtitle">
+          Từ nguyên lý công ảo D'Alembert đến phương trình vi phân Lagrange tổng quát có hàm tiêu tán Rayleigh, 
+          loại bỏ hoàn toàn phản lực liên kết nội bộ và thống nhất cơ học, điện từ học và thủy động lực học.
+        </p>
+      </div>
+
+      <!-- Mục 3.1 -->
+      <section id="sec-3-1" class="content-section">
+        <h2>3.1 Cơ Sở Động Lực Học Giải Tích (Analytical Dynamics)</h2>
+        <p>
+          Trong phương pháp Newton-Euler, kỹ sư phải tách từng vật thể tự do (Free-Body Diagram), vẽ tất cả các lực phản lực liên kết tại các khớp nối (như lực ép ổ bi, lực căng chốt bản lề) và giải một hệ phương trình đại số - vi phân khổng lồ. 
+          Phương pháp giải tích của Joseph-Louis Lagrange đi theo con đường hoàn toàn khác: sử dụng các đại lượng vô hướng năng lượng (Động năng và Thế năng) và nguyên lý công ảo.
+        </p>
+
+        <div class="why-matters-box">
+          <div class="why-matters-header">💡 TẠI SAO NGUYÊN LÝ CÔNG ẢO LÀ BƯỚC ĐỘT PHÁ TOÁN HỌC?</div>
+          <div class="why-matters-body">
+            Đối với các liên kết cơ học lý tưởng (không ma sát), tổng công ảo do các lực phản lực liên kết nội bộ sinh ra <strong>triệt tiêu hoàn toàn bằng 0</strong> ($\sum \mathbf{R}_i \cdot \delta \mathbf{r}_i = 0$). Điều này cho phép ta thiết lập phương trình chuyển động trực tiếp mà không cần giải hoặc khử các lực liên kết ẩn!
+          </div>
+        </div>
+
+        <h3 id="sec-3-1-1">3.1.1 Tọa Độ Suy Rộng (Generalized Coordinates)</h3>
+        <p>
+          Một hệ thống gồm $N$ chất điểm trong không gian 3D chịu $m$ ràng buộc vị trí độc lập có số bậc tự do $n = 3N - m$.
+          Một tập hợp $n$ biến số độc lập $\{q_1, q_2, \dots, q_n\}$ được gọi là <strong>tọa độ suy rộng</strong> nếu vị trí của mọi chất điểm có thể biểu diễn duy nhất:
+          $$\mathbf{r}_i = \mathbf{r}_i(q_1, q_2, \dots, q_n, t), \quad i = 1, \dots, N$$
+          Vận tốc tương ứng được khai triển theo quy tắc dây chuyền:
+          $$\mathbf{v}_i = \dot{\mathbf{r}}_i = \sum_{k=1}^n \frac{\partial \mathbf{r}_i}{\partial q_k} \dot{q}_k + \frac{\partial \mathbf{r}_i}{\partial t}$$
+        </p>
+
+        <h3 id="sec-3-1-2">3.1.2 Độ Dời Ảo (Virtual Displacements)</h3>
+        <p>
+          Độ dời ảo $\delta \mathbf{r}_i$ là một biến thiên vô cùng nhỏ giả định của tọa độ vị trí tại một thời điểm đóng băng ($dt = 0$), hoàn toàn phù hợp với các ràng buộc hình học:
+          $$\delta \mathbf{r}_i = \sum_{k=1}^n \frac{\partial \mathbf{r}_i}{\partial q_k} \delta q_k$$
+          Lưu ý sự khác biệt căn bản giữa vi phân thực $d\mathbf{r}_i = \mathbf{v}_i dt$ (thời gian trôi qua) và vi phân ảo $\delta \mathbf{r}_i$ (thời gian đứng yên $dt = 0$, chỉ xét biến thiên hình học cho phép).
+        </p>
+
+        <h3 id="sec-3-1-3">3.1.3 Công Ảo & Nguyên Lý D'Alembert (D'Alembert's Principle)</h3>
+        <p>
+          Theo D'Alembert, nếu bổ sung lực quán tính đảo dấu $-\dot{\mathbf{p}}_i = -m_i \ddot{\mathbf{r}}_i$ vào lực tác dụng thực tế $\mathbf{F}_i$, hệ thống sẽ ở trạng thái cân bằng động ảo:
+          $$\sum_{i=1}^N \left( \mathbf{F}_i - m_i \ddot{\mathbf{r}}_i \right) \cdot \delta \mathbf{r}_i = 0$$
+          Tách lực tác dụng thành lực chủ động $\mathbf{F}_i^a$ và phản lực liên kết lý tưởng $\mathbf{R}_i$. Vì $\sum \mathbf{R}_i \cdot \delta \mathbf{r}_i = 0$, ta thu được phương trình D'Alembert-Lagrange:
+          $$\sum_{i=1}^N \left( \mathbf{F}_i^a - m_i \ddot{\mathbf{r}}_i \right) \cdot \sum_{k=1}^n \frac{\partial \mathbf{r}_i}{\partial q_k} \delta q_k = 0 \implies \sum_{k=1}^n \left( Q_k - \sum_{i=1}^N m_i \ddot{\mathbf{r}}_i \cdot \frac{\partial \mathbf{r}_i}{\partial q_k} \right) \delta q_k = 0$$
+          Trong đó $Q_k = \sum_{i=1}^N \mathbf{F}_i^a \cdot \frac{\partial \mathbf{r}_i}{\partial q_k}$ là <strong>Lực suy rộng (Generalized Force)</strong> ứng với tọa độ $q_k$.
+        </p>
+      </section>
+
+      <!-- Mục 3.2 -->
+      <section id="sec-3-2" class="content-section">
+        <h2>3.2 Phương Trình Chuyển Động Lagrange (Lagrange's Equations)</h2>
+        <p>
+          Bằng cách chuyển đổi số hạng gia tốc thông qua các đẳng thức giải tích:
+          $$\frac{\partial \mathbf{v}_i}{\partial \dot{q}_k} = \frac{\partial \mathbf{r}_i}{\partial q_k}, \quad \frac{d}{dt}\left( \frac{\partial \mathbf{r}_i}{\partial q_k} \right) = \frac{\partial \mathbf{v}_i}{\partial q_k}$$
+          ta chuyển hóa phương trình D'Alembert thành dạng vi phân Euler-Lagrange kinh điển có xét đến hàm tiêu tán năng lượng:
+        </p>
+
+        <div class="formula-hero">
+          <div class="formula-title">Phương Trình Lagrange Có Hàm Tiêu Tán Rayleigh (Extended Euler-Lagrange)</div>
+          <div class="formula-math">
+            $$\frac{d}{dt}\left( \frac{\partial L}{\partial \dot{q}_k} \right) - \frac{\partial L}{\partial q_k} + \frac{\partial D}{\partial \dot{q}_k} = Q_k^{nc}, \quad k = 1, \dots, n$$
+          </div>
+          <div class="formula-legend">
+            <strong>Các thành phần hàm số vô hướng:</strong>
+            <br>• $L(q, \dot{q}) = T^*(q, \dot{q}) - V(q)$: <strong>Hàm Lagrange (Lagrangian)</strong> bằng động năng trừ thế năng.
+            <br>• $T^*(q, \dot{q}) = \frac{1}{2} \dot{\mathbf{q}}^T \mathbf{M}(q) \dot{\mathbf{q}}$: Đồng năng lượng động học (Kinetic Coenergy).
+            <br>• $V(q)$: Thế năng vị trí (trọng trường, đàn hồi lò xo).
+            <br>• $D(\dot{q}) = \frac{1}{2} \dot{\mathbf{q}}^T \mathbf{B} \dot{\mathbf{q}}$: <strong>Hàm tiêu tán Rayleigh (Rayleigh Dissipation Function)</strong> cho lực cản ma sát nhớt.
+            <br>• $Q_k^{nc}$: Lực suy rộng phi thế năng không tính trong $V$ và $D$ (như lực đẩy cơ cấu chấp hành, mô-men động cơ).
+          </div>
+        </div>
+
+        <p>
+          Trong dạng ma trận đa vật thể robot chuẩn, phương trình Lagrange luôn quy về dạng:
+          $$\mathbf{M}(q) \ddot{\mathbf{q}} + \mathbf{C}(q, \dot{\mathbf{q}}) \dot{\mathbf{q}} + \mathbf{G}(q) + \mathbf{B} \dot{\mathbf{q}} = \mathbf{\tau}$$
+          với tính chất vàng: Ma trận $\dot{\mathbf{M}}(q) - 2\mathbf{C}(q, \dot{\mathbf{q}})$ là <strong>phản đối xứng (Skew-Symmetric)</strong>, nền tảng cho mọi thuật toán điều khiển thích nghi và ổn định Lyapunov!
+        </p>
+      </section>
+
+      <!-- Mục 3.3 -->
+      <section id="sec-3-3" class="content-section">
+        <h2>3.3 Ứng Dụng Đa Miền: Cơ Khí, Điện Tử & Thủy Lực</h2>
+        <p>
+          Sức mạnh vĩ đại của phương pháp Lagrange là khả năng áp dụng đồng thời cho nhiều miền vật lý:
+        </p>
+
+        <h3 id="sec-3-3-1">3.3.1 Hệ Cơ Khí (Mechanical Systems)</h3>
+        <p>
+          Điển hình là hệ con lắc ngược trên xe (Cart-Pole), con lắc kép hỗn loạn (Double Pendulum) hay cánh tay máy robot đa khớp. Tọa độ suy rộng là góc khớp $\theta$ và vị trí xe $x$.
+        </p>
+
+        <h3 id="sec-3-3-2">3.3.2 Hệ Mạch Điện Tử (Electrical Systems)</h3>
+        <p>
+          Chọn tọa độ suy rộng là điện tích qua nhánh $q_e(t)$ với dòng điện $i = \dot{q}_e$. Khi đó:
+          $$T^*(i) = \frac{1}{2} L i^2 = \frac{1}{2} L \dot{q}_e^2 \quad (\text{Năng lượng từ trường cuộn cảm})$$
+          $$V(q_e) = \frac{q_e^2}{2 C} \quad (\text{Thế năng điện trường tụ điện})$$
+          $$D(\dot{q}_e) = \frac{1}{2} R \dot{q}_e^2 \quad (\text{Hàm tiêu tán điện trở Ohmic})$$
+          Phương trình Lagrange cho mạch RLC nối tiếp có nguồn áp $e(t)$:
+          $$\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}_e}\right) - \frac{\partial L}{\partial q_e} + \frac{\partial D}{\partial \dot{q}_e} = e(t) \iff L \ddot{q}_e + R \dot{q}_e + \frac{1}{C} q_e = e(t)$$
+          Đây chính xác là định luật Kirchhoff 2 viết dưới ngôn ngữ giải tích năng lượng!
+        </p>
+
+        <h3 id="sec-3-3-3">3.3.3 Hệ Thủy Lực (Fluid Systems)</h3>
+        <p>
+          Chọn tọa độ suy rộng là thể tích chất lỏng dịch chuyển $V_f(t)$, dòng chảy là lưu lượng thể tích $Q_f = \dot{V}_f$.
+          Quán tính thủy lực đóng vai trò cuộn cảm $I_f$, bình tích áp khí đóng vai trò tụ điện $C_f$, và tổn thất ma sát đường ống đóng vai trò hàm tiêu tán Rayleigh $D = \frac{1}{2} R_f Q_f^2$.
+        </p>
+      </section>
+
+      <!-- Mục Worked Example -->
+      <section id="sec-3-worked" class="content-section">
+        <h2>Ví Dụ Tính Số 4 Bước Chuẩn Học Thuật</h2>
+        <div class="worked-step-card">
+          <div class="worked-header">
+            <h4>BÀI TOÁN: THIẾT LẬP & TÍNH ĐỘNG LỰC HỌC XE CON LẮC NGƯỢC (CART-POLE)</h4>
+            <span class="badge badge-primary">Chuyên Đề Euler-Lagrange Bậc Hai Phi Tuyến</span>
+          </div>
+          <p>
+            Một xe chuyển động tịnh tiến không ma sát có khối lượng $M = 2.0\text{ kg}$. Gắn trên xe là một con lắc đơn gồm thanh cứng không khối lượng dài $L = 0.6\text{ m}$ mang quả nặng $m = 0.5\text{ kg}$ tại đầu mút, khớp quay có hệ số cản nhớt $b_\theta = 0.05\text{ Nms/rad}$. Gia tốc trọng trường $g = 9.81\text{ m/s}^2$.
+            Tại thời điểm ban đầu: xe ở vị trí $x = 0$, con lắc lệch góc $\theta = 0.2\text{ rad}$ ($\approx 11.5^\circ$), vận tốc ban đầu bằng 0 ($\dot{x} = 0, \dot{\theta} = 0$). Tác dụng một lực ngang $F = 4.0\text{ N}$ vào xe.
+          </p>
+
+          <div class="worked-step-grid">
+            <div class="worked-step-col">
+              <h5>Bước 1: Thiết Lập Tọa Độ Vị Trí & Hàm Lagrange L = T* - V</h5>
+              <p>Tọa độ suy rộng: $\mathbf{q} = [x, \theta]^T$.</p>
+              <p>Tọa độ quả nặng: $x_m = x + L \sin\theta$, $y_m = L \cos\theta$.</p>
+              <p>Vận tốc quả nặng bình phương:</p>
+              $$v_m^2 = \dot{x}_m^2 + \dot{y}_m^2 = (\dot{x} + L\dot{\theta}\cos\theta)^2 + (-L\dot{\theta}\sin\theta)^2 = \dot{x}^2 + 2 L \dot{x}\dot{\theta}\cos\theta + L^2\dot{\theta}^2$$
+              <p>Đồng năng lượng động học $T^*$ và thế năng $V$:</p>
+              $$T^* = \frac{1}{2} M \dot{x}^2 + \frac{1}{2} m v_m^2 = \frac{1}{2}(M + m)\dot{x}^2 + m L \dot{x}\dot{\theta}\cos\theta + \frac{1}{2} m L^2 \dot{\theta}^2$$
+              $$V = m g y_m = m g L \cos\theta$$
+              $$D = \frac{1}{2} b_\theta \dot{\theta}^2$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 2: Lấy Đạo Hàm Giải Tích Euler-Lagrange</h5>
+              <p>Đối với tọa độ xe $x$ ($Q_x = F$):</p>
+              $$\frac{\partial L}{\partial \dot{x}} = (M+m)\dot{x} + m L \dot{\theta}\cos\theta, \quad \frac{\partial L}{\partial x} = 0$$
+              $$\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{x}}\right) = (M+m)\ddot{x} + m L \ddot{\theta}\cos\theta - m L \dot{\theta}^2\sin\theta = F$$
+              <p>Đối với góc quay $\theta$ ($Q_\theta = 0$):</p>
+              $$\frac{\partial L}{\partial \dot{\theta}} = m L \dot{x}\cos\theta + m L^2 \dot{\theta}, \quad \frac{\partial L}{\partial \theta} = -m L \dot{x}\dot{\theta}\sin\theta - m g L \sin\theta$$
+              $$\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{\theta}}\right) - \frac{\partial L}{\partial \theta} + b_\theta \dot{\theta} = m L \ddot{x}\cos\theta + m L^2 \ddot{\theta} - m g L \sin\theta + b_\theta \dot{\theta} = 0$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 3: Ráp Tham Số Số Học Tại Thời Điểm Ban Đầu</h5>
+              <p>Tại $t=0$: $\theta = 0.2\text{ rad}$, $\dot{x} = 0, \dot{\theta} = 0$. Khi đó:</p>
+              $$\cos(0.2) = 0.98007, \quad \sin(0.2) = 0.19867$$
+              $$M + m = 2.0 + 0.5 = 2.5\text{ kg}$$
+              $$m L = 0.5 \times 0.6 = 0.3\text{ kg}\cdot\text{m}$$
+              $$m L^2 = 0.5 \times 0.36 = 0.18\text{ kg}\cdot\text{m}^2$$
+              $$m g L \sin\theta = 0.5 \times 9.81 \times 0.6 \times 0.19867 = 0.5847\text{ N}\cdot\text{m}$$
+              <p>Hệ ma trận tại $t=0$:</p>
+              $$\begin{bmatrix} 2.5000 & 0.3 \times 0.98007 \\ 0.3 \times 0.98007 & 0.1800 \end{bmatrix} \begin{bmatrix} \ddot{x} \\ \ddot{\theta} \end{bmatrix} = \begin{bmatrix} 4.0 \\ 0.5847 \end{bmatrix} \implies \begin{bmatrix} 2.5000 & 0.2940 \\ 0.2940 & 0.1800 \end{bmatrix} \begin{bmatrix} \ddot{x} \\ \ddot{\theta} \end{bmatrix} = \begin{bmatrix} 4.0 \\ 0.5847 \end{bmatrix}$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 4: Giải Ma Trận Nghịch Đảo & Diễn Giải Kết Quả</h5>
+              <p>Định thức ma trận quán tính:</p>
+              $$\det(\mathbf{M}) = (2.5000 \times 0.1800) - (0.2940)^2 = 0.4500 - 0.0864 = 0.3636$$
+              <p>Giải nghiệm gia tốc:</p>
+              $$\ddot{x} = \frac{0.1800 \times 4.0 - 0.2940 \times 0.5847}{0.3636} = \frac{0.7200 - 0.1719}{0.3636} = 1.507\text{ m/s}^2$$
+              $$\ddot{\theta} = \frac{2.5000 \times 0.5847 - 0.2940 \times 4.0}{0.3636} = \frac{1.4618 - 1.1760}{0.3636} = 0.786\text{ rad/s}^2$$
+              <div class="highlight-result-box">
+                <strong>ĐÁP SỐ CHUẨN XÁC:</strong> Gia tốc xe $\ddot{x} = 1.507\text{ m/s}^2$; Gia tốc góc con lắc $\ddot{\theta} = 0.786\text{ rad/s}^2$. Lực kéo làm xe vọt tới trước đồng thời kéo con lắc ngả thêm về phía sau do quán tính liên kết!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Mô Phỏng Canvas 2D 60 FPS -->
+      <section id="sec-3-sim" class="content-section">
+        <h2>Phòng Thí Nghiệm Tương Tác: Con Lắc Kép Hỗn Loạn (Double Pendulum)</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">CANVAS 2D • 60 FPS REALTIME RK4</span>
+            <span class="sim-title">Mô Phỏng Phương Trình Lagrange Con Lắc Kép Phi Tuyến & Không Gian Pha</span>
+          </div>
+          <div class="sim-canvas-wrapper" style="text-align: center; padding: 1.25rem; background: var(--sim-bg);">
+            <canvas id="sim-canvas-03" width="700" height="340" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);"></canvas>
+          </div>
+          <div class="sim-controls" style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color); align-items: center;">
+            <label style="font-size: 0.85rem; font-weight: 600;">Chiều dài thanh 1 L₁: 
+              <input type="range" id="sim3-l1" min="60" max="130" step="5" value="100">
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600;">Chiều dài thanh 2 L₂: 
+              <input type="range" id="sim3-l2" min="50" max="120" step="5" value="90">
+            </label>
+            <button id="sim3-reset" class="btn btn-primary" style="padding: 0.4rem 1rem;">Đặt Lại Trạng Thái Đầu</button>
+          </div>
+          <div style="padding: 0.75rem 1.25rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-surface);">
+            💡 <em>Hiện tượng vật lý:</em> Phương trình Euler-Lagrange của con lắc kép có độ nhạy cực cao với điều kiện ban đầu (Hiệu ứng cánh bướm / Hỗn loạn động học). Đường đỏ vẽ quỹ đạo hỗn loạn của quả nặng thứ 2, ô bên phải hiển thị không gian pha $(\theta_1, \omega_1)$.
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Cầu Nối ROS 2 -->
+      <section id="sec-3-ros2" class="content-section">
+        <h2>Cầu Nối Kiến Trúc Thực Tế: Gazebo Physics Plugin Cho Cart-Pole</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-bridge-header">
+            <span class="badge badge-accent">ROS 2 & GAZEBO CLASSIC / IGNITION</span>
+            <h4>Triển Khai Bộ Điều Khiển Thăng Bằng LQR/SMC Trên Mô Hình Lagrange</h4>
+          </div>
+          <p>
+            Từ phương trình Lagrange đã dẫn xuất ở mục 3.2, ta tuyến tính hóa quanh điểm cân bằng thẳng đứng $\theta = 0$ để thiết kế bộ điều khiển phản hồi trạng thái LQR trong ROS 2 Node:
+          </p>
+          <div class="code-card">
+            <div class="code-header">
+              <span>cart_pole_lqr_controller.cpp</span>
+              <span class="code-badge">C++20</span>
+            </div>
+            <pre><code>// Tính toán lực điều khiển F_cmd = -K * [x, x_dot, theta, theta_dot]^T
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "std_msgs/msg/float64.hpp"
+
+class CartPoleController : public rclcpp::Node {
+  // Vector độ lợi LQR giải từ phương trình Riccati đại số (DARE)
+  const Eigen::Vector4d K_lqr_{-10.0, -14.5, 95.8, 18.2};
+
+  void jointStateCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {
+    double x = msg-&gt;position[0];
+    double x_dot = msg-&gt;velocity[0];
+    double theta = msg-&gt;position[1];
+    double theta_dot = msg-&gt;velocity[1];
+
+    Eigen::Vector4d state(x, x_dot, theta, theta_dot);
+    double force_cmd = -K_lqr_.dot(state);
+
+    std_msgs::msg::Float64 cmd_msg;
+    cmd_msg.data = force_cmd;
+    effort_pub_-&gt;publish(cmd_msg);
+  }
+};</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Tóm Tắt & Câu Hỏi Tự Luyện -->
+      <section id="sec-3-summary" class="content-section">
+        <h2>📝 Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <h4>GHI NHỚ CỐT LÕI CHƯƠNG 03</h4>
+          <ol class="academic-list">
+            <li><strong>Nguyên lý D'Alembert:</strong> Triệt tiêu phản lực liên kết lý tưởng nhờ $\sum \mathbf{R}_i \cdot \delta \mathbf{r}_i = 0$.</li>
+            <li><strong>Phương trình Lagrange:</strong> $\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}}\right) - \frac{\partial L}{\partial q} + \frac{\partial D}{\partial \dot{q}} = Q^{nc}$ là phương pháp luận toàn năng cho mọi miền vật lý.</li>
+            <li><strong>Hàm tiêu tán Rayleigh:</strong> $D = \frac{1}{2} \sum b_i \dot{q}_i^2$ đại diện cho lực cản nhớt sinh nhiệt.</li>
+            <li><strong>Tính chất ma trận đối xứng:</strong> $\mathbf{M}(q) = \mathbf{M}^T(q) \gt 0$, và $\dot{\mathbf{M}} - 2\mathbf{C}$ luôn phản đối xứng.</li>
+          </ol>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+          <h4>Câu hỏi tự luyện 3.1: Hệ con lắc cầu 3D (Spherical Pendulum)</h4>
+          <p>
+            Một con lắc cầu gồm dây treo dài $L$ không giãn nối với chất điểm $m$ có thể đung đưa tự do theo hai góc: góc nghiêng $\theta$ so với phương thẳng đứng và góc phương vị $\phi$ quanh trục $z$.
+          </p>
+          <p>
+            <strong>Yêu cầu:</strong>
+            1) Chọn tọa độ suy rộng $\mathbf{q} = [\theta, \phi]^T$, viết biểu thức động năng $T^*$ và thế năng $V$.
+            2) Chứng minh góc phương vị $\phi$ là một <em>tọa độ chu kỳ (Cyclic Coordinate)</em>, từ đó suy ra định luật bảo toàn mô-men động lượng quanh trục thẳng đứng $p_\phi = \text{const}$.
+            3) Dẫn xuất phương trình vi phân phi tuyến cho góc $\theta$.
+          </p>
+        </div>
+      </section>
+
+      <!-- Pagination Footer -->
+      <nav class="chapter-pagination">
+        <a href="ch02.html" class="pagination-link prev">
+          <span class="pagination-sub">Trang trước</span>
+          <span class="pagination-title">← Chương 02: Động Học Hệ Cơ Khí & Cơ Cấu</span>
+        </a>
+        <a href="ch04.html" class="pagination-link next">
+          <span class="pagination-sub">Trang sau</span>
+          <span class="pagination-title">Chương 04: Hệ Ràng Buộc & Phương Trình DAEs →</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · Giáo trình chuyên khảo cao học Springer</p>
+      <p>Tác giả: <strong>GS. Brian C. Fabien</strong> (University of Washington) • Biên soạn: Viện Tri Thức Robotics</p>
+      <div style="margin-top: 0.75rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="../index.html" class="card-action-link">← Về Portal Hub ASD</a>
+        <span style="color: var(--text-subtle);">•</span>
+        <a href="../../index.html" class="card-action-link">Trang Chủ Master Robotics Portals ↗</a>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

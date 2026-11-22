@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytical System Dynamics: Modeling and Simulation - Portal Hub</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <a href="../index.html" class="brand-logo">
+        <span class="logo-icon">🌐</span>
+        <span class="logo-text">Master Robotics Portals</span>
+      </a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Analytical System Dynamics Portal Hub</span>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">🏛️ Viện Tri Thức Robotics</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="portal-hero">
+    <div class="portal-hero-inner">
+      <div class="hero-badge-row">
+        <span class="hero-badge badge-primary">SPRINGER GRADUATE TEXTS IN MECHATRONICS</span>
+        <span class="hero-badge badge-accent">SIÊU CHUYÊN KHẢO #09</span>
+      </div>
+      <h1 class="hero-title">Động Lực Học Hệ Thống Giải Tích: Mô Hình Hóa & Mô Phỏng Số</h1>
+      <p class="hero-subtitle">
+        Khám phá toàn diện chuyên khảo <em>Analytical System Dynamics: Modeling and Simulation</em> (GS. Brian C. Fabien, University of Washington, 339 trang). 
+        Thống nhất cơ học Lagrange, đa miền năng lượng Paynter, phương trình vi phân đại số (DAEs) có ràng buộc phức tạp và kỹ thuật ổn định hóa Baumgarte.
+      </p>
+
+      <!-- Key Portal Stats -->
+      <div class="portal-stats-row">
+        <div class="stat-box">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Chương Học Thuật 6 Tầng</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Mô Phỏng Canvas 60 FPS</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">6</span>
+          <span class="stat-label">Bài Tập Số Học 4 Bước</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">100%</span>
+          <span class="stat-label">Zero-Error MathJax 3 & C++</span>
+        </div>
+      </div>
+
+      <!-- Live Search & Track Filter Toolbar -->
+      <div class="hub-search-wrapper">
+        <div class="search-input-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Tìm kiếm nhanh chương, chủ đề hoặc từ khóa (Paynter, Coriolis, Lagrange, Baumgarte, DAEs, Lyapunov...)... (Ctrl + K)">
+          <span class="search-shortcut">Ctrl+K</span>
+        </div>
+        <div class="filter-pills-row">
+          <button class="filter-pill active" data-filter="all">Tất Cả (6 Chương)</button>
+          <button class="filter-pill" data-filter="track-1">Track 1: Cơ Sở Đa Miền & Động Học (Ch. 1-2)</button>
+          <button class="filter-pill" data-filter="track-2">Track 2: Giải Tích Lagrange & Ràng Buộc DAE (Ch. 3-4)</button>
+          <button class="filter-pill" data-filter="track-3">Track 3: Giải Số & Mô Phỏng Hệ Thống (Ch. 5-6)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 Matrix Cards Grid -->
+  <main class="hub-main-container">
+    <div class="matrix-grid">
+
+      <!-- Card Ch 01 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 01</span>
+        </div>
+        <h3 class="card-title">Biểu Diễn Hệ Thống Thống Nhất & Đa Miền Năng Lượng</h3>
+        <p class="card-desc">
+          Hệ biến số thống nhất Paynter: nỗ lực e, dòng chảy f, động lượng p, dịch chuyển q. Mô hình hóa các khâu lý tưởng I, C, R, máy biến áp TF, khâu hồi chuyển Gyrator và sơ đồ tứ diện trạng thái liên miền Cơ - Điện - Thủy - Nhiệt.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Paynter's Diagram</span>
+          <span class="tag-chip">Cơ Điện Tử</span>
+          <span class="tag-chip">Gyrator (GY)</span>
+          <span class="tag-chip">Bảo Toàn Công Suất</span>
+        </div>
+        <div class="card-footer">
+          <span class="sim-badge">⚡ Canvas: Paynter Energy</span>
+          <a href="chapters/ch01.html" class="btn btn-primary">Khám phá chi tiết →</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 02 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 02</span>
+        </div>
+        <h3 class="card-title">Động Học Hệ Cơ Khí & Cơ Cấu Khép Kín</h3>
+        <p class="card-desc">
+          Chuyển động tương đối trong khung quay, công thức Poisson, bóc tách 5 thành phần gia tốc và bản chất gia tốc Coriolis $2\boldsymbol{\omega}\times\mathbf{v}_{rel}$. Tiêu chuẩn bậc tự do Gruebler-Kutzbach và phương trình vòng lặp khép kín Freudenstein.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Gia Tốc Coriolis</span>
+          <span class="tag-chip">Cơ Cấu 4 Khâu</span>
+          <span class="tag-chip">Gruebler-Kutzbach</span>
+          <span class="tag-chip">Đồ Thị Topo</span>
+        </div>
+        <div class="card-footer">
+          <span class="sim-badge">⚡ Canvas: 4 Khâu & Coriolis</span>
+          <a href="chapters/ch02.html" class="btn btn-primary">Khám phá chi tiết →</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 03 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 03</span>
+        </div>
+        <h3 class="card-title">Phương Trình Chuyển Động Lagrange</h3>
+        <p class="card-desc">
+          Từ nguyên lý công ảo D'Alembert đến phương trình vi phân Euler-Lagrange mở rộng có hàm tiêu tán Rayleigh. Ứng dụng giải tích thiết lập phương trình chuyển động cho hệ con lắc ngược Cart-Pole, mạch điện RLC và dao động thủy lực.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Euler-Lagrange</span>
+          <span class="tag-chip">Công Ảo D'Alembert</span>
+          <span class="tag-chip">Hàm Rayleigh</span>
+          <span class="tag-chip">Cart-Pole Inverted</span>
+        </div>
+        <div class="card-footer">
+          <span class="sim-badge">⚡ Canvas: Con Lắc Kép Hỗn Loạn</span>
+          <a href="chapters/ch03.html" class="btn btn-primary">Khám phá chi tiết →</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 04 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 04</span>
+        </div>
+        <h3 class="card-title">Hệ Ràng Buộc & Phương Trình Vi Phân Đại Số (LDAEs)</h3>
+        <p class="card-desc">
+          Phân loại ràng buộc Holonomic vs Nonholonomic. Nhân tử Lagrange $\boldsymbol{\lambda}$ và phản lực liên kết cứng. Ràng buộc lăn không trượt trên xe bánh vi sai. Ma trận khối Saddle-Point và cấu trúc phương trình LDAEs Index-3.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Nhân Tử Lagrange λ</span>
+          <span class="tag-chip">Hệ Nonholonomic</span>
+          <span class="tag-chip">LDAEs Index-3</span>
+          <span class="tag-chip">Ma Trận Saddle-Point</span>
+        </div>
+        <div class="card-footer">
+          <span class="sim-badge">⚡ Canvas: Robot Nonholonomic</span>
+          <a href="chapters/ch04.html" class="btn btn-primary">Khám phá chi tiết →</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 05 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 05</span>
+        </div>
+        <h3 class="card-title">Giải Số Phương Trình Vi Phân & DAEs</h3>
+        <p class="card-desc">
+          Phương pháp Euler hiện/ẩn, Runge-Kutta 4, bảng Butcher và RK ẩn Radau IIA cho hệ cứng. Kỹ thuật ổn định hóa ràng buộc Baumgarte triệt tiêu hiện tượng trôi dạt ràng buộc (Constraint Drift), và tính toán điều kiện ban đầu nhất quán.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Runge-Kutta 4</span>
+          <span class="tag-chip">Ổn Định Hóa Baumgarte</span>
+          <span class="tag-chip">Trôi Dạt DAE Drift</span>
+          <span class="tag-chip">Radau IIA & BDF</span>
+        </div>
+        <div class="card-footer">
+          <span class="sim-badge">⚡ Canvas: So Sánh DAE Drift</span>
+          <a href="chapters/ch05.html" class="btn btn-primary">Khám phá chi tiết →</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 06 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 06</span>
+        </div>
+        <h3 class="card-title">Phân Tích & Mô Phỏng Hệ Thống Động Học</h3>
+        <p class="card-desc">
+          Thẩm định tính ổn định tiệm cận qua phương pháp Lyapunov gián tiếp (tuyến tính hóa Jacobian) và trực tiếp (hàm năng lượng $V$). Định lý Lagrange-Dirichlet. Kiến trúc trình biên dịch biểu thức ký hiệu `ldaetrans` và bộ giải số `ride`.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Ổn Định Lyapunov</span>
+          <span class="tag-chip">Tuyến Tính Hóa Jacobian</span>
+          <span class="tag-chip">Lagrange-Dirichlet</span>
+          <span class="tag-chip">ldaetrans & ride</span>
+        </div>
+        <div class="card-footer">
+          <span class="sim-badge">⚡ Canvas: Không Gian Pha Lyapunov</span>
+          <a href="chapters/ch06.html" class="btn btn-primary">Khám phá chi tiết →</a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · GS. Brian C. Fabien (Springer Science+Business Media, LLC)</p>
+      <p>Dự án Chưng Cất Tri Thức Học Thuật Chuẩn Công Nghiệp · Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động 4.0</p>
+      <div style="margin-top: 0.75rem;">
+        <a href="../index.html" class="card-action-link">← Quay lại Cổng Tổng Quan Master Robotics Portals</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

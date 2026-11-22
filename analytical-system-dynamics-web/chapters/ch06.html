@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 06: Phân Tích & Mô Phỏng Hệ Thống Động Học | Analytical System Dynamics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình ASD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Giải Số & Mô Phỏng Hệ Thống</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 06</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Analytical System Dynamics • Brian C. Fabien</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+        <span class="sidebar-badge">8 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-6-1">
+            <span class="nav-text">6.1 Phân Tích Độ Ổn Định Hệ Thống</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-1">
+            <span class="nav-text">6.1.1 Điểm Cân Bằng & Ổn Định Lyapunov</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-2">
+            <span class="nav-text">6.1.2 Phương Pháp Gián Tiếp (Jacobian)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-3">
+            <span class="nav-text">6.1.3 Phương Pháp Trực Tiếp (Hàm V)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-4">
+            <span class="nav-text">6.1.4 Định Lý Ổn Định Lagrange-Dirichlet</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-2">
+            <span class="nav-text">6.2 Kiến Trúc Mô Phỏng Hệ Thống</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-2-1">
+            <span class="nav-text">6.2.1 Trình Biên Dịch Ký Hiệu ldaetrans</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-2-2">
+            <span class="nav-text">6.2.2 Bộ Giải Số Chuyên Biệt ride</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-2-3">
+            <span class="nav-text">6.2.3 Nghiên Cứu Điển Hình Công Nghiệp</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-worked">
+            <span class="nav-text">Ví Dụ Số 4 Bước: Thẩm Định Ổn Định</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-sim">
+            <span class="nav-text">Mô Phỏng 60 FPS: Không Gian Pha Lyapunov</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-ros2">
+            <span class="nav-text">Cầu Nối ROS 2 (Lyapunov Stability Monitor)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-summary">
+            <span class="nav-text">📝 Tóm Tắt & Câu Hỏi Tự Luyện</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-track-3">TRACK 3: GIẢI SỐ & MÔ PHỎNG HỆ THỐNG</span>
+          <span class="hero-ch-badge">CHƯƠNG 06</span>
+        </div>
+        <h1 class="chapter-title">Phân Tích & Mô Phỏng Hệ Thống Động Học</h1>
+        <p class="chapter-subtitle">
+          Thẩm định tính ổn định tiệm cận qua phương pháp Lyapunov gián tiếp (Jacobian) và trực tiếp (Hàm thế năng), 
+          định lý Lagrange-Dirichlet và cấu trúc bộ công cụ tự động hóa mô hình hóa `ldaetrans` kết hợp bộ giải số `ride`.
+        </p>
+      </div>
+
+      <!-- Mục 6.1 -->
+      <section id="sec-6-1" class="content-section">
+        <h2>6.1 Phân Tích Độ Ổn Định Hệ Thống (System Analysis)</h2>
+        <p>
+          Sau khi thiết lập hệ phương trình vi phân chuyển động, bước tối quan trọng tiếp theo của kỹ sư điều khiển là phân tích hành vi dài hạn của hệ thống: liệu hệ thống có duy trì trạng thái cân bằng mong muốn, hay sẽ bị kích động dẫn đến mất kiểm soát và phá hủy cơ khí?
+        </p>
+
+        <div class="why-matters-box">
+          <div class="why-matters-header">💡 VÌ SAO PHƯƠNG PHÁP LYAPUNOV LÀ ĐỈNH CAO CỦA LÝ THUYẾT ĐIỀU KHIỂN?</div>
+          <div class="why-matters-body">
+            Đối với hệ phương trình phi tuyến phức tạp (như cánh tay robot nhiều khớp hoặc xe tự hành), hầu như không thể tìm được nghiệm giải tích dạng tường minh $q(t)$. <strong>Phương pháp trực tiếp của Lyapunov</strong> cho phép ta kết luận chắc chắn 100% về tính ổn định tiệm cận của hệ thống <em>mà không cần phải giải phương trình vi phân</em>, chỉ thông qua việc khảo sát đạo hàm của một hàm năng lượng vô hướng $V(\mathbf{x})$!
+          </div>
+        </div>
+
+        <h3 id="sec-6-1-1">6.1.1 Điểm Cân Bằng & Định Nghĩa Ổn Định Lyapunov</h3>
+        <p>
+          Xét hệ động lực phi tuyến tự trị:
+          $$\dot{\mathbf{x}} = \mathbf{f}(\mathbf{x}), \quad \mathbf{x} \in \mathbb{R}^n$$
+          Điểm $\mathbf{x}^*$ được gọi là <strong>Điểm cân bằng (Equilibrium State)</strong> nếu vận tốc tại đó triệt tiêu: $\mathbf{f}(\mathbf{x}^*) = \mathbf{0}$.
+        </p>
+        <ul class="academic-list">
+          <li><strong>Ổn định theo nghĩa Lyapunov (Stable):</strong> Với mọi $\epsilon \gt 0$, tồn tại $\delta(\epsilon) \gt 0$ sao cho nếu $\|\mathbf{x}(0) - \mathbf{x}^*\| \lt \delta$ thì $\|\mathbf{x}(t) - \mathbf{x}^*\| \lt \epsilon$ với mọi $t \ge 0$.</li>
+          <li><strong>Ổn định tiệm cận (Asymptotically Stable):</strong> Hệ vừa ổn định Lyapunov, vừa hội tụ về điểm cân bằng: $\lim_{t \to \infty} \|\mathbf{x}(t) - \mathbf{x}^*\| = 0$.</li>
+          <li><strong>Bất ổn định (Unstable):</strong> Tồn tại ít nhất một quỹ đạo ban đầu rất gần $\mathbf{x}^*$ nhưng văng ra xa vô hạn.</li>
+        </ul>
+
+        <h3 id="sec-6-1-2">6.1.2 Phương Pháp Gián Tiếp Của Lyapunov (Tuyến Tính Hóa Jacobian)</h3>
+        <p>
+          Đặt sai lệch $\Delta \mathbf{x} = \mathbf{x} - \mathbf{x}^*$. Khai triển Taylor bậc nhất:
+          $$\Delta \dot{\mathbf{x}} = \mathbf{A} \cdot \Delta \mathbf{x}, \quad \text{với ma trận Jacobian: } \mathbf{A} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\mathbf{x}^*}$$
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Định Lý Lyapunov Thứ Nhất (Tuyến Tính Hóa Quanh Điểm Cân Bằng)</div>
+          <div class="formula-math">
+            $$\forall i: \operatorname{Re}(\lambda_i(\mathbf{A})) \lt 0 \implies \text{Hệ phi tuyến Ổn Định Tiệm Cận Địa Phương}$$
+            $$\exists i: \operatorname{Re}(\lambda_i(\mathbf{A})) \gt 0 \implies \text{Hệ phi tuyến Bất Ổn Định (Unstable)}$$
+          </div>
+          <div class="formula-legend">
+            $\lambda_i$ là các trị riêng của ma trận Jacobian $\mathbf{A}$. Nếu $\operatorname{Re}(\lambda_i) \le 0$ và có trị riêng thuần ảo nằm trên trục ảo, phương pháp gián tiếp không thể kết luận (điểm kỳ dị không hyperbolic), bắt buộc phải dùng phương pháp trực tiếp!
+          </div>
+        </div>
+
+        <h3 id="sec-6-1-3">6.1.3 Phương Pháp Trực Tiếp Của Lyapunov (Hàm Năng Lượng Ứng Viên)</h3>
+        <p>
+          Hàm $V(\mathbf{x}): \mathbb{R}^n \to \mathbb{R}$ được gọi là hàm ứng viên Lyapunov nếu $V(\mathbf{x}^*) = 0$ và $V(\mathbf{x}) \gt 0$ với mọi $\mathbf{x} \neq \mathbf{x}^*$ (xác định dương - positive definite).
+          Đạo hàm của $V$ dọc theo quỹ đạo nghiệm của hệ:
+          $$\dot{V}(\mathbf{x}) = \nabla V(\mathbf{x}) \cdot \dot{\mathbf{x}} = \sum_{i=1}^n \frac{\partial V}{\partial x_i} f_i(\mathbf{x})$$
+          Nếu $\dot{V}(\mathbf{x}) \le 0$, hệ thống ổn định Lyapunov. Nếu $\dot{V}(\mathbf{x}) \lt 0$, hệ thống ổn định tiệm cận.
+          Theo <strong>Nguyên lý Bất biến LaSalle (LaSalle's Invariance Principle)</strong>, nếu $\dot{V}(\mathbf{x}) \le 0$ và tập hợp các điểm mà $\dot{V}(\mathbf{x}) = 0$ không chứa bất kỳ quỹ đạo nào khác ngoài điểm cân bằng $\mathbf{x}^*$, thì hệ thống vẫn đạt ổn định tiệm cận toàn cục!
+        </p>
+
+        <h3 id="sec-6-1-4">6.1.4 Định Lý Ổn Định Lagrange-Dirichlet Cho Hệ Cơ Khí Bảo Toàn</h3>
+        <p>
+          Đối với hệ cơ khí bảo toàn không có ma sát ($L = T^* - V(q)$), động năng luôn xác định dương $T^* \gt 0$.
+          Do đó, hàm thế năng $V(q)$ đóng vai trò trực tiếp là hàm Lyapunov:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Định Lý Lagrange-Dirichlet (Cực Tiểu Thế Năng)</div>
+          <div class="formula-math">
+            $$\nabla V(\mathbf{q}^*) = \mathbf{0} \quad \text{và} \quad \nabla^2 V(\mathbf{q}^*) \gt 0 \implies \text{Điểm cân bằng } \mathbf{q}^* \text{ ỔN ĐỊNH}$$
+          </div>
+          <div class="formula-legend">
+            Một điểm cân bằng tĩnh của hệ cơ khí bảo toàn là <strong>ổn định</strong> nếu và chỉ nếu hàm thế năng $V(q)$ đạt <strong>cực tiểu cục bộ ngặt</strong> tại điểm đó (ma trận Hessian thế năng $\nabla^2 V$ xác định dương).
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục 6.2 -->
+      <section id="sec-6-2" class="content-section">
+        <h2>6.2 Kiến Trúc Mô Phỏng Hệ Thống Tự Động Hóa (System Simulation)</h2>
+        <p>
+          Trong phần 6.2, GS. Brian C. Fabien trình bày kiến trúc hai phần mềm học thuật kinh điển hỗ trợ kỹ sư tự động hóa chu trình từ mô hình giải tích sang mã nguồn mô phỏng:
+        </p>
+
+        <h3 id="sec-6-2-1">6.2.1 Trình Biên Dịch Ký Hiệu ldaetrans</h3>
+        <p>
+          <code>ldaetrans</code> (Lagrangian DAE Translator) là trình biên dịch được xây dựng bằng Lex & Yacc. 
+          Kỹ sư chỉ cần nhập tệp văn bản mô tả các hàm năng lượng:
+          <code>KE = 0.5*m*(x_dot^2 + y_dot^2); PE = m*g*y; PHI = x^2 + y^2 - L^2;</code>
+          Trình biên dịch tự động thực hiện:
+        </p>
+        <ul class="academic-list">
+          <li>Phân tích cú pháp ngữ pháp (Grammar Parsing) và lập cây cú pháp trừu tượng (AST).</li>
+          <li>Đạo hàm giải tích ký hiệu tự động (Symbolic Differentiation) tính ma trận khối $\mathbf{M}(q)$, ma trận Jacobian $\boldsymbol{\Phi}_q$, và vế phải $\mathbf{f}$.</li>
+          <li>Xuất mã nguồn hàm MATLAB/Octave hoặc C++ sẵn sàng nạp vào bộ giải số.</li>
+        </ul>
+
+        <h3 id="sec-6-2-2">6.2.2 Bộ Giải Số Chuyên Biệt ride (Radau Implicit DAE Solver)</h3>
+        <p>
+          <code>ride</code> là bộ tích phân số chuyên dụng cài đặt giải thuật Radau IIA 3 tầng (bậc 5), tự động điều chỉnh bước nhảy thích nghi dựa trên ước lượng sai số cục bộ và giải vòng lặp đại số phi tuyến bằng thuật toán Newton cải tiến.
+        </p>
+
+        <h3 id="sec-6-2-3">6.2.3 Các Nghiên Cứu Điển Hình Trong Sách</h3>
+        <p>
+          Sách minh họa hiệu quả vượt trội của phương pháp qua 4 bài toán công nghiệp phức tạp:
+          1) Cơ cấu 4 khâu có va đập chốt; 2) Loa điện động có hiện tượng trễ từ; 3) Hệ thống treo xe ô tô 1/4 (Quarter-Car Suspension) với giảm xóc thủy lực phi tuyến; 4) Cánh tay robot công nghiệp điều khiển hồi tiếp tuyến tính hóa (Feedback Linearization).
+        </p>
+      </section>
+
+      <!-- Mục Worked Example -->
+      <section id="sec-6-worked" class="content-section">
+        <h2>Ví Dụ Tính Số 4 Bước Chuẩn Học Thuật</h2>
+        <div class="worked-step-card">
+          <div class="worked-header">
+            <h4>BÀI TOÁN: THẨM ĐỊNH TÍNH ỔN ĐỊNH CỦA CON LẮC PHI TUYẾN CÓ MA SÁT QUA JACOBIAN & LYAPUNOV</h4>
+            <span class="badge badge-primary">Chuyên Đề Tuyến Tính Hóa & Hàm Lyapunov Toàn Cục</span>
+          </div>
+          <p>
+            Phương trình vi phân chuyển động của con lắc đơn có cản nhớt:
+            $$\ddot{\theta} + \frac{b}{m L^2} \dot{\theta} + \frac{g}{L} \sin\theta = 0$$
+            Tham số: $m = 1.0\text{ kg}$, $L = 0.5\text{ m}$, $g = 9.81\text{ m/s}^2$, $b = 0.4\text{ Nms/rad}$.
+            Khi đó hệ số trọng trường $\omega_0^2 = \frac{g}{L} = \frac{9.81}{0.5} = 19.62\text{ s}^{-2}$, hệ số cản $2\zeta\omega_0 = \frac{b}{m L^2} = \frac{0.4}{1.0 \times 0.25} = 1.60\text{ s}^{-1}$.
+          </p>
+
+          <div class="worked-step-grid">
+            <div class="worked-step-col">
+              <h5>Bước 1: Chuyển Về Không Gian Trạng Thái & Xác Định Điểm Cân Bằng</h5>
+              <p>Đặt biến trạng thái: $x_1 = \theta$ (vị trí góc), $x_2 = \dot{\theta}$ (vận tốc góc).</p>
+              $$\dot{x}_1 = x_2 = f_1(x_1, x_2)$$
+              $$\dot{x}_2 = -19.62 \sin(x_1) - 1.60 x_2 = f_2(x_1, x_2)$$
+              <p>Điều kiện cân bằng $\mathbf{f}(\mathbf{x}^*) = \mathbf{0} \implies x_2^* = 0$ và $\sin(x_1^*) = 0$:</p>
+              <ul>
+                <li>Điểm cân bằng dưới: $\mathbf{x}_1^* = (0, 0)$ (Con lắc chúc xuống).</li>
+                <li>Điểm cân bằng trên: $\mathbf{x}_2^* = (\pi, 0)$ (Con lắc dựng ngược).</li>
+              </ul>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 2: Phân Tích Jacobian Điểm Cân Bằng Dưới (0, 0)</h5>
+              <p>Ma trận Jacobian tổng quát:</p>
+              $$\mathbf{A}(x_1, x_2) = \begin{bmatrix} \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} \\ \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} \end{bmatrix} = \begin{bmatrix} 0 & 1 \\ -19.62 \cos(x_1) & -1.60 \end{bmatrix}$$
+              <p>Tại điểm dưới $\mathbf{x}_1^* = (0, 0)$ với $\cos(0) = 1$:</p>
+              $$\mathbf{A}_1 = \begin{bmatrix} 0 & 1 \\ -19.62 & -1.60 \end{bmatrix}$$
+              <p>Phương trình đặc trưng: $\det(\lambda \mathbf{I} - \mathbf{A}_1) = \lambda^2 + 1.60 \lambda + 19.62 = 0$.</p>
+              $$\lambda_{1, 2} = \frac{-1.60 \pm \sqrt{1.60^2 - 4(19.62)}}{2} = -0.80 \pm j \sqrt{19.62 - 0.64} = -0.80 \pm 4.356 j$$
+              <p>Vì $\operatorname{Re}(\lambda_{1,2}) = -0.80 \lt 0$, điểm $(0, 0)$ là <strong>Tiêu điểm ổn định (Stable Focus)</strong>!</p>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 3: Phân Tích Jacobian Điểm Cân Bằng Ngược (π, 0)</h5>
+              <p>Tại điểm trên $\mathbf{x}_2^* = (\pi, 0)$ với $\cos(\pi) = -1$:</p>
+              $$\mathbf{A}_2 = \begin{bmatrix} 0 & 1 \\ +19.62 & -1.60 \end{bmatrix}$$
+              <p>Phương trình đặc trưng: $\lambda^2 + 1.60 \lambda - 19.62 = 0$.</p>
+              $$\lambda_{1, 2} = \frac{-1.60 \pm \sqrt{1.60^2 - 4(-19.62)}}{2} = \frac{-1.60 \pm \sqrt{2.56 + 78.48}}{2} = \frac{-1.60 \pm 9.002}{2}$$
+              $$\lambda_1 = +3.701\text{ s}^{-1} \gt 0, \quad \lambda_2 = -5.301\text{ s}^{-1} \lt 0$$
+              <p>Tồn tại một trị riêng dương ngặt $\lambda_1 \gt 0 \implies$ Điểm $(\pi, 0)$ là <strong>Điểm yên ngựa bất ổn định (Unstable Saddle Point)</strong>!</p>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 4: Chứng Minh Ổn Định Toàn Cục Bằng Hàm Lyapunov & LaSalle</h5>
+              <p>Chọn hàm ứng viên Lyapunov bằng tổng cơ năng toàn phần:</p>
+              $$V(x_1, x_2) = \frac{1}{2} x_2^2 + \frac{g}{L} (1 - \cos x_1) = \frac{1}{2} x_2^2 + 19.62 (1 - \cos x_1) \ge 0$$
+              <p>Đạo hàm thời gian của $V$ dọc theo quỹ đạo:</p>
+              $$\dot{V} = x_2 \dot{x}_2 + 19.62 \sin(x_1) \dot{x}_1 = x_2 \left( -19.62 \sin x_1 - 1.60 x_2 \right) + 19.62 \sin(x_1) x_2$$
+              $$\dot{V} = -1.60 x_2^2 \le 0$$
+              <p>$\dot{V} = 0 \iff x_2 = 0$. Khi $x_2 \equiv 0 \implies \dot{x}_2 = 0 \implies -19.62\sin x_1 = 0 \implies x_1 = 0$ (trong vùng lân cận). Theo <strong>Định lý LaSalle</strong>, quỹ đạo bắt buộc phải hội tụ tiệm cận về $(0, 0)$!</p>
+              <div class="highlight-result-box">
+                <strong>KẾT LUẬN THẨM ĐỊNH:</strong> Điểm $(0, 0)$ đạt ổn định tiệm cận với tốc độ suy giảm tắt dần $e^{-0.80 t}$; Điểm $(\pi, 0)$ bất ổn định với tốc độ phân kỳ $e^{3.70 t}$.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Mô Phỏng Canvas 2D 60 FPS -->
+      <section id="sec-6-sim" class="content-section">
+        <h2>Phòng Thí Nghiệm Tương Tác: Không Gian Pha & Trường Vector Lyapunov</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">CANVAS 2D • 60 FPS REALTIME</span>
+            <span class="sim-title">Khám Phá Trường Vector Phi Tuyến, Đường Mức Lyapunov & Quỹ Đạo Hội Tụ</span>
+          </div>
+          <div class="sim-canvas-wrapper" style="text-align: center; padding: 1.25rem; background: var(--sim-bg);">
+            <canvas id="sim-canvas-06" width="700" height="360" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);"></canvas>
+          </div>
+          <div class="sim-controls" style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color); align-items: center;">
+            <label style="font-size: 0.85rem; font-weight: 600;">Hệ số cản nhớt μ: 
+              <input type="range" id="sim6-mu" min="0.0" max="1.5" step="0.05" value="0.4">
+            </label>
+            <button id="sim6-reset" class="btn btn-primary" style="padding: 0.4rem 1rem;">Đặt Lại (Xóa Vết)</button>
+          </div>
+          <div style="padding: 0.75rem 1.25rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-surface);">
+            💡 <em>Tương tác trực tiếp:</em> <strong>Nhấp chuột bất kỳ điểm nào trên màn hình</strong> để thả một trạng thái ban đầu mới! Đường cong màu xanh dương/cam sẽ tự động tích phân và cuộn xoáy hội tụ về gốc tọa độ $(0, 0)$ cắt xuyên qua các đường mức năng lượng màu tím $V(x) = c$.
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Cầu Nối ROS 2 -->
+      <section id="sec-6-ros2" class="content-section">
+        <h2>Cầu Nối Kiến Trúc Thực Tế: Lyapunov Energy Monitor Node</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-bridge-header">
+            <span class="badge badge-accent">ROS 2 REALTIME SAFETY MONITOR</span>
+            <h4>Giám Sát Năng Lượng Lyapunov & Kích Hoạt Phanh Khẩn Cấp E-STOP</h4>
+          </div>
+          <p>
+            Trong các hệ thống robot an toàn cao (Safety-Critical Robotics), giá trị hàm Lyapunov $V(\mathbf{x})$ và đạo hàm $\dot{V}$ được tính toán liên tục tại tần số 1 kHz. Nếu $\dot{V} \gt \epsilon$ (hệ thống có dấu hiệu bùng nổ năng lượng do lỗi cảm biến hoặc va chạm), Node an toàn sẽ lập tức ngắt rơ-le E-Stop:
+          </p>
+          <div class="code-card">
+            <div class="code-header">
+              <span>lyapunov_safety_monitor_node.cpp</span>
+              <span class="code-badge">C++20</span>
+            </div>
+            <pre><code>// Node kiểm định an toàn Lyapunov thời gian thực
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/joint_state.hpp"
+#include "std_msgs/msg/bool.hpp"
+
+class LyapunovSafetyMonitor : public rclcpp::Node {
+  void onJointState(const sensor_msgs::msg::JointState::SharedPtr msg) {
+    double q = msg-&gt;position[0];
+    double q_dot = msg-&gt;velocity[0];
+
+    // Tính năng lượng Lyapunov V(q, q_dot)
+    double V = 0.5 * m * L * L * q_dot * q_dot + m * g * L * (1.0 - cos(q));
+    double V_dot = -b * q_dot * q_dot; // Đạo hàm lý thuyết phải âm
+
+    // Thẩm định an toàn: Nếu phát hiện năng lượng tăng bất thường
+    if (V &gt; V_MAX_THRESHOLD || V_dot &gt; 0.05) {
+      RCLCPP_FATAL(this-&gt;get_logger(), "LYAPUNOV VIOLATION! Bất ổn định động lực học. Kích hoạt E-STOP!");
+      triggerEmergencyBrake();
+    }
+  }
+};</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Tóm Tắt & Câu Hỏi Tự Luyện -->
+      <section id="sec-6-summary" class="content-section">
+        <h2>📝 Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <h4>GHI NHỚ CỐT LÕI CHƯƠNG 06</h4>
+          <ol class="academic-list">
+            <li><strong>Tuyến tính hóa Jacobian:</strong> Xác định tính ổn định địa phương dựa trên dấu của phần thực trị riêng $\operatorname{Re}(\lambda_i)$.</li>
+            <li><strong>Phương pháp trực tiếp Lyapunov:</strong> Chứng minh ổn định toàn cục bằng hàm xác định dương $V(x) \gt 0$ có đạo hàm $\dot{V}(x) \le 0$.</li>
+            <li><strong>Định lý Lagrange-Dirichlet:</strong> Cực tiểu thế năng $\nabla^2 V(q^*) \gt 0$ bảo đảm tính ổn định của hệ cơ khí bảo toàn.</li>
+            <li><strong>Chu trình mô phỏng tự động hóa:</strong> `ldaetrans` đảm nhận việc vi phân ký hiệu tự động, `ride` giải số hệ DAEs độ chính xác cao.</li>
+          </ol>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+          <h4>Câu hỏi tự luyện 6.1: Hệ dao động phi tuyến Van der Pol Oscillator</h4>
+          <p>
+            Xét phương trình vi phân dao động Van der Pol: $\ddot{x} - \mu (1 - x^2) \dot{x} + x = 0$ với $\mu \gt 0$.
+          </p>
+          <p>
+            <strong>Yêu cầu:</strong>
+            1) Chuyển phương trình về không gian trạng thái $x_1 = x, x_2 = \dot{x}$, xác định điểm cân bằng duy nhất.
+            2) Tính ma trận Jacobian tại gốc tọa độ $(0, 0)$ và chứng minh gốc tọa độ là điểm bất ổn định.
+            3) Giải thích tại sao mặc dù gốc tọa độ bất ổn định, quỹ đạo trạng thái vẫn không tiến ra vô hạn mà co cụm về một <em>Chu trình giới hạn (Limit Cycle)</em> ổn định.
+          </p>
+        </div>
+      </section>
+
+      <!-- Pagination Footer -->
+      <nav class="chapter-pagination">
+        <a href="ch05.html" class="pagination-link prev">
+          <span class="pagination-sub">Trang trước</span>
+          <span class="pagination-title">← Chương 05: Giải Số Phương Trình Vi Phân & DAEs</span>
+        </a>
+        <a href="../index.html" class="pagination-link next">
+          <span class="pagination-sub">Hoàn thành chuyên khảo</span>
+          <span class="pagination-title">Về Portal Hub Tổng Quan →</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · Giáo trình chuyên khảo cao học Springer</p>
+      <p>Tác giả: <strong>GS. Brian C. Fabien</strong> (University of Washington) • Biên soạn: Viện Tri Thức Robotics</p>
+      <div style="margin-top: 0.75rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="../index.html" class="card-action-link">← Về Portal Hub ASD</a>
+        <span style="color: var(--text-subtle);">•</span>
+        <a href="../../index.html" class="card-action-link">Trang Chủ Master Robotics Portals ↗</a>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

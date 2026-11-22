@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Hệ Ràng Buộc & Phương Trình Vi Phân Đại Số (LDAEs) | Analytical System Dynamics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình ASD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Giải Tích Lagrange & Ràng Buộc DAE</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 04</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Analytical System Dynamics • Brian C. Fabien</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 04</span>
+        <span class="sidebar-badge">8 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-4-1">
+            <span class="nav-text">4.1 Phân Loại Các Loại Ràng Buộc</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-1-1">
+            <span class="nav-text">4.1.1 Ràng Buộc Vị Trí & Dòng Chảy</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-1-2">
+            <span class="nav-text">4.1.2 Ràng Buộc Động Lực & Nỗ Lực</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-2">
+            <span class="nav-text">4.2 Lagrange Với Ràng Buộc Vị Trí (λ)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-3">
+            <span class="nav-text">4.3 Lagrange Với Ràng Buộc Nonholonomic</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-4">
+            <span class="nav-text">4.4 Ràng Buộc Bất Đẳng Thức & Động Lực</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-5">
+            <span class="nav-text">4.5 Hệ Phương Trình LDAEs & Index</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-5-1">
+            <span class="nav-text">4.5.1 Phương Trình Vi Phân Tiềm Ẩn (ODEs)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-worked">
+            <span class="nav-text">Ví Dụ Số 4 Bước: Con Lắc Ràng Buộc Tọa Độ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-sim">
+            <span class="nav-text">Mô Phỏng 60 FPS: Robot Phi Holonomic</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-ros2">
+            <span class="nav-text">Cầu Nối ROS 2 (Nav2 Nonholonomic Controller)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-summary">
+            <span class="nav-text">📝 Tóm Tắt & Câu Hỏi Tự Luyện</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-track-2">TRACK 2: GIẢI TÍCH LAGRANGE & RÀNG BUỘC DAE</span>
+          <span class="hero-ch-badge">CHƯƠNG 04</span>
+        </div>
+        <h1 class="chapter-title">Hệ Ràng Buộc & Phương Trình Vi Phân Đại Số (LDAEs)</h1>
+        <p class="chapter-subtitle">
+          Giải phẫu nhân tử Lagrange $\boldsymbol{\lambda}$, bản chất của lực liên kết cứng, 
+          hệ phi holonomic (xe bánh vi sai lăn không trượt), và cấu trúc phương trình vi phân đại số Lagrangian DAEs Index-3.
+        </p>
+      </div>
+
+      <!-- Mục 4.1 -->
+      <section id="sec-4-1" class="content-section">
+        <h2>4.1 Phân Loại Ràng Buộc Trong Hệ Động Lực (Constraint Classification)</h2>
+        <p>
+          Trong kỹ thuật thực tế, các hệ thống cơ điện tử hiếm khi chuyển động tự do hoàn toàn trong không gian. Xe ô tô bị giữ trên mặt đường, cánh tay robot bị chốt tại các ổ bi, và các tiếp xúc cơ khí tạo nên những rào cản hình học và vận tốc nghiêm ngặt.
+        </p>
+
+        <div class="why-matters-box">
+          <div class="why-matters-header">💡 VÌ SAO PHÂN BIỆT HOLONOMIC VÀ NONHOLONOMIC LÀ SỐNG CÒN?</div>
+          <div class="why-matters-body">
+            Một ràng buộc vị trí <strong>Holonomic</strong> làm giảm số bậc tự do cấu hình của robot (robot chỉ có thể di chuyển trên một đa tạp cong có số chiều thấp hơn). Ngược lại, ràng buộc vận tốc <strong>Nonholonomic</strong> (như bánh xe lăn không trượt) <em>không làm giảm số bậc tự do cấu hình</em> (xe vẫn có thể đỗ vào bất kỳ vị trí và góc nào trong bãi đỗ xe thông qua thao tác lùi tiến nhiều lần), nhưng nó giới hạn không gian vận tốc tức thời có thể đạt được tại mỗi thời điểm!
+          </div>
+        </div>
+
+        <h3 id="sec-4-1-1">4.1.1 Ràng Buộc Vị Trí (Displacement) & Dòng Chảy (Flow)</h3>
+        <ul class="academic-list">
+          <li><strong>Ràng buộc vị trí / Holonomic:</strong> Biểu diễn dưới dạng hàm đại số của tọa độ vị trí và thời gian:
+            $$\boldsymbol{\Phi}(q, t) = \mathbf{0}, \quad \boldsymbol{\Phi} \in \mathbb{R}^m$$
+            Ví dụ: Chiều dài thanh nối cứng con lắc $x^2 + y^2 - L^2 = 0$.
+          </li>
+          <li><strong>Ràng buộc dòng chảy / Nonholonomic (Pfaffian Constraints):</strong> Biểu diễn dưới dạng phương trình vi phân tuyến tính của vận tốc suy rộng không thể lấy tích phân để quy về vị trí:
+            $$\mathbf{A}(q) \dot{\mathbf{q}} + \mathbf{a}_0(t) = \mathbf{0}, \quad \mathbf{A} \in \mathbb{R}^{m \times n}$$
+            Theo <strong>Định lý Frobenius</strong>, điều kiện cần và đủ để ràng buộc Pfaffian là holonomic (tích phân được) là ngoặc Lie của các trường vector vô hướng triệt tiêu. Với bánh xe lăn không trượt, điều kiện này bị vi phạm, do đó hệ thống là phi holonomic thuần túy!
+          </li>
+        </ul>
+
+        <h3 id="sec-4-1-2">4.1.2 Ràng Buộc Động Lực & Nỗ Lực (Dynamic & Effort Constraints)</h3>
+        <p>
+          Ràng buộc động lực liên quan đến gia tốc $\mathbf{A}_d(q, \dot{q})\ddot{q} + \mathbf{a}_d = \mathbf{0}$, trong khi ràng buộc nỗ lực bao gồm các giới hạn bất đẳng thức lực kéo/mô-men xoắn $\tau_{min} \le \tau \le \tau_{max}$ hoặc điều kiện tiếp xúc đơn phương (Unilateral Contact) không dính:
+          $$\Phi_N(q) \ge 0, \quad \lambda_N \ge 0, \quad \Phi_N(q) \cdot \lambda_N = 0 \quad (\text{Linear Complementarity Problem - LCP})$$
+        </p>
+      </section>
+
+      <!-- Mục 4.2 -->
+      <section id="sec-4-2" class="content-section">
+        <h2>4.2 Phương Trình Lagrange Với Ràng Buộc Vị Trí & Nhân Tử λ</h2>
+        <p>
+          Khi không thể (hoặc quá khó khăn) loại bỏ các tọa độ phụ thuộc qua phép thế đại số, ta áp dụng phương pháp <strong>Nhân tử Lagrange (Lagrange Multipliers)</strong>:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Phương Trình Lagrange Mở Rộng Cho Hệ Có Ràng Buộc Holonomic</div>
+          <div class="formula-math">
+            $$\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}}\right) - \frac{\partial L}{\partial q} + \boldsymbol{\Phi}_q^T \boldsymbol{\lambda} = \mathbf{Q}^{nc}$$
+            $$\boldsymbol{\Phi}(q, t) = \mathbf{0}$$
+          </div>
+          <div class="formula-legend">
+            <strong>Ý nghĩa vật lý của nhân tử $\boldsymbol{\lambda}$</strong>:
+            Vector $\boldsymbol{\lambda} = [\lambda_1, \dots, \lambda_m]^T \in \mathbb{R}^m$ chính là cường độ của các lực liên kết. Số hạng $\mathbf{F}_c = \boldsymbol{\Phi}_q^T \boldsymbol{\lambda}$ (với $\boldsymbol{\Phi}_q = \frac{\partial \boldsymbol{\Phi}}{\partial q}$ là ma trận Jacobian ràng buộc) thể hiện chính xác <strong>vectơ lực phản lực liên kết tổng quát</strong> tác dụng lên hệ thống để cưỡng bức hệ tuân thủ ràng buộc!
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục 4.3 -->
+      <section id="sec-4-3" class="content-section">
+        <h2>4.3 Phương Trình Lagrange Với Ràng Buộc Nonholonomic (Bánh Xe Lăn Không Trượt)</h2>
+        <p>
+          Với hệ thống chịu ràng buộc Pfaffian $\mathbf{A}(q)\dot{\mathbf{q}} = \mathbf{0}$, phương trình Lagrange bổ sung số hạng nhân tử $\boldsymbol{\mu}$:
+          $$\frac{d}{dt}\left(\frac{\partial L}{\partial \dot{q}}\right) - \frac{\partial L}{\partial q} + \mathbf{A}^T(q) \boldsymbol{\mu} = \mathbf{Q}^{nc}$$
+          Xét một robot di động hai bánh vi sai (Unicycle) có vị trí tâm trục bánh xe $(x, y)$ và góc hướng $\theta$. Điều kiện tiếp xúc lăn không trượt theo phương ngang:
+          $$\dot{y}\cos\theta - \dot{x}\sin\theta = 0 \implies \begin{bmatrix} -\sin\theta & \cos\theta & 0 \end{bmatrix} \begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{\theta} \end{bmatrix} = 0$$
+          Nhân tử $\mu$ ở đây đại diện cho lực ma sát ngang chống trượt bên (Cornering / Lateral Friction Force) giữ cho bánh xe không bị văng trượt trên mặt đường.
+        </p>
+      </section>
+
+      <!-- Mục 4.4 & 4.5 -->
+      <section id="sec-4-5" class="content-section">
+        <h2>4.5 Hệ Phương Trình Lagrangian Differential-Algebraic Equations (LDAEs)</h2>
+        <p>
+          Ghép phương trình vi phân chuyển động và phương trình đại số ràng buộc tạo thành hệ phương trình vi phân đại số <strong>LDAEs (Lagrangian DAEs)</strong>:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Cấu Trúc Ma Trận Khối Chuẩn Của Hệ LDAEs</div>
+          <div class="formula-math">
+            $$\begin{bmatrix} \mathbf{M}(q) & \boldsymbol{\Phi}_q^T \\ \boldsymbol{\Phi}_q & \mathbf{0} \end{bmatrix} \begin{bmatrix} \ddot{\mathbf{q}} \\ \boldsymbol{\lambda} \end{bmatrix} = \begin{bmatrix} \mathbf{f}(q, \dot{q}, t) \\ -\dot{\boldsymbol{\Phi}}_q \dot{\mathbf{q}} - \dot{\boldsymbol{\Phi}}_t \end{bmatrix}$$
+          </div>
+          <div class="formula-legend">
+            $\mathbf{f}(q, \dot{q}, t) = \mathbf{Q}^{nc} - \mathbf{C}(q, \dot{q})\dot{q} - \mathbf{G}(q)$.
+            Ma trận khối bên trái được gọi là <strong>Ma trận yên ngựa (Saddle-Point Matrix)</strong> hoặc ma trận KKT động lực học.
+          </div>
+        </div>
+
+        <h3 id="sec-4-5-1">4.5.1 Chỉ Số Vi Phân (DAE Index) & Phương Trình Tiềm Ẩn (Underlying ODEs)</h3>
+        <p>
+          <strong>Khái niệm DAE Index:</strong> Chỉ số vi phân của hệ DAE là số lần tối thiểu ta phải lấy đạo hàm phương trình ràng buộc theo thời gian để quy hệ thống về một hệ phương trình vi phân thường (ODEs) hiện thuần túy:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Hệ ràng buộc vị trí holonomic $\boldsymbol{\Phi}(q) = \mathbf{0}$ là hệ DAE Index-3:</strong>
+            Đạo hàm bậc 1: $\boldsymbol{\Phi}_q \dot{q} = \mathbf{0}$ (vận tốc).
+            Đạo hàm bậc 2: $\boldsymbol{\Phi}_q \ddot{q} + \dot{\boldsymbol{\Phi}}_q \dot{q} = \mathbf{0}$ (gia tốc).
+            Đạo hàm bậc 3: Đạo hàm thêm 1 lần nữa mới xuất hiện $\dot{\boldsymbol{\lambda}}$.
+          </li>
+          <li><strong>Hệ ràng buộc dòng chảy nonholonomic là hệ DAE Index-2.</strong></li>
+          <li><strong>Phương trình tiềm ẩn (Underlying ODE):</strong> Bằng cách giải ma trận khối, ta rút ra công thức giải tích cho nhân tử $\boldsymbol{\lambda}$:
+            $$\boldsymbol{\lambda} = \left( \boldsymbol{\Phi}_q \mathbf{M}^{-1} \boldsymbol{\Phi}_q^T \right)^{-1} \left[ \boldsymbol{\Phi}_q \mathbf{M}^{-1} \mathbf{f} + \dot{\boldsymbol{\Phi}}_q \dot{\mathbf{q}} + \dot{\boldsymbol{\Phi}}_t \right]$$
+            Sau đó thế ngược $\boldsymbol{\lambda}$ vào phương trình gia tốc để nhận được $\ddot{\mathbf{q}} = \mathbf{M}^{-1}(\mathbf{f} - \boldsymbol{\Phi}_q^T \boldsymbol{\lambda})$.
+          </li>
+        </ul>
+      </section>
+
+      <!-- Mục Worked Example -->
+      <section id="sec-4-worked" class="content-section">
+        <h2>Ví Dụ Tính Số 4 Bước Chuẩn Học Thuật</h2>
+        <div class="worked-step-card">
+          <div class="worked-header">
+            <h4>BÀI TOÁN: CON LẮC ĐƠN MÔ TẢ TRONG TỌA ĐỘ DECARTE & TÍNH LỰC CĂNG DÂY QUA NHÂN TỬ LAGRANGE</h4>
+            <span class="badge badge-primary">Chuyên Đề DAE Index-3 & Nhân Tử λ</span>
+          </div>
+          <p>
+            Xét con lắc đơn khối lượng $m = 1.0\text{ kg}$, chiều dài thanh cứng $L = 1.0\text{ m}$. Thay vì chọn tọa độ góc $\theta$ (1 DOF), ta mô tả con lắc bằng hai tọa độ Descartes tự do $\mathbf{q} = [x, y]^T$ và ràng buộc khoảng cách $\Phi(x, y) = \frac{1}{2}(x^2 + y^2 - L^2) = 0$. Gia tốc trọng trường $g = 9.81\text{ m/s}^2$ hướng theo chiều âm trục $y$.
+            Tại thời điểm khảo sát: con lắc ở góc nghiêng $\theta = 45^\circ$ ($x = L\sin 45^\circ = 0.7071\text{ m}$, $y = -L\cos 45^\circ = -0.7071\text{ m}$), vận tốc góc $\omega = \dot{\theta} = 2.0\text{ rad/s}$.
+          </p>
+
+          <div class="worked-step-grid">
+            <div class="worked-step-col">
+              <h5>Bước 1: Thiết Lập Hàm Lagrange & Ma Trận Jacobian Ràng Buộc</h5>
+              <p>Tọa độ suy rộng dư thừa: $\mathbf{q} = [x, y]^T$.</p>
+              $$T^* = \frac{1}{2} m (\dot{x}^2 + \dot{y}^2), \quad V = m g y$$
+              $$L = \frac{1}{2} m (\dot{x}^2 + \dot{y}^2) - m g y$$
+              <p>Ràng buộc và ma trận Jacobian ràng buộc $\boldsymbol{\Phi}_q$:</p>
+              $$\Phi(x, y) = \frac{1}{2}(x^2 + y^2 - L^2) = 0 \implies \boldsymbol{\Phi}_q = \begin{bmatrix} \frac{\partial \Phi}{\partial x} & \frac{\partial \Phi}{\partial y} \end{bmatrix} = \begin{bmatrix} x & y \end{bmatrix}$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 2: Đạo Hàm Bậc Hai Ràng Buộc & Xác Định Vận Tốc Hiện Tại</h5>
+              <p>Tại $\theta = 45^\circ, \omega = 2.0\text{ rad/s}$:</p>
+              $$\dot{x} = L \omega \cos 45^\circ = 1.0 \times 2.0 \times 0.7071 = 1.4142\text{ m/s}$$
+              $$\dot{y} = L \omega \sin 45^\circ = 1.0 \times 2.0 \times 0.7071 = 1.4142\text{ m/s}$$
+              <p>Đạo hàm bậc hai của ràng buộc:</p>
+              $$\dot{\Phi} = x \dot{x} + y \dot{y} = (0.7071)(1.4142) + (-0.7071)(1.4142) = 0 \quad (\text{Thỏa mãn!})$$
+              $$\ddot{\Phi} = x \ddot{x} + y \ddot{y} + \dot{x}^2 + \dot{y}^2 = 0 \implies \boldsymbol{\Phi}_q \ddot{\mathbf{q}} = -(\dot{x}^2 + \dot{y}^2)$$
+              $$-(\dot{x}^2 + \dot{y}^2) = -(1.4142^2 + 1.4142^2) = -(2.0 + 2.0) = -4.000\text{ m}^2\text{/s}^2$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 3: Lập Hệ Ma Trận Khối Saddle-Point DAE</h5>
+              <p>Ma trận quán tính $\mathbf{M} = \begin{bmatrix} m & 0 \\ 0 & m \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$, vế phải lực thế: $\mathbf{f} = \begin{bmatrix} 0 \\ -mg \end{bmatrix} = \begin{bmatrix} 0 \\ -9.81 \end{bmatrix}$.</p>
+              $$\begin{bmatrix} m & 0 & x \\ 0 & m & y \\ x & y & 0 \end{bmatrix} \begin{bmatrix} \ddot{x} \\ \ddot{y} \\ \lambda \end{bmatrix} = \begin{bmatrix} 0 \\ -m g \\ -(\dot{x}^2 + \dot{y}^2) \end{bmatrix}$$
+              $$\begin{bmatrix} 1.0 & 0 & 0.7071 \\ 0 & 1.0 & -0.7071 \\ 0.7071 & -0.7071 & 0 \end{bmatrix} \begin{bmatrix} \ddot{x} \\ \ddot{y} \\ \lambda \end{bmatrix} = \begin{bmatrix} 0 \\ -9.81 \\ -4.000 \end{bmatrix}$$
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 4: Giải Nghiệm Nhân Tử λ & Tính Lực Căng Thanh</h5>
+              <p>Từ hai hàng đầu: $\ddot{x} = -x \lambda = -0.7071 \lambda$, $\ddot{y} = -9.81 - y \lambda = -9.81 + 0.7071 \lambda$.</p>
+              <p>Thế vào hàng thứ ba:</p>
+              $$0.7071 (-0.7071 \lambda) - 0.7071 (-9.81 + 0.7071 \lambda) = -4.000$$
+              $$-0.500 \lambda + 6.9366 - 0.500 \lambda = -4.000 \implies -1.000 \lambda = -10.9366$$
+              $$\lambda = 10.937\text{ N/m}$$
+              <p>Lực phản lực liên kết (Lực căng dây kéo vào tâm):</p>
+              $$\mathbf{F}_c = \boldsymbol{\Phi}_q^T \lambda = \begin{bmatrix} 0.7071 \\ -0.7071 \end{bmatrix} \times 10.937 = \begin{bmatrix} 7.733 \\ -7.733 \end{bmatrix}\text{ N}$$
+              $$\|\mathbf{F}_c\| = \lambda \cdot L = 10.937 \times 1.0 = 10.937\text{ N}$$
+              <p>Gia tốc vật: $\ddot{x} = -7.733\text{ m/s}^2, \ddot{y} = -9.81 + 7.733 = -2.077\text{ m/s}^2$.</p>
+              <div class="highlight-result-box">
+                <strong>ĐÁP SỐ CHUẨN XÁC:</strong> Nhân tử $\lambda = 10.937\text{ N/m}$; Lực căng thanh $T = 10.937\text{ N}$ đúng bằng tổng hợp lực ly tâm $m L \omega^2 = 4\text{ N}$ cộng thành phần trọng lực $m g \cos 45^\circ = 6.937\text{ N}$!
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Mô Phỏng Canvas 2D 60 FPS -->
+      <section id="sec-4-sim" class="content-section">
+        <h2>Phòng Thí Nghiệm Tương Tác: Robot Phi Holonomic & Lực Ràng Buộc</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">CANVAS 2D • 60 FPS REALTIME</span>
+            <span class="sim-title">Mô Phỏng Xe Hai Bánh Vi Sai & Vector Lực Liên Kết Chống Trượt Ngang</span>
+          </div>
+          <div class="sim-canvas-wrapper" style="text-align: center; padding: 1.25rem; background: var(--sim-bg);">
+            <canvas id="sim-canvas-04" width="700" height="340" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);"></canvas>
+          </div>
+          <div class="sim-controls" style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color); align-items: center;">
+            <label style="font-size: 0.85rem; font-weight: 600;">Vận tốc dọc v (m/s): 
+              <input type="range" id="sim4-v" min="0.2" max="2.5" step="0.1" value="1.2">
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600;">Tốc độ góc lái w (rad/s): 
+              <input type="range" id="sim4-w" min="-1.5" max="1.5" step="0.1" value="0.8">
+            </label>
+            <button id="sim4-reset" class="btn btn-primary" style="padding: 0.4rem 1rem;">Đặt Lại Vị Trí Xe</button>
+          </div>
+          <div style="padding: 0.75rem 1.25rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-surface);">
+            💡 <em>Trực giác vật lý:</em> Mũi tên đỏ vuông góc với thân xe thể hiện nhân tử Lagrange $\lambda$ (lực bám ngang của bánh cao su). Nếu bánh xe bị mất ma sát (băng tuyết), ràng buộc nonholonomic bị vỡ và xe sẽ trượt văng ngang không kiểm soát!
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Cầu Nối ROS 2 -->
+      <section id="sec-4-ros2" class="content-section">
+        <h2>Cầu Nối Kiến Trúc Thực Tế: Nav2 Nonholonomic Controller</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-bridge-header">
+            <span class="badge badge-accent">ROS 2 NAVIGATION 2 (NAV2)</span>
+            <h4>Triển Khai Bộ Điều Khiển Bám Quỹ Đạo Giới Hạn Góc Lái Cho AGV</h4>
+          </div>
+          <p>
+            Do ràng buộc phi holonomic $\dot{y}\cos\theta - \dot{x}\sin\theta = 0$, robot không thể di chuyển tức thời theo phương ngang (vận tốc ngang $v_y \equiv 0$). Nav2 tích hợp bộ điều khiển <code>RegulatedPurePursuitController</code> để lập lệnh vận tốc xoay $w$ tương thích với mô hình động học:
+          </p>
+          <div class="code-card">
+            <div class="code-header">
+              <span>nav2_regulated_pure_pursuit.cpp</span>
+              <span class="code-badge">C++20</span>
+            </div>
+            <pre><code>// Tính toán lệnh vận tốc vi sai tuân thủ ràng buộc phi holonomic
+geometry_msgs::msg::Twist RegulatedPurePursuitController::computeVelocityCommands(
+  const geometry_msgs::msg::PoseStamped & pose,
+  const geometry_msgs::msg::Twist & velocity) {
+  
+  // 1. Tìm điểm mục tiêu nhìn trước (Lookahead Point)
+  auto lookahead_point = getLookaheadPoint(pose, lookahead_dist_);
+
+  // 2. Độ cong quỹ đạo tròn r = 2 * sin(alpha) / L_lookahead
+  double curvature = 2.0 * sin(lookahead_point.alpha) / lookahead_dist_;
+
+  geometry_msgs::msg::Twist cmd_vel;
+  cmd_vel.linear.x = desired_linear_vel_; // v_x dọc thân xe
+  cmd_vel.linear.y = 0.0;                 // Ràng buộc nonholonomic: v_y = 0!
+  cmd_vel.angular.z = desired_linear_vel_ * curvature; // w = v * kappa
+
+  return cmd_vel;
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Tóm Tắt & Câu Hỏi Tự Luyện -->
+      <section id="sec-4-summary" class="content-section">
+        <h2>📝 Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <h4>GHI NHỚ CỐT LÕI CHƯƠNG 04</h4>
+          <ol class="academic-list">
+            <li><strong>Ràng buộc Holonomic:</strong> Giảm bậc tự do hình học $\boldsymbol{\Phi}(q) = \mathbf{0}$, có thể khử tọa độ hoặc dùng nhân tử $\boldsymbol{\lambda}$.</li>
+            <li><strong>Ràng buộc Nonholonomic:</strong> Giới hạn vận tốc $\mathbf{A}(q)\dot{q} = \mathbf{0}$ không thể tích phân, không làm giảm bậc tự do cấu hình.</li>
+            <li><strong>Ý nghĩa nhân tử $\boldsymbol{\lambda}$:</strong> $\boldsymbol{\Phi}_q^T \boldsymbol{\lambda}$ chính là vector lực liên kết cứng.</li>
+            <li><strong>Hệ LDAEs:</strong> Dẫn đến hệ ma trận khối Saddle-point Index-3, đòi hỏi kỹ thuật giải số chuyên biệt để tránh trôi dạt ràng buộc.</li>
+          </ol>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+          <h4>Câu hỏi tự luyện 4.1: Đĩa tròn lăn không trượt trên mặt phẳng nghiêng</h4>
+          <p>
+            Một đĩa tròn đồng chất bán kính $R$, khối lượng $m$, mô-men quán tính $I = \frac{1}{2}m R^2$ lăn không trượt xuống dốc nghiêng góc $\alpha$.
+          </p>
+          <p>
+            <strong>Yêu cầu:</strong>
+            1) Thiết lập hàm Lagrange với hai tọa độ tự do: vị trí dọc dốc $x$ và góc quay của đĩa $\theta$.
+            2) Viết phương trình ràng buộc lăn không trượt và thiết lập hệ phương trình LDAEs kèm nhân tử Lagrange $\lambda$.
+            3) Giải ra gia tốc chuyển động $\ddot{x}$ và lực ma sát nghỉ $\lambda = F_{friction}$. So sánh với gia tốc rơi tự do không ma sát $g\sin\alpha$.
+          </p>
+        </div>
+      </section>
+
+      <!-- Pagination Footer -->
+      <nav class="chapter-pagination">
+        <a href="ch03.html" class="pagination-link prev">
+          <span class="pagination-sub">Trang trước</span>
+          <span class="pagination-title">← Chương 03: Phương Trình Chuyển Động Lagrange</span>
+        </a>
+        <a href="ch05.html" class="pagination-link next">
+          <span class="pagination-sub">Trang sau</span>
+          <span class="pagination-title">Chương 05: Giải Số Phương Trình Vi Phân & DAEs →</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · Giáo trình chuyên khảo cao học Springer</p>
+      <p>Tác giả: <strong>GS. Brian C. Fabien</strong> (University of Washington) • Biên soạn: Viện Tri Thức Robotics</p>
+      <div style="margin-top: 0.75rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="../index.html" class="card-action-link">← Về Portal Hub ASD</a>
+        <span style="color: var(--text-subtle);">•</span>
+        <a href="../../index.html" class="card-action-link">Trang Chủ Master Robotics Portals ↗</a>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

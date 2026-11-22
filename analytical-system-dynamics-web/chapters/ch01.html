@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Biểu Diễn Hệ Thống Thống Nhất & Đa Miền Năng Lượng | Analytical System Dynamics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình ASD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Đa Miền & Động Học</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 01</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Analytical System Dynamics • Brian C. Fabien</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+        <span class="sidebar-badge">9 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-1-1">
+            <span class="nav-text">1.1 Biến Hệ Thống Cốt Lõi (Paynter)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-1">
+            <span class="nav-text">1.1.1 Biến Động Học (q, f)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-2">
+            <span class="nav-text">1.1.2 Biến Động Lực Học (p, e)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-3">
+            <span class="nav-text">1.1.3 Công, Công Suất & Năng Lượng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-2">
+            <span class="nav-text">1.2 Các Khâu Thành Phần Lý Tưởng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-1">
+            <span class="nav-text">1.2.1 Cuộn Cảm & Khối Lượng (I)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-2">
+            <span class="nav-text">1.2.2 Tụ Điện & Lò Xo Đàn Hồi (C)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-3">
+            <span class="nav-text">1.2.3 Khâu Tiêu Tán & Điện Trở (R)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-4">
+            <span class="nav-text">1.2.4 Khâu Ràng Buộc & Ghép Nối (TF/GY)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-5">
+            <span class="nav-text">1.2.5 Nguồn Nỗ Lực & Dòng Chảy</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-6">
+            <span class="nav-text">1.2.6 Sơ Đồ Tứ Diện Paynter</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-worked">
+            <span class="nav-text">Ví Dụ Số 4 Bước: Biến Đổi Cơ Điện</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-sim">
+            <span class="nav-text">Mô Phỏng 60 FPS: Năng Lượng Paynter</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-ros2">
+            <span class="nav-text">Cầu Nối ROS 2 (ros2_control Interface)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-summary">
+            <span class="nav-text">📝 Tóm Tắt & Câu Hỏi Tự Luyện</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-track-1">TRACK 1: CƠ SỞ ĐA MIỀN & ĐỘNG HỌC</span>
+          <span class="hero-ch-badge">CHƯƠNG 01</span>
+        </div>
+        <h1 class="chapter-title">Biểu Diễn Hệ Thống Thống Nhất & Đa Miền Năng Lượng</h1>
+        <p class="chapter-subtitle">
+          Khám phá hệ biến số thống nhất của Henry Paynter: nỗ lực (effort), dòng chảy (flow), động lượng (momentum), dịch chuyển (displacement), 
+          và phương pháp luận mô hình hóa liên miền cơ khí, điện từ, thủy lực và nhiệt.
+        </p>
+      </div>
+
+      <!-- Mục 1.1 -->
+      <section id="sec-1-1" class="content-section">
+        <h2>1.1 Các Biến Hệ Thống Cơ Bản (Fundamental System Variables)</h2>
+        <p>
+          Trong kỹ thuật truyền thống, kỹ sư cơ khí sử dụng lực $F$ và vận tốc $v$, kỹ sư điện sử dụng điện áp $e$ và dòng điện $i$, trong khi kỹ sư thủy lực đo áp suất $P$ và lưu lượng thể tích $Q$. Sự phân mảnh này tạo ra rào cản lớn khi mô hình hóa các hệ thống cơ điện tử (mechatronics) phức tạp như robot hình người hay ô tô điện.
+        </p>
+
+        <div class="why-matters-box">
+          <div class="why-matters-header">💡 VÌ SAO ĐIỀU NÀY QUAN TRỌNG ĐỐI VỚI KỸ SƯ?</div>
+          <div class="why-matters-body">
+            Khung biến thống nhất của Paynter quy tụ mọi hiện tượng vật lý về hai biến cặp công suất đối ngẫu: <strong>Nỗ lực $e(t)$</strong> (Effort) và <strong>Dòng chảy $f(t)$</strong> (Flow). Tích vô hướng $P(t) = e(t) \cdot f(t)$ biểu thị chính xác công suất tức thời trao đổi qua ranh giới hệ thống, cho phép áp dụng định luật bảo toàn năng lượng trực tiếp mà không cần quan tâm đến bản chất vật lý cụ thể.
+          </div>
+        </div>
+
+        <h3 id="sec-1-1-1">1.1.1 Biến Động Học (Kinematic Variables)</h3>
+        <p>
+          Biến động học mô tả trạng thái chuyển động và hình học của hệ thống mà không xét đến nguyên nhân gây ra chuyển động.
+        </p>
+        <ul class="academic-list">
+          <li><strong>Dịch chuyển suy rộng (Generalized Displacement) $q(t)$:</strong> Tích phân thời gian của dòng chảy:
+            $$q(t) = q(t_0) + \int_{t_0}^t f(\tau) d\tau \iff \dot{q}(t) = f(t)$$
+            Trong cơ khí tịnh tiến, $q$ là vị trí $x\text{ [m]}$; trong cơ cấu quay, $q$ là góc quay $\theta\text{ [rad]}$; trong mạch điện, $q$ là điện tích $q_e\text{ [C]}$; trong thủy lực, $q$ là thể tích chất lỏng $V\text{ [m}^3\text{]}$.
+          </li>
+          <li><strong>Dòng chảy (Flow) $f(t)$:</strong> Tốc độ biến thiên của dịch chuyển:
+            $$f(t) = \frac{dq}{dt}$$
+            Thứ nguyên tương ứng: vận tốc $v\text{ [m/s]}$, vận tốc góc $\omega\text{ [rad/s]}$, dòng điện $i = \dot{q}_e\text{ [A]}$, lưu lượng thể tích $Q_f\text{ [m}^3\text{/s]}$.
+          </li>
+        </ul>
+
+        <h3 id="sec-1-1-2">1.1.2 Biến Động Lực Học (Kinetic Variables)</h3>
+        <p>
+          Biến động lực học liên quan đến lực, mô-men và quán tính thúc đẩy chuyển động.
+        </p>
+        <ul class="academic-list">
+          <li><strong>Động lượng suy rộng (Generalized Momentum) $p(t)$:</strong> Tích phân thời gian của nỗ lực:
+            $$p(t) = p(t_0) + \int_{t_0}^t e(\tau) d\tau \iff \dot{p}(t) = e(t)$$
+            Trong cơ khí tịnh tiến, $p$ là động lượng $p = m v\text{ [kg}\cdot\text{m/s]}$; trong cơ khí quay, $p$ là mô-men động lượng $h = I \omega\text{ [kg}\cdot\text{m}^2\text{/s]}$; trong mạch điện tử, $p$ là từ thông liên kết $\lambda_B = L i\text{ [Wb]}$; trong thủy tĩnh, $p$ là động lượng áp suất thủy lực $\Gamma_p\text{ [Pa}\cdot\text{s]}$.
+          </li>
+          <li><strong>Nỗ lực (Effort) $e(t)$:</strong> Tốc độ biến thiên của động lượng theo thời gian:
+            $$e(t) = \frac{dp}{dt}$$
+            Thứ nguyên: lực tác dụng $F\text{ [N]}$, mô-men xoắn $\tau\text{ [N}\cdot\text{m]}$, điện áp $u\text{ [V]}$, hoặc áp suất chênh lệch $\Delta P\text{ [Pa]}$.
+          </li>
+        </ul>
+
+        <h3 id="sec-1-1-3">1.1.3 Công, Công Suất & Năng Lượng (Work, Power and Energy)</h3>
+        <p>
+          Tích của nỗ lực và dòng chảy tại bất kỳ cổng năng lượng (energy port) nào xác định công suất truyền qua cổng:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">Định Luật Công Suất & Năng Lượng Tức Thời (Power-Energy Conjugate)</div>
+          <div class="formula-math">
+            $$P(t) = e(t) \cdot f(t) = \dot{p}(t) \cdot f(t) = e(t) \cdot \dot{q}(t)$$
+          </div>
+          <div class="formula-legend">
+            <strong>Bóc tách thứ nguyên SI:</strong>
+            $[P] = \text{W} = \text{J/s} = \text{N}\cdot\text{m/s} = \text{V}\cdot\text{A} = \text{Pa}\cdot(\text{m}^3/\text{s})$.
+            Tổng công thực hiện trên đoạn $[t_0, t]$ là $W = \int_{t_0}^t P(\tau) d\tau$.
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục 1.2 -->
+      <section id="sec-1-2" class="content-section">
+        <h2>1.2 Các Khâu Thành Phần Hệ Thống Lý Tưởng (System Components)</h2>
+        <p>
+          Trong phương pháp luận Analytical System Dynamics, mọi hệ thống phức tạp được phân rã thành 5 lớp phần tử cơ bản: Khâu tích lũy động năng (I), Khâu tích lũy thế năng (C), Khâu tiêu tán (R), Khâu liên kết không tổn hao (TF/GY) và Nguồn kích thích (Se/Sf).
+        </p>
+
+        <h3 id="sec-1-2-1">1.2.1 Khâu Tích Lũy Động Năng / Cuộn Cảm (Ideal Inductor - I)</h3>
+        <p>
+          Phần tử I lưu trữ năng lượng dưới dạng động lượng $p$. Mối quan hệ cấu thành là ánh xạ tĩnh giữa dòng chảy $f$ và động lượng $p$:
+          $$f = \Phi_I(p) \implies f = \frac{1}{I} p \quad (\text{đối với khâu tuyến tính})$$
+          Động năng tích lũy (Kinetic Energy) và đồng năng lượng động học (Kinetic Coenergy $T^*$) được định nghĩa:
+          $$E_I(p) = \int_0^p f(\tilde{p}) d\tilde{p} = \frac{p^2}{2I}, \quad T^*(f) = \int_0^f p(\tilde{f}) d\tilde{f} = \frac{1}{2} I f^2$$
+          Khi hệ thống tuyến tính, $E_I(p) = T^*(f)$.
+        </p>
+
+        <h3 id="sec-1-2-2">1.2.2 Khâu Tích Lũy Thế Năng / Tụ Điện (Ideal Capacitor - C)</h3>
+        <p>
+          Phần tử C lưu trữ năng lượng dưới dạng dịch chuyển $q$. Quan hệ cấu thành liên kết nỗ lực $e$ và dịch chuyển $q$:
+          $$e = \Phi_C(q) \implies e = \frac{1}{C} q \quad (\text{hoặc } e = k \cdot q \text{ với độ cứng } k = 1/C)$$
+          Thế năng dự trữ (Potential Energy $V$):
+          $$V(q) = \int_0^q e(\tilde{q}) d\tilde{q} = \frac{q^2}{2C} = \frac{1}{2} k q^2$$
+        </p>
+
+        <h3 id="sec-1-2-3">1.2.3 Khâu Tiêu Tán Năng Lượng / Điện Trở (Ideal Resistor - R)</h3>
+        <p>
+          Phần tử R chuyển hóa cơ năng/điện năng thành nhiệt năng không thể phục hồi. Quan hệ tĩnh giữa nỗ lực và dòng chảy:
+          $$e = \Phi_R(f) \implies e = R \cdot f$$
+          Công suất tiêu tán tức thời: $P_R = e \cdot f = R f^2 \ge 0$. Trong cơ học giải tích, khâu này được mô tả thông qua <strong>Hàm tiêu tán Rayleigh (Rayleigh Dissipation Function)</strong>:
+          $$D(f) = \frac{1}{2} R f^2 \implies e_R = \frac{\partial D}{\partial f}$$
+        </p>
+
+        <h3 id="sec-1-2-4">1.2.4 Khâu Ràng Buộc & Ghép Nối Không Tổn Hao (Constraint Elements: TF & GY)</h3>
+        <p>
+          Hai khâu hai cổng (2-port) cơ bản duy trì công suất vào bằng công suất ra ($e_1 f_1 = e_2 f_2$):
+        </p>
+        <div class="comparison-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;">
+          <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--primary);">
+            <h4>Máy Biến Áp / Đòn Bẩy (Transformer - TF)</h4>
+            <p>Liên kết trực tiếp nỗ lực với nỗ lực, dòng chảy với dòng chảy qua tỷ số biến thiên $n$:</p>
+            $$e_1 = n \cdot e_2, \quad f_2 = n \cdot f_1$$
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Ví dụ: Cặp bánh răng hộp số, đòn bẩy cơ học, xi lanh thủy lực chuyển áp suất thành lực đẩy.</p>
+          </div>
+          <div class="card" style="padding: 1.25rem; border-left: 4px solid var(--accent-purple);">
+            <h4>Khâu Hồi Chuyển (Gyrator - GY)</h4>
+            <p>Hoán đổi chéo nỗ lực cổng này thành dòng chảy cổng kia qua hệ số hồi chuyển $r$:</p>
+            $$e_1 = r \cdot f_2, \quad e_2 = r \cdot f_1$$
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Ví dụ: Động cơ điện một chiều (sức điện động cảm ứng $e = K_m \omega$ và mô-men từ $T = K_m i$), hiệu ứng con quay hồi chuyển Gyroscope.</p>
+          </div>
+        </div>
+
+        <h3 id="sec-1-2-5">1.2.5 Nguồn Nỗ Lực & Nguồn Dòng Chảy (Source Elements: Se & Sf)</h3>
+        <p>
+          Nguồn nỗ lực $S_e(t)$ duy trì nỗ lực $e(t)$ độc lập với dòng chảy yêu cầu (ví dụ: nguồn điện áp pin, trọng lực $F_g = mg$). Nguồn dòng chảy $S_f(t)$ duy trì lưu lượng $f(t)$ bất chấp nỗ lực cản trở (ví dụ: bơm thể tích, động cơ bước điều khiển góc).
+        </p>
+
+        <h3 id="sec-1-2-6">1.2.6 Sơ Đồ Tứ Diện Paynter (Paynter's Tetrahedron of State)</h3>
+        <p>
+          Tứ diện Paynter biểu diễn hình học mối quan hệ giữa bốn biến cơ bản $\{e, f, p, q\}$ qua các phép tích phân thời gian và quan hệ cấu thành (Constitutive Laws):
+        </p>
+        <div class="callout callout-info">
+          <strong>Trực giác Tứ Diện:</strong>
+          Trục ngang liên kết $f \leftrightarrow q$ (qua tích phân thời gian $dt$) và $e \leftrightarrow p$ (qua tích phân thời gian $dt$). Các cạnh đối liên kết động lượng $p$ với dòng chảy $f$ qua quán tính $I$, và dịch chuyển $q$ với nỗ lực $e$ qua độ mềm $C$. Cạnh chéo nối $e$ và $f$ qua điện trở tiêu tán $R$.
+        </div>
+      </section>
+
+      <!-- Mục Worked Example -->
+      <section id="sec-1-worked" class="content-section">
+        <h2>Ví Dụ Tính Số 4 Bước Chuẩn Học Thuật</h2>
+        <div class="worked-step-card">
+          <div class="worked-header">
+            <h4>BÀI TOÁN: BIẾN ĐỔI NĂNG LƯỢNG TRONG BỘ TRUYỀN ĐỘNG CƠ ĐIỆN TỬ (VOICE COIL ACTUATOR)</h4>
+            <span class="badge badge-primary">Chuyên Đề Đa Miền C-I-R-GY</span>
+          </div>
+          <p>
+            Một cơ cấu chấp hành cuộn dây loa (Voice Coil Actuator) được sử dụng trong đầu đọc đĩa cứng và cánh tay robot siêu chính xác. Cuộn dây có điện cảm $L = 5\text{ mH}$, điện trở thuần $R = 4\text{ }\Omega$. Khối lượng trượt cơ khí $m = 0.2\text{ kg}$, lò xo định tâm có độ cứng $k = 500\text{ N/m}$, hệ số cản nhớt $b = 2.0\text{ Ns/m}$. Hệ số biến đổi cơ điện của Gyrator là $K_m = 10\text{ N/A} = 10\text{ V}\cdot\text{s/m}$.
+            Đặt điện áp bậc nhảy $V_{in} = 24\text{ V}$.
+          </p>
+
+          <div class="worked-step-grid">
+            <div class="worked-step-col">
+              <h5>Bước 1: Khởi Tạo Biến Trạng Thái & Thông Số Chuẩn SI</h5>
+              <p>Hệ thống có 3 biến tích lũy năng lượng ($n=3$ bậc tự do trạng thái):</p>
+              <ul>
+                <li>Dòng điện cuộn cảm $i(t) = f_e = p_e / L \text{ [A]}$</li>
+                <li>Vận tốc cơ học $v(t) = f_m = p_m / m \text{ [m/s]}$</li>
+                <li>Dịch chuyển cơ học $x(t) = q_m \text{ [m]}$</li>
+              </ul>
+              <p>Tham số: $L = 0.005\text{ H}$, $R = 4.0\text{ }\Omega$, $m = 0.2\text{ kg}$, $k = 500\text{ N/m}$, $b = 2.0\text{ Ns/m}$, $K_m = 10.0$.</p>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 2: Thiết Lập Hệ Phương Trình Không Gian Trạng Thái</h5>
+              <p>Áp dụng định luật Paynter cho từng cổng:</p>
+              $$L \frac{di}{dt} = V_{in} - R i - K_m v$$
+              $$m \frac{dv}{dt} = K_m i - b v - k x$$
+              $$\frac{dx}{dt} = v$$
+              <p>Mô-men nỗ lực $F_{Lorentz} = K_m i$ và sức điện động phản hồi $e_{back} = K_m v$ là cặp biến của khâu Gyrator.</p>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 3: Xác Định Điểm Cân Bằng Dài Hạn (Steady-State Equilibrium)</h5>
+              <p>Tại trạng thái xác lập $t \to \infty$, $\frac{di}{dt} = 0, \frac{dv}{dt} = 0, v = 0$:</p>
+              $$i_{ss} = \frac{V_{in}}{R} = \frac{24}{4} = 6.0\text{ A}$$
+              $$x_{ss} = \frac{K_m i_{ss}}{k} = \frac{10.0 \times 6.0}{500} = 0.12\text{ m} = 12.0\text{ cm}$$
+              <p>Lực đẩy cơ học xác lập: $F_{ss} = K_m i_{ss} = 10 \times 6 = 60.0\text{ N}$.</p>
+            </div>
+
+            <div class="worked-step-col">
+              <h5>Bước 4: Định Lượng Cân Bằng Năng Lượng & Kết Luận Kỹ Thuật</h5>
+              <p>Năng lượng tích lũy tại điểm cân bằng:</p>
+              <ul>
+                <li>Từ trường cuộn cảm: $E_L = \frac{1}{2} L i_{ss}^2 = 0.5 \times 0.005 \times 36 = 0.09\text{ J}$</li>
+                <li>Thế năng đàn hồi lò xo: $E_k = \frac{1}{2} k x_{ss}^2 = 0.5 \times 500 \times (0.12)^2 = 3.60\text{ J}$</li>
+                <li>Công suất tiêu tán điện trở: $P_R = R i_{ss}^2 = 4 \times 36 = 144\text{ W}$</li>
+              </ul>
+              <div class="highlight-result-box">
+                <strong>ĐÁP SỐ CHUẨN XÁC:</strong> $x_{ss} = 0.12\text{ m}$; $F_{Lorentz} = 60\text{ N}$; Năng lượng dự trữ cơ khí áp đảo từ trường ($E_k / E_L = 40$).
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Mô Phỏng Canvas 2D 60 FPS -->
+      <section id="sec-1-sim" class="content-section">
+        <h2>Phòng Thí Nghiệm Tương Tác: Cân Bằng Năng Lượng Paynter</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">CANVAS 2D • 60 FPS REALTIME</span>
+            <span class="sim-title">Mô Phỏng Dao Động Đa Miền & Phân Phối Động Năng - Thế Năng</span>
+          </div>
+          <div class="sim-canvas-wrapper" style="text-align: center; padding: 1.25rem; background: var(--sim-bg);">
+            <canvas id="sim-canvas-01" width="700" height="320" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);"></canvas>
+          </div>
+          <div class="sim-controls" style="padding: 1.25rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color); align-items: center;">
+            <label style="font-size: 0.85rem; font-weight: 600;">Quán tính / Khối lượng I: 
+              <input type="range" id="sim1-i" min="0.2" max="3.0" step="0.1" value="1.0">
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600;">Độ mềm / Tụ điện C: 
+              <input type="range" id="sim1-c" min="0.2" max="3.0" step="0.1" value="1.0">
+            </label>
+            <label style="font-size: 0.85rem; font-weight: 600;">Hệ số tiêu tán R: 
+              <input type="range" id="sim1-r" min="0.0" max="1.0" step="0.05" value="0.2">
+            </label>
+            <button id="sim1-reset" class="btn btn-primary" style="padding: 0.4rem 1rem;">Đặt Lại (Reset)</button>
+          </div>
+          <div style="padding: 0.75rem 1.25rem; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-surface);">
+            💡 <em>Hướng dẫn:</em> Kéo thanh trượt $R$ về $0$ để quan sát dao động điều hòa bảo toàn năng lượng tuyệt đối giữa động năng $E_I$ và thế năng $E_C$. Tăng $R$ để quan sát đường cong suy giảm lũy thừa do tiêu tán nhiệt.
+          </div>
+        </div>
+      </section>
+
+      <!-- Mục Cầu Nối ROS 2 -->
+      <section id="sec-1-ros2" class="content-section">
+        <h2>Cầu Nối Kiến Trúc Thực Tế: ros2_control Hardware Interface</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-bridge-header">
+            <span class="badge badge-accent">ROS 2 JAZZY / HUMBLE</span>
+            <h4>Triển Khai C++ Hardware Interface Đa Miền Cho Robot Khớp Mềm</h4>
+          </div>
+          <p>
+            Trong kiến trúc <code>ros2_control</code>, biến nỗ lực và dòng chảy Paynter được ánh xạ trực tiếp thành các giao diện lệnh (Command Interfaces) và giao diện trạng thái (State Interfaces):
+          </p>
+          <div class="code-card">
+            <div class="code-header">
+              <span>joint_effort_hardware_interface.cpp</span>
+              <span class="code-badge">C++20</span>
+            </div>
+            <pre><code>// Ánh xạ biến Nỗ lực (Effort) & Dòng chảy (Flow) trong ros2_control
+#include "hardware_interface/system_interface.hpp"
+
+class PaynterJointHardware : public hardware_interface::SystemInterface {
+public:
+  std::vector&lt;hardware_interface::StateInterface&gt; export_state_interfaces() override {
+    std::vector&lt;hardware_interface::StateInterface&gt; state_interfaces;
+    // Dòng chảy: Vận tốc f = dq/dt
+    state_interfaces.emplace_back("joint1", "velocity", &joint_velocity_);
+    // Dịch chuyển: Vị trí q
+    state_interfaces.emplace_back("joint1", "position", &joint_position_);
+    // Nỗ lực: Cảm biến mô-men xoắn / dòng điện đo được e = tau
+    state_interfaces.emplace_back("joint1", "effort", &joint_effort_sensor_);
+    return state_interfaces;
+  }
+
+  std::vector&lt;hardware_interface::CommandInterface&gt; export_command_interfaces() override {
+    std::vector&lt;hardware_interface::CommandInterface&gt; command_interfaces;
+    // Lệnh nỗ lực: e_cmd gửi tới bộ điều chế độ rộng xung PWM motor driver
+    command_interfaces.emplace_back("joint1", "effort", &joint_effort_command_);
+    return command_interfaces;
+  }
+};</code></pre>
+          </div>
+          <p style="margin-top: 1rem;">
+            Nhờ khung biến thống nhất, thuật toán điều khiển tổng hợp có thể đo đạc công suất bơm vào cơ cấu chấp hành $P_{in} = \tau_{cmd} \cdot \dot{q}$ và ngắt an toàn tức thì nếu phát hiện vượt quá định mức nhiệt động lực học.
+          </p>
+        </div>
+      </section>
+
+      <!-- Mục Tóm Tắt & Câu Hỏi Tự Luyện -->
+      <section id="sec-1-summary" class="content-section">
+        <h2>📝 Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <h4>GHI NHỚ CỐT LÕI CHƯƠNG 01</h4>
+          <ol class="academic-list">
+            <li><strong>4 Biến Hệ Thống Paynter:</strong> Nỗ lực $e$, Dòng chảy $f$, Dịch chuyển $q = \int f dt$, Động lượng $p = \int e dt$.</li>
+            <li><strong>Công suất tức thời:</strong> $P(t) = e(t) f(t)$ là tích bất biến giữa các miền vật lý (Cơ, Điện, Thủy, Nhiệt).</li>
+            <li><strong>Khâu I và C:</strong> Tích lũy năng lượng khả hồi ($E_I = \frac{1}{2I}p^2$, $E_C = \frac{1}{2C}q^2$). Khâu R chuyển hóa năng lượng thành nhiệt lượng không hồi phục ($P_R = R f^2$).</li>
+            <li><strong>Khâu ghép nối TF & GY:</strong> Transformer bảo toàn biến cùng loại ($e_1 = n e_2$), Gyrator hoán đổi nỗ lực thành dòng chảy ($e_1 = r f_2$).</li>
+          </ol>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+          <h4>Câu hỏi tự luyện 1.1: Mạch thủy lực máy ép phanh</h4>
+          <p>
+            Một piston thủy lực có diện tích mặt cắt ngang $A = 0.02\text{ m}^2$, áp suất dầu cung cấp $P_{oil} = 5.0\text{ MPa}$.
+            Piston đẩy khối tải $m = 800\text{ kg}$ chuyển động với vận tốc $v = 0.15\text{ m/s}$.
+          </p>
+          <p>
+            <strong>Yêu cầu:</strong>
+            1) Xác định khâu ghép nối giữa miền thủy lực và miền cơ khí là Transformer hay Gyrator? Viết phương trình ghép nối.
+            2) Tính lưu lượng thể tích dầu $Q_{oil}\text{ [L/min]}$ và lực cơ học $F_{mech}\text{ [kN]}$.
+            3) Kiểm chứng tính bảo toàn công suất tức thời $P_{fluid} = P_{mech}$.
+          </p>
+        </div>
+      </section>
+
+      <!-- Pagination Footer -->
+      <nav class="chapter-pagination">
+        <a href="../index.html" class="pagination-link prev">
+          <span class="pagination-sub">Trang trước</span>
+          <span class="pagination-title">← Portal Hub Tổng Quan</span>
+        </a>
+        <a href="ch02.html" class="pagination-link next">
+          <span class="pagination-sub">Trang sau</span>
+          <span class="pagination-title">Chương 02: Động Học Hệ Cơ Khí & Cơ Cấu Khép Kín →</span>
+        </a>
+      </nav>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p><strong>Analytical System Dynamics: Modeling and Simulation</strong> · Giáo trình chuyên khảo cao học Springer</p>
+      <p>Tác giả: <strong>GS. Brian C. Fabien</strong> (University of Washington) • Biên soạn: Viện Tri Thức Robotics</p>
+      <div style="margin-top: 0.75rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="../index.html" class="card-action-link">← Về Portal Hub ASD</a>
+        <span style="color: var(--text-subtle);">•</span>
+        <a href="../../index.html" class="card-action-link">Trang Chủ Master Robotics Portals ↗</a>
+      </div>
+    </div>
+  </footer>
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>
