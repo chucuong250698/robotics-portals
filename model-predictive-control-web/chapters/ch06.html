@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 06: Distributed Model Predictive Control (DMPC) - Model Predictive Control Portal</title>
+  <meta name="description" content="Lý thuyết trò chơi 2 và M tác tử, cân bằng Nash, tối ưu Pareto, thuật toán lặp Jacobi/Gauss-Seidel và điều khiển bầy đàn đa robot an toàn.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 5: Hệ Thống Phân Tán</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 06</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+        <span class="sidebar-badge">9 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-6-1"><span class="nav-text">6.1 Giới Thiệu Điều Khiển Phân Tán (DMPC)</span></a></div>
+<div class="nav-item"><a href="#sec-6-2"><span class="nav-text">6.2 Bài Toán Trò Chơi 2 Tác Tử Không Ràng Buộc</span></a></div>
+<div class="nav-item"><a href="#sec-6-3"><span class="nav-text">6.3 Bài Toán Trò Chơi 2 Tác Tử Có Ràng Buộc</span></a></div>
+<div class="nav-item"><a href="#sec-6-4"><span class="nav-text">6.4 Bài Toán Trò Chơi M Tác Tử (Đa Robot)</span></a></div>
+<div class="nav-item"><a href="#sec-6-5"><span class="nav-text">6.5 DMPC Phi Tuyến: Cân Bằng Nash vs Tối Ưu Pareto</span></a></div>
+<div class="nav-item"><a href="#sec-6-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Giao Tiếp Jacobi Tránh Va Chạm</span></a></div>
+<div class="nav-item"><a href="#sec-6-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Đa Robot Phân Tán</span></a></div>
+<div class="nav-item"><a href="#sec-6-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (Zenoh / CycloneDDS Swarm)</span></a></div>
+<div class="nav-item"><a href="#sec-6-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 5: HỆ THỐNG PHÂN TÁN</div>
+        <h1>Chương 06: Chương 06: Distributed Model Predictive Control (DMPC)</h1>
+        <p class="chapter-subtitle">Lý thuyết trò chơi 2 và M tác tử, cân bằng Nash, tối ưu Pareto, thuật toán lặp Jacobi/Gauss-Seidel và điều khiển bầy đàn đa robot an toàn.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-6-1">
+  <h4>💡 TẠI SAO KHÔNG THỂ DÙNG MPC TẬP TRUNG CHO HÀNG TRĂM ROBOT BẦY ĐÀN?</h4>
+  <p>Hãy tưởng tượng một nhà kho thông minh với 200 robot AGV hoặc một phi đội 50 máy bay không người lái (Drones). Nếu dùng <strong>MPC tập trung (Centralized MPC)</strong>:</p>
+  <ul>
+    <li>Một máy chủ trung tâm phải giải bài toán tối ưu hóa với hàng chục ngàn biến trạng thái và ràng buộc trong thời gian thực $50\text{ ms}$ — điều bất khả thi về mặt tính toán!</li>
+    <li>Mạng không dây bị nghẽn băng thông và độ trễ ngẫu nhiên; nếu máy chủ trung tâm mất kết nối, toàn bộ đội hình sẽ tê liệt (Single Point of Failure).</li>
+  </ul>
+  <p><strong>Distributed Model Predictive Control (DMPC)</strong> trong Chương 6 của Rawlings, Mayne &amp; Diehl (trang 369–450) phân chia bài toán khổng lồ này thành các bài toán tối ưu hóa cục bộ nhỏ chạy song song ngay trên vi xử lý của từng robot, giao tiếp chia sẻ quỹ đạo qua mạng để đạt được sự đồng thuận an toàn!</p>
+</div>
+
+<h4 id="sec-6-2">6.2 Cấu Trúc Trò Chơi Toán Học (Game Theory &amp; Nash Equilibrium)</h4>
+<p>Xét $M$ hệ thống con (Subsystems/Robots), mỗi hệ có động lực học riêng $x_{i,k+1} = f_i(x_{i,k}, u_{i,k})$. Các tác tử tương tác với nhau thông qua trạng thái hoặc ràng buộc chung (ví dụ: khoảng cách giữa 2 robot $|p_i - p_j| \ge d_{\min}$):</p>
+<div class="formula-hero">
+  <div class="formula-title">HÀM MỤC TIÊU PHÂN TÁN HỢP TÁC (COOPERATIVE DMPC)</div>
+  <div class="formula-math">
+    $$J_i(\mathbf{u}_i, \mathbf{u}_{-i}) = \sum_{k=0}^{N-1} \ell_i(x_{i,k}, u_{i,k}, x_{-i,k}) + V_{f,i}(x_{i,N})$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $\mathbf{u}_i$ là chuỗi điều khiển của robot $i$; $\mathbf{u}_{-i}$ là chuỗi điều khiển của tất cả các robot lân cận khác trong tầm liên lạc.
+  </div>
+</div>
+
+<p><strong>Hai chiến lược giải bài toán phân tán:</strong></p>
+<ul>
+  <li><strong>Thuật toán lặp Jacobi (Song song):</strong> Tại mỗi vòng lặp $p$, tất cả robot đồng thời giải bài toán MPC dựa trên quỹ đạo dự báo của hàng xóm ở vòng $(p-1)$, sau đó đồng loạt phát sóng quỹ đạo mới qua mạng.</li>
+  <li><strong>Thuật toán lặp Gauss-Seidel (Tuần tự):</strong> Robot 1 giải trước, gửi kết quả cho Robot 2, Robot 2 giải tiếp dựa trên thông tin mới nhất của Robot 1. Hội tụ nhanh hơn nhưng cần giao thức thứ tự ưu tiên.</li>
+</ul>
+
+<h4 id="sec-6-5">6.5 Tính Ổn Định Của DMPC Dựa Trên Suboptimal MPC</h4>
+<p>GS. Rawlings chứng minh một định lý then chốt: các tác tử không cần phải lặp vô hạn lần để đạt được nghiệm tối ưu Pareto chính xác. Chỉ cần áp dụng chiến lược <strong>Suboptimal DMPC</strong> với 1 hoặc 2 vòng lặp trao đổi thông tin mỗi chu kỳ, miễn là hàm mục tiêu tổng thể $\sum J_i$ thỏa mãn điều kiện suy giảm Lyapunov, toàn bộ đàn robot chắc chắn sẽ hội tụ ổn định và không bao giờ va chạm vào nhau!</p>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-6-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 TÍNH TOÁN 2 ROBOT ĐÀM PHÁN PHÂN TÁN TRÁNH VA CHẠM TẠI GIAO LỘ</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Hai xe robot $R_1$ và $R_2$ di chuyển đến giao lộ. Robot 1 đi từ Tây sang Đông: $p_1(k+1) = p_1(k) + u_1(k)$ ($p_1(0) = -2$). Robot 2 đi từ Nam sang Bắc: $p_2(k+1) = p_2(k) + u_2(k)$ ($p_2(0) = -2$). Giao lộ đặt tại gốc $(0, 0)$. Chân trời $N = 2$. Vận tốc tối đa $u \in [0, 1.5]$.</p>
+    <p>Ràng buộc tránh va chạm tại giao lộ: không được cùng có mặt trong vùng nguy hiểm $[-0.5, 0.5]$ tại cùng một bước thời gian.</p>
+    <p>Áp dụng thuật toán Jacobi phân tán trong 2 vòng lặp để tìm chuỗi điều khiển hợp tác.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Vòng lặp p = 0 (Khởi tạo kế hoạch danh nghĩa độc lập)</span>
+      </div>
+      <div class="step-content">
+        <p>Nếu không có nhau, cả hai đều muốn chạy nhanh nhất tới đích: $u_1 = [1.2, 1.0]^\top$, $u_2 = [1.2, 1.0]^\top$.</p>
+        <p>Quỹ đạo dự báo: $p_1 = [-2, -0.8, 0.2]^\top$; $p_2 = [-2, -0.8, 0.2]^\top$.</p>
+        <p>Phát hiện xung đột: Tại bước $k=2$, cả hai xe đều có tọa độ $0.2 \in [-0.5, 0.5]$ $\implies$ NGUY CƠ VA CHẠM ĐÂM NHAU!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Vòng lặp p = 1 (Trao đổi thông tin & Nhường đường phân tán)</span>
+      </div>
+      <div class="step-content">
+        <p>Hai xe trao đổi quỹ đạo qua mạng không dây. Dựa trên quy tắc ưu tiên giao thông (Robot 1 có chi phí trễ hẹn cao hơn), Robot 2 chủ động giải bài toán tránh va chạm bằng cách giảm tốc:</p>
+        $$u_2^{(1)} = [0.8, 0.8]^\top \implies p_2 = [-2, -1.2, -0.4]^\top$$
+        <p>Trong khi đó Robot 1 tăng tốc nhẹ: $u_1^{(1)} = [1.3, 1.1]^\top \implies p_1 = [-2, -0.7, 0.4]^\top$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Vòng lặp p = 2 (Đồng thuận quỹ đạo an toàn)</span>
+      </div>
+      <div class="step-content">
+        <p>Kiểm tra khoảng cách tại bước $k=2$: Robot 1 đã vượt qua điểm nguy hiểm ($p_1 = 0.4$), trong khi Robot 2 còn cách giao lộ ($p_2 = -0.4$).</p>
+        <p>Khoảng cách khoảng cách hình học $\sqrt{0.4^2 + (-0.4)^2} = 0.566 \ge d_{\min} = 0.5$. Ràng buộc va chạm được tôn trọng an toàn!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Thực thi chân trời lùi</span>
+      </div>
+      <div class="step-content">
+        <p>Robot 1 phát lệnh động cơ $u_1^* = 1.3\text{ m/s}$. Robot 2 phát lệnh động cơ $u_2^* = 0.8\text{ m/s}$. Cả hai giải quyết bài toán giao lộ mượt mà mà không cần bất kỳ máy tính trung tâm nào!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-6-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 MÔ PHỎNG DMPC ĐA ROBOT TRÁNH VA CHẠM QUA MẠNG</h3>
+    <p class="sim-desc">Quan sát Robot R1 (Xanh dương) và R2 (Xanh lục) di chuyển cắt ngang nhau. Đường nét đứt màu cam thể hiện liên kết truyền thông DMPC; khi đến gần, cả hai tự động bẻ lái nhường đường.</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch06" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-6-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 (Zenoh / CycloneDDS Swarm)</h4>
+  <p>Kiến trúc bầy đàn robot trong ROS 2 triển khai DMPC phân tán:</p>
+  <ul>
+    <li>Mỗi robot chạy một node <code>dmpc_agent_node</code> độc lập trên máy tính nhúng cục bộ (Nvidia Jetson Orin / Raspberry Pi 5).</li>
+    <li>Giao thức truyền thông <strong>Eclipse Zenoh</strong> hoặc <strong>CycloneDDS</strong> với chế độ khám phá ngang hàng (Peer-to-Peer Discovery). Topic <code>/swarm/robot_{id}/predicted_traj</code> phát sóng mảng điểm quỹ đạo 10 bước kế tiếp với tần số $20\text{ Hz}$.</li>
+    <li>Nếu một robot bị mất mạng hoặc mất nguồn, các robot còn lại xem robot đó như một vật cản tĩnh và tiếp tục tự thích ứng mà toàn hệ thống không bao giờ bị dừng hoạt động.</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-6-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 06</h4>
+  <p>DMPC là chìa khóa mở đường cho kỷ nguyên robot bầy đàn và đô thị thông minh. Bằng cách phân tán năng lực tính toán và chia sẻ quỹ đạo qua mạng, bài toán tối ưu hóa quy mô lớn trở nên khả thi và có độ bền bỉ cực cao trước các sự cố phần cứng.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch05.html" class="btn btn-secondary">← Chương 05: Output MPC</a>
+        <a href="ch07.html" class="btn btn-primary">Chương 07: Explicit MPC →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

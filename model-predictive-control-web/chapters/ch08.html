@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 08: Tối Ưu Hóa Số Trong NMPC & Thư Viện CasADi - Model Predictive Control Portal</title>
+  <meta name="description" content="Vi phân tự động CasADi, Direct Multiple Shooting giải KKT thưa dải, thuật toán Real-Time Iteration (RTI) và solver acados nhúng xe tự hành.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 6: Tính Toán Nhúng & Tối Ưu Số</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 08</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 08</span>
+        <span class="sidebar-badge">11 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-8-1"><span class="nav-text">8.1 Giới Thiệu Tối Ưu Hóa Số Trong NMPC</span></a></div>
+<div class="nav-item"><a href="#sec-8-2"><span class="nav-text">8.2 Mô Phỏng Số Động Lực Học (Runge-Kutta & Collocation)</span></a></div>
+<div class="nav-item"><a href="#sec-8-3"><span class="nav-text">8.3 Giải Hệ Phương Trình Phi Tuyến (Newton-Type Methods)</span></a></div>
+<div class="nav-item"><a href="#sec-8-4"><span class="nav-text">8.4 Đạo Hàm Số, Vi Phân Tự Động & Thư Viện CasADi</span></a></div>
+<div class="nav-item"><a href="#sec-8-5"><span class="nav-text">8.5 Bắn Phát Trực Tiếp: Single Shooting vs Multiple Shooting</span></a></div>
+<div class="nav-item"><a href="#sec-8-6"><span class="nav-text">8.6 Tối Ưu Hóa Phi Tuyến (SQP - Sequential Quadratic Programming)</span></a></div>
+<div class="nav-item"><a href="#sec-8-7"><span class="nav-text">8.7 Thuật Toán Thời Gian Thực RTI (Real-Time Iteration)</span></a></div>
+<div class="nav-item"><a href="#sec-8-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Một Bước Lặp Direct Multiple Shooting</span></a></div>
+<div class="nav-item"><a href="#sec-8-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Single vs Multiple Shooting</span></a></div>
+<div class="nav-item"><a href="#sec-8-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (acados / CasADi NMPC)</span></a></div>
+<div class="nav-item"><a href="#sec-8-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: TÍNH TOÁN NHÚNG & TỐI ƯU SỐ</div>
+        <h1>Chương 08: Chương 08: Tối Ưu Hóa Số Trong NMPC & Thư Viện CasADi</h1>
+        <p class="chapter-subtitle">Vi phân tự động CasADi, Direct Multiple Shooting giải KKT thưa dải, thuật toán Real-Time Iteration (RTI) và solver acados nhúng xe tự hành.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-8-1">
+  <h4>💡 TRÁI TIM CỦA ROBOT HIỆN ĐẠI: NMPC THỜI GIAN THỰC BẰNG CASADI &amp; ACADOS</h4>
+  <p>Hầu hết các hệ thống robot tiên tiến nhất ngày nay — từ robot 4 chân nhảy vượt chướng ngại vật (Boston Dynamics Spot, Unitree), xe tự hành đua ở tốc độ $250\text{ km/h}$ (Indy Autonomous Challenge), đến tên lửa tự hạ cánh thẳng đứng của SpaceX — đều là <strong>hệ thống phi tuyến cao (Highly Nonlinear)</strong>.</p>
+  <p>Chương 8 của giáo trình (do <strong>GS. Moritz Diehl</strong> — tác giả lừng danh của công cụ tối ưu hóa tự động <strong>CasADi</strong> và solver siêu nhanh <strong>acados</strong> chủ biên, trang 491–623) là tài liệu chuẩn mực thế giới giải phẫu toàn bộ các thuật toán tính toán số đằng sau NMPC hiện đại: <strong>Direct Multiple Shooting</strong>, <strong>Sequential Quadratic Programming (SQP)</strong>, và kỹ thuật đột phá <strong>Real-Time Iteration (RTI)</strong>!</p>
+</div>
+
+<h4 id="sec-8-4">8.4 Vi Phân Tự Động (Algorithmic Differentiation - AD) &amp; Phần Mềm CasADi</h4>
+<p>Để giải bài toán tối ưu hóa phi tuyến (NLP), máy tính cần tính chính xác ma trận đạo hàm bậc nhất (Jacobian) và ma trận đạo hàm bậc hai (Hessian). Sai phân hữu hạn (Finite Differences) vừa chậm vừa bị lỗi làm tròn. Kỹ thuật <strong>Vi phân tự động (AD)</strong> áp dụng quy tắc đạo hàm hàm hợp (Chain Rule) trực tiếp trên đồ thị tính toán của mã nguồn máy tính, cho kết quả đạo hàm chính xác tuyệt đối đến độ chính xác máy tính ($10^{-16}$) mà thời gian tính toán chỉ gấp $2 - 4$ lần thời gian tính hàm gốc!</p>
+<p>GS. Moritz Diehl và các cộng sự đã đóng gói công nghệ này vào thư viện mã nguồn mở <strong>CasADi</strong>, cho phép các kỹ sư định nghĩa phương trình vi phân bằng Python/C++ và tự động sinh mã solver C siêu tối ưu.</p>
+
+<h4 id="sec-8-5">8.5 Tham Số Hóa Trực Tiếp: Single Shooting vs Direct Multiple Shooting</h4>
+<p>Tại sao <strong>Direct Multiple Shooting (Bock &amp; Plitt)</strong> hoàn toàn đánh bại Single Shooting trong NMPC?</p>
+<table class="comparison-table">
+  <thead>
+    <tr>
+      <th>Tiêu chí</th>
+      <th>Direct Single Shooting</th>
+      <th>Direct Multiple Shooting (GS. Diehl)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Biến tối ưu</strong></td>
+      <td>Chỉ gồm chuỗi điều khiển $\mathbf{u} = [u_0, \dots, u_{N-1}]$</td>
+      <td>Gồm cả trạng thái nút và điều khiển: $\mathbf{w} = [s_0, u_0, s_1, u_1, \dots, s_N]$</td>
+    </tr>
+    <tr>
+      <td><strong>Tính nhạy cảm</strong></td>
+      <td>Sai số tích phân tích lũy theo hàm mũ $e^{\sigma T}$, dễ nổ quỹ đạo khi hệ bất ổn định</td>
+      <td>Tích phân độc lập trên từng đoạn $[t_k, t_{k+1}]$, triệt tiêu sự bùng nổ phi tuyến</td>
+    </tr>
+    <tr>
+      <td><strong>Cấu trúc ma trận</strong></td>
+      <td>Ma trận Hessian đặc (Dense), khó giải nhanh</td>
+      <td>Ma trận KKT thưa dải (Block-banded), giải cực nhanh qua đệ quy Riccati $O(N)$!</td>
+    </tr>
+    <tr>
+      <td><strong>Song song hóa</strong></td>
+      <td>Tuần tự, không thể song song</td>
+      <td>Tích phân $N$ chặng hoàn toàn độc lập trên CPU đa nhân / GPU</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="sec-8-7">8.7 Kỹ Thuật Lặp Thời Gian Thực (Real-Time Iteration - RTI Scheme)</h4>
+<p>Trong điều khiển trực tuyến, xe tự hành không thể chờ solver SQP lặp 20 vòng để hội tụ. Kỹ thuật <strong>RTI Scheme của GS. Diehl</strong> chia mỗi chu kỳ điều khiển thành 2 pha:</p>
+<div class="formula-hero">
+  <div class="formula-title">SƠ ĐỒ 2 PHA REAL-TIME ITERATION (RTI)</div>
+  <div class="formula-math">
+    $$\text{Pha Chuẩn Bị (Preparation Phase)} \longrightarrow \text{Pha Phản Hồi (Feedback Phase: } \lt 0.5\text{ ms)}$$
+  </div>
+  <div class="formula-legend">
+    1. <strong>Pha Chuẩn bị (Offline trước chu kỳ):</strong> Tích phân mô hình phi tuyến, tính toán ma trận Jacobian và xấp xỉ Gauss-Newton Hessian dọc theo quỹ đạo dự báo.<br>
+    2. <strong>Pha Phản hồi (Ngay khi có phép đo $x_0$):</strong> Chỉ giải đúng <strong>1 bài toán QP duy nhất</strong> và truyền ngay tín hiệu điều khiển $u_0^*$ ra cơ cấu chấp hành trong vòng dưới $0.5\text{ ms}$!
+  </div>
+</div>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-8-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 MỘT BƯỚC LẶP DIRECT MULTIPLE SHOOTING CHO HỆ PHI TUYẾN</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét mô hình con lắc đơn phi tuyến: $\dot{\theta} = \omega$, $\dot{\omega} = \sin\theta + u$.</p>
+    <p>Áp dụng Direct Multiple Shooting với $N = 2$ đoạn, các nút trạng thái $s_0, s_1, s_2$ và lệnh điều khiển $q_0, q_1$.</p>
+    <p>1) Thiết lập các ràng buộc liên tục (Continuity Constraints) $s_{k+1} - \phi(s_k, q_k) = 0$.<br>
+    2) Viết cấu trúc hệ ma trận KKT thưa dải của bước lặp SQP Gauss-Newton.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Rời rạc hóa từng phân đoạn (Integrator Step)</span>
+      </div>
+      <div class="step-content">
+        <p>Sử dụng phương pháp Euler hoặc Runge-Kutta 4 (RK4) để tính hàm chuyển dịch trạng thái $\phi(s_k, q_k)$ trên khoảng thời gian $\Delta t$:</p>
+        $$\phi(s_k, q_k) = s_k + \Delta t \cdot f(s_k, q_k)$$
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Thiết lập hệ phương trình ràng buộc liên tục</span>
+      </div>
+      <div class="step-content">
+        <p>Ràng buộc trạng thái ban đầu: $s_0 - \hat{x}_0 = 0$.</p>
+        <p>Ràng buộc liên tục giữa chặng 0 và 1: $s_1 - \phi(s_0, q_0) = 0$.</p>
+        <p>Ràng buộc liên tục giữa chặng 1 và 2: $s_2 - \phi(s_1, q_1) = 0$.</p>
+        <p>Đặc điểm đột phá: trong các bước lặp trung gian của SQP, các nút $s_k$ có thể "hở" ra (chưa liên tục), giúp bộ giải tự do tìm đường đi mà không bị nghẽn cục bộ!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Cấu trúc hệ ma trận KKT thưa dải</span>
+      </div>
+      <div class="step-content">
+        <p>Tuyến tính hóa các ràng buộc liên tục thu được ma trận Jacobi dạng đường chéo khối:</p>
+        $$A_k = \frac{\partial \phi}{\partial s_k}, \quad B_k = \frac{\partial \phi}{\partial q_k}$$
+        <p>Hệ KKT có dạng ma trận khối tam giác dải đặc trưng (Band-diagonal structure), cho phép giải bằng thuật toán đệ quy Riccati với độ phức tạp tính toán tuyến tính $O(N)$ thay vì $O(N^3)$!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Cập nhật nghiệm Gauss-Newton</span>
+      </div>
+      <div class="step-content">
+        <p>Sau khi giải hệ QP con, cập nhật nghiệm mới: $s_k^{(i+1)} = s_k^{(i)} + \Delta s_k$, $q_k^{(i+1)} = q_k^{(i)} + \Delta q_k$. Thuật toán đạt tốc độ hội tụ siêu tuyến tính (Superlinear Convergence).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-8-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 MÔ PHỎNG SO SÁNH: SINGLE SHOOTING VS DIRECT MULTIPLE SHOOTING</h3>
+    <p class="sim-desc">Nhấp nút chuyển đổi chế độ để chứng kiến sự khác biệt: Single Shooting (đường đỏ) bị mất ổn định hàm mũ khi hệ nhạy cảm, trong khi Multiple Shooting (đường xanh lá) chia nhỏ bài toán thành các chặng độc lập cực kỳ bền vững.</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch08" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+
+  <div class="sim-controls" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; justify-content: center;">
+    <button id="btn-toggle-ch08-mode" class="btn btn-secondary">Chuyển sang: Single Shooting</button>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-8-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 &amp; ACADOS C++ NMPC SOLVER</h4>
+  <p>Triển khai NMPC hiệu năng cao trên xe đua tự hành <strong>F1TENTH</strong> và robot 4 chân:</p>
+  <ul>
+    <li>Mô hình động lực học bánh xe phi tuyến Pacejka được xây dựng bằng Python CasADi, sau đó xuất ra mã nguồn C thuần túy thông qua <strong>acados code generator</strong>.</li>
+    <li>Mã nguồn C được biên dịch thành thư viện chia sẻ nhúng trực tiếp vào ROS 2 Node <code>nmpc_racing_controller</code>.</li>
+    <li>Thuật toán Real-Time Iteration giải xong bài toán chân trời $N=30$ chỉ trong <strong>3.2 ms</strong> trên máy tính nhúng Nvidia Jetson AGX Orin, điều khiển xe vào cua an toàn ở tốc độ $18\text{ m/s}$!</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-8-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 08</h4>
+  <p>Numerical Optimal Control là đỉnh cao kết nối giữa toán học thuần túy và ứng dụng công nghiệp thực chiến. CasADi, Direct Multiple Shooting và Real-Time Iteration đã giải phóng toàn bộ tiềm năng của Nonlinear MPC, biến những bài toán điều khiển phi tuyến phức tạp nhất thành hiện thực thời gian thực.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch07.html" class="btn btn-secondary">← Chương 07: Explicit MPC</a>
+        <a href="appendix-a.html" class="btn btn-primary">Phụ Lục A: Cơ Sở Toán Học →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

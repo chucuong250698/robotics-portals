@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Bắt Đầu Với Điều Khiển Dự Báo Mô Hình (MPC) - Model Predictive Control Portal</title>
+  <meta name="description" content="Định nghĩa chuẩn Receding Horizon, mô hình không gian trạng thái rời rạc, bài toán LQR, quy hoạch động Bellman và phương trình Riccati DARE.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Nền Tảng & LQR</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 01</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+        <span class="sidebar-badge">9 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-1-1"><span class="nav-text">1.1 Giới Thiệu & Triết Lý Receding Horizon</span></a></div>
+<div class="nav-item"><a href="#sec-1-2"><span class="nav-text">1.2 Mô Hình Hóa Hệ Thống Động Học</span></a></div>
+<div class="nav-item"><a href="#sec-1-3"><span class="nav-text">1.3 Bộ Điều Tiết Tuyến Tính MPC (LQR & DP)</span></a></div>
+<div class="nav-item"><a href="#sec-1-4"><span class="nav-text">1.4 Ước Lượng Trạng Thái Mở Đầu</span></a></div>
+<div class="nav-item"><a href="#sec-1-5"><span class="nav-text">1.5 Bám Quỹ Đạo, Nhiễu & Khử Sai Lệch Tĩnh</span></a></div>
+<div class="nav-item"><a href="#sec-1-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Double Integrator</span></a></div>
+<div class="nav-item"><a href="#sec-1-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Double Integrator</span></a></div>
+<div class="nav-item"><a href="#sec-1-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (mpc_regulator)</span></a></div>
+<div class="nav-item"><a href="#sec-1-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 1: NỀN TẢNG & LQR</div>
+        <h1>Chương 01: Chương 01: Bắt Đầu Với Điều Khiển Dự Báo Mô Hình (MPC)</h1>
+        <p class="chapter-subtitle">Định nghĩa chuẩn Receding Horizon, mô hình không gian trạng thái rời rạc, bài toán LQR, quy hoạch động Bellman và phương trình Riccati DARE.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-1-1">
+  <h4>💡 TẠI SAO MPC LÀ ĐỈNH CAO CỦA ĐIỀU KHIỂN TỰ ĐỘNG HIỆN ĐẠI?</h4>
+  <p>Trong hơn 7 thập kỷ qua, kỹ thuật điều khiển công nghiệp chủ yếu dựa vào bộ điều khiển <strong>PID</strong> (cho từng vòng lặp đơn biến) và <strong>LQR</strong> (cho hệ đa biến tuyến tính). Tuy nhiên, cả PID và LQR đều <em>bất lực</em> trước các <strong>ràng buộc vật lý cứng (Hard Physical Constraints)</strong> như: góc lái bánh xe không thể vượt quá $\pm 35^\circ$, điện áp động cơ bão hòa ở $24\text{ V}$, dòng điện cực đại tránh cháy cuộn dây, hoặc khoảng cách an toàn tránh vật cản.</p>
+  <p><strong>Điều Khiển Dự Báo Mô Hình (Model Predictive Control - MPC)</strong> ra đời giải quyết rốt ráo bế tắc này bằng triết lý: tại mỗi chu kỳ lấy mẫu, bộ điều khiển giải bài toán <strong>tối ưu hóa quỹ đạo trong tương lai trên một chân trời hữu hạn (Receding Horizon)</strong> dưới mọi ràng buộc cứng, chỉ áp dụng lệnh điều khiển đầu tiên $u_0^*$, và lặp lại chu trình tại thời điểm kế tiếp!</p>
+</div>
+
+<h4 id="sec-1-2">1.2 Mô Hình Hóa Hệ Thống Động Học & Ràng Buộc Vật Lý</h4>
+<p>Nền tảng của MPC là sử dụng một mô hình toán học tường minh để dự báo hành vi tương lai của đối tượng. Trong khuôn khổ giáo trình GS. Rawlings, Mayne &amp; Diehl (Chương 1, trang 1–11), hệ thống được mô tả ở dạng rời rạc thời gian:</p>
+<div class="formula-hero">
+  <div class="formula-title">MÔ HÌNH KHÔNG GIAN TRẠNG THÁI RỜI RẠC THỜI GIAN TUYẾN TÍNH (LTI)</div>
+  <div class="formula-math">
+    $$x_{k+1} = A x_k + B u_k, \quad y_k = C x_k + D u_k$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $x_k \in \mathbb{R}^n$ là vectơ trạng thái; $u_k \in \mathbb{R}^m$ là vectơ tín hiệu điều khiển; $y_k \in \mathbb{R}^p$ là vectơ đầu ra đo lường; $A, B, C, D$ là các ma trận hệ thống được rời rạc hóa từ phương trình vi phân liên tục $\dot{x} = A_c x + B_c u$ qua chu kỳ lấy mẫu $\Delta t$ (Zero-Order Hold).
+  </div>
+</div>
+
+<p><strong>Các dạng ràng buộc vật lý cơ bản:</strong></p>
+<ul>
+  <li><strong>Ràng buộc điều khiển (Actuator Constraints):</strong> $u_k \in \mathcal{U} = \{u \in \mathbb{R}^m \mid u_{\min} \le u \le u_{\max}\}$, mô tả giới hạn công suất động cơ, điện áp pin hoặc hành trình van.</li>
+  <li><strong>Ràng buộc tốc độ biến thiên (Slew Rate Constraints):</strong> $\Delta u_k = u_k - u_{k-1} \in \Delta\mathcal{U}$, tránh hiện tượng giật cục cơ khí (Jerk).</li>
+  <li><strong>Ràng buộc trạng thái (State Constraints):</strong> $x_k \in \mathcal{X} = \{x \in \mathbb{R}^n \mid H_x x \le h_x\}$, bảo đảm xe không trượt khỏi làn đường, nhiệt độ lò không vượt ngưỡng an toàn.</li>
+</ul>
+
+<h4 id="sec-1-3">1.3 Bộ Điều Tiết MPC Tuyến Tính Căn Bản (LQR &amp; Dynamic Programming)</h4>
+<p>Xét bài toán điều tiết đưa trạng thái từ $x_0$ về gốc tọa độ $0$ trên chân trời dự báo $N$. Hàm mục tiêu toàn phương được định nghĩa:</p>
+<div class="formula-hero">
+  <div class="formula-title">BÀI TOÁN TỐI ƯU HÓA MPC HỮU HẠN CHÂN TRỜI N</div>
+  <div class="formula-math">
+    $$V_N(x) = \min_{\mathbf{u}} \left\{ \frac{1}{2} x_N^\top P x_N + \frac{1}{2} \sum_{k=0}^{N-1} \left( x_k^\top Q x_k + u_k^\top R u_k \right) \right\}$$
+  </div>
+  <div class="formula-legend">
+    Ràng buộc: $x_{k+1} = A x_k + B u_k$, $u_k \in \mathcal{U}$, $x_k \in \mathcal{X}$. Ma trận trọng số $Q \succeq 0$ (phạt sai lệch trạng thái), $R \succ 0$ (phạt năng lượng điều khiển), và $P \succeq 0$ là ma trận chi phí đầu cuối (Terminal Cost Matrix).
+  </div>
+</div>
+
+<p>Khi không có ràng buộc ($\mathcal{U} = \mathbb{R}^m, \mathcal{X} = \mathbb{R}^n$), bài toán có nghiệm giải tích tường minh qua <strong>Quy hoạch động Bellman (Dynamic Programming)</strong> và dẫn đến luật phản hồi trạng thái tuyến tính:</p>
+<div class="formula-hero">
+  <div class="formula-title">LUẬT ĐIỀU KHIỂN LQR &amp; PHƯƠNG TRÌNH RICCATI SAI PHÂN (DARE)</div>
+  <div class="formula-math">
+    $$u_k^* = -K x_k, \quad K = (R + B^\top P B)^{-1} B^\top P A$$
+    $$P = A^\top P A - A^\top P B (R + B^\top P B)^{-1} B^\top P A + Q$$
+  </div>
+</div>
+
+<h4 id="sec-1-4">1.4 Ước Lượng Trạng Thái Mở Đầu (State Estimation)</h4>
+<p>Trong thực tế, vectơ trạng thái đầy đủ $x_k$ không thể đo lường trực tiếp mà chỉ thu nhận được tín hiệu cảm biến đầu ra $y_k = C x_k + v_k$ bị lẫn nhiễu đo $v_k$. Do đó, hệ thống MPC cần một bộ ước lượng trạng thái $\hat{x}_k$:</p>
+<ul>
+  <li><strong>Bộ quan sát Luenberger:</strong> $\hat{x}_{k+1} = A \hat{x}_k + B u_k + L (y_k - C \hat{x}_k)$, trong đó $L$ được thiết kế để các cực của $(A - LC)$ nằm nghiêm ngặt trong đường tròn đơn vị phức ($|\lambda| \lt 1$).</li>
+  <li><strong>Bộ lọc Kalman Rời rạc (KF):</strong> Ước lượng tối ưu phương sai nhỏ nhất khi nhiễu quá trình $w_k \sim \mathcal{N}(0, Q_w)$ và nhiễu đo $v_k \sim \mathcal{N}(0, R_v)$ là nhiễu trắng Gauss.</li>
+</ul>
+
+<h4 id="sec-1-5">1.5 Bám Quỹ Đạo, Nhiễu &amp; Khử Sai Lệch Tĩnh (Offset-Free Tracking)</h4>
+<p>Để bám theo điểm đặt mong muốn $y_{sp} \neq 0$ mà không bị sai lệch tĩnh khi có nhiễu phụ tải $d$, bài toán được phân rã thành hai tầng:</p>
+<ol>
+  <li><strong>Tầng tính toán mục tiêu cân bằng (Target Calculator):</strong> Giải hệ phương trình tĩnh để tìm cặp $(x_s, u_s)$ thỏa mãn $x_s = A x_s + B u_s + B_d \hat{d}$ và $y_{sp} = C x_s + C_d \hat{d}$.</li>
+  <li><strong>Tầng MPC điều tiết sai lệch:</strong> Đưa sai số $\tilde{x}_k = x_k - x_s$ và $\tilde{u}_k = u_k - u_s$ về $0$.</li>
+</ol>
+
+<!-- 4-Layer: Worked Example -->
+<div class="exercise-box" id="sec-1-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 TÍNH TOÁN BỘ ĐIỀU TIẾT MPC CHO HỆ TÍCH PHÂN KÉP (DOUBLE INTEGRATOR)</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét xe tự hành 1D mô hình tích phân kép với vị trí $p$ và vận tốc $v$, trạng thái $x = [p, v]^\top$. Rời rạc hóa với chu kỳ lấy mẫu $\Delta t = 1\text{ s}$:</p>
+    $$A = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}, \quad B = \begin{bmatrix} 0.5 \\ 1 \end{bmatrix}$$
+    <p>Trọng số sai lệch $Q = \text{diag}(2, 1)$, trọng số lực $R = 1$. Chân trời dự báo $N = 2$. Trạng thái ban đầu đo được là $x_0 = [2, 0]^\top$. Giới hạn lực đẩy $|u| \le 1.5\text{ N}$. Giả sử ma trận đầu cuối $P$ được chọn là nghiệm Riccati vô hạn $P_\infty = \begin{bmatrix} 3.414 & 2.414 \\ 2.414 & 3.414 \end{bmatrix}$.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Dự báo trạng thái qua chuỗi điều khiển $\mathbf{u} = [u_0, u_1]^\top$</span>
+      </div>
+      <div class="step-content">
+        <p>Biểu diễn trạng thái tại các bước $k=1, 2$ theo $x_0$ và $u_0, u_1$:</p>
+        $$x_1 = A x_0 + B u_0 = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 2 \\ 0 \end{bmatrix} + \begin{bmatrix} 0.5 \\ 1 \end{bmatrix} u_0 = \begin{bmatrix} 2 + 0.5 u_0 \\ u_0 \end{bmatrix}$$
+        $$x_2 = A x_1 + B u_1 = \begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 2 + 0.5 u_0 \\ u_0 \end{bmatrix} + \begin{bmatrix} 0.5 \\ 1 \end{bmatrix} u_1 = \begin{bmatrix} 2 + 1.5 u_0 + 0.5 u_1 \\ u_0 + u_1 \end{bmatrix}$$
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Thiết lập hàm mục tiêu toàn phương $J(u_0, u_1)$</span>
+      </div>
+      <div class="step-content">
+        <p>Hàm mục tiêu gồm 3 thành phần: chi phí bước 0, bước 1 và chi phí đầu cuối bước 2:</p>
+        $$J = \frac{1}{2} \left( x_0^\top Q x_0 + u_0^2 + x_1^\top Q x_1 + u_1^2 + x_2^\top P x_2 \right)$$
+        <p>Thay số và rút gọn theo biến vectơ $u = [u_0, u_1]^\top$ thu được dạng toàn phương chuẩn:</p>
+        $$J(u) = \frac{1}{2} u^\top H u + f^\top u + c$$
+        <p>Với ma trận Hessian $H = \begin{bmatrix} 9.328 & 3.914 \\ 3.914 & 4.207 \end{bmatrix}$ và vectơ gradient $f = \begin{bmatrix} 14.656 \\ 5.828 \end{bmatrix}$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Giải bài toán tối ưu Quadratic Programming (QP) có ràng buộc</span>
+      </div>
+      <div class="step-content">
+        <p>Nghiệm tối ưu không ràng buộc: $u_{\text{unc}} = -H^{-1} f = - \begin{bmatrix} 1.638 \\ -0.141 \end{bmatrix}$.</p>
+        <p>Do $u_0 = -1.638 \lt -1.5$ vi phạm ràng buộc $|u| \le 1.5$, nghiệm tối ưu bị kẹp tại biên tích cực (Active constraint):</p>
+        $$u_0^* = -1.5\text{ N}, \quad u_1^* = -0.053\text{ N}$$
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Áp dụng nguyên lý chân trời lùi (Receding Horizon)</span>
+      </div>
+      <div class="step-content">
+        <p>Bộ điều khiển chỉ áp dụng giá trị đầu tiên: $u(x_0) = u_0^* = -1.5\text{ N}$.</p>
+        <p>Trạng thái mới thực tế sau 1 chu kỳ: $x_1 = A x_0 + B u_0^* = [2 - 0.75, -1.5]^\top = [1.25, -1.5]^\top$.</p>
+        <p>Tại chu kỳ kế tiếp, đo lại trạng thái mới $x_1$ và lặp lại toàn bộ bài toán tối ưu với chân trời trượt về phía trước.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulation -->
+<div class="sim-card" id="sec-1-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 MÔ PHỎNG KHÔNG GIAN PHA DOUBLE INTEGRATOR MPC</h3>
+    <p class="sim-desc">Kéo thanh trượt để thay đổi trọng số Q/R và quan sát quỹ đạo pha hội tụ về gốc tọa độ (0, 0) dưới các giới hạn lực đẩy.</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch01" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+
+  <div class="sim-controls" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; justify-content: center;">
+    <div>
+      <label>Chân trời N: </label>
+      <input type="range" id="slider-ch01-n" min="2" max="15" value="5">
+    </div>
+    <div>
+      <label>Trọng số Q: </label>
+      <input type="range" id="slider-ch01-q" min="0.5" max="10" step="0.5" value="2">
+    </div>
+    <div>
+      <label>Trọng số R: </label>
+      <input type="range" id="slider-ch01-r" min="0.1" max="5" step="0.1" value="0.5">
+    </div>
+    <button id="btn-reset-ch01" class="btn btn-secondary" style="padding: 0.3rem 0.8rem;">Đặt Lại (x₀ = 3, v₀ = -1)</button>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-1-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 (mpc_linear_regulator)</h4>
+  <p>Trong hệ sinh thái ROS 2, một bộ điều khiển MPC tuyến tính được đóng gói thành một <strong>Lifecycle Node</strong> hoặc một Controller Plugin kế thừa từ <code>controller_interface::ChainableControllerInterface</code> trong <code>ros2_control</code>:</p>
+  <ul>
+    <li><strong>Input Topic:</strong> Subscribes <code>/odom</code> (nhận trạng thái $x_k = [p, v]^\top$ từ cảm biến odometry/EKF với QoS SensorData).</li>
+    <li><strong>Output Topic:</strong> Publishes <code>/cmd_vel</code> (truyền lực đẩy $u_0^*$ dưới dạng lệnh vận tốc/gia tốc đến chân motor).</li>
+    <li><strong>Solver Engine:</strong> Nhúng bộ giải QP siêu nhanh viết bằng C++ như <code>qpOASES</code> hoặc <code>OSQP</code>, thời gian giải bài toán chân trời $N=10$ mất chưa đầy <strong>0.3 ms</strong> trên vi xử lý ARM Raspberry Pi 4.</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-1-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 01</h4>
+  <p>Chương 1 đã thiết lập toàn bộ triết lý cốt lõi của Model Predictive Control: giải bài toán tối ưu trên chân trời hữu hạn có ràng buộc, áp dụng hành động đầu tiên, và lặp lại liên tục. Hiểu rõ quy hoạch động Bellman và phương trình DARE là chìa khóa để tiến tới các chứng minh ổn định chặt chẽ ở Chương 2.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <div></div>
+        <a href="ch02.html" class="btn btn-primary">Chương 02: MPC Điều Tiết & Ổn Định Lyapunov →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

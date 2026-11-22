@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phụ Lục A: Cơ Sở Toán Học (Mathematical Background) - Model Predictive Control Portal</title>
+  <meta name="description" content="Đại số tuyến tính, nghịch đảo giả Moore-Penrose, định lý phần bù Schur, chuẩn ma trận và giải tích tập lồi / hàm lồi.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 6: Nền Tảng Toán & Tối Ưu</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Phụ Lục A</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC PHỤ LỤC A</span>
+        <span class="sidebar-badge">7 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-a-1"><span class="nav-text">A.1 Giới Thiệu</span></a></div>
+<div class="nav-item"><a href="#sec-a-2"><span class="nav-text">A.2 Không Gian Vectơ & Ma Trận</span></a></div>
+<div class="nav-item"><a href="#sec-a-3"><span class="nav-text">A.3 Miền Giá Trị & Không Gian Hạt Nhân (Nullspace)</span></a></div>
+<div class="nav-item"><a href="#sec-a-4"><span class="nav-text">A.4 Hệ Phương Trình Tuyến Tính & Nghịch Đảo Giả (Pseudo-Inverse)</span></a></div>
+<div class="nav-item"><a href="#sec-a-5"><span class="nav-text">A.5 Định Lý Phân Hoạch Nghịch Đảo Ma Trận (Schur Complement)</span></a></div>
+<div class="nav-item"><a href="#sec-a-6"><span class="nav-text">A.6 Dạng Toàn Phương & Chuẩn Trong R^n</span></a></div>
+<div class="nav-item"><a href="#sec-a-7"><span class="nav-text">A.7 Tập Lồi & Hàm Lồi (Convex Sets and Functions)</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: NỀN TẢNG TOÁN & TỐI ƯU</div>
+        <h1>Phụ Lục A: Phụ Lục A: Cơ Sở Toán Học (Mathematical Background)</h1>
+        <p class="chapter-subtitle">Đại số tuyến tính, nghịch đảo giả Moore-Penrose, định lý phần bù Schur, chuẩn ma trận và giải tích tập lồi / hàm lồi.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-a-1">
+  <h4>💡 NỀN TẢNG ĐẠI SỐ TUYẾN TÍNH & GIẢI TÍCH LỒI TRONG MPC</h4>
+  <p>Toàn bộ các chứng minh tính khả thi, sự tồn tại duy nhất của nghiệm tối ưu và các thuật toán giải số của MPC đều bắt nguồn từ các định lý đại số ma trận và giải tích tập lồi. Phụ lục A tổng hợp cô đọng các công cụ toán học tối thượng được GS. Rawlings, Mayne & Diehl sử dụng xuyên suốt cuốn sách.</p>
+</div>
+
+<h4 id="sec-a-4">A.4 Nghịch Đảo Giả Moore-Penrose (Pseudo-Inverse)</h4>
+<p>Khi ma trận $A \in \mathbb{R}^{m \times n}$ không vuông hoặc suy biến, nghịch đảo giả $A^\dagger$ giải bài toán bình phương tối thiểu $\min_x \|Ax - b\|_2^2$:</p>
+<div class="formula-hero">
+  <div class="formula-title">ĐỊNH NGHĨA NGHỊCH ĐẢO GIẢ MOORE-PENROSE</div>
+  <div class="formula-math">
+    $$A^\dagger = (A^\top A)^{-1} A^\top \quad (\text{khi } A \text{ full column rank})$$
+    $$A^\dagger = A^\top (A A^\top)^{-1} \quad (\text{khi } A \text{ full row rank})$$
+  </div>
+</div>
+
+<h4 id="sec-a-5">A.5 Phần Bù Schur & Định Lý Phân Hoạch Ma Trận (Schur Complement)</h4>
+<p>Cho ma trận đối xứng phân khối $M = \begin{bmatrix} A & B \\ B^\top & C \end{bmatrix}$ với $C \succ 0$. Phần bù Schur của $C$ trong $M$ được định nghĩa là $S = A - B C^{-1} B^\top$. Định lý Schur khẳng định:</p>
+<div class="formula-hero">
+  <div class="formula-title">ĐỊNH LÝ PHẦN BÙ SCHUR (SCHUR COMPLEMENT THEOREM)</div>
+  <div class="formula-math">
+    $$M = \begin{bmatrix} A & B \\ B^\top & C \end{bmatrix} \succ 0 \iff C \succ 0 \quad \text{và} \quad A - B C^{-1} B^\top \succ 0$$
+  </div>
+  <div class="formula-legend">
+    Công cụ mấu chốt để chuyển đổi các bất đẳng thức ma trận phi tuyến thành Bất đẳng thức Ma trận Tuyến tính (Linear Matrix Inequalities - LMI) trong thiết kế bộ điều khiển MPC và kiểm tra hàm Lyapunov.
+  </div>
+</div>
+
+<h4 id="sec-a-7">A.7 Tập Lồi &amp; Hàm Lồi (Convex Sets and Functions)</h4>
+<p>Tập $\mathcal{C} \subset \mathbb{R}^n$ là tập lồi nếu $\forall x_1, x_2 \in \mathcal{C}$ và $\forall \alpha \in [0, 1]$: $\alpha x_1 + (1 - \alpha) x_2 \in \mathcal{C}$.</p>
+<p>Hàm $f: \mathcal{C} \to \mathbb{R}$ là hàm lồi nếu đồ thị của nó nằm dưới dây cung: $f(\alpha x_1 + (1-\alpha) x_2) \le \alpha f(x_1) + (1-\alpha) f(x_2)$. Trong MPC, tính lồi bảo đảm rằng <strong>mọi cực tiểu địa phương đều là cực tiểu toàn cục duy nhất</strong>!</p>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch08.html" class="btn btn-secondary">← Chương 08: Tối Ưu Hóa Số & CasADi</a>
+        <a href="appendix-b.html" class="btn btn-primary">Phụ Lục B: Lý Thuyết Ổn Định →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

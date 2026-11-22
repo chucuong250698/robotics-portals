@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phụ Lục B: Lý Thuyết Ổn Định Lyapunov & ISS - Model Predictive Control Portal</title>
+  <meta name="description" content="Định lý ổn định Lyapunov cho hệ rời rạc, hàm so sánh lớp K và KL, tính ổn định đầu vào - trạng thái (ISS) và IOSS.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Lý Thuyết Ổn Định & Ràng Buộc</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Phụ Lục B</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC PHỤ LỤC B</span>
+        <span class="sidebar-badge">6 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-b-1"><span class="nav-text">B.1 Giới Thiệu</span></a></div>
+<div class="nav-item"><a href="#sec-b-2"><span class="nav-text">B.2 Các Định Nghĩa Ổn Định Tiệm Cận</span></a></div>
+<div class="nav-item"><a href="#sec-b-3"><span class="nav-text">B.3 Định Lý Ổn Định Lyapunov (Lyapunov Stability)</span></a></div>
+<div class="nav-item"><a href="#sec-b-4"><span class="nav-text">B.4 Ổn Định Bền Vững & Hàm Lớp K, KL</span></a></div>
+<div class="nav-item"><a href="#sec-b-5"><span class="nav-text">B.5 Tính Ổn Định Đầu Vào - Trạng Thái (Input-to-State Stability - ISS)</span></a></div>
+<div class="nav-item"><a href="#sec-b-6"><span class="nav-text">B.6 Tính Ổn Định Đầu Ra - Trạng Thái (IOSS)</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 2: LÝ THUYẾT ỔN ĐỊNH & RÀNG BUỘC</div>
+        <h1>Phụ Lục B: Phụ Lục B: Lý Thuyết Ổn Định Lyapunov & ISS</h1>
+        <p class="chapter-subtitle">Định lý ổn định Lyapunov cho hệ rời rạc, hàm so sánh lớp K và KL, tính ổn định đầu vào - trạng thái (ISS) và IOSS.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-b-1">
+  <h4>💡 CHUẨN MỰC CHỨNG MINH TÍNH ỔN ĐỊNH TRONG ĐIỀU KHIỂN PHI TUYẾN</h4>
+  <p>Khi hệ thống có ràng buộc phi tuyến và nhiễu bất định, các tiêu chuẩn ổn định cổ điển như quỹ đạo nghiệm số hay tiêu chuẩn Routh-Hurwitz hoàn toàn vô hiệu. Phụ lục B cung cấp khung lý thuyết ổn định hiện đại nhất: hàm so sánh lớp $\mathcal{K}, \mathcal{KL}$ và tính ổn định đầu vào - trạng thái (ISS) do Eduardo Sontag đề xuất.</p>
+</div>
+
+<h4 id="sec-b-3">B.3 Định Lý Ổn Định Lyapunov Cho Hệ Rời Rạc Thời Gian</h4>
+<p>Cho hệ động học $x_{k+1} = f(x_k)$ với $f(0) = 0$. Giả sử tồn tại hàm liên tục $V: \mathbb{R}^n \to \mathbb{R}_{\ge 0}$ và các hàm lớp $\mathcal{K}_\infty$ $\alpha_1, \alpha_2, \alpha_3$ thỏa mãn:</p>
+<div class="formula-hero">
+  <div class="formula-title">ĐIỀU KIỆN ĐỦ ỔN ĐỊNH TIỆM CẬN TOÀN CỤC (GAS)</div>
+  <div class="formula-math">
+    $$\alpha_1(\|x\|) \le V(x) \le \alpha_2(\|x\|)$$
+    $$\Delta V(x) = V(f(x)) - V(x) \le -\alpha_3(\|x\|) \lt 0 \quad \forall x \neq 0$$
+  </div>
+  <div class="formula-legend">
+    Khi đó gốc tọa độ $x = 0$ là điểm cân bằng ổn định tiệm cận toàn cục (Globally Asymptotically Stable).
+  </div>
+</div>
+
+<h4 id="sec-b-5">B.5 Tính Ổn Định Đầu Vào - Trạng Thái (Input-to-State Stability - ISS)</h4>
+<p>Khi hệ thống chịu nhiễu ngoại cảnh $x_{k+1} = f(x_k, w_k)$, trạng thái $x$ không thể hội tụ về $0$ mà chỉ có thể hội tụ về một lân cận tỷ lệ thuận với biên độ nhiễu $\|w\|_\infty$. Khái niệm ISS phát biểu:</p>
+<div class="formula-hero">
+  <div class="formula-title">ĐỊNH NGHĨA INPUT-TO-STATE STABILITY (ISS)</div>
+  <div class="formula-math">
+    $$\|x_k\| \le \beta(\|x_0\|, k) + \gamma(\|w\|_\infty)$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $\beta \in \mathcal{KL}$ mô tả sự suy giảm tắt dần của điều kiện ban đầu; $\gamma \in \mathcal{K}$ là hàm tăng ích nhiễu (ISS Gain).
+  </div>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="appendix-a.html" class="btn btn-secondary">← Phụ Lục A: Cơ Sở Toán Học</a>
+        <a href="appendix-c.html" class="btn btn-primary">Phụ Lục C: Lý Thuyết Tối Ưu Hóa →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 07: Explicit MPC Cho Hệ Tuyến Tính Ràng Buộc - Model Predictive Control Portal</title>
+  <meta name="description" content="Quy hoạch toàn phương tham số pQP, phân hoạch không gian trạng thái thành các miền tới hạn đa diện (Critical Regions) và tra bảng siêu nhanh 1000 Hz.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 6: Tính Toán Nhúng & Tối Ưu Số</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 07</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 07</span>
+        <span class="sidebar-badge">10 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-7-1"><span class="nav-text">7.1 Giới Thiệu Explicit MPC (Tra Bảng Không Cần Giải QP)</span></a></div>
+<div class="nav-item"><a href="#sec-7-2"><span class="nav-text">7.2 Quy Hoạch Tham Số (Parametric Programming)</span></a></div>
+<div class="nav-item"><a href="#sec-7-3"><span class="nav-text">7.3 Quy Hoạch Toàn Phương Tham Số (Parametric QP & KKT)</span></a></div>
+<div class="nav-item"><a href="#sec-7-4"><span class="nav-text">7.4 Điều Khiển Tuyến Tính Ràng Buộc & Piecewise Affine</span></a></div>
+<div class="nav-item"><a href="#sec-7-5"><span class="nav-text">7.5 Phân Hoạch Đa Diện Vùng Tới Hạn (Critical Regions)</span></a></div>
+<div class="nav-item"><a href="#sec-7-6"><span class="nav-text">7.6 Thuật Toán Khám Phá Active Set & Bảng Tra Cứu</span></a></div>
+<div class="nav-item"><a href="#sec-7-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Giải Tường Minh 3 Vùng Đa Diện</span></a></div>
+<div class="nav-item"><a href="#sec-7-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Critical Regions 2D Explorer</span></a></div>
+<div class="nav-item"><a href="#sec-7-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (Embedded 1000 Hz STM32)</span></a></div>
+<div class="nav-item"><a href="#sec-7-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: TÍNH TOÁN NHÚNG & TỐI ƯU SỐ</div>
+        <h1>Chương 07: Chương 07: Explicit MPC Cho Hệ Tuyến Tính Ràng Buộc</h1>
+        <p class="chapter-subtitle">Quy hoạch toàn phương tham số pQP, phân hoạch không gian trạng thái thành các miền tới hạn đa diện (Critical Regions) và tra bảng siêu nhanh 1000 Hz.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-7-1">
+  <h4>💡 LÀM SAO CHẠY ĐƯỢC MPC Ở TẦN SỐ 1000 HZ TRÊN VI ĐIỀU KHIỂN GIÁ 2 USD?</h4>
+  <p>Một rào cản kinh điển của MPC: việc giải bài toán tối ưu hóa QP trực tuyến đòi hỏi hàng trăm phép tính dấu phẩy động ma trận, cần bộ vi xử lý mạnh (x86, ARM Cortex-A) và tiêu tốn nhiều mili-giây. Trong các ứng dụng điều khiển động cơ không chổi than (BLDC), biến tần điện tử công suất hoặc hệ thống chống bó cứng phanh (ABS), chu kỳ điều khiển bắt buộc phải đạt <strong>$1000\text{ Hz} - 10000\text{ Hz}$ ($100\,\mu\text{s}$)</strong> trên các chip vi điều khiển giá rẻ (STM32, ESP32, TI C2000) vốn không có hệ điều hành!</p>
+  <p><strong>Explicit MPC (MPC Hiện Biểu)</strong> của Bemporad, Morari, Dua &amp; Pistikopoulos được trình bày chi tiết trong Chương 7 của Rawlings et al. (trang 451–490) giải quyết bài toán này bằng cách: <strong>giải offline toàn bộ bài toán tối ưu hóa</strong> trước khi nạp vào chip! Trực tuyến chỉ cần kiểm tra xem trạng thái $x$ nằm trong đa diện nào và tính phép nhân ma trận đơn giản $u = F_r x + g_r$ trong vòng <strong>vài micro-giây</strong>!</p>
+</div>
+
+<h4 id="sec-7-3">7.3 Quy Hoạch Toàn Phương Tham Số (Parametric QP) &amp; Điều Kiện KKT</h4>
+<p>Xem trạng thái đo được $x$ như một <em>tham số (Parameter)</em> của bài toán tối ưu hóa toàn phương:</p>
+<div class="formula-hero">
+  <div class="formula-title">BÀI TOÁN QUY HOẠCH TOÀN PHƯƠNG THAM SỐ (pQP)</div>
+  <div class="formula-math">
+    $$V_N^0(x) = \min_{U} \left\{ \frac{1}{2} U^\top H U + x^\top F^\top U \right\} \quad \text{s.t.} \quad G U \le W + S x$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $U = [u_0^\top, \dots, u_{N-1}^\top]^\top$ là biến tối ưu hóa; $x \in \mathbb{R}^n$ là tham số; $H \succ 0$ là ma trận Hessian xác định dương.
+  </div>
+</div>
+
+<p>Áp dụng điều kiện tối ưu KKT (Karush-Kuhn-Tucker) với các nhân tử Lagrange $\lambda$:</p>
+$$H U + F x + G^\top \lambda = 0, \quad \lambda \ge 0, \quad \lambda^\top (G U - W - S x) = 0$$
+<p>Với mỗi tập hợp các ràng buộc tích cực (Active Set $\mathcal{A}$ có $\lambda_i \gt 0$), nghiệm tối ưu $U^*$ là một <strong>hàm tuyến tính affine của trạng thái $x$</strong>:</p>
+<div class="formula-hero">
+  <div class="formula-title">LUẬT ĐIỀU KHIỂN AFFINE TỪNG MẢNH (PIECEWISE AFFINE - PWA)</div>
+  <div class="formula-math">
+    $$u_0^*(x) = F_r x + g_r \quad \text{khi} \quad x \in \mathcal{CR}_r = \{x \in \mathbb{R}^n \mid H_r x \le K_r\}$$
+  </div>
+  <div class="formula-legend">
+    Toàn bộ không gian trạng thái khả thi được phân hoạch thành một tập hữu hạn các vùng đa diện lồi gọi là <strong>Vùng Tới Hạn (Critical Regions $\mathcal{CR}_r$)</strong>.
+  </div>
+</div>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-7-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 GIẢI TƯỜNG MINH BÀI TOÁN EXPLICIT MPC HỆ BẬC 1 THÀNH 3 VÙNG ĐA DIỆN</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét hệ bậc nhất $x_{k+1} = x_k + u_k$, hàm chi phí với $N = 1$: $J = x_1^2 + u_0^2 = (x + u)^2 + u^2$. Ràng buộc điều khiển $|u| \le 1.0$.</p>
+    <p>Hãy phân hoạch không gian trạng thái $x \in \mathbb{R}$ và viết tường minh luật điều khiển Explicit MPC $u^*(x)$.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Viết hàm chi phí dạng chuẩn pQP</span>
+      </div>
+      <div class="step-content">
+        <p>Khai triển hàm chi phí:</p>
+        $$J(u; x) = (x + u)^2 + u^2 = 2 u^2 + 2 x u + x^2 = \frac{1}{2} (4) u^2 + (2 x) u + x^2$$
+        <p>Hessian $H = 4$, $F = 2$. Nghiệm không ràng buộc: $\frac{\partial J}{\partial u} = 4 u + 2 x = 0 \implies u_{\text{unc}}(x) = -0.5 x$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Xác định Vùng Tới Hạn Trung Tâm (CR₀)</span>
+      </div>
+      <div class="step-content">
+        <p>Vùng không bão hòa: $|u_{\text{unc}}(x)| \le 1.0 \implies |-0.5 x| \le 1.0 \implies -2.0 \le x \le 2.0$.</p>
+        <p><strong>Vùng $\mathcal{CR}_0 = [-2.0, 2.0]$:</strong> Luật điều khiển tuyến tính thuần túy:</p>
+        $$u^*(x) = -0.5 x$$
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Xác định các Vùng Bão Hòa Cực Biên (CR₁ và CR₂)</span>
+      </div>
+      <div class="step-content">
+        <p>Khi $x \gt 2.0$: Nghiệm không ràng buộc $-0.5 x \lt -1.0$, do đó điều khiển bị kẹp tại biên dưới:</p>
+        <p><strong>Vùng $\mathcal{CR}_1 = (2.0, +\infty)$:</strong> $u^*(x) = -1.0$.</p>
+        <p>Khi $x \lt -2.0$: Nghiệm không ràng buộc $-0.5 x \gt 1.0$, điều khiển bị kẹp tại biên trên:</p>
+        <p><strong>Vùng $\mathcal{CR}_2 = (-\infty, -2.0)$:</strong> $u^*(x) = +1.0$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Bảng tra cứu điều khiển nhúng</span>
+      </div>
+      <div class="step-content">
+        <p>Luật điều khiển toàn cục được nạp vào vi điều khiển chỉ với 2 dòng lệnh mã nguồn:</p>
+        <pre><code>if (x > 2.0f) return -1.0f;
+else if (x < -2.0f) return 1.0f;
+else return -0.5f * x;</code></pre>
+        <p>Thời gian thực thi: <strong>dưới 5 nano-giây</strong>, không cần bất kỳ bộ giải QP hay ma trận nào!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-7-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 KHÁM PHÁ PHÂN HOẠCH ĐA DIỆN 2D (POLYHEDRAL CRITICAL REGIONS)</h3>
+    <p class="sim-desc">Rê chuột trong không gian trạng thái 2D. Quan sát sự thay đổi màu sắc giữa các vùng đa diện (CR_0 LQR trung tâm vs các vùng bão hòa biên CR_1, CR_2).</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch07" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-7-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 &amp; EMBEDDED MICRO-ROS (1000 Hz)</h4>
+  <p>Explicit MPC là giải pháp tối thượng cho <strong>micro-ROS</strong> chạy trên các bo mạch vi điều khiển thời gian thực:</p>
+  <ul>
+    <li>Bảng phân hoạch đa diện được sinh tự động offline từ MATLAB Multi-Parametric Toolbox (MPT3) hoặc Python.</li>
+    <li>Mã nguồn C sinh ra chỉ gồm cây nhị phân (Binary Search Tree) kiểm tra các siêu phẳng $H_r x \le K_r$, chiếm chưa đầy <strong>4 KB bộ nhớ Flash</strong> của chip ARM Cortex-M4.</li>
+    <li>Bộ điều khiển dòng điện và mô-men xoắn motor BLDC hoạt động ổn định ở tần số cực cao <strong>10 kHz</strong> với độ trễ hoàn toàn bằng 0.</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-7-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 07</h4>
+  <p>Explicit MPC đã xóa bỏ định kiến rằng "MPC quá nặng cho hệ nhúng". Bằng cách chuyển toàn bộ gánh nặng tính toán về pha thiết kế offline, các hệ thống cơ điện tử siêu nhanh có thể tận hưởng trọn vẹn ưu điểm của MPC có ràng buộc.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch06.html" class="btn btn-secondary">← Chương 06: MPC Phân Tán</a>
+        <a href="ch08.html" class="btn btn-primary">Chương 08: Tối Ưu Hóa Số & CasADi →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

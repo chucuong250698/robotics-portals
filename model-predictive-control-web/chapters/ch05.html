@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Output Model Predictive Control & Offset-Free Tracking - Model Predictive Control Portal</title>
+  <meta name="description" content="Nguyên lý tách rời trong điều khiển phản hồi đầu ra, mô hình nhiễu mở rộng, giải bài toán mục tiêu cân bằng và khử triệt để sai lệch xác lập.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 4: Ước Lượng Trạng Thái & Đầu Ra</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 05</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+        <span class="sidebar-badge">10 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-5-1"><span class="nav-text">5.1 Giới Thiệu Điều Khiển Qua Đầu Ra</span></a></div>
+<div class="nav-item"><a href="#sec-5-2"><span class="nav-text">5.2 Nguyên Lý Tách Rời (Separation Principle)</span></a></div>
+<div class="nav-item"><a href="#sec-5-3"><span class="nav-text">5.3 Hệ Tuyến Tính Ràng Buộc Dừng (LTI Output MPC)</span></a></div>
+<div class="nav-item"><a href="#sec-5-4"><span class="nav-text">5.4 Hệ Tuyến Tính Biến Thiên Theo Thời Gian (LTV)</span></a></div>
+<div class="nav-item"><a href="#sec-5-5"><span class="nav-text">5.5 Offset-Free MPC (Khử Triệt Để Sai Lệch Tĩnh)</span></a></div>
+<div class="nav-item"><a href="#sec-5-6"><span class="nav-text">5.6 Mở Rộng Cho Hệ Phi Tuyến</span></a></div>
+<div class="nav-item"><a href="#sec-5-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Offset-Free Tracking Động Cơ DC</span></a></div>
+<div class="nav-item"><a href="#sec-5-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Khử Sai Lệch Tĩnh</span></a></div>
+<div class="nav-item"><a href="#sec-5-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (Nav2 Path Tracking)</span></a></div>
+<div class="nav-item"><a href="#sec-5-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 4: ƯỚC LƯỢNG TRẠNG THÁI & ĐẦU RA</div>
+        <h1>Chương 05: Chương 05: Output Model Predictive Control & Offset-Free Tracking</h1>
+        <p class="chapter-subtitle">Nguyên lý tách rời trong điều khiển phản hồi đầu ra, mô hình nhiễu mở rộng, giải bài toán mục tiêu cân bằng và khử triệt để sai lệch xác lập.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-5-1">
+  <h4>💡 TẠI SAO ROBOT BỊ LỆCH TỌA ĐỘ KHI CHỈ DÙNG MPC PHẢN HỒI ĐẦU RA THÔNG THƯỜNG?</h4>
+  <p>Trong thực tế, khi robot kéo thêm rơ-moóc chở hàng hoặc xe leo dốc nghiêng, trọng lượng bổ sung và lực ma sát đóng vai trò như một <strong>nhiễu phụ tải không đo được (Unmeasured Load Disturbance)</strong>. Nếu áp dụng thuật toán MPC chuẩn, trạng thái đầu ra sẽ bám theo điểm đặt nhưng luôn để lại một khoảng <strong>sai lệch xác lập vĩnh cửu (Steady-State Offset)</strong>!</p>
+  <p>Để giải quyết bài toán này mà không phá vỡ cấu trúc tối ưu hóa có ràng buộc, GS. Rawlings và Mayne (Chương 5, trang 339–368) đã phát triển kỹ thuật <strong>Offset-Free MPC</strong>: bổ sung một mô hình nhiễu mở rộng (Disturbance Model) và thiết kế bộ quan sát trạng thái tích hợp, triệt tiêu hoàn toàn sai lệch tĩnh tương tự như khâu Tích phân (I) trong PID nhưng tuân thủ $100\%$ các giới hạn hành trình cơ khí!</p>
+</div>
+
+<h4 id="sec-5-2">5.2 Nguyên Lý Tách Rời Trong Điều Khiển Qua Đầu Ra (Separation Principle)</h4>
+<p>Với hệ thống không có ràng buộc, Định lý Tách rời (Separation Theorem) khẳng định: bộ điều khiển phản hồi trạng thái và bộ quan sát trạng thái có thể thiết kế hoàn toàn độc lập. Tuy nhiên, khi có <strong>ràng buộc trạng thái $x_k \in \mathcal{X}$</strong>, sai số ước lượng $e_k = x_k - \hat{x}_k$ có thể khiến trạng thái thực vi phạm ràng buộc ngay cả khi trạng thái ước lượng $\hat{x}_k$ vẫn nằm trong miền an toàn!</p>
+<p>Giải pháp của Rawlings &amp; Mayne: kết hợp bộ quan sát bền vững với kỹ thuật <em>thu hẹp ràng buộc (Constraint Tightening)</em> dựa trên tập bất biến sai số ước lượng.</p>
+
+<h4 id="sec-5-5">5.5 Offset-Free MPC (Mô Hình Nhiễu Mở Rộng &amp; Cân Bằng Mục Tiêu)</h4>
+<p>Để đạt được sai số xác lập bằng $0$ trước mọi nhiễu hằng số (Step Disturbance), hệ thống được mở rộng bằng một vectơ nhiễu $d_k \in \mathbb{R}^{n_d}$:</p>
+<div class="formula-hero">
+  <div class="formula-title">MÔ HÌNH HỆ THỐNG MỞ RỘNG TÍCH HỢP NHIỄU PHỤ TẢI</div>
+  <div class="formula-math">
+    $$\begin{bmatrix} x_{k+1} \\ d_{k+1} \end{bmatrix} = \begin{bmatrix} A & B_d \\ 0 & I \end{bmatrix} \begin{bmatrix} x_k \\ d_k \end{bmatrix} + \begin{bmatrix} B \\ 0 \end{bmatrix} u_k, \quad y_k = C x_k + C_d d_k$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $d_k$ là trạng thái nhiễu hằng số ($d_{k+1} = d_k$); $B_d$ và $C_d$ là ma trận ghép nhiễu vào trạng thái và đầu ra. Điều kiện quan sát được đòi hỏi $\text{rank} \begin{bmatrix} A - I & B_d \\ C & C_d \end{bmatrix} = n + n_d$.
+  </div>
+</div>
+
+<p><strong>Hai tầng điều khiển Offset-Free:</strong></p>
+<ol>
+  <li><strong>Tầng Bộ Quan Sát Mở Rộng:</strong> Ước lượng đồng thời $(\hat{x}_k, \hat{d}_k)$ từ tín hiệu đo $y_k$.</li>
+  <li><strong>Tầng Tính Mục Tiêu Cân Bằng (Target Problem):</strong> Tại mỗi bước, giải hệ đại số tĩnh tìm trạng thái và điều khiển mục tiêu $(x_s, u_s)$ thỏa mãn:
+    $$\begin{bmatrix} I - A & -B \\ C & 0 \end{bmatrix} \begin{bmatrix} x_s \\ u_s \end{bmatrix} = \begin{bmatrix} B_d \hat{d}_k \\ y_{sp} - C_d \hat{d}_k \end{bmatrix}$$
+  </li>
+  <li><strong>Tầng Điều Tiết MPC:</strong> Giải bài toán MPC đưa độ lệch $\tilde{x} = x - x_s$ về $0$. Khi $\hat{x}_k \to x_s$, đầu ra $y_k \to y_{sp}$ chính xác tuyệt đối!</li>
+</ol>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-5-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 BÁM VẬN TỐC ĐỘNG CƠ DC KHỬ TRIỆT ĐỂ SAI LỆCH TĨNH</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét mô hình động cơ DC rời rạc: $x_{k+1} = 0.8 x_k + 0.4 u_k + d_k$, đầu ra $y_k = x_k$. Nhiễu phụ tải ma sát xuất hiện đột ngột với giá trị thực $d = -0.2$.</p>
+    <p>Điểm đặt vận tốc mong muốn $y_{sp} = 2.0\text{ rad/s}$. Giới hạn điện áp điều khiển $|u_k| \le 3.0\text{ V}$. Giả sử bộ ước lượng đã hội tụ và ước lượng chính xác $\hat{d} = -0.2$.</p>
+    <p>1) Tính toán điểm đặt cân bằng $(x_s, u_s)$ tại tầng Target Calculator.<br>
+    2) So sánh đáp ứng trạng thái xác lập khi dùng MPC thông thường (bỏ qua $d$) vs Offset-Free MPC.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Giải hệ phương trình mục tiêu cân bằng (x_s, u_s)</span>
+      </div>
+      <div class="step-content">
+        <p>Đầu ra mong muốn xác lập: $y_s = x_s = y_{sp} = 2.0\text{ rad/s}$.</p>
+        <p>Phương trình trạng thái tĩnh tại điểm cân bằng:</p>
+        $$x_s = 0.8 x_s + 0.4 u_s + \hat{d} \implies (1 - 0.8) \times 2.0 = 0.4 u_s + (-0.2)$$
+        $$0.4 = 0.4 u_s - 0.2 \implies 0.4 u_s = 0.6 \implies u_s = 1.5\text{ V}$$
+        <p>Do $|u_s| = 1.5\text{ V} \le 3.0\text{ V}$, điểm cân bằng hoàn toàn khả thi!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Phân tích khi dùng MPC thông thường (không ước lượng d)</span>
+      </div>
+      <div class="step-content">
+        <p>Nếu bỏ qua nhiễu ($\hat{d} = 0$), bộ điều khiển tính toán mục tiêu giả định $u_{s,\text{nom}} = \frac{0.2 \times 2.0}{0.4} = 1.0\text{ V}$.</p>
+        <p>Thực tế khi áp dụng $u = 1.0\text{ V}$ trong điều kiện có nhiễu $d = -0.2$:</p>
+        $$x_{\infty} = 0.8 x_{\infty} + 0.4(1.0) - 0.2 \implies 0.2 x_{\infty} = 0.2 \implies x_{\infty} = 1.0\text{ rad/s}$$
+        <p>Sai số xác lập: $e(\infty) = y_{sp} - x_{\infty} = 2.0 - 1.0 = 1.0\text{ rad/s}$ ($50\%$ sai lệch vĩnh cửu!).</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Phân tích khi dùng Offset-Free MPC</span>
+      </div>
+      <div class="step-content">
+        <p>Với Offset-Free MPC, lệnh điều khiển bù tải $u_s = 1.5\text{ V}$ được áp dụng:</p>
+        $$x_{\infty} = 0.8 x_{\infty} + 0.4(1.5) - 0.2 \implies 0.2 x_{\infty} = 0.4 \implies x_{\infty} = 2.0\text{ rad/s}$$
+        <p>Sai số xác lập: $e(\infty) = y_{sp} - x_{\infty} = 2.0 - 2.0 = 0\text{ rad/s}$ (Triệt tiêu sai số chính xác $100\%$).</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Kết luận kỹ thuật</span>
+      </div>
+      <div class="step-content">
+        <p>Bằng cách bổ sung thêm 1 trạng thái nhiễu hằng số và giải bài toán đại số 2 biến ở tầng Target Problem, hệ thống đạt khả năng tự động thích ứng với sự thay đổi của tải trọng mà vẫn đảm bảo điện áp động cơ không bao giờ vượt ngưỡng $3.0\text{ V}$.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-5-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 SO SÁNH ĐÁP ỨNG BƯỚC: STANDARD MPC VS OFFSET-FREE MPC</h3>
+    <p class="sim-desc">Kéo thanh trượt để thay đổi mức nhiễu tải d. Quan sát đường đỏ (Standard MPC bị lệch) vs đường xanh dương (Offset-Free MPC tự động bám sát đường xanh lá nét đứt).</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch05" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+
+  <div class="sim-controls" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; justify-content: center;">
+    <div>
+      <label>Nhiễu tải d (N·m): </label>
+      <input type="range" id="slider-ch05-load" min="0.2" max="2.0" step="0.2" value="1.0">
+    </div>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-5-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 (Nav2 Path Tracking)</h4>
+  <p>Khi robot tự hành di chuyển trên địa hình nghiêng hoặc bãi cỏ có độ ma sát không đồng nhất, trọng lực kéo xe lệch khỏi tâm làn đường:</p>
+  <ul>
+    <li>Offset-Free MPC tích hợp trực tiếp vào <strong>Nav2 Controller Server</strong> dưới dạng một Custom Plugin.</li>
+    <li>Bộ ước lượng nhiễu nhận dữ liệu từ topic <code>/odom</code> và <code>/imu</code>, tự động sinh ra một góc lái bù (Counter-steering angle) triệt tiêu sai số bám vạt đường (Cross-track error) về $0\text{ cm}$.</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-5-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 05</h4>
+  <p>Offset-Free MPC là tiêu chuẩn công nghiệp bắt buộc cho mọi hệ thống điều khiển bám. Việc tích hợp mô hình nhiễu mở rộng mang lại sức mạnh tương đương khâu tích phân của PID nhưng vận hành an toàn tuyệt đối trong phạm vi ràng buộc đa biến.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch04.html" class="btn btn-secondary">← Chương 04: Ước Lượng Trạng Thái & MHE</a>
+        <a href="ch06.html" class="btn btn-primary">Chương 06: MPC Phân Tán Đa Robot →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

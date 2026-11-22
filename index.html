@@ -60,25 +60,25 @@
       </div>
       <h1 class="master-title">Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động</h1>
       <p class="master-subtitle">
-        Cổng thông tin chuyển giao toàn diện 7 bộ chuyên khảo kinh điển thế giới (Springer, Cambridge University Press, CRC Press): Giải phẫu tri thức 6 tầng, 106 bài tập tính số thực tế 4 bước, 106 phòng lab mô phỏng Canvas 2D tương tác 60 FPS và cầu nối kiến trúc C++ / ROS 2 chuẩn công nghiệp.
+        Cổng thông tin chuyển giao toàn diện 8 bộ chuyên khảo kinh điển thế giới (Springer, Cambridge University Press, CRC Press, Nob Hill Publishing): Giải phẫu tri thức 6 tầng, 114 bài tập tính số thực tế 4 bước, 114 phòng lab mô phỏng Canvas 2D tương tác 60 FPS và cầu nối kiến trúc C++ / ROS 2 chuẩn công nghiệp.
       </p>
 
       <!-- Key Stats Bar -->
       <div class="master-stats-row">
         <div class="master-stat-box">
-          <span class="master-stat-val">7</span>
+          <span class="master-stat-val">8</span>
           <span class="master-stat-lbl">Siêu Chuyên Khảo Kinh Điển</span>
         </div>
         <div class="master-stat-box">
-          <span class="master-stat-val">106</span>
+          <span class="master-stat-val">117</span>
           <span class="master-stat-lbl">Chương Học Thuật 6 Tầng</span>
         </div>
         <div class="master-stat-box">
-          <span class="master-stat-val">106</span>
+          <span class="master-stat-val">114</span>
           <span class="master-stat-lbl">Bài Tập Số Học Lời Giải 4 Bước</span>
         </div>
         <div class="master-stat-box">
-          <span class="master-stat-val">106</span>
+          <span class="master-stat-val">114</span>
           <span class="master-stat-lbl">Mô Phỏng Canvas 2D 60 FPS</span>
         </div>
         <div class="master-stat-box">
@@ -91,11 +91,11 @@
       <div class="hub-search-wrapper" style="max-width: 980px;">
         <div class="search-input-box">
           <span class="search-icon">🔍</span>
-          <input type="text" id="master-search-input" placeholder="Tìm kiếm nhanh chuyên khảo, tác giả, thuật toán (PID, Kalman, SLAM, DAgger, LQR, Euler-Lagrange...)... (Ctrl + K)">
+          <input type="text" id="master-search-input" placeholder="Tìm kiếm nhanh chuyên khảo, tác giả, thuật toán (PID, Kalman, SLAM, DAgger, LQR, MPC, Euler-Lagrange...)... (Ctrl + K)">
           <span class="search-shortcut">Ctrl+K</span>
         </div>
         <div class="filter-pills-row">
-          <button class="filter-pill active" data-filter="all">Tất Cả (7 Chuyên Khảo)</button>
+          <button class="filter-pill active" data-filter="all">Tất Cả (8 Chuyên Khảo)</button>
           <button class="filter-pill" data-filter="control">Điều Khiển Tự Động (Control)</button>
           <button class="filter-pill" data-filter="mechanics">Cơ Học & Động Lực Robot (Mechanics)</button>
           <button class="filter-pill" data-filter="estimation">Ước Lượng & SLAM (Estimation)</button>
@@ -323,6 +323,37 @@
         <div class="portal-card-actions">
           <a href="slam-knowledge-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
           <a href="slam-knowledge-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 8: Model Predictive Control (Rawlings, Mayne, Diehl) -->
+      <article class="portal-master-card" data-category="control" data-keywords="điều khiển dự báo mô hình model predictive control mpc rawlings mayne diehl lqr lyapunov tube-based mhe offset-free dmpc explicit casadi nmpc">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #0284c7; background: rgba(2,132,199,0.1);">🎯</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-1">Track: Control</span>
+              <span class="badge badge-alt">8 Chương + 3 Phụ Lục</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Điều Khiển Dự Báo Mô Hình (MPC): Lý Thuyết &amp; Tính Toán</h2>
+          <div class="portal-card-meta">
+            <div class="meta-row"><span class="meta-label">📖 Sách gốc:</span> <span class="book-title-val">Model Predictive Control: Theory, Computation, and Design</span> (Nob Hill Publishing, 2nd Edition, 819 trang)</div>
+            <div class="meta-row"><span class="meta-label">✍️ Tác giả:</span> <span class="author-val">GS. James B. Rawlings, GS. David Q. Mayne, GS. Moritz M. Diehl</span></div>
+          </div>
+          <p class="portal-card-desc">
+            Siêu chuyên khảo kinh điển thế giới về điều khiển tối ưu hiện đại: LQR chân trời lùi, chứng minh ổn định tiệm cận Lyapunov với tập bất biến đầu cuối $X_f$, Tube-Based MPC kháng nhiễu qua phép trừ Minkowski, ước lượng trạng thái Moving Horizon Estimation (MHE), Offset-Free Tracking, MPC phân tán đa robot, Explicit MPC đa diện pQP cho vi điều khiển nhúng, và solver CasADi / acados NMPC thời gian thực.
+          </p>
+          <ul class="portal-features-list">
+            <li>8 Chương chuyên sâu 6 tầng + 3 Phụ lục toán học, ổn định &amp; tối ưu hóa</li>
+            <li>8 Bài tập số học 4 bước giải chi tiết &amp; kiểm chứng kỹ thuật</li>
+            <li>8 Mô phỏng tương tác Canvas 2D 60 FPS (Double Integrator, Tube, MHE, RTI)</li>
+            <li>Cầu nối kiến trúc Nav2 MPC Controller, ROS 2, CasADi và acados C++</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="model-predictive-control-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="model-predictive-control-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
         </div>
       </article>
 

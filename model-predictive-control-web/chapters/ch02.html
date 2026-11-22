@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: MPC Điều Tiết & Ổn Định Lyapunov - Model Predictive Control Portal</title>
+  <meta name="description" content="Hàm chi phí tối ưu, chứng minh ổn định tiệm cận Lyapunov, tập bất biến đầu cuối X_f, Suboptimal MPC và Economic MPC.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Lý Thuyết Ổn Định & Ràng Buộc</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 02</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-2-1"><span class="nav-text">2.1 Giới Thiệu & Thách Thức Ổn Định</span></a></div>
+<div class="nav-item"><a href="#sec-2-2"><span class="nav-text">2.2 Thiết Lập Bài Toán MPC Ràng Buộc Tổng Quát</span></a></div>
+<div class="nav-item"><a href="#sec-2-3"><span class="nav-text">2.3 Nghiệm Quy Hoạch Động (Dynamic Programming)</span></a></div>
+<div class="nav-item"><a href="#sec-2-4"><span class="nav-text">2.4 Lý Thuyết Ổn Định Tiệm Cận Lyapunov</span></a></div>
+<div class="nav-item"><a href="#sec-2-5"><span class="nav-text">2.5 Các Ví Dụ Điều Tiết MPC Kinh Điển</span></a></div>
+<div class="nav-item"><a href="#sec-2-6"><span class="nav-text">2.6 Ràng Buộc Đầu Cuối X_f Có Cần Thiết Không?</span></a></div>
+<div class="nav-item"><a href="#sec-2-7"><span class="nav-text">2.7 Suboptimal MPC & Tính Khả Thi Đệ Quy</span></a></div>
+<div class="nav-item"><a href="#sec-2-8"><span class="nav-text">2.8 Economic Model Predictive Control</span></a></div>
+<div class="nav-item"><a href="#sec-2-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Tập Bất Biến & Lyapunov</span></a></div>
+<div class="nav-item"><a href="#sec-2-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Không Gian Pha & X_f</span></a></div>
+<div class="nav-item"><a href="#sec-2-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (Safe Mobile Inverted Pendulum)</span></a></div>
+<div class="nav-item"><a href="#sec-2-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 2: LÝ THUYẾT ỔN ĐỊNH & RÀNG BUỘC</div>
+        <h1>Chương 02: Chương 02: MPC Điều Tiết & Ổn Định Lyapunov</h1>
+        <p class="chapter-subtitle">Hàm chi phí tối ưu, chứng minh ổn định tiệm cận Lyapunov, tập bất biến đầu cuối X_f, Suboptimal MPC và Economic MPC.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-2-1">
+  <h4>💡 NỖI ĐAU CÔNG NGHỆ: TẠI SAO MPC CHÂN TRỜI HỮU HẠN CÓ THỂ GÂY MẤT ỔN ĐỊNH?</h4>
+  <p>Một cạm bẫy chết người mà các kỹ sư điều khiển thường gặp phải: <em>"Giải bài toán tối ưu tại mỗi bước thời gian KHÔNG đồng nghĩa với việc hệ kín sẽ ổn định!"</em></p>
+  <p>Do chân trời dự báo $N$ chỉ nhìn thấy tương lai trong một khoảng thời gian hữu hạn (ví dụ $1\text{ s}$), bộ điều khiển MPC có thể đưa ra hành động tối ưu cục bộ nhưng lại dẫn trạng thái hệ thống lao vào một ngõ cụt không thể phanh lại kịp (mất tính khả thi đệ quy - Infeasibility). Giáo trình của Rawlings, Mayne &amp; Diehl tại Chương 2 (trang 89–165) cung cấp lời giải toán học kinh điển: bổ sung <strong>Chi phí đầu cuối $V_f(x)$</strong> và <strong>Tập bất biến đầu cuối $\mathcal{X}_f$</strong> để đảm bảo hệ thống ổn định tiệm cận Lyapunov vững chắc!</p>
+</div>
+
+<h4 id="sec-2-2">2.2 Thiết Lập Bài Toán MPC Ràng Buộc Tổng Quát</h4>
+<p>Cho hệ thống phi tuyến hoặc tuyến tính $x_{k+1} = f(x_k, u_k)$. Bài toán tối ưu hóa điều tiết MPC được phát biểu chuẩn xác như sau:</p>
+<div class="formula-hero">
+  <div class="formula-title">BÀI TOÁN TỐI ƯU HÓA MPC CHUẨN VỚI TẬP ĐẦU CUỐI</div>
+  <div class="formula-math">
+    $$V_N^0(x) = \min_{\mathbf{u}} \left\{ V_f(x_N) + \sum_{k=0}^{N-1} \ell(x_k, u_k) \right\}$$
+    $$\text{thỏa mãn:} \quad x_0 = x, \quad x_{k+1} = f(x_k, u_k), \quad u_k \in \mathcal{U}, \quad x_k \in \mathcal{X}, \quad x_N \in \mathcal{X}_f$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $\ell(x, u)$ là chi phí tức thời (Stage Cost); $V_f(x)$ là chi phí đầu cuối (Terminal Cost); $\mathcal{X}_f \subseteq \mathcal{X}$ là tập ràng buộc đầu cuối (Terminal Constraint Set); $x_N$ là trạng thái dự báo tại cuối chân trời.
+  </div>
+</div>
+
+<h4 id="sec-2-4">2.4 Lý Thuyết Ổn Định Tiệm Cận Lyapunov (Lyapunov Stability Theorem)</h4>
+<p>Để chứng minh hàm giá trị tối ưu $V_N^0(x)$ đóng vai trò là một <strong>Hàm Lyapunov suy giảm nghiêm ngặt</strong> cho hệ kín $x_{k+1} = f(x_k, \kappa_N(x_k))$, bộ ba $\{V_f, \mathcal{X}_f, \kappa_f\}$ phải thỏa mãn <strong>Giả thiết cơ bản (Basic Stability Assumption)</strong>:</p>
+<div class="formula-hero">
+  <div class="formula-title">ĐIỀU KIỆN SUY GIẢM BẤT BIẾN ĐẦU CUỐI (RAWLINGS ET AL.)</div>
+  <div class="formula-math">
+    $$\forall x \in \mathcal{X}_f: \quad \kappa_f(x) \in \mathcal{U}, \quad f(x, \kappa_f(x)) \in \mathcal{X}_f$$
+    $$V_f(f(x, \kappa_f(x))) - V_f(x) \le -\ell(x, \kappa_f(x))$$
+  </div>
+  <div class="formula-legend">
+    Ý nghĩa: $\mathcal{X}_f$ là tập bất biến dương (Positively Invariant Set) dưới luật điều khiển phụ $\kappa_f(x)$. Một khi trạng thái rơi vào $\mathcal{X}_f$, luật $\kappa_f(x)$ sẽ giữ trạng thái mãi mãi trong đó và chi phí $V_f(x)$ suy giảm nhanh hơn chi phí tức thời $\ell(x, \kappa_f(x))$.
+  </div>
+</div>
+
+<p>Khi đó, hàm giá trị $V_N^0(x)$ thỏa mãn bất đẳng thức Lyapunov kinh điển:</p>
+$$V_N^0(f(x, \kappa_N(x))) - V_N^0(x) \le -\ell(x, \kappa_N(x)) \lt 0 \quad \forall x \neq 0$$
+<p>Điều này khẳng định gốc tọa độ $0$ là điểm cân bằng <strong>ổn định tiệm cận (Asymptotically Stable)</strong> với miền thu hút chính là tập các trạng thái khả thi $\mathcal{X}_N$.</p>
+
+<h4 id="sec-2-6">2.6 Ràng Buộc Đầu Cuối $\mathcal{X}_f$ Có Thực Sự Cần Thiết?</h4>
+<p>GS. Rawlings và Mayne phân tích: trong nhiều ứng dụng thực tế, việc tính toán tập đa diện $\mathcal{X}_f$ rất phức tạp. Liệu có thể bỏ qua $\mathcal{X}_f$ (chỉ giữ lại $V_f$ hoặc không có cả hai)?</p>
+<ul>
+  <li><strong>Unconstrained Terminal Set ($\mathcal{X}_f = \mathbb{R}^n$):</strong> Hệ vẫn ổn định nếu chân trời dự báo $N \ge N^*$ đủ dài để năng lượng tự suy giảm về lân cận gốc.</li>
+  <li><strong>Suboptimal MPC (Mục 2.7):</strong> Trong hệ thống nhúng thời gian thực, nếu bộ giải tối ưu hóa chưa tìm được nghiệm tối ưu toàn cục do hết thời gian chu kỳ lấy mẫu, chỉ cần nghiệm ứng viên thỏa mãn điều kiện suy giảm Lyapunov thì tính ổn định vẫn được bảo toàn tuyệt đối!</li>
+</ul>
+
+<h4 id="sec-2-8">2.8 Economic Model Predictive Control (MPC Kinh Tế)</h4>
+<p>Khác với điều khiển điều tiết truyền thống (đưa $x \to 0$), <strong>Economic MPC</strong> tối ưu trực tiếp một hàm chi phí kinh tế tùy ý $\ell_{\text{econ}}(x, u)$ (ví dụ: tối đa hóa sản lượng dầu mỏ, tối thiểu hóa lượng điện tiêu thụ kWh). Tính ổn định của Economic MPC được chứng minh dựa trên <strong>Lý thuyết Tiêu tán (Dissipativity Theory)</strong> và tính chất quay vòng (Turnpike Property).</p>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-2-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 XÁC ĐỊNH TẬP BẤT BIẾN ĐẦU CUỐI X_f &amp; KIỂM CHỨNG SUY GIẢM LYAPUNOV</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét hệ thống rời rạc bậc hai: $x_{k+1} = \begin{bmatrix} 1.2 & 1.0 \\ 0 & 0.8 \end{bmatrix} x_k + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u_k$. Ràng buộc điều khiển $|u_k| \le 1.0$. Ma trận trọng số $Q = I_2, R = 1$.</p>
+    <p>1) Giải phương trình DARE tìm ma trận $P$ và luật điều khiển LQR $\kappa_f(x) = -K x$.<br>
+    2) Xác định tập bất biến dương cực đại $\mathcal{X}_f = \{x \in \mathbb{R}^2 \mid |K x| \le 1.0\}$.<br>
+    3) Với trạng thái $x = [0.5, -0.4]^\top \in \mathcal{X}_f$, kiểm chứng điều kiện suy giảm Lyapunov.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Tính ma trận Riccati P và hệ số khuếch đại LQR K</span>
+      </div>
+      <div class="step-content">
+        <p>Giải phương trình DARE bằng phép lặp số hội tụ:</p>
+        $$P = \begin{bmatrix} 4.027 & 2.534 \\ 2.534 & 3.821 \end{bmatrix}, \quad K = (R + B^\top P B)^{-1} B^\top P A = \begin{bmatrix} 0.630 & 1.159 \end{bmatrix}$$
+        <p>Ma trận vòng kín $A_K = A - BK = \begin{bmatrix} 1.2 & 1.0 \\ -0.630 & -0.359 \end{bmatrix}$ có các trị riêng $\lambda = 0.420 \pm 0.258j$ với $|\lambda| = 0.493 \lt 1$ (Ổn định tiệm cận nghiêm ngặt!).</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Xây dựng tập bất biến đầu cuối $\mathcal{X}_f$</span>
+      </div>
+      <div class="step-content">
+        <p>Tập mức Lyapunov elip: $\mathcal{X}_f = \{x \mid x^\top P x \le \alpha\}$. Để bảo đảm $|K x| \le 1.0$ cho mọi $x \in \mathcal{X}_f$, tham số $\alpha$ được tính qua:</p>
+        $$\alpha = \frac{1}{K P^{-1} K^\top} = \frac{1}{0.312} \approx 3.205$$
+        <p>Do đó, tập bất biến $\mathcal{X}_f = \{x \in \mathbb{R}^2 \mid x^\top \begin{bmatrix} 4.027 & 2.534 \\ 2.534 & 3.821 \end{bmatrix} x \le 3.205\}$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Kiểm tra trạng thái x = [0.5, -0.4]ᵀ</span>
+      </div>
+      <div class="step-content">
+        <p>Giá trị hàm Lyapunov: $V_f(x) = x^\top P x = [0.5, -0.4] \begin{bmatrix} 4.027 & 2.534 \\ 2.534 & 3.821 \end{bmatrix} \begin{bmatrix} 0.5 \\ -0.4 \end{bmatrix} = 1.006 - 1.014 + 0.611 = 0.603 \le 3.205$. Trạng thái nằm an toàn trong $\mathcal{X}_f$!</p>
+        <p>Tín hiệu điều khiển: $u = -K x = - (0.630 \times 0.5 + 1.159 \times (-0.4)) = 0.149\text{ N} \le 1.0$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Kiểm chứng độ suy giảm nghiêm ngặt</span>
+      </div>
+      <div class="step-content">
+        <p>Trạng thái kế tiếp: $x^+ = A_K x = [0.200, -0.171]^\top$.</p>
+        <p>Hàm Lyapunov tại $x^+$: $V_f(x^+) = (x^+)^\top P x^+ = 0.098$.</p>
+        <p>Độ suy giảm: $\Delta V = V_f(x^+) - V_f(x) = 0.098 - 0.603 = -0.505$.</p>
+        <p>Chi phí tức thời: $-\ell(x, u) = -(x^\top Q x + u^2) = -(0.5^2 + (-0.4)^2 + 0.149^2) = -0.432$.</p>
+        <p>Nhận xét: $\Delta V = -0.505 \le -0.432$. Bất đẳng thức Lyapunov được thỏa mãn hoàn hảo!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-2-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 MÔ PHỎNG TẬP BẤT BIẾN ĐẦU CUỐI X_f &amp; ĐƯỜNG MỨC LYAPUNOV</h3>
+    <p class="sim-desc">Nhấp chuột vào bất kỳ điểm nào trong khung để đặt trạng thái ban đầu x₀. Quan sát elip tập bất biến X_f (màu xanh lục) và quỹ đạo hội tụ.</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch02" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+
+  <div class="sim-controls" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; justify-content: center;">
+    <div>
+      <label>Bán kính tập X_f: </label>
+      <input type="range" id="slider-ch02-radius" min="0.5" max="2.5" step="0.1" value="1.2">
+    </div>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-2-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 (Safe Inverted Pendulum)</h4>
+  <p>Trong hệ thống robot giữ thăng bằng (Self-Balancing Robot / Cart-Pole), điều kiện an toàn đòi hỏi góc nghiêng con lắc $|\theta| \le \theta_{\max}$. Bằng cách thiết lập tập bất biến đầu cuối $\mathcal{X}_f$ trong bộ giải MPC:</p>
+  <ul>
+    <li>Bộ điều khiển ROS 2 Node đảm bảo <strong>tính khả thi đệ quy (Recursive Feasibility)</strong>: robot không bao giờ rơi vào trạng thái mất thăng bằng không thể cứu vãn.</li>
+    <li>Khi xảy ra lỗi truyền thông hoặc mất gói tin điều khiển, robot tự động chuyển sang chế độ dự phòng bằng luật điều khiển cục bộ $\kappa_f(x) = -K x$ đã được chứng minh an toàn trong $\mathcal{X}_f$.</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-2-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 02</h4>
+  <p>Tính ổn định tiệm cận của MPC được bảo đảm khi bộ ba $\{V_f, \mathcal{X}_f, \kappa_f\}$ thỏa mãn điều kiện suy giảm Lyapunov. Hiểu rõ cơ chế này giúp người kỹ sư tự tin thiết lập các tham số phạt đầu cuối mà không lo ngại hệ thống bị mất ổn định.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch01.html" class="btn btn-secondary">← Chương 01: Bắt Đầu Với MPC</a>
+        <a href="ch03.html" class="btn btn-primary">Chương 03: MPC Bền Vững Tube-Based →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Ước Lượng Trạng Thái & Moving Horizon Estimation - Model Predictive Control Portal</title>
+  <meta name="description" content="Ước lượng toàn phần FIE, Moving Horizon Estimation (MHE) trên cửa sổ trôi, xấp xỉ Arrival Cost và hợp nhất MHE-MPC đảm bảo ràng buộc vật lý.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 4: Ước Lượng Trạng Thái & Đầu Ra</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 04</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 04</span>
+        <span class="sidebar-badge">10 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-4-1"><span class="nav-text">4.1 Giới Thiệu Ước Lượng Trạng Thái Tối Ưu</span></a></div>
+<div class="nav-item"><a href="#sec-4-2"><span class="nav-text">4.2 Ước Lượng Toàn Phần (Full Information Estimation)</span></a></div>
+<div class="nav-item"><a href="#sec-4-3"><span class="nav-text">4.3 Moving Horizon Estimation (MHE & Cửa Sổ Trôi)</span></a></div>
+<div class="nav-item"><a href="#sec-4-4"><span class="nav-text">4.4 Nhiễu Có Giới Hạn & Độ Bền Vững IOSS</span></a></div>
+<div class="nav-item"><a href="#sec-4-5"><span class="nav-text">4.5 Các Bộ Ước Lượng Phi Tuyến Khác</span></a></div>
+<div class="nav-item"><a href="#sec-4-6"><span class="nav-text">4.6 Hợp Nhất MHE & MPC (Output Feedback)</span></a></div>
+<div class="nav-item"><a href="#sec-4-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Ước Lượng Cửa Sổ MHE</span></a></div>
+<div class="nav-item"><a href="#sec-4-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Cửa Sổ Trôi MHE</span></a></div>
+<div class="nav-item"><a href="#sec-4-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (mhe_odometry_node)</span></a></div>
+<div class="nav-item"><a href="#sec-4-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 4: ƯỚC LƯỢNG TRẠNG THÁI & ĐẦU RA</div>
+        <h1>Chương 04: Chương 04: Ước Lượng Trạng Thái & Moving Horizon Estimation</h1>
+        <p class="chapter-subtitle">Ước lượng toàn phần FIE, Moving Horizon Estimation (MHE) trên cửa sổ trôi, xấp xỉ Arrival Cost và hợp nhất MHE-MPC đảm bảo ràng buộc vật lý.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-4-1">
+  <h4>💡 TẠI SAO KALMAN FILTER THẤT BẠI KHI CÓ RÀNG BUỘC VẬT LÝ?</h4>
+  <p>Bộ lọc Kalman cổ điển (KF, EKF) là tượng đài của thế kỷ 20, nhưng nó được xây dựng trên giả thiết: trạng thái biến thiên tự do trên toàn bộ không gian $\mathbb{R}^n$.</p>
+  <p>Trong thực tế robot học và hóa công, các biến trạng thái luôn có <strong>ràng buộc vật lý không thể vi phạm</strong>: nồng độ chất phản ứng không thể âm ($c \ge 0$), độ cao máy bay không thể âm ($z \ge 0$), ma sát không thể đổi chiều tùy tiện. Khi bộ lọc Kalman ước lượng ra giá trị âm phi vật lý, toàn bộ hệ thống điều khiển kéo theo sẽ sụp đổ!</p>
+  <p><strong>Moving Horizon Estimation (MHE)</strong> — đối ngẫu toán học hoàn hảo của MPC — biến bài toán ước lượng trạng thái thành một bài toán <strong>tối ưu hóa động có ràng buộc trên cửa sổ trôi (Moving Window)</strong>, triệt tiêu hoàn toàn nhược điểm của Kalman Filter!</p>
+</div>
+
+<h4 id="sec-4-3">4.3 Moving Horizon Estimation (MHE &amp; Chi Phí Tích Lũy Arrival Cost)</h4>
+<p>Nếu ước lượng trên toàn bộ lịch sử từ thời điểm $0$ đến $t$ (Full Information Estimation - FIE), số lượng biến tối ưu sẽ tăng vô hạn theo thời gian. MHE giải quyết vấn đề này bằng cách chỉ tối ưu hóa trên một <strong>cửa sổ trôi gồm $N$ bước đo gần nhất</strong> $[t-N, t]$:</p>
+<div class="formula-hero">
+  <div class="formula-title">BÀI TOÁN TỐI ƯU HÓA MHE TRÊN CỬA SỔ TRÔI N</div>
+  <div class="formula-math">
+    $$\min_{x_{t-N}, \{w_k\}_{k=t-N}^{t-1}} \left\{ \Gamma_{t-N}(x_{t-N}) + \sum_{k=t-N}^{t-1} |w_k|_{Q_w^{-1}}^2 + \sum_{k=t-N}^t |v_k|_{R_v^{-1}}^2 \right\}$$
+    $$\text{s.t.} \quad x_{k+1} = f(x_k, u_k) + w_k, \quad y_k = h(x_k) + v_k, \quad x_k \in \mathcal{X}, \quad w_k \in \mathcal{W}$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $\Gamma_{t-N}(x_{t-N})$ là chi phí tích lũy quá khứ (Arrival Cost) tóm lược toàn bộ thông tin đo lường trước thời điểm $t-N$; $w_k$ là nhiễu quá trình; $v_k = y_k - h(x_k)$ là sai số đo lường.
+  </div>
+</div>
+
+<p><strong>Xấp xỉ Chi Phí Tích Lũy Quá Khứ (Arrival Cost Approximation):</strong></p>
+<p>GS. Rawlings và Mayne chỉ ra rằng chìa khóa thành bại của MHE nằm ở hàm $\Gamma_{t-N}(x)$. Trong thực tế, nó được xấp xỉ dưới dạng toàn phương bằng ma trận hiệp phương sai Riccati/EKF:</p>
+$$\Gamma_{t-N}(x) \approx \frac{1}{2} (x - \bar{x}_{t-N})^\top P_{t-N}^{-1} (x - \bar{x}_{t-N})$$
+
+<h4 id="sec-4-6">4.6 Hợp Nhất MHE &amp; MPC Thành Hệ Thống Phản Hồi Đầu Ra (Output Feedback)</h4>
+<p>Khi ghép nối bộ ước lượng MHE với bộ điều khiển MPC, hệ thống kín đạt được tính ổn định bền vững theo khái niệm <strong>Input/Output-to-State Stability (IOSS)</strong>. MHE cung cấp trạng thái ước lượng $\hat{x}_t \in \mathcal{X}$ luôn tôn trọng ràng buộc vật lý, giúp bài toán MPC tại bước kế tiếp luôn luôn khả thi!</p>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-4-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 TÍNH TOÁN ƯỚC LƯỢNG MHE 3 BƯỚC CÓ RÀNG BUỘC PHI ÂM</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét vật thể chuyển động có tọa độ $x_k \ge 0$. Mô hình: $x_{k+1} = x_k + w_k$. Phương trình đo: $y_k = x_k + v_k$. Trọng số nhiễu $Q_w = 1, R_v = 1$.</p>
+    <p>Tại thời điểm $t = 2$, cửa sổ MHE độ dài $N = 2$ bao gồm các phép đo tại $k = 0, 1, 2$: $y_0 = 0.8, y_1 = -0.3, y_2 = 0.5$.</p>
+    <p>Giả sử chi phí quá khứ ban đầu $\Gamma_0(x_0) = (x_0 - 1.0)^2$.<br>
+    Hãy tính ước lượng MHE tại thời điểm hiện tại $\hat{x}_2$ dưới ràng buộc cứng $x_k \ge 0$.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Thiết lập hàm mục tiêu MHE</span>
+      </div>
+      <div class="step-content">
+        <p>Hàm mục tiêu tối ưu trên chuỗi $[x_0, x_1, x_2]$:</p>
+        $$J(x_0, x_1, x_2) = (x_0 - 1.0)^2 + (x_1 - x_0)^2 + (x_2 - x_1)^2 + (0.8 - x_0)^2 + (-0.3 - x_1)^2 + (0.5 - x_2)^2$$
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Phân tích nghiệm không ràng buộc (Unconstrained Least Squares)</span>
+      </div>
+      <div class="step-content">
+        <p>Lấy đạo hàm riêng theo $x_0, x_1, x_2$ và giải hệ phương trình tuyến tính:</p>
+        $$\frac{\partial J}{\partial x_0} = 2(x_0 - 1) - 2(x_1 - x_0) - 2(0.8 - x_0) = 0 \implies 3 x_0 - x_1 = 1.8$$
+        $$\frac{\partial J}{\partial x_1} = 2(x_1 - x_0) - 2(x_2 - x_1) - 2(-0.3 - x_1) = 0 \implies -x_0 + 3 x_1 - x_2 = -0.3$$
+        $$\frac{\partial J}{\partial x_2} = 2(x_2 - x_1) - 2(0.5 - x_2) = 0 \implies -x_1 + 2 x_2 = 0.5$$
+        <p>Giải ra nghiệm không ràng buộc: $x_0 = 0.655, x_1 = 0.165, x_2 = 0.333$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Tác động khi cảm biến đo âm y₁ = -0.3</span>
+      </div>
+      <div class="step-content">
+        <p>Dù cảm biến đo $y_1 = -0.3$ (do nhiễu đo), nghiệm MHE kết hợp mô hình động học và chi phí quá khứ đã kéo ước lượng lên $x_1 = 0.165 \ge 0$, tự động loại bỏ sai số âm phi vật lý mà không cần can thiệp thủ công!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Kết luận giá trị ước lượng hiện tại x̂₂</span>
+      </div>
+      <div class="step-content">
+        <p>Ước lượng trạng thái tại thời điểm hiện tại: $\hat{x}_2 = 0.333$.</p>
+        <p>Trạng thái $\hat{x}_2$ này lập tức được cấp làm trạng thái ban đầu cho bộ giải MPC tại thời điểm $t=2$.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-4-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 MÔ PHỎNG CỬA SỔ TRÔI MOVING HORIZON ESTIMATION</h3>
+    <p class="sim-desc">Quan sát cửa sổ trôi MHE (vùng xanh sáng). Dữ liệu cảm biến đo bị nhiễu lớn (chấm đỏ), nhưng đường ước lượng MHE (đường cam) bám sát tín hiệu thật (xanh lá).</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch04" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+
+  <div class="sim-controls" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; justify-content: center;">
+    <div>
+      <label>Độ dài cửa sổ trôi N: </label>
+      <input type="range" id="slider-ch04-n" min="4" max="16" value="8">
+    </div>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-4-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 (mhe_odometry_node)</h4>
+  <p>Trong hệ thống định vị robot, node <code>mhe_odometry_node</code> thay thế cho gói <code>robot_localization</code> (EKF):</p>
+  <ul>
+    <li>Áp đặt ràng buộc vật lý: vận tốc xe không vượt quá $v_{\max} = 2.0\text{ m/s}$, gia tốc không vượt quá $a_{\max} = 1.5\text{ m/s}^2$.</li>
+    <li>Bộ giải QP nội tuyến thực thi trong vòng <strong>1.5 ms</strong>, loại bỏ hoàn toàn các cú sốc tín hiệu khi cảm biến GPS hoặc LiDAR bị mất dấu (dropouts).</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-4-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 04</h4>
+  <p>MHE và MPC là hai mặt của một đồng xu trong lý thuyết điều khiển tối ưu. Khả năng kết hợp các ràng buộc cứng vào khâu ước lượng trạng thái biến MHE thành giải pháp vượt trội cho các bài toán định vị và lọc nhiễu chính xác cao.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch03.html" class="btn btn-secondary">← Chương 03: MPC Bền Vững</a>
+        <a href="ch05.html" class="btn btn-primary">Chương 05: Output MPC & Offset-Free →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

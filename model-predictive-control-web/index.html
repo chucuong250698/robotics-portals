@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Predictive Control: Theory, Computation, and Design - Portal Hub</title>
+  <meta name="description" content="Cổng tri thức tương tác toàn diện về Điều Khiển Dự Báo Mô Hình (MPC) dựa trên siêu chuyên khảo kinh điển của GS. James B. Rawlings, David Q. Mayne, Moritz M. Diehl.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-icon">🎯</span>
+        <div class="brand-text">
+          <span class="brand-title">MODEL PREDICTIVE CONTROL</span>
+          <span class="brand-subtitle">THEORY, COMPUTATION, AND DESIGN</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="book-badge">
+        <span class="badge-icon">📖</span> Nob Hill Publishing 2nd Edition • Rawlings, Mayne, Diehl
+      </div>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout single-col">
+    <main class="main-content" style="max-width: 1240px; margin: 0 auto; width: 100%; padding: 1.5rem 1rem 4rem;">
+      
+      <!-- Curriculum Roadmap Header -->
+      <section class="curriculum-roadmap" id="curriculum-roadmap">
+        <div class="roadmap-header">
+          <div class="card-track-badge" style="margin-bottom: 0.5rem; display: inline-block;">SIÊU CHUYÊN KHẢO KINH ĐIỂN THẾ GIỚI (819 TRANG)</div>
+          <h2>LỘ TRÌNH TRI THỨC ĐIỀU KHIỂN DỰ BÁO MÔ HÌNH (MPC)</h2>
+          <p>Chuyển hóa toàn diện tác phẩm kinh điển của <strong>GS. James B. Rawlings</strong> (UCSB), <strong>GS. David Q. Mayne</strong> (Imperial College) và <strong>GS. Moritz M. Diehl</strong> (Freiburg - Tác giả CasADi & acados). Khám phá cấu trúc toán học 6 tầng, chứng minh ổn định Lyapunov, kỹ thuật Tube-Based kháng nhiễu và solver tối ưu hóa số NMPC thời gian thực.</p>
+          
+          <div class="roadmap-stats">
+            <span class="stat-badge"><span class="stat-num">8</span> Chương Chuyên Sâu</span>
+            <span class="stat-badge"><span class="stat-num">3</span> Phụ Lục Toán Học</span>
+            <span class="stat-badge"><span class="stat-num">8</span> Mô Phỏng Canvas 2D 60 FPS</span>
+            <span class="stat-badge"><span class="stat-num">8</span> Bài Tập Tính Số 4 Bước</span>
+            <span class="stat-badge"><span class="stat-num">100%</span> Cầu Nối ROS 2 / CasADi C++</span>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="search-filter-wrapper">
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="chapter-search" placeholder="Tìm kiếm chương, thuật toán (LQR, Lyapunov, Tube MPC, MHE, Offset-Free, DMPC, Explicit, CasADi)... (Ctrl + K)">
+          </div>
+          
+          <div class="filter-pills-row">
+            <button class="filter-pill active" data-filter="all">Tất Cả (11 Chuyên Đề)</button>
+            <button class="filter-pill" data-filter="track-1">Track 1: Nền Tảng & LQR</button>
+            <button class="filter-pill" data-filter="track-2">Track 2: Lý Thuyết Ổn Định</button>
+            <button class="filter-pill" data-filter="track-3">Track 3: Kháng Nhiễu Bền Vững</button>
+            <button class="filter-pill" data-filter="track-4">Track 4: Ước Lượng & Đầu Ra</button>
+            <button class="filter-pill" data-filter="track-5">Track 5: Hệ Thống Phân Tán</button>
+            <button class="filter-pill" data-filter="track-6">Track 6: Tính Toán Số & Nhúng</button>
+          </div>
+        </div>
+
+        <!-- Chapter Matrix Grid -->
+        <div class="matrix-grid" id="matrix-grid">
+          
+          <!-- Card Ch 01 -->
+          <a href="chapters/ch01.html" class="matrix-card" data-track="track-1" data-keywords="ch01 bắt đầu lqr receding horizon dynamic programming riccati dare double integrator">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 1: Nền Tảng</span>
+              <span class="card-ch-num">CHƯƠNG 01</span>
+            </div>
+            <h3 class="matrix-card-title">Bắt Đầu Với Điều Khiển Dự Báo Mô Hình (MPC)</h3>
+            <p class="matrix-card-sub">Triết lý Receding Horizon, mô hình LTI rời rạc, bài toán LQR, quy hoạch động Bellman, phương trình Riccati DARE và ước lượng trạng thái mở đầu.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Receding Horizon</span>
+              <span class="topic-tag">LQR & DARE</span>
+              <span class="topic-tag">Double Integrator</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 02 -->
+          <a href="chapters/ch02.html" class="matrix-card" data-track="track-2" data-keywords="ch02 điều tiết ổn định lyapunov terminal set x_f economic mpc suboptimal">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 2: Lý Thuyết Ổn Định</span>
+              <span class="card-ch-num">CHƯƠNG 02</span>
+            </div>
+            <h3 class="matrix-card-title">MPC Điều Tiết & Ổn Định Lyapunov (Regulation)</h3>
+            <p class="matrix-card-sub">Hàm chi phí tối ưu, điều kiện suy giảm Lyapunov nghiêm ngặt, tập bất biến đầu cuối X_f, tính khả thi đệ quy, Suboptimal MPC và Economic MPC.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Lyapunov Theorem</span>
+              <span class="topic-tag">Tập Bất Biến X_f</span>
+              <span class="topic-tag">Economic MPC</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 03 -->
+          <a href="chapters/ch03.html" class="matrix-card" data-track="track-3" data-keywords="ch03 mpc bền vững robust tube-based minkowski rpi stochastic chance constraints">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 3: Kháng Nhiễu</span>
+              <span class="card-ch-num">CHƯƠNG 03</span>
+            </div>
+            <h3 class="matrix-card-title">MPC Bền Vững Tube-Based & Ngẫu Nhiên</h3>
+            <p class="matrix-card-sub">Tính bền vững danh nghĩa, Min-Max MPC, Tube-Based MPC với phép trừ Minkowski thu hẹp ràng buộc, và Stochastic MPC với ràng buộc xác suất.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Tube-Based MPC</span>
+              <span class="topic-tag">Minkowski ⊖</span>
+              <span class="topic-tag">Chance Constraints</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 04 -->
+          <a href="chapters/ch04.html" class="matrix-card" data-track="track-4" data-keywords="ch04 ước lượng trạng thái moving horizon estimation mhe arrival cost kalman filter ioss">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 4: Ước Lượng</span>
+              <span class="card-ch-num">CHƯƠNG 04</span>
+            </div>
+            <h3 class="matrix-card-title">Ước Lượng Trạng Thái & Moving Horizon Estimation (MHE)</h3>
+            <p class="matrix-card-sub">Ước lượng toàn phần FIE, Moving Horizon Estimation (MHE) trên cửa sổ trôi, xấp xỉ Arrival Cost và hợp nhất MHE-MPC đảm bảo ràng buộc vật lý.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Moving Horizon</span>
+              <span class="topic-tag">Arrival Cost</span>
+              <span class="topic-tag">Ràng Buộc Phi Âm</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 05 -->
+          <a href="chapters/ch05.html" class="matrix-card" data-track="track-4" data-keywords="ch05 điều khiển đầu ra output mpc offset-free tracking target calculator disturbance model">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 4: Ước Lượng</span>
+              <span class="card-ch-num">CHƯƠNG 05</span>
+            </div>
+            <h3 class="matrix-card-title">Output MPC & Offset-Free Tracking</h3>
+            <p class="matrix-card-sub">Nguyên lý tách rời trong điều khiển phản hồi đầu ra, mô hình nhiễu mở rộng, giải bài toán mục tiêu cân bằng và khử triệt để sai lệch xác lập.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Offset-Free</span>
+              <span class="topic-tag">Disturbance Model</span>
+              <span class="topic-tag">Target Problem</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 06 -->
+          <a href="chapters/ch06.html" class="matrix-card" data-track="track-5" data-keywords="ch06 mpc phân tán distributed dmpc đa robot game theory nash pareto jacobi gauss-seidel">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 5: Phân Tán</span>
+              <span class="card-ch-num">CHƯƠNG 06</span>
+            </div>
+            <h3 class="matrix-card-title">Distributed Model Predictive Control (DMPC)</h3>
+            <p class="matrix-card-sub">Lý thuyết trò chơi 2 và M tác tử, cân bằng Nash, tối ưu Pareto, thuật toán lặp Jacobi/Gauss-Seidel và điều khiển bầy đàn đa robot an toàn.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Distributed MPC</span>
+              <span class="topic-tag">Nash Equilibrium</span>
+              <span class="topic-tag">Multi-Robot Swarm</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 07 -->
+          <a href="chapters/ch07.html" class="matrix-card" data-track="track-6" data-keywords="ch07 explicit mpc pqp critical regions piecewise affine pwa embedded stm32 1000hz">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 6: Tính Toán Số</span>
+              <span class="card-ch-num">CHƯƠNG 07</span>
+            </div>
+            <h3 class="matrix-card-title">Explicit MPC Cho Hệ Tuyến Tính Ràng Buộc</h3>
+            <p class="matrix-card-sub">Quy hoạch toàn phương tham số pQP, phân hoạch không gian trạng thái thành các miền tới hạn đa diện (Critical Regions) và tra bảng siêu nhanh 1000 Hz.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Parametric QP</span>
+              <span class="topic-tag">Critical Regions</span>
+              <span class="topic-tag">1000 Hz Micro-ROS</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 08 -->
+          <a href="chapters/ch08.html" class="matrix-card" data-track="track-6" data-keywords="ch08 tối ưu hóa số casadi direct multiple shooting sqp real-time iteration rti acados nmpc">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 6: Tính Toán Số</span>
+              <span class="card-ch-num">CHƯƠNG 08</span>
+            </div>
+            <h3 class="matrix-card-title">Tối Ưu Hóa Số Trong NMPC & Thư Viện CasADi</h3>
+            <p class="matrix-card-sub">Vi phân tự động CasADi, Direct Multiple Shooting giải KKT thưa dải, thuật toán Real-Time Iteration (RTI) và solver acados nhúng xe tự hành.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">CasADi & acados</span>
+              <span class="topic-tag">Multiple Shooting</span>
+              <span class="topic-tag">RTI Scheme</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card App A -->
+          <a href="chapters/appendix-a.html" class="matrix-card" data-track="track-6" data-keywords="phụ lục a toán học đại số tuyến tính schur pseudo inverse lmi convex">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Phụ Lục Chuyên Khảo</span>
+              <span class="card-ch-num">PHỤ LỤC A</span>
+            </div>
+            <h3 class="matrix-card-title">Cơ Sở Toán Học (Mathematical Background)</h3>
+            <p class="matrix-card-sub">Đại số tuyến tính, nghịch đảo giả Moore-Penrose, định lý phần bù Schur, chuẩn ma trận và giải tích tập lồi / hàm lồi.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Schur Complement</span>
+              <span class="topic-tag">Moore-Penrose</span>
+              <span class="topic-tag">Convex Sets</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card App B -->
+          <a href="chapters/appendix-b.html" class="matrix-card" data-track="track-2" data-keywords="phụ lục b ổn định lyapunov iss ioss class k kl">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Phụ Lục Chuyên Khảo</span>
+              <span class="card-ch-num">PHỤ LỤC B</span>
+            </div>
+            <h3 class="matrix-card-title">Lý Thuyết Ổn Định Lyapunov & ISS</h3>
+            <p class="matrix-card-sub">Định lý ổn định Lyapunov cho hệ rời rạc, hàm so sánh lớp K và KL, tính ổn định đầu vào - trạng thái (ISS) và IOSS.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Class K & KL</span>
+              <span class="topic-tag">Input-to-State Stability</span>
+              <span class="topic-tag">IOSS</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card App C -->
+          <a href="chapters/appendix-c.html" class="matrix-card" data-track="track-6" data-keywords="phụ lục c tối ưu hóa kkt cones tangent normal value function">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Phụ Lục Chuyên Khảo</span>
+              <span class="card-ch-num">PHỤ LỤC C</span>
+            </div>
+            <h3 class="matrix-card-title">Lý Thuyết Tối Ưu Hóa & Điều Kiện KKT</h3>
+            <p class="matrix-card-sub">Quy hoạch động Bellman, nón tiếp xúc và nón pháp tuyến, hệ điều kiện tối ưu KKT và tính liên tục của hàm giá trị.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">KKT Conditions</span>
+              <span class="topic-tag">Tangent Cones</span>
+              <span class="topic-tag">Value Function</span>
+            </div>
+            <div class="matrix-card-footer">
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="assets/js/app.js?v=20261122"></script>
+</body>
+</html>

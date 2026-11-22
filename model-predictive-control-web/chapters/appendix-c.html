@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phụ Lục C: Lý Thuyết Tối Ưu Hóa & Điều Kiện KKT - Model Predictive Control Portal</title>
+  <meta name="description" content="Quy hoạch động Bellman, nón tiếp xúc và nón pháp tuyến, hệ điều kiện tối ưu KKT và tính liên tục của hàm giá trị.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 6: Nền Tảng Toán & Tối Ưu</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Phụ Lục C</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC PHỤ LỤC C</span>
+        <span class="sidebar-badge">4 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-c-1"><span class="nav-text">C.1 Quy Hoạch Động (Dynamic Programming & Bellman)</span></a></div>
+<div class="nav-item"><a href="#sec-c-2"><span class="nav-text">C.2 Nón Tiếp Xúc & Nón Pháp Tuyến (Tangent and Normal Cones)</span></a></div>
+<div class="nav-item"><a href="#sec-c-3"><span class="nav-text">C.3 Điều Kiện Tối Ưu Karush-Kuhn-Tucker (KKT)</span></a></div>
+<div class="nav-item"><a href="#sec-c-4"><span class="nav-text">C.4 Hàm Đa Trị & Tính Liên Tục Của Hàm Giá Trị (Value Function)</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: NỀN TẢNG TOÁN & TỐI ƯU</div>
+        <h1>Phụ Lục C: Phụ Lục C: Lý Thuyết Tối Ưu Hóa & Điều Kiện KKT</h1>
+        <p class="chapter-subtitle">Quy hoạch động Bellman, nón tiếp xúc và nón pháp tuyến, hệ điều kiện tối ưu KKT và tính liên tục của hàm giá trị.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-c-1">
+  <h4>💡 TRÁI TIM TOÁN HỌC CỦA CÁC THUẬT TOÁN BẬC CAO</h4>
+  <p>Mỗi bước thực thi của MPC bản chất là việc tìm điểm cực tiểu của một bài toán tối ưu hóa toán học có ràng buộc. Phụ lục C trang bị lý thuyết đối ngẫu Lagrange, nón hình học và hệ điều kiện tối ưu KKT cần và đủ.</p>
+</div>
+
+<h4 id="sec-c-3">C.3 Điều Kiện Tối Ưu Karush-Kuhn-Tucker (KKT) Cho Bài Toán Có Ràng Buộc</h4>
+<p>Xét bài toán tối ưu hóa phi tuyến tổng quát:</p>
+$$\min_{x} f(x) \quad \text{s.t.} \quad g_i(x) \le 0 \; (i=1,\dots,m), \quad h_j(x) = 0 \; (j=1,\dots,p)$$
+<p>Hàm Lagrange: $\mathcal{L}(x, \lambda, \nu) = f(x) + \sum_{i=1}^m \lambda_i g_i(x) + \sum_{j=1}^p \nu_j h_j(x)$. Điểm $x^*$ là nghiệm tối ưu khi và chỉ khi tồn tại các nhân tử $(\lambda^*, \nu^*)$ thỏa mãn 4 điều kiện KKT:</p>
+<div class="formula-hero">
+  <div class="formula-title">HỆ ĐIỀU KIỆN TỐI ƯU KKT (KARUSH-KUHN-TUCKER CONDITIONS)</div>
+  <div class="formula-math">
+    $$\nabla_x \mathcal{L}(x^*, \lambda^*, \nu^*) = 0 \quad (\text{Tính dừng Gradient})$$
+    $$g_i(x^*) \le 0, \quad h_j(x^*) = 0 \quad (\text{Tính khả thi nguyên thủy})$$
+    $$\lambda_i^* \ge 0 \quad (\text{Tính khả thi đối ngẫu})$$
+    $$\lambda_i^* g_i(x^*) = 0 \quad (\text{Độ bù bù trừ - Complementary Slackness})$$
+  </div>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="appendix-b.html" class="btn btn-secondary">← Phụ Lục B: Lý Thuyết Ổn Định</a>
+        <div></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>

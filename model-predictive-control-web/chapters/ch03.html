@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: MPC Bền Vững Tube-Based & Ngẫu Nhiên - Model Predictive Control Portal</title>
+  <meta name="description" content="Tính bền vững danh nghĩa, Min-Max MPC, Tube-Based MPC với phép trừ Minkowski thu hẹp ràng buộc, và Stochastic MPC với ràng buộc xác suất.">
+  <meta name="author" content="Antigravity Knowledge Distillation System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        ignoreHtmlClass: 'tex2jax_ignore',
+        processHtmlClass: 'tex2jax_process',
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Chapter Header with Breadcrumbs -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="breadcrumb-nav">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình MPC</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Kháng Nhiễu & Ngẫu Nhiên</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item current">Chương 03</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="book-badge" style="text-decoration: none; color: inherit;">
+        <span class="badge-icon">📖</span> MPC 2nd Edition • Rawlings, Mayne, Diehl
+      </a>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- Chapter Specific Sidebar TOC (320px Sticky) -->
+    <aside class="sidebar-container" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+        <span class="sidebar-badge">11 MỤC</span>
+      </div>
+      
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <div class="nav-item"><a href="#sec-3-1"><span class="nav-text">3.1 Giới Thiệu & Thách Thức Nhiễu Bất Định</span></a></div>
+<div class="nav-item"><a href="#sec-3-2"><span class="nav-text">3.2 Tính Bền Vững Danh Nghĩa (Inherent Robustness)</span></a></div>
+<div class="nav-item"><a href="#sec-3-3"><span class="nav-text">3.3 Điều Khiển Tối Ưu Min-Max Qua Quy Hoạch Động</span></a></div>
+<div class="nav-item"><a href="#sec-3-4"><span class="nav-text">3.4 Robust Min-Max MPC</span></a></div>
+<div class="nav-item"><a href="#sec-3-5"><span class="nav-text">3.5 Tube-Based Robust MPC (Ống Kháng Nhiễu)</span></a></div>
+<div class="nav-item"><a href="#sec-3-6"><span class="nav-text">3.6 Tube-Based MPC Cho Hệ Phi Tuyến</span></a></div>
+<div class="nav-item"><a href="#sec-3-7"><span class="nav-text">3.7 Stochastic MPC (Ràng Buộc Xác Suất Chance Constraints)</span></a></div>
+<div class="nav-item"><a href="#sec-3-worked"><span class="nav-text">Ví Dụ Tính Số 4 Bước: Minkowski Tube Tightening</span></a></div>
+<div class="nav-item"><a href="#sec-3-sim"><span class="nav-text">Mô Phỏng Tương Tác 60 FPS: Tube-Based Vehicle</span></a></div>
+<div class="nav-item"><a href="#sec-3-ros2"><span class="nav-text">Cầu Nối Kiến Trúc ROS 2 (Nav2 Robust Tube Controller)</span></a></div>
+<div class="nav-item"><a href="#sec-3-summary"><span class="nav-text">📝 Tóm Tắt & Bài Tập Tự Luyện</span></a></div>
+      </nav>
+
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="../index.html" class="control-btn secondary" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area (Fit Web) -->
+    <main class="main-content" id="main-content">
+      <div class="chapter-hero">
+        <div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 3: KHÁNG NHIỄU & NGẪU NHIÊN</div>
+        <h1>Chương 03: Chương 03: MPC Bền Vững Tube-Based & Ngẫu Nhiên</h1>
+        <p class="chapter-subtitle">Tính bền vững danh nghĩa, Min-Max MPC, Tube-Based MPC với phép trừ Minkowski thu hẹp ràng buộc, và Stochastic MPC với ràng buộc xác suất.</p>
+      </div>
+
+      <!-- 100% EXHAUSTIVE CHAPTER CONTENT (6-LAYER ARCHITECTURE) -->
+      <article class="chapter-body-standalone">
+        
+<div class="why-matters-box" id="sec-3-1">
+  <h4>💡 NỖI ĐAU CÔNG NGHỆ: TẠI SAO MPC DANH NGHĨA THẤT BẠI TRONG THẾ GIỚI THỰC?</h4>
+  <p>Mọi mô hình toán học đều là xấp xỉ không hoàn hảo của thực tế. Trong môi trường thực tế, robot luôn chịu tác động của <strong>nhiễu ngoại cảnh (Disturbances)</strong> như gió thổi, mặt đường trơn trượt, phụ tải thay đổi, hoặc độ trễ truyền thông. Nếu chỉ sử dụng MPC danh nghĩa (Nominal MPC), trạng thái thực tế sẽ nhanh chóng trôi dạt ra ngoài biên an toàn, vi phạm ràng buộc và dẫn đến va chạm nguy hiểm!</p>
+  <p>Chương 3 của Rawlings, Mayne &amp; Diehl (trang 193–268) giải quyết bài toán cốt tử này bằng hai trường phái hiện đại: <strong>Tube-Based Robust MPC (Điều khiển dựa trên ống bao)</strong> và <strong>Stochastic MPC (Điều khiển ngẫu nhiên với ràng buộc xác suất)</strong>.</p>
+</div>
+
+<h4 id="sec-3-5">3.5 Tube-Based Robust MPC (Kỹ Thuật Ống Kháng Nhiễu Bền Vững)</h4>
+<p>Kỹ thuật <em>Tube-Based MPC</em> của Mayne &amp; Chisci được xem là bước đột phá thanh lịch nhất trong lịch sử điều khiển bền vững. Ý tưởng trung tâm: phân rã trạng thái thực $x_k$ thành hai thành phần:</p>
+<div class="formula-hero">
+  <div class="formula-title">PHÂN RÃ TRẠNG THÁI DANH NGHĨA &amp; BỘ PHẢN HỒI PHỤ (ANCILLARY CONTROLLER)</div>
+  <div class="formula-math">
+    $$x_k = z_k + e_k, \quad u_k = v_k + K (x_k - z_k) = v_k + K e_k$$
+  </div>
+  <div class="formula-legend">
+    Trong đó: $z_k$ là trạng thái danh nghĩa (Nominal State) không có nhiễu: $z_{k+1} = A z_k + B v_k$; $v_k$ là tín hiệu điều khiển danh nghĩa; $e_k = x_k - z_k$ là sai lệch do nhiễu; $K$ là hệ số phản hồi phụ (Ancillary Feedback Gain).
+  </div>
+</div>
+
+<p>Động lực học của sai lệch sai số: $e_{k+1} = (A + BK) e_k + w_k$. Khi $(A + BK)$ ổn định và nhiễu bị chặn $w_k \in \mathcal{W}$, sai số $e_k$ được giam giữ vĩnh viễn trong một <strong>Tập bất biến dương kháng nhiễu (Robust Positively Invariant set - RPI) $\mathcal{Z}$</strong> thỏa mãn:</p>
+$$(A + BK) \mathcal{Z} \oplus \mathcal{W} \subseteq \mathcal{Z}$$
+<p>Nhờ đó, trạng thái thực luôn nằm trong "ống" bao quanh trạng thái danh nghĩa: $x_k \in \{z_k\} \oplus \mathcal{Z}$.</p>
+
+<p><strong>Thu hẹp tập ràng buộc bằng phép trừ Minkowski (Pontryagin Difference):</strong></p>
+<p>Để đảm bảo $x_k \in \mathcal{X}$ và $u_k \in \mathcal{U}$ bất chấp mọi nhiễu $w \in \mathcal{W}$, bài toán MPC danh nghĩa chỉ cần giải trên các tập ràng buộc đã được thu hẹp nghiêm ngặt:</p>
+<div class="formula-hero">
+  <div class="formula-title">TẬP RÀNG BUỘC THU HẸP (TIGHTENED CONSTRAINTS)</div>
+  <div class="formula-math">
+    $$\bar{\mathcal{X}} = \mathcal{X} \ominus \mathcal{Z} = \{z \in \mathbb{R}^n \mid z + e \in \mathcal{X}, \; \forall e \in \mathcal{Z}\}$$
+    $$\bar{\mathcal{U}} = \mathcal{U} \ominus K \mathcal{Z} = \{v \in \mathbb{R}^m \mid v + Ke \in \mathcal{U}, \; \forall e \in \mathcal{Z}\}$$
+  </div>
+</div>
+
+<h4 id="sec-3-7">3.7 Stochastic MPC (Ràng Buộc Xác Suất Chance Constraints)</h4>
+<p>Trong trường hợp nhiễu không có chặn cứng mà tuân theo phân phối xác suất Gauss (ví dụ gió bão), việc áp dụng Tube-Based MPC có thể quá thận trọng (conservatism). <strong>Stochastic MPC</strong> cho phép vi phạm ràng buộc với một xác suất nhỏ chấp nhận được:</p>
+$$\mathbb{P}(x_k \in \mathcal{X}) \ge 1 - \epsilon, \quad \epsilon \in (0, 0.05]$$
+<p>Bằng cách sử dụng biến đổi định lượng (Quantile) hoặc tối ưu hóa theo kịch bản (Scenario Optimization), bài toán xác suất được quy về các ràng buộc tất định lồi có thể giải được trực tuyến.</p>
+
+<!-- Worked Example -->
+<div class="exercise-box" id="sec-3-worked">
+  <div class="exercise-header">
+    <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+    <h3 class="exercise-title">🔢 TÍNH TOÁN THU HẸP RÀNG BUỘC MINKOWSKI TRONG TUBE-BASED MPC</h3>
+  </div>
+  <div class="exercise-statement">
+    <p><strong>Bài toán:</strong> Xét hệ thống bậc 1: $x_{k+1} = 0.8 x_k + u_k + w_k$. Nhiễu bị chặn $|w_k| \le 0.2$. Ràng buộc trạng thái gốc: $|x_k| \le 2.0$. Ràng buộc điều khiển gốc: $|u_k| \le 1.0$.</p>
+    <p>Chọn hệ số phản hồi phụ $K = -0.3$.<br>
+    1) Tính bán kính tập bất biến sai số RPI $\mathcal{Z} = \{e \mid |e| \le s\}$.<br>
+    2) Xác định biên ràng buộc thu hẹp $\bar{\mathcal{X}}$ và $\bar{\mathcal{U}}$ cho bộ điều khiển danh nghĩa.</p>
+  </div>
+  
+  <div class="solution-wrapper">
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">1</span>
+        <span class="step-name">Bước 1: Khảo sát phương trình sai số e_{k+1}</span>
+      </div>
+      <div class="step-content">
+        <p>Phương trình sai số khép kín: $e_{k+1} = (A + BK) e_k + w_k = (0.8 + 1 \times (-0.3)) e_k + w_k = 0.5 e_k + w_k$.</p>
+        <p>Hệ số ổn định: $a_{cl} = 0.5 \lt 1$.</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">2</span>
+        <span class="step-name">Bước 2: Tính tập bất biến dương cực tiểu mRPI Z</span>
+      </div>
+      <div class="step-content">
+        <p>Với hệ bậc 1, tổng chuỗi hình học cho cận trên sai số cực đại:</p>
+        $$s = \sum_{i=0}^\infty (a_{cl})^i w_{\max} = \frac{w_{\max}}{1 - a_{cl}} = \frac{0.2}{1 - 0.5} = 0.4$$
+        <p>Do đó, tập bất biến sai số RPI là đoạn: $\mathcal{Z} = [-0.4, 0.4]$. Sai số thực tế không bao giờ vượt quá $0.4$!</p>
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">3</span>
+        <span class="step-name">Bước 3: Thu hẹp ràng buộc trạng thái X̄ = X ⊖ Z</span>
+      </div>
+      <div class="step-content">
+        <p>Ràng buộc trạng thái gốc: $\mathcal{X} = [-2.0, 2.0]$.</p>
+        <p>Phép trừ Minkowski thu hẹp biên lại một khoảng đúng bằng bán kính $s = 0.4$:</p>
+        $$\bar{\mathcal{X}} = [-2.0 + 0.4, 2.0 - 0.4] = [-1.6, 1.6]$$
+      </div>
+    </div>
+
+    <div class="solution-step">
+      <div class="step-header">
+        <span class="step-num-badge">4</span>
+        <span class="step-name">Bước 4: Thu hẹp ràng buộc điều khiển Ū = U ⊖ K Z</span>
+      </div>
+      <div class="step-content">
+        <p>Phần bù điều khiển do phản hồi phụ cần dùng tối đa: $\max |K e| = | -0.3 \times 0.4 | = 0.12$.</p>
+        <p>Ràng buộc cho tín hiệu danh nghĩa $v$:</p>
+        $$\bar{\mathcal{U}} = [-1.0 + 0.12, 1.0 - 0.12] = [-0.88, 0.88]$$
+        <p>Ý nghĩa: Bằng cách giải MPC danh nghĩa trong khoảng $z \in [-1.6, 1.6]$ và $v \in [-0.88, 0.88]$, trạng thái thực tế $x = z + e$ luôn được bảo đảm $100\%$ nằm trong $[-2.0, 2.0]$ bất kể nhiễu ngẫu nhiên!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Layer 5: Canvas Simulator -->
+<div class="sim-card" id="sec-3-sim">
+  <div class="sim-header">
+    <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+    <h3 class="sim-title">🎮 MÔ PHỎNG TUBE-BASED ROBUST TRAJECTORY TRACKING</h3>
+    <p class="sim-desc">Quan sát chiếc xe (chấm đỏ) bám theo đường tâm danh nghĩa (nét đứt xanh). Dù chịu lực nhiễu liên tục, xe luôn nằm trọn trong ống an toàn (dải màu xanh).</p>
+  </div>
+  
+  <div class="sim-canvas-container" style="text-align: center; background: #0b0f19; padding: 1rem; border-radius: 8px;">
+    <canvas id="sim-canvas-ch03" width="700" height="320" style="max-width: 100%; border: 1px solid #1e293b; border-radius: 6px;"></canvas>
+  </div>
+
+  <div class="sim-controls" style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 1rem; justify-content: center;">
+    <div>
+      <label>Bán kính ống Tube Z (px): </label>
+      <input type="range" id="slider-ch03-tube" min="15" max="45" value="25">
+    </div>
+    <div>
+      <label>Biên độ nhiễu gió w (px): </label>
+      <input type="range" id="slider-ch03-dist" min="2" max="15" value="6">
+    </div>
+  </div>
+</div>
+
+<!-- Layer 6: ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-3-ros2">
+  <h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2 (Nav2 Robust Tube Controller)</h4>
+  <p>Trong stack điều hướng <strong>Nav2</strong>, Tube-Based MPC được ứng dụng để điều hướng xe AGV trong hành lang hẹp:</p>
+  <ul>
+    <li>Khoảng cách an toàn tới thành tường được thu hẹp tự động bằng bán kính ống RPI $\mathcal{Z}$.</li>
+    <li>Bộ phản hồi phụ chạy ở tần số cao $100\text{ Hz}$ phản ứng tức thì với các dao động trượt bánh, trong khi bài toán tối ưu danh nghĩa giải ở tần số thấp hơn $20\text{ Hz}$ để tiết kiệm tài nguyên CPU nhúng.</li>
+  </ul>
+</div>
+
+<div class="highlight-result-box" id="sec-3-summary">
+  <h4>📌 TỔNG KẾT BÀI HỌC CHƯƠNG 03</h4>
+  <p>Tube-Based MPC đã tách rời hoàn hảo bài toán điều khiển thành hai tầng: tối ưu hóa danh nghĩa (quản lý chân trời và ràng buộc thu hẹp) và phản hồi phụ (giữ trạng thái trong ống). Đây là công nghệ bắt buộc trong các ứng dụng robot đòi hỏi an toàn tối thượng.</p>
+</div>
+
+      </article>
+
+      <!-- Chapter Navigation (Previous / Next) -->
+      <div class="chapter-footer-nav" style="display: flex; justify-content: space-between; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
+        <a href="ch02.html" class="btn btn-secondary">← Chương 02: MPC Điều Tiết</a>
+        <a href="ch04.html" class="btn btn-primary">Chương 04: Ước Lượng Trạng Thái & MHE →</a>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js?v=20261122"></script>
+  <script src="../assets/js/simulators.js?v=20261122"></script>
+</body>
+</html>
