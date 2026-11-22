@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 09: Lập bản đồ Lưới Chiếm chỗ &amp; Nghịch lý SLAM - Elements of Robotics</title>
+<meta content="Mô hình bản đồ metric vs topo, bản đồ lưới chiếm chỗ Occupancy Grid, biến đổi Log-Odds chống tràn số, nghịch lý SLAM và kỹ thuật đóng vòng loop closure." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 5: Bản đồ Môi trường &amp; Quy hoạch Đường đi</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 09</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 09</span>
+<span class="sidebar-badge">8 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-9-1">
+<span class="nav-text">9.1 Các Mô hình Biểu diễn Bản đồ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-2">
+<span class="nav-text">9.2 Bản đồ Lưới Chiếm chỗ Occupancy Grid</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-3">
+<span class="nav-text">9.3 Bộ lọc Bayes Nhị phân cho từng Ô</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-4">
+<span class="nav-text">9.4 Biến đổi Log-Odds Tránh Tràn số</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-5">
+<span class="nav-text">9.5 Nghịch lý Con gà &amp; Quả trứng trong SLAM</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-6">
+<span class="nav-text">9.6 Đóng Vòng lặp (Loop Closure) &amp; Graph-SLAM</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-worked">
+<span class="nav-text">Ví dụ tính số: Cập nhật Log-Odds ô bản đồ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (slam_toolbox)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-9-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 5: BẢN ĐỒ MÔI TRƯỜNG &amp; QUY HOẠCH ĐƯỜNG ĐI</div>
+<h1>Chương 09: Lập bản đồ Lưới Chiếm chỗ &amp; Nghịch lý SLAM</h1>
+<p class="chapter-subtitle">Mô hình bản đồ metric vs topo, bản đồ lưới chiếm chỗ Occupancy Grid, biến đổi Log-Odds chống tràn số, nghịch lý SLAM và kỹ thuật đóng vòng loop closure.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 9.1 & 9.2 -->
+<h4 id="sec-9-1">9.1 Các Mô hình Biểu diễn Bản đồ Không gian</h4>
+<p>Để dẫn đường thông minh, robot cần bản đồ môi trường. Có 3 mô hình biểu diễn chính:</p>
+<ul>
+<li><strong>Bản đồ Metric (Lưới tọa độ):</strong> Lưu trữ hình học chính xác của vật cản dưới dạng ma trận ô vuông (Occupancy Grid Map do Moravec &amp; Elfes đề xuất).</li>
+<li><strong>Bản đồ Tô-pô (Topological Graph):</strong> Biểu diễn môi trường dưới dạng đồ thị gồm các nút (phòng, ngã rẽ) và cạnh nối, không cần quan tâm đến khoảng cách mét chính xác.</li>
+<li><strong>Bản đồ Ngữ nghĩa (Semantic Map):</strong> Gán nhãn các đối tượng (ví dụ: "cửa ra vào", "bàn làm việc", "người đi bộ").</li>
+</ul>
+<!-- Mục 9.3 & 9.4 -->
+<h4 id="sec-9-2">9.2 Bản đồ Lưới Chiếm chỗ (Occupancy Grid Maps) &amp; Biến đổi Log-Odds</h4>
+<p>Mỗi ô lưới $m_i$ là một biến ngẫu nhiên nhị phân mang một trong hai trạng thái: <em>Bị chiếm chỗ</em> ($m_i = 1$) hoặc <em>Trống trải</em> ($m_i = 0$).</p>
+<p>Nếu nhân dồn xác suất trực tiếp qua hàng ngàn tia laser quét liên tục, máy tính sẽ nhanh chóng gặp lỗi <strong>Tràn số dưới (Numerical Underflow)</strong> khi $P \to 0$ hoặc $P \to 1$. Để giải quyết triệt để, robot học sử dụng <strong>Biến đổi Log-Odds (Tỉ số logarit)</strong>:</p>
+<div class="formula-hero">
+<div class="formula-title">CÔNG THỨC CẬP NHẬT LOG-ODDS BẢN ĐỒ CHIẾM CHỖ</div>
+<div class="formula-math">
+                $$l_t(m_i) = l_{t-1}(m_i) + \text{inv\_sensor}(z_t, m_i) - l_0(m_i)$$
+                $$l(p) = \ln\left( \frac{p}{1 - p} \right), \quad p = 1 - \frac{1}{1 + \exp(l)}$$
+              </div>
+<div class="formula-legend">
+                Nhờ phép biến đổi logarit, phép nhân xác suất đệ quy phức tạp trở thành <strong>Phép cộng đại số cực kỳ nhanh</strong>! Khi chưa biết gì ($p=0.5$), $l_0 = \ln(1) = 0$. Khi tia laser xuyên qua ô (trống), cộng một lượng âm $\Delta l_{free} \lt 0$; khi tia laser chạm dừng tại ô (vật cản), cộng một lượng dương $\Delta l_{occ} \gt 0$.
+              </div>
+</div>
+<!-- Mục 9.5 & 9.6 -->
+<h4 id="sec-9-5">9.5 Nghịch lý "Con gà và Quả trứng" trong SLAM (Simultaneous Localization and Mapping)</h4>
+<p>Trong môi trường hoàn toàn mới chưa có bản đồ trước, robot đối mặt với nghịch lý luẩn quẩn kinh điển:</p>
+<blockquote>
+<em>"Để biết mình đang ở đâu, robot cần một bản đồ chính xác. Nhưng để vẽ nên một bản đồ chính xác, robot bắt buộc phải biết mình đang ở đâu!"</em>
+</blockquote>
+<p>Đây chính là bài toán <strong>SLAM</strong>. Thuật toán giải quyết nghịch lý bằng cách đồng thời ước lượng cả quỹ đạo di chuyển của robot và tọa độ các mốc vật cản.</p>
+<h4 id="sec-9-6">9.6 Đóng Vòng lặp (Loop Closure) &amp; Tối ưu Đồ thị Graph-SLAM</h4>
+<p>Khi robot di chuyển một vòng dài rồi quay trở lại vị trí đã từng đi qua, sai số tích lũy odometry có thể lên tới vài mét. Bằng cách nhận diện lại mốc cảnh quan quen thuộc (thông qua Scan Matching hoặc Bag of Visual Words), robot thực hiện <strong>Đóng vòng lặp (Loop Closure)</strong>: một ràng buộc hình học mới được thêm vào đồ thị pose-graph, kéo theo việc tối ưu hóa phi tuyến toàn cục (Nonlinear Least Squares / g2o / GTSAM) "nắn" lại toàn bộ bản đồ về đúng hình dạng thực tế!</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-9-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 CẬP NHẬT LOG-ODDS CHO MỘT Ô LƯỚI BẢN ĐỒ</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Ô lưới $m_{(5,8)}$ ban đầu hoàn toàn chưa xác định ($p_0 = 0.5$). Robot sử dụng cảm biến LiDAR. Khi tia laser xuyên qua ô, mô hình cảm biến nghịch đảo ước lượng $P(\text{occ}) = 0.3$. Khi tia laser phản xạ dừng tại ô, mô hình ước lượng $P(\text{occ}) = 0.85$. Trong 3 chu kỳ quét liên tiếp, ô $m_{(5,8)}$ được tia laser xuyên qua 1 lần (free) và phản xạ va chạm 2 lần (occupied). Hãy tính giá trị xác suất chiếm chỗ cuối cùng của ô.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Các Lượng Thay Đổi Log-Odds</span>
+</div>
+<div class="step-content">
+<p>$l_0 = \ln\left(\frac{0.5}{0.5}\right) = \ln(1) = 0.0$<br/>
+                  $\Delta l_{free} = \ln\left(\frac{0.3}{0.7}\right) = \ln(0.4286) = -0.8473$<br/>
+                  $\Delta l_{occ} = \ln\left(\frac{0.85}{0.15}\right) = \ln(5.6667) = +1.7346$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Cộng Dồn Log-Odds Qua 3 Lần Quét</span>
+</div>
+<div class="step-content">
+<p>$l_1 = l_0 + \Delta l_{free} = 0 - 0.8473 = -0.8473$<br/>
+                  $l_2 = l_1 + \Delta l_{occ} = -0.8473 + 1.7346 = +0.8873$<br/>
+                  $l_3 = l_2 + \Delta l_{occ} = +0.8873 + 1.7346 = +2.6219$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Chuyển Đổi Ngược Về Xác Suất Thực $p_3$</span>
+</div>
+<div class="step-content">
+<p>$p_3 = 1 - \frac{1}{1 + \exp(l_3)} = 1 - \frac{1}{1 + \exp(2.6219)}$<br/>
+                  $\exp(2.6219) \approx 13.762$<br/>
+                  $p_3 = 1 - \frac{1}{1 + 13.762} = 1 - \frac{1}{14.762} = 1 - 0.0677 = 0.9323$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kết Luận Trạng Thái Ô Bản Đồ</span>
+</div>
+<div class="step-content">
+<p>Xác suất ô bị chiếm chỗ là <strong>$93.23\%$</strong>.<br/>
+                  Theo ngưỡng chuẩn ($p \gt 0.65$), hệ thống đánh dấu ô này là <strong>VẬT CẢN CỐ ĐỊNH (OCCUPIED CELL)</strong>.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Mô hình cập nhật log-odds cho lưới chiếm chỗ Occupancy Grid bảo đảm việc kết hợp dữ liệu cảm biến đa thời điểm diễn ra bằng các phép cộng đại số đơn giản, giúp robot tự động cập nhật và thích nghi với môi trường động.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-9-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Thuật toán 2D SLAM chuẩn mực trong ROS 2 là <code>slam_toolbox</code> (dựa trên tối ưu hóa Karto Graph SLAM). Bản đồ được xuất bản định kỳ lên topic <code>/map</code> với kiểu thông điệp <code>nav_msgs/msg/OccupancyGrid</code> gồm mảng int8 <code>data</code> ($-1$: chưa biết, $0$: trống, $100$: vật cản) và lưu thành tệp ảnh YAML/PGM bằng <code>nav2_map_server</code>.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-9-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Cập Nhật Xác Suất Ô Lưới Chiếm Chỗ Bằng Thuật Toán Bresenham Raycasting</h4>
+</div>
+<div class="practice-statement">
+<p>Một cảm biến khoảng cách quét một tia đo từ gốc tọa độ ô $(0, 0)$ đến ô $(4, 2)$ phát hiện vật cản tại $(4, 2)$. Thuật toán Bresenham xác định các ô tự do mà tia xuyên qua gồm: $(1, 0), (2, 1), (3, 1)$. Với mỗi ô tự do xuyên qua, log-odds giảm $\Delta l_{\text{free}} = -0.4$. Với ô chạm vật cản $(4, 2)$, log-odds tăng $\Delta l_{\text{occ}} = +1.2$. Ban đầu tất cả các ô có $l_0 = 0$ ($P = 0.5$).<br/><br/><strong>Yêu cầu:</strong><br/>1) Cập nhật log-odds cho ô $(2, 1)$ và ô $(4, 2)$.<br/>2) Chuyển đổi log-odds sang xác suất thực $P(m)$.<br/>3) Giải thích nghịch lý khi tia đo sau đó quét xuyên qua ô $(4, 2)$ trong môi trường động.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Cập nhật log-odds:<br/>• Ô tự do $(2, 1)$: $l(2, 1) = l_0 + \Delta l_{\text{free}} = 0 - 0.4 = -0.4$.<br/>• Ô vật cản $(4, 2)$: $l(4, 2) = l_0 + \Delta l_{\text{occ}} = 0 + 1.2 = +1.2$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Khôi phục xác suất:<br/>• Ô $(2, 1)$: $P(2, 1) = \frac{1}{1 + e^{-(-0.4)}} = \frac{1}{1 + e^{0.4}} = \frac{1}{1 + 1.4918} \approx 0.4013$ ($40.1\%$ - thiên về trống).<br/>• Ô $(4, 2)$: $P(4, 2) = \frac{1}{1 + e^{-1.2}} = \frac{1}{1 + 0.3012} \approx 0.7685$ ($76.9\%$ - có vật cản).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Nếu vật cản di chuyển đi nơi khác, tia quét lần sau sẽ xuyên qua $(4, 2)$, cộng dồn $-0.4$ làm log-odds giảm dần: $1.2 - 0.4 = 0.8 \implies 0.4 \implies 0.0$. Đây là cơ chế tự xóa vết chướng ngại vật động của bản đồ Occupancy Grid.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch08.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 08: Định vị Xác suất &amp; Bộ lọc Bayes ...</span>
+</a>
+<a class="page-nav-btn next" href="ch10.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 10: Không gian C-Space &amp; Thuật toán ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SLAM & Active Perception Trong Robot Học - Explorable Knowledge Portal</title>
+  <meta name="description" content="Chương trình chưng cất tri thức chuẩn học thuật đa tầng: Khảo sát hệ thống 14 chương chuyên khảo SLAM, Semantic SLAM & Active SLAM qua 6 Master Tracks.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div style="background: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 0.6rem 1.5rem; display: flex; align-items: center; justify-content: space-between;"><a href="../index.html" style="font-size: 0.88rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;"><span>🏛️</span><span>Viện Tri Thức Robotics & Hệ Thống Điều Khiển</span></a><span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">PORTAL CHUYÊN KHẢO</span></div>
+
+  <div id="reading-progress"></div>
+  
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-icon">🗺️</span>
+        <div class="brand-text">
+          <span class="brand-title">SLAM & Active Perception Trong Robot Học</span>
+          <span class="brand-subtitle">EXPLORABLE KNOWLEDGE PLATFORM • SOTA PEDAGOGICAL PORTAL</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="book-badge">
+        <span class="badge-icon">📖</span> Nguồn: Elements of Robotics (Springer), Semantic Visual SLAM (IEEE 2021) & Active SLAM (IEEE T-RO 2023)
+      </div>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Portal Hub Matrix Roadmap -->
+  <div class="app-layout single-col">
+    <main class="main-content" style="max-width: 1240px; margin: 0 auto; width: 100%; padding: 1.5rem 1rem 4rem;">
+      <section class="curriculum-roadmap" id="curriculum-roadmap">
+        <div class="roadmap-header">
+          <div class="card-track-badge" style="margin-bottom: 0.5rem; display: inline-block;">LỘ TRÌNH TRI THỨC TOÀN DIỆN CHUẨN 6 TẦNG</div>
+          <h2>MA TRẬN CHƯƠNG TRÌNH KHẢO SÁT SLAM & ACTIVE PERCEPTION</h2>
+          <p>Hệ thống tri thức chuyên sâu 14 chương từ nền tảng động học Dead Reckoning, Lập bản đồ Occupancy Grid, Lọc Bayes EKF/Particle Filter, Đồ thị Pose Graph/GTSAM, SLAM Ngữ nghĩa YOLO/SAM/Dual Quadrics/NeRF, đến Active SLAM thông tin TOED và Triển khai thực tế ROS 2 Humble/Nav2.</p>
+          
+          <div class="roadmap-stats">
+            <span class="stat-badge"><span class="stat-num">14</span> Chương Toàn Diện</span>
+            <span class="stat-badge"><span class="stat-num">6</span> Master Tracks</span>
+            <span class="stat-badge"><span class="stat-num">14</span> Mô Phỏng Canvas 2D 60 FPS</span>
+            <span class="stat-badge"><span class="stat-num">14</span> Ví Dụ Tính Số 4 Bước</span>
+            <span class="stat-badge"><span class="stat-num">100%</span> Zero-Error MathJax & ROS 2 Bridge</span>
+          </div>
+        </div>
+
+        <!-- Live Search & Filter Controls -->
+        <div class="search-filter-wrapper">
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="matrix-search-input" placeholder="Tìm kiếm khái niệm, thuật toán, công thức (EKF, FastSLAM, GTSAM, ORB-SLAM, YOLO, Quadrics, Active SLAM, TOED, Nav2)...">
+          </div>
+          
+          <div class="filter-pills">
+            <button class="filter-pill active" data-filter="all">Tất cả (14 Chương)</button>
+            <button class="filter-pill" data-filter="track-1">Track 1: Nền Tảng Động Học & Cảm Biến (Ch 1-2)</button>
+            <button class="filter-pill" data-filter="track-2">Track 2: Ước Lượng Trạng Thái & Định Vị (Ch 3-4)</button>
+            <button class="filter-pill" data-filter="track-3">Track 3: SLAM Hình Học Cổ Điển & Đồ Thị (Ch 5-6)</button>
+            <button class="filter-pill" data-filter="track-4">Track 4: SLAM Ngữ Nghĩa & Biểu Diễn Hiện Đại (Ch 7-9)</button>
+            <button class="filter-pill" data-filter="track-5">Track 5: Active SLAM & Ra Quyết Định (Ch 10-12)</button>
+            <button class="filter-pill" data-filter="track-6">Track 6: Đa Robot & Triển Khai Sản Xuất (Ch 13-14)</button>
+          </div>
+        </div>
+
+        <!-- Curriculum Matrix Grid Cards -->
+        <div class="curriculum-matrix-grid" id="matrix-grid">
+
+          <!-- Card Ch 01 -->
+          <a href="chapters/ch01.html" class="matrix-card" data-track="track-1">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 1: NỀN TẢNG ĐỘNG HỌC</span>
+              <span class="card-ch-num">CHƯƠNG 01</span>
+            </div>
+            <h3 class="card-title">Chương 01: Động Học Robot Di Động & Tích Lũy Sai Số Đo Quãng Đường</h3>
+            <p class="card-desc">Động học vi sai hai bánh, mô hình unicycle, tích phân Runge-Kutta, phân tích sai số hệ thống vs ngẫu nhiên và thử nghiệm UMBmark.</p>
+            <div class="card-tags">
+              <span class="card-tag">Kinematics</span><span class="card-tag">Dead Reckoning</span><span class="card-tag">Unicycle</span><span class="card-tag">Odometry Drift</span><span class="card-tag">UMBmark</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2 Odom</span>
+            </div>
+          </a>
+          <!-- Card Ch 02 -->
+          <a href="chapters/ch02.html" class="matrix-card" data-track="track-1">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 1: NỀN TẢNG ĐỘNG HỌC</span>
+              <span class="card-ch-num">CHƯƠNG 02</span>
+            </div>
+            <h3 class="card-title">Chương 02: Mô Hình Đo Cảm Biến Cự Ly & Bản Đồ Lưới Chiếm Chỗ</h3>
+            <p class="card-desc">Đặc tính cảm biến LiDAR/Sonar/IR, mô hình cảm biến nghịch đảo xác suất, biểu diễn tỷ số Log-Odds và thuật toán vẽ tia Bresenham.</p>
+            <div class="card-tags">
+              <span class="card-tag">LiDAR</span><span class="card-tag">Inverse Sensor Model</span><span class="card-tag">Occupancy Grid</span><span class="card-tag">Log-Odds</span><span class="card-tag">Bresenham</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2 Map</span>
+            </div>
+          </a>
+          <!-- Card Ch 03 -->
+          <a href="chapters/ch03.html" class="matrix-card" data-track="track-2">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 2: ƯỚC LƯỢNG & ĐỊNH VỊ</span>
+              <span class="card-ch-num">CHƯƠNG 03</span>
+            </div>
+            <h3 class="card-title">Chương 03: Bộ Lọc Bayes, Extended Kalman Filter (EKF) & Phân Tích Hiệp Phương Sai</h3>
+            <p class="card-desc">Tuyến tính hóa Taylor chuỗi phi tuyến, hai pha Dự báo - Hiệu chỉnh, ma trận hiệp phương sai P_t, Kalman Gain K và elip tin cậy.</p>
+            <div class="card-tags">
+              <span class="card-tag">Bayes Filter</span><span class="card-tag">EKF</span><span class="card-tag">Kalman Gain</span><span class="card-tag">Covariance Ellipse</span><span class="card-tag">Taylor Linearization</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2 EKF</span>
+            </div>
+          </a>
+          <!-- Card Ch 04 -->
+          <a href="chapters/ch04.html" class="matrix-card" data-track="track-2">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 2: ƯỚC LƯỢNG & ĐỊNH VỊ</span>
+              <span class="card-ch-num">CHƯƠNG 04</span>
+            </div>
+            <h3 class="card-title">Chương 04: Bộ Lọc Hạt (Particle Filter), MCL & Khung FastSLAM</h3>
+            <p class="card-desc">Giải quyết bài toán phân phối đa mốt & bắt cóc robot (Kidnapped Robot), tái lấy mẫu Low-Variance và phân rã Rao-Blackwellized FastSLAM.</p>
+            <div class="card-tags">
+              <span class="card-tag">Particle Filter</span><span class="card-tag">MCL</span><span class="card-tag">Kidnapped Robot</span><span class="card-tag">Importance Sampling</span><span class="card-tag">FastSLAM</span><span class="card-tag">Canvas 2D</span><span class="card-tag">Python Resampler</span>
+            </div>
+          </a>
+          <!-- Card Ch 05 -->
+          <a href="chapters/ch05.html" class="matrix-card" data-track="track-3">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 3: SLAM HÌNH HỌC & ĐỒ THỊ</span>
+              <span class="card-ch-num">CHƯƠNG 05</span>
+            </div>
+            <h3 class="card-title">Chương 05: Đồ Thị Tư Thế (Pose Graph Optimization) & Factor Graphs (GTSAM)</h3>
+            <p class="card-desc">Bước chuyển từ lọc sang tối ưu hóa đồ thị thưa, nhóm Lie SE(2)/SE(3), Levenberg-Marquardt trên đa tạp và nắn thẳng Loop Closure.</p>
+            <div class="card-tags">
+              <span class="card-tag">Pose Graph</span><span class="card-tag">Factor Graph</span><span class="card-tag">Lie Group SE(2)</span><span class="card-tag">Loop Closure</span><span class="card-tag">GTSAM</span><span class="card-tag">Levenberg-Marquardt</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 06 -->
+          <a href="chapters/ch06.html" class="matrix-card" data-track="track-3">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 3: SLAM HÌNH HỌC & ĐỒ THỊ</span>
+              <span class="card-ch-num">CHƯƠNG 06</span>
+            </div>
+            <h3 class="card-title">Chương 06: Visual Odometry Hình Học: Trích Xuất Đặc Trưng & Hình Học Epipolar</h3>
+            <p class="card-desc">Feature-based (ORB-SLAM) vs Direct (DSO), ma trận thiết yếu E = [t]x R, giải tư thế PnP, tam giác hóa 3D và Bundle Adjustment.</p>
+            <div class="card-tags">
+              <span class="card-tag">Visual Odometry</span><span class="card-tag">ORB-SLAM</span><span class="card-tag">Epipolar Geometry</span><span class="card-tag">Essential Matrix</span><span class="card-tag">Triangulation</span><span class="card-tag">Canvas 2D</span><span class="card-tag">OpenCV VO</span>
+            </div>
+          </a>
+          <!-- Card Ch 07 -->
+          <a href="chapters/ch07.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 4: SLAM NGỮ NGHĨA SOTA</span>
+              <span class="card-ch-num">CHƯƠNG 07</span>
+            </div>
+            <h3 class="card-title">Chương 07: Trích Xuất Ngữ Nghĩa & Lọc Môi Trường Động (Dynamic Masking)</h3>
+            <p class="card-desc">Vượt qua giả định thế giới tĩnh, thị giác học sâu YOLOv8/SAM phân vùng vật thể, kết hợp kiểm định Chi-Square lọc sạch outliers động.</p>
+            <div class="card-tags">
+              <span class="card-tag">Semantic SLAM</span><span class="card-tag">Dynamic Masking</span><span class="card-tag">YOLOv8</span><span class="card-tag">SAM</span><span class="card-tag">Chi-Square Test</span><span class="card-tag">Epipolar Constraint</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 08 -->
+          <a href="chapters/ch08.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 4: SLAM NGỮ NGHĨA SOTA</span>
+              <span class="card-ch-num">CHƯƠNG 08</span>
+            </div>
+            <h3 class="card-title">Chương 08: Bản Đồ Ngữ Nghĩa: Điểm, Mặt Phẳng, Dual Quadrics & NeRF/3DGS</h3>
+            <p class="card-desc">Tiến trình biểu diễn bản đồ cấp độ vật thể Dual Quadrics Q* (Ellipsoids), phép chiếu đối ngẫu Conic C* và NeRF / 3D Gaussian Splatting.</p>
+            <div class="card-tags">
+              <span class="card-tag">Dual Quadrics</span><span class="card-tag">Object-Level SLAM</span><span class="card-tag">Conic Projection</span><span class="card-tag">NeRF-SLAM</span><span class="card-tag">3D Gaussian Splatting</span><span class="card-tag">Canvas 2D</span><span class="card-tag">GTSAM</span>
+            </div>
+          </a>
+          <!-- Card Ch 09 -->
+          <a href="chapters/ch09.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 4: SLAM NGỮ NGHĨA SOTA</span>
+              <span class="card-ch-num">CHƯƠNG 09</span>
+            </div>
+            <h3 class="card-title">Chương 09: Liên Kết Dữ Liệu Ngữ Nghĩa & Tối Ưu Vòng Lặp Ngữ Nghĩa</h3>
+            <p class="card-desc">Giải quyết nhập nhằng liên kết dữ liệu, thuật toán Hungarian Bipartite Matching kết hợp khoảng cách Mahalanobis và nhãn ngữ nghĩa.</p>
+            <div class="card-tags">
+              <span class="card-tag">Data Association</span><span class="card-tag">Hungarian Algorithm</span><span class="card-tag">Mahalanobis</span><span class="card-tag">Semantic Loop Closing</span><span class="card-tag">Perceptual Aliasing</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 10 -->
+          <a href="chapters/ch10.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 5: ACTIVE SLAM & RA QUYẾT ĐỊNH</span>
+              <span class="card-ch-num">CHƯƠNG 10</span>
+            </div>
+            <h3 class="card-title">Chương 10: Khung Toán Học Active SLAM & Không Gian Hành Động Ứng Viên</h3>
+            <p class="card-desc">Tự chủ ra quyết định điều hướng tối thiểu hóa độ bất định (IEEE T-RO 2023), khung 3 giai đoạn, nhận diện biên giới Frontier và RRT.</p>
+            <div class="card-tags">
+              <span class="card-tag">Active SLAM</span><span class="card-tag">Autonomous Exploration</span><span class="card-tag">Frontier Detection</span><span class="card-tag">RRT</span><span class="card-tag">Candidate Generation</span><span class="card-tag">Canvas 2D</span><span class="card-tag">Nav2 C++</span>
+            </div>
+          </a>
+          <!-- Card Ch 11 -->
+          <a href="chapters/ch11.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 5: ACTIVE SLAM & RA QUYẾT ĐỊNH</span>
+              <span class="card-ch-num">CHƯƠNG 11</span>
+            </div>
+            <h3 class="card-title">Chương 11: Đo Lường Thông Tin Toán Học: Entropy, Mutual Info & Tiêu Chuẩn TOED</h3>
+            <p class="card-desc">Shannon Differential Entropy, Mutual Information, và Lý thuyết thiết kế thực nghiệm tối ưu TOED: A-optimality, D-optimality, E-optimality.</p>
+            <div class="card-tags">
+              <span class="card-tag">Information Theory</span><span class="card-tag">Shannon Entropy</span><span class="card-tag">Mutual Information</span><span class="card-tag">TOED</span><span class="card-tag">A-opt</span><span class="card-tag">D-opt</span><span class="card-tag">E-opt</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 12 -->
+          <a href="chapters/ch12.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 5: ACTIVE SLAM & RA QUYẾT ĐỊNH</span>
+              <span class="card-ch-num">CHƯƠNG 12</span>
+            </div>
+            <h3 class="card-title">Chương 12: Song Đề Khám Phá vs Khai Thác & Lập Kế Hoạch Không Gian Niềm Tin (BSP)</h3>
+            <p class="card-desc">Song đề Exploration vs Exploitation, Belief-Space Planning (POMDPs), hàm thỏa dụng Pareto đa mục tiêu và kích hoạt Active Loop Closing.</p>
+            <div class="card-tags">
+              <span class="card-tag">Belief-Space Planning</span><span class="card-tag">POMDP</span><span class="card-tag">Exploration vs Exploitation</span><span class="card-tag">Active Loop Closure</span><span class="card-tag">Pareto Utility</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 13 -->
+          <a href="chapters/ch13.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 6: ĐA ROBOT & THỰC TẾ</span>
+              <span class="card-ch-num">CHƯƠNG 13</span>
+            </div>
+            <h3 class="card-title">Chương 13: Đa Robot SLAM: Phân Tán, Hợp Nhất Bản Đồ & Active Exploration</h3>
+            <p class="card-desc">Kiến trúc P2P phân tán, hợp nhất bản đồ (Map Merging) khi chưa biết tư thế tương đối ban đầu, thuật toán Horn SVD và đấu giá thị trường.</p>
+            <div class="card-tags">
+              <span class="card-tag">Multi-Robot SLAM</span><span class="card-tag">Map Stitching</span><span class="card-tag">Decentralized</span><span class="card-tag">Inter-Robot Loop Closure</span><span class="card-tag">Rigid Transform SVD</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 14 -->
+          <a href="chapters/ch14.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 6: ĐA ROBOT & THỰC TẾ</span>
+              <span class="card-ch-num">CHƯƠNG 14</span>
+            </div>
+            <h3 class="card-title">Chương 14: Kiến Trúc Triển Khai Thực Tế: ROS 2 Humble, Nav2, SLAM Toolbox & Benchmarks</h3>
+            <p class="card-desc">So sánh ngăn xếp SLAM Toolbox vs Cartographer vs RTAB-Map, Lifelong mapping, chỉ số ATE RMSE / RPE và tệp cấu hình YAML nhà xưởng.</p>
+            <div class="card-tags">
+              <span class="card-tag">SLAM Toolbox</span><span class="card-tag">Nav2 Humble</span><span class="card-tag">Lifelong Mapping</span><span class="card-tag">ATE RMSE</span><span class="card-tag">RPE</span><span class="card-tag">Tuning Guide</span><span class="card-tag">YAML Params</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <footer class="site-footer" style="margin-top: 3rem; text-align: center; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+        <p>Hệ Thống Tri Thức SLAM & Active Perception • SOTA Pedagogical Portal</p>
+        <p class="footer-meta">Biên dịch & Chưng cất theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% & Xuất bản GitHub Pages</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

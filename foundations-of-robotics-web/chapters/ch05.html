@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Động Lực Học Robot Manipulator | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 05</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link active">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Quỹ Đạo, Động Lực Học & Điều Khiển</span>
+          <span class="page-source-badge">📖 Siciliano et al., Chương 5 (Trang 243–306)</span>
+        </div>
+        <h1 class="chapter-title">Chương 05: Động Lực Học Robot Manipulator</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Phương pháp Euler-Lagrange, Ma trận quán tính B(q), Coriolis C(q,q̇), Trọng lực g(q), Tính chất phản đối xứng Ḃ-2C & Thụ động (Passivity), Tuyến tính theo thông số Y(q,q̇,q̈)π, Thuật toán Newton-Euler đệ quy O(n), Động lực học Task Space</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Nếu động học chỉ nghiên cứu hình học chuyển động thuần túy, thì <strong>Động lực học (Robot Dynamics)</strong> là trụ cột vật lý then chốt giải thích nguyên nhân chuyển động: <em>Mô-men động cơ $\boldsymbol{\tau}$ cần sinh ra là bao nhiêu để thắng được quán tính, lực ly tâm, lực Coriolis và trọng lực, giúp robot chuyển động theo đúng gia tốc mong muốn?</em></p>
+        </div>
+        <p>Khi robot vận hành ở tốc độ cao (như robot gắp đặt linh kiện Delta 10 m/s), lực ly tâm và Coriolis tăng tỷ lệ thuận với bình phương vận tốc ($\dot{q}^2$). Hiện tượng ghép nối động lực học chéo (Dynamic Cross-Coupling) khiến khớp 1 chuyển động sẽ sinh ra mô-men phản lực quật mạnh làm quay khớp 2! Nếu bộ điều khiển không có mô hình động lực học chính xác để bù trừ trước (Feedforward Compensation), cánh tay sẽ bị văng lệch quỹ đạo nghiêm trọng.</p>
+        <p>Giáo trình của Siciliano et al. trình bày song song hai phương pháp động lực học kinh điển: Phương pháp <strong>Euler-Lagrange</strong> cung cấp dạng giải tích tường minh với các tính chất vật lý cốt lõi (Bảo toàn năng lượng, Ma trận $\dot{B} - 2C$ phản đối xứng); và Thuật toán <strong>Newton-Euler đệ quy (Recursive Newton-Euler Algorithm - RNEA)</strong> có độ phức tạp tính toán tối ưu bậc nhất $O(n)$, nền tảng của mọi engine mô phỏng vật lý hiện đại (Pinocchio, MuJoCo, Bullet).</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Phương trình động lực học Euler-Lagrange tổng quát của cánh tay robot $n$ bậc tự do:</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Chuyển Động Euler-Lagrange Dạng Ma Trận</div>
+          $$\begin{equation}
+          B(\mathbf{q})\ddot{\mathbf{q}} + C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau}
+          \end{equation}$$
+          <p>Trong đó $\mathcal{T} = \frac{1}{2}\dot{\mathbf{q}}^T B(\mathbf{q})\dot{\mathbf{q}}$ là động năng toàn phần, $B(\mathbf{q}) = B^T(\mathbf{q}) \gt 0$ là ma trận quán tính đối xứng xác định dương, $C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}}$ là vector lực Coriolis và ly tâm xây dựng từ các ký hiệu Christoffel, và $\mathbf{g}(\mathbf{q}) = \frac{\partial \mathcal{U}}{\partial \mathbf{q}}$ là vector mô-men trọng lực.</p>
+        </div>
+
+        <p>Các tính chất nền tảng của mô hình động lực học robot:</p>
+        <div class="formula-card">
+          <div class="formula-header">Ba Tính Chất Vật Lý & Toán Học Cốt Lõi</div>
+          <ol>
+            <li><strong>Tính phản đối xứng & Bảo toàn năng lượng (Passivity):</strong> Ma trận $N(\mathbf{q}, \dot{\mathbf{q}}) = \dot{B}(\mathbf{q}) - 2C(\mathbf{q}, \dot{\mathbf{q}})$ là ma trận phản đối xứng (Skew-symmetric):
+              $$\mathbf{x}^T \left( \dot{B}(\mathbf{q}) - 2C(\mathbf{q}, \dot{\mathbf{q}}) \right) \mathbf{x} = 0, \quad \forall \mathbf{x} \in \mathbb{R}^n$$
+              Hệ quả: Đạo hàm động năng $\dot{\mathcal{T}} = \dot{\mathbf{q}}^T (\boldsymbol{\tau} - \mathbf{g})$, công suất cơ học bảo toàn hoàn hảo.
+            </li>
+            <li><strong>Tuyến tính theo thông số động lực học (Linearity in Dynamic Parameters):</strong>
+              $$B(\mathbf{q})\ddot{\mathbf{q}} + C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = Y(\mathbf{q}, \dot{\mathbf{q}}, \ddot{\mathbf{q}}) \boldsymbol{\pi}$$
+              với $Y$ là ma trận hồi quy (Regressor) và $\boldsymbol{\pi}$ là vector thông số quán tính cơ sở (Base Inertial Parameters). Đây là cơ sở toán học để nhận dạng thông số hệ thống và thiết kế bộ điều khiển thích nghi.
+            </li>
+            <li><strong>Tính bị chặn:</strong> Các ma trận đều bị chặn trên theo chuẩn: $\|C(\mathbf{q}, \dot{\mathbf{q}})\| \le k_C \|\dot{\mathbf{q}}\|$, $\|\mathbf{g}(\mathbf{q})\| \le k_g$.</li>
+          </ol>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Thuật toán Newton-Euler đệ quy $O(n)$ và Động lực học Không gian Thao tác (Task Space Dynamics):</p>
+        <ul>
+          <li><strong>Thuật toán Newton-Euler đệ quy 2 pha (RNEA):</strong>
+            <ul>
+              <li><em>Pha tiến (Forward Recursion, $i = 1 \to n$):</em> Truyền vận tốc góc $\boldsymbol{\omega}_i$, gia tốc góc $\dot{\boldsymbol{\omega}}_i$ và gia tốc tịnh tiến khối tâm $\ddot{\mathbf{p}}_{ci}$ từ đế lên khâu chấp hành cuối.</li>
+              <li><em>Pha lùi (Backward Recursion, $i = n \to 1$):</em> Dựa vào phương trình Newton-Euler tính lực tương tác $\mathbf{f}_i$, mô-men tương tác $\boldsymbol{\mu}_i$ và chiếu lên trục khớp $\tau_i = \boldsymbol{\mu}_i^T \mathbf{z}_{i-1} + f_{vi}\dot{q}_i$.</li>
+            </ul>
+          </li>
+          <li><strong>Động lực học trong không gian thao tác (Task Space Dynamics):</strong>
+            $$\Lambda(\mathbf{q})\ddot{\mathbf{x}} + \boldsymbol{\mu}(\mathbf{q}, \dot{\mathbf{q}}) + \boldsymbol{\gamma}(\mathbf{q}) = \mathbf{f}$$
+            với $\Lambda(\mathbf{q}) = (J(\mathbf{q}) B^{-1}(\mathbf{q}) J^T(\mathbf{q}))^{-1}$ là ma trận quán tính biểu kiến tại điểm đầu công tác (Apparent Inertia Matrix). Mô hình này cho phép điều khiển tương tác lực trực tiếp trong không gian thao tác.
+          </li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Toán Ma Trận Động Lực Học Euler-Lagrange & Mô-Men Khớp Cho Cánh Tay 2R</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Cho cánh tay robot 2 bậc tự do phẳng (2R Planar Manipulator) chuyển động trong mặt phẳng thẳng đứng chịu tác dụng của gia tốc trọng trường $g = 9.81\text{ m/s}^2$ theo chiều âm trục Oy. Hai khâu đồng chất có thông số vật lý:<br>• Khâu 1: Chiều dài $l_1 = 0.50\text{ m}$, khối lượng $m_1 = 3.0\text{ kg}$, trọng tâm nằm chính giữa $l_{c1} = 0.25\text{ m}$, mô-men quán tính qua trọng tâm $I_{z1} = \frac{1}{12}m_1 l_1^2 = 0.0625\text{ kg}\cdot\text{m}^2$.<br>• Khâu 2: Chiều dài $l_2 = 0.40\text{ m}$, khối lượng $m_2 = 2.0\text{ kg}$, trọng tâm nằm chính giữa $l_{c2} = 0.20\text{ m}$, mô-men quán tính qua trọng tâm $I_{z2} = \frac{1}{12}m_2 l_2^2 \approx 0.0267\text{ kg}\cdot\text{m}^2$.<br>Tại thời điểm khảo sát, robot ở trạng thái động học:<br>Vị trí góc: $q_1 = 0^\circ$ (khâu 1 nằm ngang), $q_2 = 90^\circ = \pi/2\text{ rad}$ (khâu 2 vuông góc với khâu 1).<br>Vận tốc góc: $\dot{q}_1 = 1.0\text{ rad/s}$, $\dot{q}_2 = -2.0\text{ rad/s}$.<br>Gia tốc góc yêu cầu: $\ddot{q}_1 = 2.0\text{ rad/s}^2$, $\ddot{q}_2 = 3.0\text{ rad/s}^2$.<br>1) Thiết lập ma trận quán tính $B(\mathbf{q})$ và tính giá trị số.<br>2) Thiết lập ma trận Coriolis $C(\mathbf{q}, \dot{\mathbf{q}})$ và tính vector lực Coriolis/ly tâm.<br>3) Thiết lập vector trọng lực $\mathbf{g}(\mathbf{q})$ và tính giá trị số.<br>4) Tính tổng mô-men khớp $\boldsymbol{\tau} = [\tau_1, \tau_2]^T$ và phân tích tỷ trọng từng thành phần.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập các công thức giải tích Euler-Lagrange cho cánh tay phẳng 2R:<br>• Các phần tử của ma trận quán tính $B(\mathbf{q})$:<br>$$b_{11} = m_1 l_{c1}^2 + m_2(l_1^2 + l_{c2}^2 + 2 l_1 l_{c2} \cos q_2) + I_{z1} + I_{z2}$$<br>$$b_{12} = b_{21} = m_2(l_{c2}^2 + l_1 l_{c2} \cos q_2) + I_{z2}$$<br>$$b_{22} = m_2 l_{c2}^2 + I_{z2}$$<br>• Ma trận Coriolis và ly tâm $C(\mathbf{q}, \dot{\mathbf{q}})$ với đặt $h = m_2 l_1 l_{c2} \sin q_2$:<br>$$C(\mathbf{q}, \dot{\mathbf{q}}) = \begin{bmatrix} -h \dot{q}_2 & -h(\dot{q}_1 + \dot{q}_2) \\ h \dot{q}_1 & 0 \end{bmatrix} \implies C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} = \begin{bmatrix} -h \dot{q}_2 (2\dot{q}_1 + \dot{q}_2) \\ h \dot{q}_1^2 \end{bmatrix}$$<br>• Vector mô-men trọng lực $\mathbf{g}(\mathbf{q})$:<br>$$g_1(\mathbf{q}) = (m_1 l_{c1} + m_2 l_1) g \cos q_1 + m_2 l_{c2} g \cos(q_1 + q_2)$$<br>$$g_2(\mathbf{q}) = m_2 l_{c2} g \cos(q_1 + q_2)$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Thay thế các hằng số vật lý vào biểu thức ma trận:<br>• $m_1 l_{c1}^2 = 3.0(0.25)^2 = 0.1875\text{ kg}\cdot\text{m}^2$<br>• $m_2 l_1^2 = 2.0(0.50)^2 = 0.5000\text{ kg}\cdot\text{m}^2$<br>• $m_2 l_{c2}^2 = 2.0(0.20)^2 = 0.0800\text{ kg}\cdot\text{m}^2$<br>• $h_0 = m_2 l_1 l_{c2} = 2.0(0.50)(0.20) = 0.2000\text{ kg}\cdot\text{m}^2$<br>• $I_{z1} + I_{z2} = 0.0625 + 0.0267 = 0.0892\text{ kg}\cdot\text{m}^2$<br>Tại vị trí $q_2 = 90^\circ \implies \cos(90^\circ) = 0$, $\sin(90^\circ) = 1.0$:<br>$$b_{11} = 0.1875 + 0.5000 + 0.0800 + 2(0.2000)(0) + 0.0892 = 0.8567\text{ kg}\cdot\text{m}^2$$<br>$$b_{12} = b_{21} = 0.0800 + 0.2000(0) + 0.0267 = 0.1067\text{ kg}\cdot\text{m}^2$$<br>$$b_{22} = 0.0800 + 0.0267 = 0.1067\text{ kg}\cdot\text{m}^2$$<br>$$B(\mathbf{q}) = \begin{bmatrix} 0.8567 & 0.1067 \\ 0.1067 & 0.1067 \end{bmatrix}\text{ kg}\cdot\text{m}^2$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học chi tiết từng thành phần mô-men:<br>1) <strong>Thành phần lực quán tính $B(\mathbf{q})\ddot{\mathbf{q}}$:</strong><br>$$\boldsymbol{\tau}_{iner} = \begin{bmatrix} 0.8567 & 0.1067 \\ 0.1067 & 0.1067 \end{bmatrix} \begin{bmatrix} 2.0 \\ 3.0 \end{bmatrix} = \begin{bmatrix} 0.8567(2.0) + 0.1067(3.0) \\ 0.1067(2.0) + 0.1067(3.0) \end{bmatrix} = \begin{bmatrix} 1.7134 + 0.3201 \\ 0.2134 + 0.3201 \end{bmatrix} = \begin{bmatrix} 2.0335 \\ 0.5335 \end{bmatrix}\text{ N}\cdot\text{m}$$<br>2) <strong>Thành phần Coriolis và ly tâm $C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}}$:</strong><br>$h = h_0 \sin(90^\circ) = 0.2000\text{ kg}\cdot\text{m}^2$.<br>Với $\dot{q}_1 = 1.0, \dot{q}_2 = -2.0 \implies 2\dot{q}_1 + \dot{q}_2 = 2(1.0) - 2.0 = 0$.<br>$$\tau_{cor,1} = -h \dot{q}_2 (2\dot{q}_1 + \dot{q}_2) = -0.20(-2.0)(0) = 0.0000\text{ N}\cdot\text{m}$$<br>$$\tau_{cor,2} = h \dot{q}_1^2 = 0.20(1.0)^2 = 0.2000\text{ N}\cdot\text{m}$$<br>$$\boldsymbol{\tau}_{cor} = \begin{bmatrix} 0.0000 \\ 0.2000 \end{bmatrix}\text{ N}\cdot\text{m}$$<br>3) <strong>Thành phần trọng lực $\mathbf{g}(\mathbf{q})$:</strong><br>Vì $q_1 = 0 \implies \cos(0) = 1.0$; $q_1 + q_2 = 0 + 90^\circ = 90^\circ \implies \cos(90^\circ) = 0$.<br>$$g_1 = (3.0 \times 0.25 + 2.0 \times 0.50)(9.81)(1.0) + 0 = (0.75 + 1.00)(9.81) = 1.75 \times 9.81 = 17.1675\text{ N}\cdot\text{m}$$<br>$$g_2 = 2.0(0.20)(9.81)\cos(90^\circ) = 0.0000\text{ N}\cdot\text{m}$$<br>$$\mathbf{g}(\mathbf{q}) = \begin{bmatrix} 17.1675 \\ 0.0000 \end{bmatrix}\text{ N}\cdot\text{m}$$<br>4) <strong>Tổng mô-men khớp cần thiết:</strong><br>$$\boldsymbol{\tau} = \boldsymbol{\tau}_{iner} + \boldsymbol{\tau}_{cor} + \mathbf{g}(\mathbf{q}) = \begin{bmatrix} 2.0335 + 0.0000 + 17.1675 \\ 0.5335 + 0.2000 + 0.0000 \end{bmatrix} = \begin{bmatrix} 19.2010 \\ 0.7335 \end{bmatrix}\text{ N}\cdot\text{m}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận ý nghĩa vật lý & Phân tích tương tác động học:<br>• <strong>Khớp 1:</strong> Trọng lực chiếm ưu thế tuyệt đối ($17.17\text{ N}\cdot\text{m}$ chiếm tới $89.4\%$ tổng mô-men $\tau_1$), do khâu 1 nằm ngang tạo cánh tay đòn cực đại nâng toàn bộ khối lượng hai khâu ($5.0\text{ kg}$). Lực quán tính đóng góp $10.6\%$, và lực Coriolis triệt tiêu hoàn toàn nhờ sự bù trừ triệt để giữa vận tốc hai khớp ($2\dot{q}_1 + \dot{q}_2 = 0$).<br>• <strong>Khớp 2:</strong> Hoàn toàn không chịu mô-men trọng lực ($g_2 = 0$) do khâu 2 dựng đứng vuông góc. Mô-men sinh ra chủ yếu do gia tốc góc của chính nó và lực ly tâm từ khớp 1 văng ra ($0.20\text{ N}\cdot\text{m}$).</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 05: Động Lực Học Robot Manipulator Euler-Lagrange</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-05" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Khối lượng khâu 2 ($m_2$): <span id="sim05-mass-val">2.0 kg</span></label>
+              <input type="range" id="sim05-mass" min="0.5" max="5.0" step="0.5" value="2.0">
+            </div>
+            <div class="control-group">
+              <label>Gia tốc trọng trường $g$: <span id="sim05-gravity-val">9.8 m/s²</span></label>
+              <input type="range" id="sim05-gravity" min="0.0" max="20.0" step="0.5" value="9.8">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim05-stats" class="sim-telemetry-text">Mô phỏng con lắc kép 2R phi tuyến giải tích Euler-Lagrange; quan sát trao đổi động năng và thế năng hỗn loạn.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// 2R Planar Manipulator Dynamic Model &amp; Forward Dynamics in C++20 Eigen
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;Eigen/Dense&gt;
+
+struct Robot2RParams {
+    double l1 = 0.50, l2 = 0.40;
+    double m1 = 3.0, m2 = 2.0;
+    double lc1 = 0.25, lc2 = 0.20;
+    double Iz1 = 0.0625, Iz2 = 0.0267;
+    double g = 9.81;
+};
+
+class Dynamics2R {
+public:
+    Dynamics2R(const Robot2RParams&amp; p) : p_(p) {}
+
+    Eigen::Matrix2d inertiaMatrix(const Eigen::Vector2d&amp; q) const {
+        double c2 = std::cos(q(1));
+        double b11 = p_.m1 * p_.lc1 * p_.lc1 + p_.m2 * (p_.l1 * p_.l1 + p_.lc2 * p_.lc2 + 2.0 * p_.l1 * p_.lc2 * c2) + p_.Iz1 + p_.Iz2;
+        double b12 = p_.m2 * (p_.lc2 * p_.lc2 + p_.l1 * p_.lc2 * c2) + p_.Iz2;
+        double b22 = p_.m2 * p_.lc2 * p_.lc2 + p_.Iz2;
+        Eigen::Matrix2d B;
+        B &lt;&lt; b11, b12, b12, b22;
+        return B;
+    }
+
+    Eigen::Vector2d coriolisVector(const Eigen::Vector2d&amp; q, const Eigen::Vector2d&amp; q_dot) const {
+        double h = p_.m2 * p_.l1 * p_.lc2 * std::sin(q(1));
+        double c1 = -h * q_dot(1) * (2.0 * q_dot(0) + q_dot(1));
+        double c2 = h * q_dot(0) * q_dot(0);
+        return Eigen::Vector2d(c1, c2);
+    }
+
+    Eigen::Vector2d gravityVector(const Eigen::Vector2d&amp; q) const {
+        double g1 = (p_.m1 * p_.lc1 + p_.m2 * p_.l1) * p_.g * std::cos(q(0)) + p_.m2 * p_.lc2 * p_.g * std::cos(q(0) + q(1));
+        double g2 = p_.m2 * p_.lc2 * p_.g * std::cos(q(0) + q(1));
+        return Eigen::Vector2d(g1, g2);
+    }
+
+    Eigen::Vector2d forwardDynamics(const Eigen::Vector2d&amp; q, const Eigen::Vector2d&amp; q_dot, const Eigen::Vector2d&amp; tau) const {
+        Eigen::Matrix2d B = inertiaMatrix(q);
+        Eigen::Vector2d C = coriolisVector(q, q_dot);
+        Eigen::Vector2d G = gravityVector(q);
+        return B.inverse() * (tau - C - G);
+    }
+
+private:
+    Robot2RParams p_;
+};
+
+int main() {
+    Dynamics2R robot(Robot2RParams{});
+    Eigen::Vector2d q(0.0, M_PI / 2.0);
+    Eigen::Vector2d q_dot(1.0, -2.0);
+    Eigen::Vector2d q_ddot_des(2.0, 3.0);
+
+    Eigen::Matrix2d B = robot.inertiaMatrix(q);
+    Eigen::Vector2d C = robot.coriolisVector(q, q_dot);
+    Eigen::Vector2d G = robot.gravityVector(q);
+    Eigen::Vector2d tau_req = B * q_ddot_des + C + G;
+
+    std::cout &lt;&lt; &quot;Inertia Matrix B:\n&quot; &lt;&lt; B &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Coriolis Vector:  &quot; &lt;&lt; C.transpose() &lt;&lt; &quot; N*m\n&quot;;
+    std::cout &lt;&lt; &quot;Gravity Vector:   &quot; &lt;&lt; G.transpose() &lt;&lt; &quot; N*m\n&quot;;
+    std::cout &lt;&lt; &quot;Required Joint Torques: &quot; &lt;&lt; tau_req.transpose() &lt;&lt; &quot; N*m\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Mô hình Euler-Lagrange:</strong> Dạng ma trận chuẩn $B(q)\ddot{q} + C(q, \dot{q})\dot{q} + g(q) = 	au$ biểu diễn trọn vẹn động lực học phi tuyến của robot.</li><li><strong>Ma trận phản đối xứng:</strong> $\dot{B} - 2C$ phản đối xứng phản ánh định luật bảo toàn cơ năng, là chìa khóa chứng minh độ ổn định Lyapunov.</li><li><strong>Tuyến tính theo tham số:</strong> Cấu trúc hồi quy $Y(q, \dot{q}, \ddot{q})\pi = 	au$ mở đường cho các thuật toán nhận dạng thông số và điều khiển thích nghi.</li><li><strong>Newton-Euler RNEA:</strong> Thuật toán đệ quy 2 pha độ phức tạp tối ưu $O(n)$ dùng cho tính toán thời gian thực ở chu kỳ 1 kHz.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 5.1: Kiểm chứng tính chất phản đối xứng của ma trận (Ḃ - 2C)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Dựa trên ma trận quán tính $B(q)$ và ma trận Coriolis $C(q, \dot{q})$ của robot 2R ở trên, hãy chứng minh bằng đại số ma trận rằng ma trận $N = \dot{B} - 2C$ là ma trận phản đối xứng (Skew-symmetric), tức là $N + N^T = 0$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Đạo hàm ma trận quán tính theo thời gian: $\dot{B} = \frac{\partial B}{\partial q_2}\dot{q}_2 = \begin{bmatrix} -2h\dot{q}_2 & -h\dot{q}_2 \\ -h\dot{q}_2 & 0 \end{bmatrix}$ với $h = m_2 l_1 l_{c2}\sin q_2$. Nhân đôi ma trận Coriolis: $2C = \begin{bmatrix} -2h\dot{q}_2 & -2h(\dot{q}_1 + \dot{q}_2) \\ 2h\dot{q}_1 & 0 \end{bmatrix}$. Hiệu hai ma trận: $N = \dot{B} - 2C = \begin{bmatrix} 0 & h(2\dot{q}_1 + \dot{q}_2) \\ -h(2\dot{q}_1 + \dot{q}_2) & 0 \end{bmatrix}$. Nhận thấy phần tử đường chéo $n_{11} = n_{22} = 0$ và phần tử đối xứng $n_{12} = -n_{21} = h(2\dot{q}_1 + \dot{q}_2)$. Do đó $N^T = -N$, chứng minh hệ thống thỏa mãn tính chất bảo toàn cơ năng thụ động.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch04.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 04: Hoạch Định Quỹ Đạo Chuyển Động</span>
+        </a>
+        <a href="ch06.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 06: Điều Khiển Chuyển Động Robot →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim05 === "function") {
+        initSim05();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

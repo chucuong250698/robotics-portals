@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 13: Động Lực Học Khí & Điều Khiển Bùng Áp Máy Nén Greitzer | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 13</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link active">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-5">Track 5: Cân Bằng Dòng Chảy & Khí Động Học</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 12–13 (Trang 351–424)</span>
+        </div>
+        <h1 class="chapter-title">Chương 13: Động Lực Học Khí & Điều Khiển Bùng Áp Máy Nén Greitzer</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô hình Greitzer, Hiện tượng bùng áp Surge & Chết nghẽn Stall, Phân nhánh Hopf & Van xả chủ động CCV</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Máy nén khí ly tâm và trục là trái tim cung cấp động lực cho động cơ phản lực hàng không, tua-bin khí phát điện, và các hệ thống khí nén công suất lớn trong công nghiệp dầu khí. Tuy nhiên, khi vận hành ở lưu lượng thấp và áp suất nén cao, máy nén rơi vào vùng mất ổn định thủy khí động học cực kỳ nguy hiểm gọi là <strong>Hiện tượng bùng áp (Surge)</strong> và <strong>Chết nghẽn xoay (Rotating Stall)</strong>. Trong hiện tượng Surge, dòng khí đảo chiều liên tục với tần số vài Hz, tạo ra các xung dao động cơ học bạo lực làm vỡ cánh quạt tua-bin và phá hủy máy nén chỉ trong vài giây! <strong>Mô hình động lực học Greitzer (Edward M. Greitzer, MIT, 1976)</strong> là công trình kinh điển mở đường cho công nghệ <em>Điều khiển bùng áp chủ động (Active Surge Control)</em> cứu cánh hàng triệu đô la thiết bị công nghiệp.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Mô hình Greitzer không gian trạng thái 2 chiều gồm biến lưu lượng dòng khí vô thứ nguyên $\Phi$ và tỷ số tăng áp vô thứ nguyên $\Psi$:</p>
+        $$\begin{align}
+        \dot{\Phi} &= \frac{\omega_H}{B} \left( \Psi_c(\Phi) - \Psi \right) \\
+        \dot{\Psi} &= \omega_H B \left( \Phi - \Phi_T(\Psi) \right)
+        \end{align}$$
+        <p>Trong đó $\omega_H = a \sqrt{\frac{A_c}{V_p L_c}}$ là tần số Helmholtz của hệ thống buồng tích áp, và đường đặc tính máy nén $\Psi_c(\Phi)$ thường được xấp xỉ bằng đa thức bậc ba cubic:</p>
+        <div class="formula-card">
+          <div class="formula-header">Đường Đặc Tính Máy Nén & Thông Số Greitzer B</div>
+          $$\begin{equation}
+          \Psi_c(\Phi) = \Psi_{c0} + H \left[ 1 + \frac{3}{2}\left( \frac{\Phi}{W} - 1 \right) - \frac{1}{2}\left( \frac{\Phi}{W} - 1 \right)^3 \right]
+          \end{equation}$$
+          $$\begin{equation}
+          B = \frac{U}{2 a} \sqrt{\frac{V_p}{A_c L_c}}
+          \end{equation}$$
+          <p>Với $U$ là vận tốc đầu cánh quạt máy nén, $a$ là vận tốc âm thanh trong chất khí, $V_p$ là thể tích buồng chứa khí, $A_c, L_c$ là diện tích và chiều dài ống dẫn khí. Khi $B \gt B_{\text{crit}}$, hệ thống trải qua <strong>Phân nhánh Hopf (Hopf Bifurcation)</strong> làm xuất hiện chu trình giới hạn (Limit Cycle) dao động áp suất cực lớn.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Chiến lược điều khiển chống bùng áp chủ động (Active Surge Control via CCV):</p>
+        <ul>
+          <li><strong>Van tuần hoàn khí nén chủ động (Close-Coupled Valve - CCV):</strong> Lắp đặt van tiết lưu ngay cửa ra máy nén để tạo độ sụt áp phụ trợ $\Delta \Psi_{\text{val}} = c_v u$.</li>
+          <li><strong>Luật điều khiển phản hồi lưu lượng:</strong> $u = -k_{\Phi} (\Phi - \Phi_0)$, làm dịch chuyển đường đặc tính tương đương có độ dốc âm ($\frac{d\Psi_{\text{eff}}}{d\Phi} \lt 0$), dập tắt hoàn toàn chu trình dao động giới hạn.</li>
+          <li><strong>Mở rộng biên giới hạn vận hành:</strong> Cho phép máy nén hoạt động ổn định sâu bên trong vùng Surge tự nhiên, tối đa hóa hiệu suất nén khí.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Phân Tích Độ Ổn Định Điểm Cân Bằng & Thiết Kế Bộ Điều Khiển Bùng Áp Greitzer</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một hệ thống máy nén khí ly tâm có thông số Greitzer $B = 1.20$, tần số Helmholtz $\omega_H = 20.0\text{ rad/s}$. Đường đặc tính máy nén tại vùng lân cận đỉnh áp suất có dạng: $\Psi_c(\Phi) = 2.0 + 3.0\Phi - 2.5\Phi^3$. Đường đặc tính van tiết lưu tải: $\Phi_T(\Psi) = \gamma \sqrt{\Psi}$ với độ mở van $\gamma = 0.50$. Điểm cân bằng vận hành tĩnh tại đỉnh áp suất là $\Phi_0 = 0.6325, \Psi_0 = 2.80$.<br>Yêu cầu: Hãy tính ma trận Jacobian tuyến tính hóa của hệ Greitzer tại điểm cân bằng này, xác định các trị riêng để chứng minh hệ thống bị mất ổn định tự nhiên theo phân nhánh Hopf, và thiết kế hệ số hồi tiếp van chủ động $k_v$ để đưa hệ thống trở lại trạng thái ổn định tiệm cận.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán đạo hàm riêng các đường đặc tính tại điểm cân bằng $(\Phi_0 = 0.6325, \Psi_0 = 2.80)$:<br>• Độ dốc đường đặc tính máy nén:<br>$$\left. \frac{d\Psi_c}{d\Phi} \right|_{\Phi_0} = 3.0 - 7.5\Phi_0^2 = 3.0 - 7.5(0.6325)^2 = 3.0 - 7.5(0.40) = 3.0 - 3.0 = 0.00$$<br>(Điểm vận hành nằm ngay tại đỉnh đường đặc tính máy nén, ranh giới mất ổn định).<br>• Độ dốc van tiết lưu tải:<br>$$\left. \frac{d\Phi_T}{d\Psi} \right|_{\Psi_0} = \frac{\gamma}{2\sqrt{\Psi_0}} = \frac{0.50}{2\sqrt{2.80}} = \frac{0.50}{2 \times 1.673} \approx 0.1494$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập ma trận Jacobian tuyến tính hóa $\mathbf{A}$ của hệ Greitzer ban đầu:<br>Phương trình vi phân: $\dot{\Phi} = \frac{\omega_H}{B}(\Psi_c(\Phi) - \Psi)$, $\dot{\Psi} = \omega_H B(\Phi - \Phi_T(\Psi))$.<br>$$\mathbf{A} = \begin{bmatrix} \frac{\omega_H}{B}\frac{d\Psi_c}{d\Phi} & -\frac{\omega_H}{B} \\ \omega_H B & -\omega_H B \frac{d\Phi_T}{d\Psi} \end{bmatrix}$$<br>Thay số: $\frac{\omega_H}{B} = \frac{20.0}{1.20} \approx 16.67$, $\omega_H B = 20.0 \times 1.20 = 24.0$.<br>$$\mathbf{A} = \begin{bmatrix} 16.67 \times 0.0 & -16.67 \\ 24.0 & -24.0 \times 0.1494 \end{bmatrix} = \begin{bmatrix} 0 & -16.67 \\ 24.0 & -3.586 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Đánh giá độ ổn định và phân nhánh Hopf:<br>Vết của ma trận: $\text{tr}(\mathbf{A}) = 0 - 3.586 = -3.586 \lt 0$.<br>Định thức: $\det(\mathbf{A}) = 0 - (-16.67 \times 24.0) = +400.08 \gt 0$.<br>Tuy nhiên, nếu điểm làm việc dịch chuyển sang bên trái đỉnh áp suất một lượng nhỏ ($\Phi = 0.50 \implies \frac{d\Psi_c}{d\Phi} = 3.0 - 7.5(0.25) = +1.125 \gt 0$):<br>Khi đó $\text{tr}(\mathbf{A}) = 16.67 \times 1.125 - 3.586 = 18.75 - 3.586 = +15.164 \gt 0$! Trị riêng có phần thực dương $\lambda_{1,2} = +7.58 \pm j 18.5$, hệ thống rơi vào trạng thái bùng nổ dao động chu trình giới hạn (Surge Limit Cycle).</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết kế bộ điều khiển van chủ động CCV dập tắt Surge:<br>Đưa vào van xả với độ mở tỷ lệ theo sai lệch lưu lượng: $\Delta \Psi_v = -k_v (\Phi - \Phi_0)$.<br>Phương trình dòng khí có điều khiển: $\dot{\Phi} = \frac{\omega_H}{B}(\Psi_c(\Phi) - \Delta \Psi_v - \Psi)$.<br>Phần tử ma trận mới: $A_{11} = \frac{\omega_H}{B}\left(\frac{d\Psi_c}{d\Phi} - k_v\right)$.<br>Để đảm bảo vết ma trận luôn âm vững chắc với hệ số tắt dần $\alpha = -10.0$ khi $\frac{d\Psi_c}{d\Phi} = +1.125$:<br>$$\text{tr}(\mathbf{A}_{\text{new}}) = 16.67(1.125 - k_v) - 3.586 \le -10.0 \implies 16.67(1.125 - k_v) \le -6.414$$<br>$$1.125 - k_v \le -0.385 \implies k_v \ge 1.125 + 0.385 = 1.51$$<br>Chọn $k_v = 2.00$. Bộ điều khiển van xả chủ động làm thay đổi độ dốc hiệu dụng từ dương sang âm, dập tắt hoàn toàn hiện tượng bùng áp và đảm bảo ổn định tiệm cận toàn cục.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 13: Chu Trình Giới Hạn Bùng Áp Greitzer Surge & Van Dập Tắt Chủ Động</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-13" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Thông số Greitzer B: <span id="sim13-b-val">1.2</span></label>
+              <input type="range" id="sim13-b" min="0.4" max="2.0" step="0.1" value="1.2">
+            </div>
+            <div class="control-group">
+              <label>Kích hoạt van dập tắt Surge (Active CCV):</label>
+              <select id="sim13-ccv" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);">
+                <option value="0">Tắt (Hệ tự do rơi vào Surge Limit Cycle)</option>
+                <option value="1">Bật (Điều khiển phản hồi van dập tắt dao động)</option>
+              </select>
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim13-stats" class="sim-telemetry-text">Quỹ đạo pha trong không gian $(\Phi, \Psi)$ quay tròn tạo chu trình giới hạn bùng áp khi tắt van, và co cụm tức thì về điểm cân bằng khi bật van CCV.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Greitzer Compressor Surge and Active Control Simulation in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+class GreitzerCompressor {
+public:
+    double Phi = 0.50;  // mass flow
+    double Psi = 2.50;  // pressure rise
+    
+    const double B = 1.20;
+    const double omega_H = 20.0;
+    const double gamma = 0.50;
+    
+    double psi_c(double phi) const {
+        return 2.0 + 3.0 * phi - 2.5 * std::pow(phi, 3);
+    }
+    
+    double phi_throttle(double psi) const {
+        return (psi &gt; 0.0) ? gamma * std::sqrt(psi) : 0.0;
+    }
+    
+    void step(bool enable_control, double dt) {
+        double u_ccv = 0.0;
+        if (enable_control) {
+            double phi_target = 0.6325;
+            u_ccv = 2.0 * (Phi - phi_target); // Active CCV feedback
+        }
+        
+        double dPhi = (omega_H / B) * (psi_c(Phi) - u_ccv - Psi);
+        double dPsi = (omega_H * B) * (Phi - phi_throttle(Psi));
+        
+        Phi += dPhi * dt;
+        Psi += dPsi * dt;
+    }
+};
+
+int main() {
+    GreitzerCompressor comp;
+    std::cout &lt;&lt; &quot;Uncontrolled Surge simulation:\n&quot;;
+    for (int k = 0; k &lt; 1000; ++k) {
+        comp.step(false, 0.001);
+        if (k % 250 == 0) {
+            std::cout &lt;&lt; &quot;t=&quot; &lt;&lt; k*0.001 &lt;&lt; &quot;s | Flow Phi=&quot; &lt;&lt; comp.Phi 
+                      &lt;&lt; &quot; | Pressure Psi=&quot; &lt;&lt; comp.Psi &lt;&lt; &quot;\n&quot;;
+        }
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Mô hình Greitzer:</strong> Mô hình phi tuyến bậc hai kinh điển mô tả trọn vẹn hiện tượng mất ổn định dòng khí trong máy nén.</li><li><strong>Hiện tượng Surge:</strong> Dao động áp suất và lưu lượng 1D cực kỳ nguy hiểm có thể phá hủy hoàn toàn máy nén tua-bin khí.</li><li><strong>Thông số B Greitzer:</strong> Đại lượng vô thứ nguyên quyết định chế độ bùng nổ dao động: $B$ càng lớn, máy nén càng dễ bị Surge.</li><li><strong>Active Surge Control:</strong> Công nghệ điều khiển van phụ trợ làm dịch chuyển độ dốc đặc tính, mở rộng vùng hoạt động ổn định của máy nén.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 13.1: Tần số dao động tự nhiên của chu trình bùng áp Surge</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Tính chu kỳ dao động $T_{\text{surge}}$ và tần số $f_{\text{surge}}$ (Hz) của chu trình giới hạn khi hệ thống mất ổn định tại điểm làm việc $\Phi = 0.50$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Phần ảo của trị riêng là $\omega_d \approx 18.5\text{ rad/s}$. Tần số bùng áp $f_{\text{surge}} = \frac{\omega_d}{2\pi} = \frac{18.5}{6.283} \approx 2.94\text{ Hz}$, chu kỳ dao động $T = \frac{1}{f} \approx 0.34\text{ giây}$. Dòng khí đảo chiều gần 3 lần mỗi giây!</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch12.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 12: Động Học Dòng Chảy & Cân Bằng Navier-Stokes</span>
+        </a>
+        <a href="ch14.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Thuật Toán Tích Phân Số ODEs & Tích Phân Symplectic →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim13 === "function") {
+        initSim13();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

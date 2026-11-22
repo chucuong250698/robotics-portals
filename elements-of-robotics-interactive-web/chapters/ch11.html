@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 11: Môi trường Phức tạp &amp; Điều khiển Logic Mờ (Fuzzy Logic) - Elements of Robotics</title>
+<meta content="Xử lý tính mơ hồ trong thế giới thực, biến ngôn ngữ, hàm thuộc tam giác/hình thang, hệ luật mờ Mamdani và phương pháp giải mờ tính trọng tâm Centroid." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 6: Trí tuệ Nhân tạo &amp; Học máy</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 11</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 11</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-11-1">
+<span class="nav-text">11.1 Tính Mơ hồ &amp; Bất định</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-2">
+<span class="nav-text">11.2 Tập mờ &amp; Biến Ngôn ngữ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-3">
+<span class="nav-text">11.3 Hàm Thuộc (Membership Functions)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-4">
+<span class="nav-text">11.4 Hệ Luật Mờ &amp; Suy luận Mamdani</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-5">
+<span class="nav-text">11.5 Giải Mờ Phương pháp Trọng tâm (Centroid)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-worked">
+<span class="nav-text">Ví dụ tính số: Giải mờ trọng tâm Centroid</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (Fuzzy Controller)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-11-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: TRÍ TUỆ NHÂN TẠO &amp; HỌC MÁY</div>
+<h1>Chương 11: Môi trường Phức tạp &amp; Điều khiển Logic Mờ (Fuzzy Logic)</h1>
+<p class="chapter-subtitle">Xử lý tính mơ hồ trong thế giới thực, biến ngôn ngữ, hàm thuộc tam giác/hình thang, hệ luật mờ Mamdani và phương pháp giải mờ tính trọng tâm Centroid.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 11.1, 11.2, 11.3, 11.4 -->
+<h4 id="sec-11-1">11.1 Xử lý Tính Mơ hồ trong Robot học</h4>
+<p>Trong thực tế, con người lái xe không dùng các con số chính xác tuyệt đối như "vật cản cách đúng 23.45 cm", mà tư duy bằng các khái niệm ngôn ngữ mờ: "vật cản ở RẤT GẦN, hãy ĐẠP PHANH GẤP". Logic mờ (Fuzzy Logic do Lotfi Zadeh sáng lập) cho phép mô hình hóa trực giác chuyên gia này vào bộ điều khiển robot.</p>
+<h4 id="sec-11-2">11.2 Biến Ngôn ngữ &amp; Hàm Thuộc (Membership Functions)</h4>
+<p>Một giá trị khoảng cách $d$ có thể thuộc về nhiều tập mờ cùng lúc với mức độ liên thuộc $\mu(d) \in [0, 1]$ (ví dụ: cự ly $18\text{ cm}$ vừa thuộc tập "GẦN" với mức $0.7$, vừa thuộc tập "VỪA" với mức $0.3$). Các hàm thuộc phổ biến gồm dạng tam giác (Triangular) và hình thang (Trapezoidal).</p>
+<!-- Mục 11.5 -->
+<h4 id="sec-11-3">11.3 Suy luận Mờ Mamdani &amp; Giải Mờ Trọng tâm (Centroid Defuzzification)</h4>
+<p>Sau khi áp dụng các luật <code>IF (Khoảng cách là GẦN) THEN (Vận tốc là CHẬM)</code> qua phép giao (Min) và hợp (Max), kết quả đầu ra là một diện tích hình học mờ $B$. Giá trị điều khiển số thực $u^*$ được tính bằng <strong>Phương pháp Trọng tâm (Center of Gravity / Centroid)</strong>:</p>
+<div class="formula-hero">
+<div class="formula-title">CÔNG THỨC GIẢI MỜ TRỌNG TÂM (CENTROID METHOD)</div>
+<div class="formula-math">
+                $$u^* = \frac{\int u \cdot \mu_B(u) \, du}{\int \mu_B(u) \, du} \approx \frac{\sum_i u_i \cdot \mu_B(u_i)}{\sum_i \mu_B(u_i)}$$
+              </div>
+<div class="formula-legend">
+                $u^*$ chính là hoành độ trọng tâm của miền diện tích hàm thuộc tổng hợp. Phương pháp này đảm bảo ngõ ra biến thiên liên tục, êm thuận và không bao giờ bị giật cục.
+              </div>
+</div>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-11-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 GIẢI MỜ TRỌNG TÂM CENTROID THEO GIÁO TRÌNH (TRANG 186)</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Kết quả suy luận mờ tạo ra tập vận tốc đầu ra với các giá trị rời rạc $u_i \in \{10, 20, 30, 40, 50\}\text{ cm/s}$ tương ứng với các độ liên thuộc: $\mu(10) = 0.2$, $\mu(20) = 0.8$, $\mu(30) = 0.8$, $\mu(40) = 0.4$, $\mu(50) = 0.0$. Hãy tính vận tốc động cơ giải mờ $u^*$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Tử Số (Mô-men Tích $u_i \cdot \mu_i$)</span>
+</div>
+<div class="step-content">
+<p>$10 \times 0.2 = 2.0$<br/>
+                  $20 \times 0.8 = 16.0$<br/>
+                  $30 \times 0.8 = 24.0$<br/>
+                  $40 \times 0.4 = 16.0$<br/>
+                  $50 \times 0.0 = 0.0$<br/>
+                  $\sum u_i \mu_i = 2 + 16 + 24 + 16 + 0 = 58.0$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Mẫu Số (Tổng Diện Tích $\sum \mu_i$)</span>
+</div>
+<div class="step-content">
+<p>$\sum \mu_i = 0.2 + 0.8 + 0.8 + 0.4 + 0.0 = 2.2$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Chia Tỉ Lệ Xác Định Trọng Tâm $u^*$</span>
+</div>
+<div class="step-content">
+<p>$u^* = \frac{58.0}{2.2} \approx 26.36\text{ cm/s}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Đánh Giá Kết Quả</span>
+</div>
+<div class="step-content">
+<p>Vận tốc $26.36\text{ cm/s}$ nằm hài hòa giữa mức "Chậm" ($20$) và "Vừa" ($30$), phản ánh chính xác sự thỏa hiệp tối ưu giữa các luật mờ xung đột!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Giải mờ theo phương pháp trọng tâm Center of Gravity tổng hợp hài hòa các mệnh đề điều khiển ngôn ngữ: Cho ra tín hiệu bẻ lái liên tục, mượt mà giúp robot chuyển hướng tự nhiên tránh vật cản.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-11-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Logic mờ được nhúng vào ROS 2 thông qua các node điều khiển viết bằng thư viện <code>fuzzylite</code> hoặc <code>scikit-fuzzy</code>. Node nhận dữ liệu khoảng cách laser từ topic <code>/scan</code> và xuất bản lệnh vận tốc lái mờ êm dịu lên <code>/cmd_vel</code> mà không cần mô hình vi phân toán học chính xác của robot.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-11-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Giải Mờ Bằng Phương Pháp Trọng Tâm (Center of Gravity) Trong Tránh Vật Cản</h4>
+</div>
+<div class="practice-statement">
+<p>Một bộ điều khiển mờ (Fuzzy Logic Controller) điều khiển góc bẻ lái $\Delta\theta$ (đơn vị độ). Sau bước suy diễn Mamdani, tập mờ đầu ra gồm 2 hàm thuộc hình tam giác bị cắt ngọn: 1) Tập 'Rẽ Trái Nhẹ' (LT) có đỉnh tại $-15^\circ$, đáy $[-30^\circ, 0^\circ]$, mức kích hoạt $\mu_1 = 0.6$; 2) Tập 'Tiến Thẳng' (STR) có đỉnh tại $0^\circ$, đáy $[-15^\circ, +15^\circ]$, mức kích hoạt $\mu_2 = 0.4$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Rời rạc hóa miền đầu ra tại 5 điểm mẫu: $-20^\circ, -10^\circ, 0^\circ, +10^\circ, +20^\circ$.<br/>2) Xác định giá trị hàm thuộc tổng hợp $\mu(x) = \max(\mu_{\text{LT}}(x), \mu_{\text{STR}}(x))$ tại các điểm mẫu.<br/>3) Tính góc bẻ lái giải mờ theo trọng tâm rời rạc: $\theta^* = \frac{\sum x_i \mu(x_i)}{\sum \mu(x_i)}$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Xác định giá trị thuộc tại các điểm:<br/>• Tại $x = -20^\circ$: $\mu_{\text{LT}} = \min(0.6, \frac{-20 - (-30)}{15}) = \min(0.6, \frac{10}{15}) = 0.60$; $\mu_{\text{STR}} = 0 \implies \mu = 0.60$.<br/>• Tại $x = -10^\circ$: $\mu_{\text{LT}} = \min(0.6, \frac{0 - (-10)}{15}) = 0.60$; $\mu_{\text{STR}} = \min(0.4, \frac{-10 - (-15)}{15}) = \frac{5}{15} \approx 0.33 \implies \mu = 0.60$.<br/>• Tại $x = 0^\circ$: $\mu_{\text{LT}} = 0$; $\mu_{\text{STR}} = 0.40 \implies \mu = 0.40$.<br/>• Tại $x = +10^\circ$: $\mu_{\text{STR}} = \min(0.4, \frac{15 - 10}{15}) = 0.33 \implies \mu = 0.33$.<br/>• Tại $x = +20^\circ$: $\mu = 0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tính tử số $\sum x_i \mu(x_i)$:<br/>$(-20)(0.60) + (-10)(0.60) + (0)(0.40) + (10)(0.33) + (20)(0) = -12.0 - 6.0 + 0 + 3.33 + 0 = -14.67$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Tính mẫu số $\sum \mu(x_i)$:<br/>$0.60 + 0.60 + 0.40 + 0.33 = 1.93$.<br/>Góc bẻ lái trọng tâm: $\theta^* = \frac{-14.67}{1.93} \approx -7.60^\circ$. Kết luận: Robot bẻ lái sang trái một góc $7.6^\circ$ để né vật cản êm ái.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch10.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 10: Không gian C-Space &amp; Thuật toán ...</span>
+</a>
+<a class="page-nav-btn next" href="ch12.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 12: Xử lý Ảnh Số &amp; Thị giác Máy tính... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

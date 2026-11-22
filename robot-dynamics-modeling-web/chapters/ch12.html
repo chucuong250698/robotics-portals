@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 12: Động Học Dòng Chảy & Cân Bằng Navier-Stokes | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 12</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link active">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-5">Track 5: Cân Bằng Dòng Chảy & Khí Động Học</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 10–11 (Trang 283–350)</span>
+        </div>
+        <h1 class="chapter-title">Chương 12: Động Học Dòng Chảy & Cân Bằng Navier-Stokes</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Định lý vận chuyển Reynolds, Phương trình Navier-Stokes, Lực cản thủy động học & Robot ngầm AUV/ROV</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Khi robot hoạt động trong môi trường nước (như tàu ngầm tự hành AUV thám hiểm biển sâu, thiết bị lặn không người lái ROV kiểm định đường ống dầu khí) hoặc trên không khí (Drone quadrotor, máy bay không người lái cánh cố định), chúng ta không thể bỏ qua tương tác với trường chất lưu. Nước và không khí tác dụng các lực thủy động học khổng lồ: <em>Lực nâng (Lift)</em>, <em>Lực cản (Drag)</em>, và <em>Khối lượng bổ sung (Added Mass)</em> do robot phải đẩy một khối lượng chất lưu xung quanh dịch chuyển theo mình. <strong>Phương trình cân bằng Navier-Stokes</strong> và <strong>Định lý vận chuyển Reynolds</strong> cung cấp cơ sở toán học chặt chẽ để tính toán các lực tương tác dòng chảy này.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Định lý vận chuyển Reynolds (Reynolds Transport Theorem - RTT) cho thể tích kiểm soát cố định $V$:</p>
+        $$\begin{equation}
+        \frac{d}{dt}\int_{V(t)} \rho \psi dV = \int_{V} \frac{\partial(\rho \psi)}{\partial t} dV + \oint_{\partial V} \rho \psi (\mathbf{v} \cdot \mathbf{n}) dA
+        \end{equation}$$
+        <p>Phương trình liên tục bảo toàn khối lượng và phương trình Navier-Stokes bảo toàn động lượng chất lưu Newton:</p>
+        $$\begin{equation}
+        \frac{\partial \rho}{\partial t} + \nabla \cdot (\rho \mathbf{v}) = 0
+        \end{equation}$$
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Navier-Stokes Cho Chất Lưu Không Nén Được ($\nabla \cdot \mathbf{v} = 0$)</div>
+          $$\begin{equation}
+          \rho \left( \frac{\partial \mathbf{v}}{\partial t} + (\mathbf{v} \cdot \nabla)\mathbf{v} \right) = -\nabla p + \mu \nabla^2 \mathbf{v} + \rho \mathbf{g}
+          \end{equation}$$
+          <p>Với $\rho$ là khối lượng riêng chất lưu, $p$ là áp suất thủy tĩnh, $\mu$ là độ nhớt động lực học, và $\mathbf{g}$ là trường trọng lực.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Mô hình hóa lực thủy động học trong động lực học robot ngầm (Fossen 2011):</p>
+        <ul>
+          <li><strong>Khối lượng bổ sung (Added Mass $\mathbf{M}_A$):</strong> Năng lượng động học truyền vào chất lưu khi robot tăng tốc: $\mathbf{F}_A = -\mathbf{M}_A \dot{\mathbf{v}}$.</li>
+          <li><strong>Lực cản thủy động (Damping $\mathbf{D}(\mathbf{v})$):</strong> Gồm thành phần cản nhớt tuyến tính ở tốc độ thấp và cản bậc hai do xoáy ở tốc độ cao: $\mathbf{D}(\mathbf{v})\mathbf{v} = \mathbf{D}_L \mathbf{v} + \mathbf{D}_{NL}|\mathbf{v}|\mathbf{v}$.</li>
+          <li><strong>Lực cản hình học Rayleigh:</strong> $F_{\text{drag}} = \frac{1}{2}\rho C_d A v^2$, với $C_d$ là hệ số cản và $A$ là diện tích cản gió/nước chiếu thẳng.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Lực Cản Thủy Động Học & Công Suất Lực Đẩy Cần Thiết Cho Robot Ngầm AUV</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một robot ngầm tự hành thám hiểm đáy biển AUV hình dạng thuôn dài hình ngư lôi di chuyển trong nước biển ($\\rho = 1025\text{ kg/m}^3$). AUV có chiều dài $L = 2.5\text{ m}$, đường kính thân $D = 0.40\text{ m}$. Diện tích mặt cắt cản nước chính diện $A = \frac{\pi D^2}{4} = \frac{\pi \times 0.16}{4} \approx 0.1257\text{ m}^2$. Hệ số lực cản dạng hạt $C_d = 0.22$. Độ nhớt động học nước biển $\nu = 1.05 \times 10^{-6}\text{ m}^2/\text{s}$.<br>Yêu cầu: Hãy tính số Reynolds $Re$ khi AUV bơi ở vận tốc hành trình $v = 2.0\text{ m/s}$, tính lực cản thủy động học $F_{\text{drag}}$, tính công suất cơ học yêu cầu của động cơ chân vịt để duy trì vận tốc này, và ước lượng năng lượng tiêu thụ trong 1 giờ hành trình.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số Reynolds ($Re$) để xác định chế độ dòng chảy:<br>$$Re = \frac{v L}{\nu} = \frac{2.0 \times 2.5}{1.05 \times 10^{-6}} = \frac{5.0}{1.05 \times 10^{-6}} \approx 4.76 \times 10^6$$<br>Vì $Re \gt 5 \times 10^5$, lớp biên dòng chảy quanh thân AUV đã chuyển hoàn toàn sang <strong>chế độ chảy rối (Turbulent boundary layer)</strong>, khẳng định mô hình lực cản tỷ lệ với bình phương vận tốc $v^2$ là hoàn toàn chính xác.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán lực cản thủy động học toàn phần $F_{\text{drag}}$:<br>$$F_{\text{drag}} = \frac{1}{2}\rho C_d A v^2$$<br>Thay các giá trị số học:<br>$$F_{\text{drag}} = 0.5 \times 1025 \times 0.22 \times 0.1257 \times (2.0)^2 = 112.75 \times 0.1257 \times 4 = 56.69\text{ N}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính công suất lực đẩy cơ học yêu cầu ($P_{\text{thrust}}$):<br>Để duy trì vận tốc đều $v = 2.0\text{ m/s}$, lực đẩy của chân vịt phải cân bằng triệt để với lực cản thủy động:<br>$$P_{\text{mech}} = F_{\text{drag}} \times v = 56.69\text{ N} \times 2.0\text{ m/s} = 113.38\text{ Watts}$$<br>Nếu tính đến hiệu suất chuyển đổi của chân vịt và động cơ điện $\eta = 60\%$ ($0.60$):<br>$$P_{\text{elec}} = \frac{P_{\text{mech}}}{\eta} = \frac{113.38}{0.60} \approx 188.97\text{ Watts}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán năng lượng tiêu hao trong 1 giờ hành trình liên tục:<br>Quãng đường bơi được trong 1 giờ ($3600\text{ s}$): $S = 2.0\text{ m/s} \times 3600\text{ s} = 7200\text{ m} = 7.2\text{ km}$.<br>Năng lượng điện tiêu thụ:<br>$$E = P_{\text{elec}} \times 3600\text{ s} = 188.97 \times 3600 \approx 6.80 \times 10^5\text{ Joules} \approx 188.97\text{ Wh} \approx 0.189\text{ kWh}$$<br>Kết quả cho thấy một khối pin Li-ion tiêu chuẩn $24\text{V} - 20\text{Ah}$ ($480\text{Wh}$) có thể cung cấp đủ năng lượng cho AUV hoạt động liên tục trong hơn 2.5 giờ ở vận tốc này.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 12: Dòng Chảy Quanh Thân Robot & Phân Bố Áp Suất Thủy Động</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-12" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Vận tốc dòng chảy $v$: <span id="sim12-vel-val">2.0</span> m/s</label>
+              <input type="range" id="sim12-vel" min="0.5" max="5.0" step="0.5" value="2.0">
+            </div>
+            <div class="control-group">
+              <label>Hệ số cản hình học $C_d$: <span id="sim12-cd-val">0.22</span></label>
+              <input type="range" id="sim12-cd" min="0.1" max="1.0" step="0.05" value="0.22">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim12-stats" class="sim-telemetry-text">Mô phỏng các đường dòng hạt chất lưu uốn quanh thân AUV hình thuôn. Vùng áp suất cao tích tụ ở mũi và vùng xoáy cản hình thành ở đuôi.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// AUV Hydrodynamic Drag and Added Mass Simulation in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+struct AUVHydrodynamics {
+    double m = 120.0;        // Dry mass (kg)
+    double m_added = 15.0;   // Added mass (kg)
+    double rho = 1025.0;     // Seawater density (kg/m^3)
+    double Cd = 0.22;        // Drag coefficient
+    double Area = 0.1257;    // Frontal area (m^2)
+    
+    double computeDrag(double v) const {
+        return 0.5 * rho * Cd * Area * v * std::abs(v);
+    }
+    
+    double simulateStep(double v, double thrust, double dt) const {
+        double drag = computeDrag(v);
+        double total_mass = m + m_added;
+        double a = (thrust - drag) / total_mass;
+        return v + a * dt;
+    }
+};
+
+int main() {
+    AUVHydrodynamics auv;
+    double v = 0.0;
+    double thrust = 124.2; // Maximum acceleration thrust
+    
+    std::cout &lt;&lt; &quot;Starting AUV acceleration run...\n&quot;;
+    for (int step = 0; step &lt;= 400; ++step) {
+        v = auv.simulateStep(v, thrust, 0.01);
+        if (step % 100 == 0) {
+            std::cout &lt;&lt; &quot;t = &quot; &lt;&lt; step * 0.01 &lt;&lt; &quot;s | v = &quot; &lt;&lt; v &lt;&lt; &quot; m/s | Drag = &quot; 
+                      &lt;&lt; auv.computeDrag(v) &lt;&lt; &quot; N\n&quot;;
+        }
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Định lý vận chuyển Reynolds:</strong> Cầu nối biến đổi giữa hệ chất điểm Lagrange và thể tích kiểm soát cố định Euler.</li><li><strong>Phương trình Navier-Stokes:</strong> Mô hình toán học tổng quát chi phối mọi chuyển động chất lưu dựa trên bảo toàn động lượng.</li><li><strong>Khối lượng bổ sung (Added Mass):</strong> Quán tính thủy động học ảo do gia tốc cuốn theo của các phần tử chất lưu xung quanh.</li><li><strong>Lực cản thủy động học:</strong> Tỷ lệ với bình phương vận tốc $v^2$ trong chế độ chảy rối, yếu tố chi phối năng lượng tiêu thụ của AUV/UAV.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 12.1: Gia tốc chuyển động và ảnh hưởng của khối lượng bổ sung (Added Mass)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Giả sử AUV có khối lượng thực $m = 120\text{ kg}$, khối lượng bổ sung nước biển cuốn theo theo phương dọc là $m_a = 15\text{ kg}$. Tính lực đẩy cần thiết nếu động cơ muốn tăng tốc AUV từ $0$ lên $2.0\text{ m/s}$ trong thời gian $t_{\text{acc}} = 4.0\text{ s}$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Gia tốc $a = \frac{2.0 - 0}{4.0} = 0.50\text{ m/s}^2$. Khối lượng tổng hiệu dụng là $m + m_a = 120 + 15 = 135\text{ kg}$. Lực quán tính gia tốc $F_{\text{inertia}} = 135 \times 0.50 = 67.5\text{ N}$. Lực đẩy chân vịt tức thời lớn nhất cần phát ra ở cuối giai đoạn tăng tốc là $F_{\text{thrust}} = F_{\text{inertia}} + F_{\text{drag}} = 67.5 + 56.69 = 124.19\text{ N}$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch11.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 11: Dao Động Cơ Học, Dầm Đàn Hồi & Phân Tích FEM</span>
+        </a>
+        <a href="ch13.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Động Lực Học Khí & Điều Khiển Bùng Áp Máy Nén Greitzer →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim12 === "function") {
+        initSim12();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

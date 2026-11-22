@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 14: Kiến Trúc Triển Khai Thực Tế: HuggingFace LeRobot, ALOHA &amp; ROS 2 - Imitation Learning in Robotics</title>
+<meta content="Production Deployment, LeRobot, ALOHA Hardware &amp; ROS 2 Loop" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 6: HRI, BENCHMARKS &amp; TRIỂN KHAI THỰC TẾ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 14</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 14</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-14-1">
+<span class="nav-text">14.1 Hệ Sinh Thái HuggingFace LeRobot &amp; Chuẩn ALOHA</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-2">
+<span class="nav-text">14.2 Vòng Lặp Suy Luận 50 Hz &amp; Đồng Bộ Cảm Biến</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-3">
+<span class="nav-text">14.3 Chuẩn Đóng Gói Dữ Liệu Zarr / Parquet / Codec AV1</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-4">
+<span class="nav-text">14.4 Tích Hợp Toàn Diện LeRobot Với ROS 2 Humble</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-sim">
+<span class="nav-text">⚡ Mô Phỏng Vòng Lặp Suy Luận 50 Hz Thực Tế (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Băng Thông &amp; Độ Trễ Đường Truyền</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2 Hoàn Chỉnh: Node Điều Khiển LeRobot ALOHA</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-14-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 6: HRI, BENCHMARKS &amp; TRIỂN KHAI THỰC TẾ • CHƯƠNG 14</div>
+<h1 class="chapter-title">Kiến Trúc Triển Khai Thực Tế: HuggingFace LeRobot, ALOHA &amp; ROS 2</h1>
+<p class="chapter-subtitle">Production Deployment, LeRobot, ALOHA Hardware &amp; ROS 2 Loop</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Boyuan Zheng et al. (UTS 2021) &amp; Carlos Celemin et al. (2022)</strong></span>
+</div>
+</div>
+<!-- 14.1 -->
+<h2 id="sec-14-1">14.1 Hệ Sinh Thái Mã Nguồn Mở SOTA: HuggingFace LeRobot &amp; Phần Cứng ALOHA</h2>
+<p>Năm 2024, thế giới Robotics chứng kiến một cuộc cách mạng tương tự như những gì Hugging Face Transformers đã làm cho Xử lý Ngôn ngữ Tự nhiên: <strong>Dự án Hugging Face LeRobot (Cadene et al., 2024)</strong> chính thức chuẩn hóa toàn bộ ngăn xếp công nghệ của Robot Manipulation:</p>
+<ul>
+<li><strong>Mô hình SOTA tích hợp sẵn:</strong> ACT (Action Chunking Transformers), Diffusion Policy, TD-MPC, VQ-BeT.</li>
+<li><strong>Khả năng tái lập phần cứng giá rẻ:</strong> Hỗ trợ hệ thống cánh tay robot hai tay ALOHA (20.000 USD thay vì 200.000 USD của cánh tay công nghiệp) và Koch Arm (300 USD cho học sinh sinh viên).</li>
+<li><strong>Chia sẻ mô hình &amp; Trọng số trực tiếp:</strong> Đẩy và tải các checkpoint chính sách đã huấn luyện lên Hugging Face Hub bằng một dòng lệnh đơn giản.</li>
+</ul>
+<!-- 14.2 -->
+<h2 id="sec-14-2">14.2 Vòng Lặp Điều Khiển Thời Gian Thực 50 Hz (50 Hz Real-Time Execution Loop)</h2>
+<p>Để robot thao tác vật thể mềm mại và phản xạ kịp thời với ngoại cảnh, vòng lặp điều khiển bắt buộc phải giữ vững tần số <strong>50 Hz</strong> (chu kỳ lấy mẫu mục tiêu $\Delta t = 20$ ms):</p>
+<div class="formula-hero">
+<div class="formula-title">Phân Bổ Ngân Sách Thời Gian Trong 1 Chu Kỳ 20 ms</div>
+<div class="formula-math">
+            $$\Delta t_{\text{total}} = \Delta t_{\text{cam}} + \Delta t_{\text{inference}} + \Delta t_{\text{comm}} + \Delta t_{\text{motor}} \le 20.0\text{ ms}$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách từng mili-giây sống còn:</strong>
+<br/>• $\Delta t_{\text{cam}} \approx 6 - 8$ ms: Chụp và giải mã khung hình đa luồng từ 3-4 camera USB/RealSense (cổ tay, góc nhìn chính diện).
+            <br/>• $\Delta t_{\text{inference}} \approx 7 - 10$ ms: Chạy mạng nơ-ron sâu trên card đồ họa NVIDIA RTX 4090 / Orin thông qua bộ tối ưu hóa TensorRT FP16 để dự đoán chunk hành động.
+            <br/>• $\Delta t_{\text{comm}} \approx 1 - 2$ ms: Truyền dữ liệu qua cổng nối tiếp USB-to-RS485 tới bus servo Dynamixel.
+            <br/>• $\Delta t_{\text{motor}} \approx 2$ ms: Bộ điều khiển PID phần cứng đọc phản hồi encoder và xuất dòng điện lái cuộn cảm.
+          </div>
+</div>
+<!-- 14.3 -->
+<h2 id="sec-14-3">14.3 Chuẩn Đóng Gói Dữ Liệu Zarr, Parquet &amp; Video Codec Nén Tối Đa</h2>
+<p>Hàng ngàn giờ video độ phân giải cao sẽ làm nghẽn hoàn toàn đường truyền đĩa cứng nếu dùng định dạng ảnh rời rạc thông thường. Chuẩn LeRobot sử dụng:</p>
+<p>• <strong>Video MP4 / Codec AV1:</strong> Nén video nhiều góc quay với tỉ lệ nén gấp 50 lần mà không giảm độ nét không gian.</p>
+<p>• <strong>Định dạng Zarr &amp; Apache Parquet:</strong> Cho phép truy xuất ngẫu nhiên đa luồng không đồng bộ (Asynchronous Multithreaded Slicing) trực tiếp vào GPU VRAM, triệt tiêu thời gian chờ nạp dữ liệu khi huấn luyện mạng lớn.</p>
+<!-- 14.4 -->
+<h2 id="sec-14-4">14.4 Kiến Trúc Hệ Thống: Cầu Nối Giữa ROS 2 Humble &amp; LeRobot Inference Service</h2>
+<p>Trong môi trường sản xuất thực tế, việc ghép nối giữa ngăn xếp ROS 2 (chịu trách nhiệm quản lý phần cứng, an toàn, lập bản đồ) và LeRobot (chạy mô hình học sâu) được thực hiện qua cơ chế ZeroMQ / Shared Memory hoặc ROS 2 Custom Node để đảm bảo độ trễ thấp nhất dưới 1 ms.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-14-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Giám Sát Độ Trễ Vòng Lặp Điều Khiển ALOHA 50 Hz (20 ms Ticker)</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="280" id="sim-canvas-14" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-14-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Tính Băng Thông Dữ Liệu &amp; Khả Năng Đáp Ứng Thời Gian Thực 50 Hz</h3>
+</div>
+<div class="exercise-statement">
+<p>Hệ thống robot hai tay ALOHA trang bị 4 camera màu RGB kích thước $640 \times 480$, độ sâu màu 24-bit (3 byte/pixel), tốc độ quay 50 FPS. Cùng lúc đó, 14 động cơ servo Dynamixel truyền dữ liệu vị trí và dòng điện ở tần số 50 Hz (mỗi động cơ chiếm 16 byte/mẫu). Tính thông lượng dữ liệu camera thô (Raw Camera Bandwidth), thông lượng dữ liệu servo, tổng băng thông USB cần thiết, và đánh giá xem cổng USB 3.0 (5 Gbps) có bị nghẽn không.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính kích thước 1 khung hình và thông lượng 1 camera</span>
+</div>
+<div class="step-content">
+<p>• Số byte của 1 khung hình $640 \times 480$: $640 \times 480 \times 3\text{ bytes} = 921,600\text{ bytes} \approx 0.9216\text{ MB}$</p><p>• Thông lượng 1 camera ở 50 FPS: $0.9216\text{ MB} \times 50 = 46.08\text{ MB/s}$ ($368.64\text{ Mbps}$)</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính tổng thông lượng của toàn bộ 4 camera</span>
+</div>
+<div class="step-content">
+<p>$$\text{BW}_{\text{cameras}} = 4 \times 46.08\text{ MB/s} = 184.32\text{ MB/s} \approx 1.475\text{ Gbps}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính thông lượng dữ liệu mạng truyền động cơ servo</span>
+</div>
+<div class="step-content">
+<p>• Dữ liệu 1 mẫu từ 14 động cơ: $14 \times 16\text{ bytes} = 224\text{ bytes}$</p><p>• Thông lượng servo ở 50 Hz: $224 \times 50 = 11,200\text{ bytes/s} \approx 11.2\text{ KB/s}$ (Rất nhỏ so với camera)</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Đánh giá khả năng đáp ứng phần cứng</span>
+</div>
+<div class="step-content">
+<p>Tổng băng thông dữ liệu hệ thống: $\approx 1.48$ Gbps.</p><p>Cổng USB 3.0 tiêu chuẩn hỗ trợ tối đa 5.0 Gbps (băng thông hữu dụng thực tế $\sim 3.2$ Gbps). Như vậy, $1.48 \lt 3.2$ Gbps, hệ thống hoàn toàn đảm bảo đường truyền trơn tru mà không bị trễ rơi khung hình (Frame Drop), thỏa mãn hoàn hảo điều kiện hoạt động 50 Hz thời gian thực.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Khung kiến trúc HuggingFace LeRobot kết hợp chuẩn Zarr và mạng thời gian thực bảo đảm pipeline suy luận AI đạt tần số ổn định $50\text{ Hz}$, đáp ứng yêu cầu khắt khe của các tác vụ điều khiển tinh vi ALOHA.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-14-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Node ROS 2 Hoàn Chỉnh Thực Thi Action Chunking LeRobot Ở 50 Hz</h4>
+<p>Mã nguồn chuẩn tích hợp suy luận mô hình ACT / Diffusion Policy với hệ thống tay kẹp qua ROS 2:</p>
+<div class="code-card">
+<div class="code-header">
+<span>lerobot_ros2_controller.py (ROS 2 Humble / PyTorch)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image, JointState
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+from cv_bridge import CvBridge
+import torch
+import numpy as np
+
+class LeRobotInferenceNode(Node):
+    def __init__(self):
+        super().__init__('lerobot_inference_node')
+        self.bridge = CvBridge()
+        self.latest_image = None
+        self.latest_joints = None
+        
+        # Đăng ký nhận ảnh camera và trạng thái khớp
+        self.sub_cam = self.create_subscription(Image, '/camera/top/image_raw', self.cam_cb, 1)
+        self.sub_joints = self.create_subscription(JointState, '/joint_states', self.joint_cb, 1)
+        self.pub_action = self.create_publisher(JointTrajectory, '/leader_follower/commands', 1)
+        
+        # Hẹn giờ vòng lặp điều khiển 50 Hz (0.02s)
+        self.timer = self.create_timer(0.02, self.control_loop)
+        self.action_buffer = []
+
+    def cam_cb(self, msg):
+        self.latest_image = self.bridge.imgmsg_to_cv2(msg, 'rgb8')
+
+    def joint_cb(self, msg):
+        self.latest_joints = np.array(msg.position[:6])
+
+    def control_loop(self):
+        if self.latest_image is None or self.latest_joints is None:
+            return
+            
+        # Nếu bộ đệm rỗng, chạy suy luận Action Chunk mới (16 bước)
+        if len(self.action_buffer) == 0:
+            # Chạy mô hình PyTorch GPU
+            action_chunk = self.predict_chunk(self.latest_image, self.latest_joints)
+            self.action_buffer = list(action_chunk)
+            
+        # Lấy hành động bước tiếp theo từ bộ đệm (Temporal Execution)
+        target_joint_step = self.action_buffer.pop(0)
+        
+        # Đóng gói và phát xung ROS 2
+        cmd = JointTrajectory()
+        pt = JointTrajectoryPoint()
+        pt.positions = target_joint_step.tolist()
+        cmd.points.append(pt)
+        self.pub_action.publish(cmd)
+
+    def predict_chunk(self, img, joints):
+        # Giả lập mô hình ACT suy luận 16 bước tương lai
+        return np.tile(joints, (16, 1)) + np.random.normal(0, 0.005, (16, 6))
+
+def main():
+    rclpy.init()
+    node = LeRobotInferenceNode()
+    rclpy.spin(node)
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-14-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Toán Băng Thông Dữ Liệu Zarr &amp; Độ Trễ Suy Luận 50 Hz Trong LeRobot</h4>
+</div>
+<div class="practice-statement">
+<p>Hệ thống HuggingFace LeRobot triển khai mô hình ACT trên cánh tay đôi ALOHA. Vòng lặp điều khiển yêu cầu tần số tối thiểu $f = 50\text{ Hz}$ (thời gian tối đa mỗi chu kỳ $T_{\text{cycle}} = 20\text{ ms}$). Dữ liệu vào gồm 3 camera RGB độ phân giải $640 \times 480$ định dạng uint8 ($3$ bytes/pixel) và trạng thái góc khớp 14-DOF kiểu float32 ($4$ bytes/khớp). Thời gian suy luận mạng nơ-ron trên GPU RTX 4090 là $t_{\text{infer}} = 12\text{ ms}$. Thời gian nén Zarr và chuyển dữ liệu PCIe là $t_{\text{transfer}} = 3\text{ ms}$. Thời gian gửi lệnh CAN bus tới động cơ là $t_{\text{can}} = 2\text{ ms}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính kích thước dữ liệu thô của 1 bước quan sát và băng thông dữ liệu phát ra mỗi giây (MB/s).<br/>2) Tính tổng độ trễ End-to-End từ khi cảm biến chụp đến khi cơ cấu nhận lệnh.<br/>3) Đánh giá hệ thống có đáp ứng thời gian thực $50\text{ Hz}$ không và tính thời gian dự phòng (Timing Margin).</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Kích thước dữ liệu mỗi bước:<br/>• 3 ảnh RGB: $3 \times (640 \times 480 \times 3\text{ bytes}) = 3 \times 921,600\text{ bytes} = 2,764,800\text{ bytes} \approx 2.637\text{ MB}$.<br/>• Trạng thái khớp: $14 \times 4\text{ bytes} = 56\text{ bytes}$.<br/>Tổng kích thước mỗi frame: $2.637\text{ MB}$. Băng thông ở $50\text{ Hz}$: $2.637 \times 50 = 131.85\text{ MB/s}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tổng độ trễ End-to-End:<br/>$$T_{\text{total}} = t_{\text{transfer}} + t_{\text{infer}} + t_{\text{can}} = 3\text{ ms} + 12\text{ ms} + 2\text{ ms} = 17\text{ ms}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>So sánh: Chu kỳ cho phép ở $50\text{ Hz}$ là $T_{\text{cycle}} = 20\text{ ms}$.<br/>Vì $T_{\text{total}} = 17\text{ ms} \lt 20\text{ ms}$, hệ thống hoàn toàn đáp ứng chuẩn thời gian thực khắt khe $50\text{ Hz}$ với biên an toàn dự phòng là $20 - 17 = 3\text{ ms}$ ($15\%$ chu kỳ), đảm bảo chuyển động cánh tay robot không bị trễ hay giật cục.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch13.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 13: Thước Đo Đánh Giá &amp; Benchmarks</span>
+</a>
+<a class="ch-nav-card next" href="../index.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Lộ trình Tổng quan</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Hệ Cơ Điện, Động Cơ DC & Khớp Đàn Hồi (Elastic Transmission) | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 03</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link active">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Động Cơ, Thủy Lực & Mô Hình Ma Sát</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 3 (Trang 77–140)</span>
+        </div>
+        <h1 class="chapter-title">Chương 03: Hệ Cơ Điện, Động Cơ DC & Khớp Đàn Hồi (Elastic Transmission)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Động cơ điện DC, Khớp đàn hồi 2 khối quán tính & Triệt tiêu cộng hưởng</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong thiết kế robot chính xác cao (Robot phẫu thuật, Cánh tay lắp ráp chip, Robot gắp tốc độ cao SCARA), khớp nối giữa động cơ và tải không bao giờ cứng tuyệt đối! Các bộ giảm tốc sóng Harmonic Drive, dây đai răng và trục các-đăng luôn có tính <strong>đàn hồi xoắn (Torsional Elasticity)</strong>. Nếu bỏ qua tính đàn hồi này và xem khớp nối là thanh cứng, bộ điều khiển PID thông thường sẽ kích hoạt <em>hiện tượng cộng hưởng cơ học (Resonance)</em>, làm cánh tay robot rung lắc dữ dội và có thể phá hủy hộp số! <strong>Mô hình 2 khối quán tính (Two-Mass System)</strong> là chìa khóa bóc tách và triệt tiêu rung chấn này.</p>
+        </div>
+        <p>Hệ thống khớp đàn hồi sinh ra hai tần số đặc trưng: Tần số cộng hưởng $\omega_{res}$ (nơi tải dao động cực đại) và Tần số phản cộng hưởng $\omega_{antires}$ (nơi mô-men động cơ bị triệt tiêu hoàn toàn). Nắm vững giải tích hàm truyền của hệ cơ điện giúp kỹ sư thiết kế bộ lọc Notch Filter chính xác đến từng Hz.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Hệ thống động cơ DC dẫn động tải qua trục đàn hồi gồm 2 khối quán tính: Quán tính rotor động cơ $J_M$ và quán tính tải $J_L$. Trục đàn hồi có độ cứng xoắn $k_s$ và độ cản xoắn $d_s$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Động Lực Học Khớp Đàn Hồi 2 Khối Quán Tính</div>
+          $$\begin{align}
+          J_M \ddot{\theta}_M + B_M \dot{\theta}_M + \tau_s &= \tau_M = K_t i_a \\
+          J_L \ddot{\theta}_L + B_L \dot{\theta}_L - \tau_s &= -\tau_{load} \\
+          \tau_s &= k_s (\theta_M - \theta_L) + d_s (\dot{\theta}_M - \dot{\theta}_L)
+          \end{align}$$
+        </div>
+        <p>Mạch điện phần ứng động cơ DC: $L_a \frac{di_a}{dt} + R_a i_a + K_b \dot{\theta}_M = V_a$.</p>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Khi bỏ qua điện cảm $L_a \approx 0$ và cản nhớt nhỏ, hàm truyền từ mô-men động cơ $\tau_M$ đến vận tốc góc của động cơ $\Omega_M(s)$ và vận tốc tải $\Omega_L(s)$:</p>
+        $$\begin{equation}
+        \frac{\Omega_M(s)}{\tau_M(s)} = \frac{1}{(J_M + J_L)s} \cdot \frac{s^2 + \omega_{antires}^2}{s^2 + \omega_{res}^2}, \qquad \frac{\Omega_L(s)}{\tau_M(s)} = \frac{1}{(J_M + J_L)s} \cdot \frac{\omega_{antires}^2}{s^2 + \omega_{res}^2}
+        \end{equation}$$
+        <p>Với các tần số đặc trưng:</p>
+        $$\begin{equation}
+        \omega_{antires} = \sqrt{\frac{k_s}{J_L}} \quad (\text{Tần số phản cộng hưởng}), \qquad \omega_{res} = \sqrt{k_s \left( \frac{1}{J_M} + \frac{1}{J_L} \right)} \quad (\text{Tần số cộng hưởng})
+        \end{equation}$$
+        <p>Ta luôn có bất đẳng thức: $\omega_{res} \gt \omega_{antires}$. Khoảng cách giữa hai tần số này quyết định mức độ rung lắc của khớp robot.</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Tần Số Cộng Hưởng Khớp Đàn Hồi & Thiết Kế Bộ Lọc Triệt Tiêu Notch Filter</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khớp cánh tay robot công nghiệp sử dụng hộp số giảm tốc sóng Harmonic Drive có độ cứng xoắn $k_s = 2500\text{ N}\cdot\text{m/rad}$, độ cản xoắn $d_s \approx 0$. Quán tính rotor động cơ quy đổi $J_M = 0.05\text{ kg}\cdot\text{m}^2$, quán tính tải công tác $J_L = 0.20\text{ kg}\cdot\text{m}^2$.<br>Yêu cầu: (a) Xác định tần số phản cộng hưởng $\omega_{antires}$ và tần số cộng hưởng $\omega_{res}$ theo đơn vị rad/s và Hz; (b) Thiết lập hàm truyền của bộ lọc Notch Filter $H_{notch}(s)$ đặt trong mạch điều khiển để triệt tiêu đỉnh cộng hưởng này.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định các thông số quán tính và độ cứng trục:<br>• Độ cứng trục: $k_s = 2500\text{ N}\cdot\text{m/rad}$.<br>• Quán tính rotor: $J_M = 0.05\text{ kg}\cdot\text{m}^2$.<br>• Quán tính tải: $J_L = 0.20\text{ kg}\cdot\text{m}^2$.<br>Tổng quán tính: $J_{total} = J_M + J_L = 0.05 + 0.20 = 0.25\text{ kg}\cdot\text{m}^2$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán tần số phản cộng hưởng $\omega_{antires}$:<br>$$\omega_{antires} = \sqrt{\frac{k_s}{J_L}} = \sqrt{\frac{2500}{0.20}} = \sqrt{12500} \approx 111.80\text{ rad/s}$$<br>Quy đổi sang tần số sóng Hz:<br>$$f_{antires} = \frac{\omega_{antires}}{2\pi} = \frac{111.80}{2\pi} \approx 17.79\text{ Hz}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán tần số cộng hưởng cơ học $\omega_{res}$:<br>$$\omega_{res} = \sqrt{k_s \left( \frac{1}{J_M} + \frac{1}{J_L} \right)} = \sqrt{2500 \left( \frac{1}{0.05} + \frac{1}{0.20} \right)} = \sqrt{2500 (20 + 5)} = \sqrt{2500 \times 25} = \sqrt{62500} = 250.00\text{ rad/s}$$<br>Quy đổi sang tần số sóng Hz:<br>$$f_{res} = \frac{\omega_{res}}{2\pi} = \frac{250.00}{2\pi} \approx 39.79\text{ Hz}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết kế cấu trúc bộ lọc Notch Filter triệt tiêu cộng hưởng:<br>Để triệt tiêu cực dao động tại $\omega_{res} = 250\text{ rad/s}$, bộ lọc Notch cần đặt cặp điểm không (zeros) đúng tại tần số cộng hưởng:<br>$$H_{notch}(s) = \frac{s^2 + 2\zeta_z \omega_n s + \omega_n^2}{s^2 + 2\zeta_p \omega_n s + \omega_n^2}$$<br>Với $\omega_n = \omega_{res} = 250\text{ rad/s}$, chọn hệ số sâu của vệt khuyết $\zeta_z = 0.05$ (rất hẹp) và hệ số cực $\zeta_p = 0.707$ (dập tắt dao động):<br>$$H_{notch}(s) = \frac{s^2 + 2(0.05)(250)s + 250^2}{s^2 + 2(0.707)(250)s + 250^2} = \frac{s^2 + 25 s + 62500}{s^2 + 353.5 s + 62500}$$<br>Bộ lọc này khoét một hố suy giảm $-23\text{ dB}$ ngay tại $39.8\text{ Hz}$, ngăn chặn hoàn toàn bộ điều khiển kích hoạt dao động cộng hưởng phá hủy hộp số.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 03: Rung Lắc Đàn Hồi Trục 2 Khối Quán Tính & Hiện Tượng Xoắn Trục</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-03" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Độ cứng xoắn trục k_s: <span id="sim03-k-val">50</span> N.m/rad</label>
+              <input type="range" id="sim03-k" min="10" max="200" step="10" value="50">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim03-stats" class="sim-telemetry-text">Quan sát góc vặn xoắn giữa đĩa động cơ (xanh) và đĩa tải (vàng) khi đảo chiều mô-men đột ngột.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Two-mass Elastic Drive Transfer Function Analysis in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+int main() {
+    double J_M = 0.05; // kg.m^2
+    double J_L = 0.20; // kg.m^2
+    double k_s = 2500.0; // N.m/rad
+    
+    double w_antires = std::sqrt(k_s / J_L);
+    double w_res = std::sqrt(k_s * (1.0 / J_M + 1.0 / J_L));
+    
+    std::cout &lt;&lt; &quot;Anti-resonance frequency: &quot; &lt;&lt; w_antires &lt;&lt; &quot; rad/s (&quot; 
+              &lt;&lt; w_antires / (2 * M_PI) &lt;&lt; &quot; Hz)\n&quot;;
+    std::cout &lt;&lt; &quot;Resonance frequency: &quot; &lt;&lt; w_res &lt;&lt; &quot; rad/s (&quot; 
+              &lt;&lt; w_res / (2 * M_PI) &lt;&lt; &quot; Hz)\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Tính đàn hồi khớp (Elasticity):</strong> Yếu tố thực tế không thể bỏ qua trong robot cánh tay sử dụng hộp số giảm tốc sóng Harmonic Drive.</li><li><strong>Mô hình Two-Mass:</strong> Bóc tách chính xác hai khối quán tính động cơ và tải, giải mã hiện tượng rung chấn cơ học.</li><li><strong>Tần số cộng hưởng & phản cộng hưởng:</strong> Đôi cánh toán học xác định ngưỡng giới hạn băng thông điều khiển an toàn.</li><li><strong>Bộ lọc Notch Filter:</strong> Kỹ thuật triệt tiêu rung chấn kinh điển đặt điểm không đè lên cực cộng hưởng của hệ thống cơ khí.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 3.1: Ảnh hưởng khi tải thay đổi</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Khi robot gắp thêm một khối phôi nặng khiến $J_L$ tăng gấp đôi từ $0.20$ lên $0.40\text{ kg}\cdot\text{m}^2$. Hãy tính lại tần số cộng hưởng $\omega_{res}$ mới.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Nghịch đảo quán tính mới: $1/J_M + 1/J_L = 20 + 2.5 = 22.5$. Tần số cộng hưởng mới: $\\omega_{res}' = \\sqrt{2500 \\times 22.5} = \\sqrt{56250} \\approx 237.17\\text{ rad/s}$ ($37.75\\text{ Hz}$). Tần số cộng hưởng bị tụt xuống thấp hơn khi robot mang tải nặng!</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch02.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 02: Năng Lượng & Tính Thụ Động</span>
+        </a>
+        <a href="ch04.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Động Lực Học Hệ Thủy Lực & Sóng Áp Suất →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim03 === "function") {
+        initSim03();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

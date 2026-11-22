@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 09: Liên Kết Dữ Liệu Ngữ Nghĩa &amp; Tối Ưu Vòng Lặp Ngữ Nghĩa - SLAM &amp; Active Perception Portal</title>
+<meta content="Semantic Data Association, Hungarian Algorithm &amp; Loop Closing" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 5: SLAM CHỦ ĐỘNG &amp; RA QUYẾT ĐỊNH</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 09</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 09</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-9-1">
+<span class="nav-text">9.1 Thách Thức Nhập Nhằng Liên Kết Dữ Liệu Ngữ Nghĩa</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-2">
+<span class="nav-text">9.2 Thuật Toán Gán Cặp Hungarian (Munkres)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-3">
+<span class="nav-text">9.3 Vòng Lặp Ngữ Nghĩa &amp; Giải Quyết Perceptual Aliasing</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-4">
+<span class="nav-text">9.4 Semantically-Informed Pose Graph Optimization</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-sim">
+<span class="nav-text">⚡ Mô Phỏng Ghép Nối Đồ Thị Ngữ Nghĩa (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Ma Trận Chi Phí Mahalanobis</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-9-bridge">
+<span class="nav-text">🛠️ Cầu Nối Python: Hungarian Data Association Scipy</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-9-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 5: SLAM CHỦ ĐỘNG &amp; RA QUYẾT ĐỊNH • CHƯƠNG 09</div>
+<h1 class="chapter-title">Liên Kết Dữ Liệu Ngữ Nghĩa &amp; Tối Ưu Vòng Lặp Ngữ Nghĩa</h1>
+<p class="chapter-subtitle">Semantic Data Association, Hungarian Algorithm &amp; Loop Closing</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Julio A. Placed et al. (IEEE T-RO 2023) &amp; Thanh Nguyen Canh et al. (2021)</strong></span>
+</div>
+</div>
+<!-- 9.1 -->
+<h2 id="sec-9-1">9.1 Thách Thức Nhập Nhằng Liên Kết Dữ Liệu Ngữ Nghĩa (Data Association Ambiguity)</h2>
+<p>Khi robot tiến vào một căn phòng có hàng chục đồ vật cùng loại (ví dụ: 8 chiếc ghế giống hệt nhau quanh bàn họp), mạng học sâu phát hiện ra 8 bounding box đều có nhãn `chair`. Thuật toán SLAM phải đối mặt với bài toán nan giải: <em>"Chiếc ghế quan sát được ở khung hình hiện tại tương ứng với landmark chiếc ghế số mấy trong bản đồ?"</em></p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 LIÊN KẾT DỮ LIỆU ĐÚNG ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">
+            Liên kết dữ liệu (Data Association) là tử huyệt của SLAM. Nếu gán nhầm landmark chiếc ghế A sang chiếc ghế B, bộ tối ưu hóa Pose Graph sẽ bị ép phải bẻ cong quỹ đạo để hai điểm khác nhau trùng khít lên nhau, dẫn đến hiện tượng bản đồ bị xoắn vặn và phá hủy hoàn toàn. Thuật toán **Hungarian Bipartite Matching** kết hợp khoảng cách hình học Mahalanobis với nhãn ngữ nghĩa đảm bảo tỷ lệ gán cặp tối ưu toàn cục.
+          </div>
+</div>
+<!-- 9.2 -->
+<h2 id="sec-9-2">9.2 Thuật Toán Hungarian (Munkres) Kết Hợp Khoảng Cách Mahalanobis</h2>
+<p>Ma trận chi phí gán cặp $\mathbf{C} \in \mathbb{R}^{M \times N}$ giữa $M$ detection quan sát $z_i$ và $N$ landmark bản đồ $L_j$ được tính toán kết hợp cả hình học lẫn phân phối xác suất lớp:</p>
+<div class="formula-hero">
+<div class="formula-title">Hàm Chi Phí Gán Cặp Ngữ Nghĩa Hỗn Hợp</div>
+<div class="formula-math">
+            $$C_{ij} = (z_i - \hat{z}_j)^T (\mathbf{H}_j \mathbf{P} \mathbf{H}_j^T + \mathbf{R}_i)^{-1} (z_i - \hat{z}_j) - \beta \log P(\text{class}_i = \text{class}_j)$$
+          </div>
+<div class="formula-legend">
+<strong>Trong đó:</strong>
+<br/>• Số hạng thứ nhất là khoảng cách Mahalanobis bình phương chuẩn hóa theo hiệp phương sai đổi mới $\mathbf{S} = \mathbf{H} \mathbf{P} \mathbf{H}^T + \mathbf{R}$.
+            <br/>• Số hạng thứ hai là phần thưởng tương thích nhãn lớp ngữ nghĩa (nếu cùng loại `chair` thì chi phí giảm mạnh; nếu khác loại thì bị gán chi phí cực lớn $+\infty$).
+          </div>
+</div>
+<!-- 9.3 -->
+<h2 id="sec-9-3">9.3 Đóng Vòng Lặp Ngữ Nghĩa (Semantic Loop Closure) &amp; Giải Quyết Perceptual Aliasing</h2>
+<p>Trong các tòa nhà lớn, hai căn phòng ở tầng 2 và tầng 3 có thể có cùng kích thước, cùng sơn màu trắng và lát cùng loại gạch. Các phương pháp DBoW2 truyền thống dựa trên từ điển thị giác bề ngoài (Appearance) thường bị lừa dẫn đến đóng vòng lặp sai (Perceptual Aliasing). <strong>Semantic Loop Closure</strong> sử dụng cấu trúc không gian của các cụm đồ vật (Semantic Subgraph: ví dụ phòng có 1 bàn ăn ở giữa, 4 ghế xung quanh và 1 tivi góc phải) tạo nên một "dấu vân tay ngữ nghĩa" độc nhất vô nhị, loại trừ hoàn toàn các kết nối vòng lặp giả tạo!</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-9-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Liên Kết Dữ Liệu Bipartite Matching Bằng Thuật Toán Hungarian</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-09" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-9-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Lập Ma Trận Chi Phí Mahalanobis &amp; Giải Gán Cặp Hungarian 2x2</h3>
+</div>
+<div class="exercise-statement">
+<p>Có 2 quan sát $z_1, z_2$ và 2 landmark bản đồ $L_1, L_2$. Khoảng cách hình học Euclid đo được: $d(z_1, L_1) = 1.0$, $d(z_1, L_2) = 4.0$, $d(z_2, L_1) = 3.0$, $d(z_2, L_2) = 1.5$. Nhãn ngữ nghĩa: $z_1$ là `Chair`, $z_2$ là `Table`; $L_1$ là `Chair`, $L_2$ là `Table`. Giả định phương sai $\sigma^2 = 1.0$, nếu lệch nhãn phạt thêm $+10.0$. Thiết lập ma trận chi phí $\mathbf{C}$ và giải cặp gán tối ưu theo thuật toán Hungarian.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính toán chi phí cho từng cặp phần tử $(i, j)$</span>
+</div>
+<div class="step-content">
+<p>• Cặp $(z_1, L_1)$: Cùng nhãn `Chair` $\Rightarrow C_{11} = (1.0)^2 + 0 = 1.0$</p><p>• Cặp $(z_1, L_2)$: Khác nhãn (`Chair` vs `Table`) $\Rightarrow C_{12} = (4.0)^2 + 10.0 = 16.0 + 10.0 = 26.0$</p><p>• Cặp $(z_2, L_1)$: Khác nhãn (`Table` vs `Chair`) $\Rightarrow C_{21} = (3.0)^2 + 10.0 = 9.0 + 10.0 = 19.0$</p><p>• Cặp $(z_2, L_2)$: Cùng nhãn `Table` $\Rightarrow C_{22} = (1.5)^2 + 0 = 2.25$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Lập ma trận chi phí tổng hợp $\mathbf{C}$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{C} = \begin{bmatrix} 1.0 &amp; 26.0 \\ 19.0 &amp; 2.25 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: So sánh hai phương án hoán vị gán cặp</span>
+</div>
+<div class="step-content">
+<p>• Phương án A ($z_1 \to L_1, z_2 \to L_2$): $\text{Cost}_A = C_{11} + C_{22} = 1.0 + 2.25 = 3.25$</p><p>• Phương án B ($z_1 \to L_2, z_2 \to L_1$): $\text{Cost}_B = C_{12} + C_{21} = 26.0 + 19.0 = 45.0$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kết luận cặp ghép tối ưu toàn cục</span>
+</div>
+<div class="step-content">
+<p>Do $\text{Cost}_A = 3.25 \ll \text{Cost}_B = 45.0$, thuật toán Hungarian chọn cặp ghép tối ưu: $z_1 \leftrightarrow L_1$ và $z_2 \leftrightarrow L_2$. Nhờ số hạng ngữ nghĩa, thuật toán triệt tiêu $100\%$ nguy cơ gán nhầm giữa bàn và ghế!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Kiểm định khoảng cách Mahalanobis theo phân phối Chi-bình phương là công cụ toán học tối ưu để giải quyết bài toán liên kết dữ liệu (Data Association), ngăn ngừa hiện tượng gắn nhầm mốc gây phá vỡ tính nhất quán của bản đồ.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-9-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Module Hungarian Data Association Với SciPy (Python)</h4>
+<p>Mã nguồn thực thi giải bài toán gán cặp bipartite matching tối ưu:</p>
+<div class="code-card">
+<div class="code-header">
+<span>hungarian_associator.py (Python / SciPy)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import numpy as np
+from scipy.optimize import linear_sum_assignment
+
+def associate_detections_to_landmarks(dets, lms, dist_threshold=3.0):
+    # dets: danh sách quan sát [N, 3] (x, y, class_id)
+    # lms: danh sách landmark [M, 3] (x, y, class_id)
+    N, M = len(dets), len(lms)
+    cost_matrix = np.full((N, M), 1e6) # Khởi tạo vô cùng
+    
+    for i in range(N):
+        for j in range(M):
+            # Nếu trùng nhãn ngữ nghĩa
+            if dets[i][2] == lms[j][2]:
+                dist = np.hypot(dets[i][0] - lms[j][0], dets[i][1] - lms[j][1])
+                if dist \lt dist_threshold:
+                    cost_matrix[i, j] = dist**2
+                    
+    # Giải bài toán Hungarian
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+    matches = []
+    for r, c in zip(row_ind, col_ind):
+        if cost_matrix[r, c] \lt 1e5:
+            matches.append((r, c))
+    return matches</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-9-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Liên Kết Dữ Liệu Ngữ Nghĩa Bằng Khoảng Cách Mahalanobis</h4>
+</div>
+<div class="practice-statement">
+<p>Hệ thống SLAM phát hiện một vật thể mới loại 'Chair' có ước lượng vị trí $\hat{\mathbf{y}} = [2.05, 1.95]^T\text{ m}$ với ma trận hiệp phương sai đo $\mathbf{R}_y = \begin{bmatrix} 0.04 &amp; 0 \\ 0 &amp; 0.04 \end{bmatrix}$. Trong bản đồ ngữ nghĩa đã có 2 vật thể cùng loại 'Chair': Mốc $M_1$ tại $[2.0, 2.0]^T$ (hiệp phương sai $\mathbf{P}_1 = \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.01 \end{bmatrix}$) và Mốc $M_2$ tại $[2.8, 1.9]^T$ (hiệp phương sai $\mathbf{P}_2 = \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.01 \end{bmatrix}$).<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính khoảng cách Mahalanobis $D_M^2 = (\hat{\mathbf{y}} - \mathbf{m}_i)^T (\mathbf{P}_i + \mathbf{R}_y)^{-1} (\hat{\mathbf{y}} - \mathbf{m}_i)$ tới cả hai mốc.<br/>2) So sánh với ngưỡng phân phối Chi-bình phương bậc tự do $2$ ở mức ý nghĩa $95\%$ ($\chi^2_{2, 0.95} = 5.991$).<br/>3) Xác định vật thể đo được ứng với mốc nào hay là một vật thể hoàn toàn mới.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Ma trận hiệp phương sai tổng hợp: $\mathbf{S}_1 = \mathbf{P}_1 + \mathbf{R}_y = \begin{bmatrix} 0.05 &amp; 0 \\ 0 &amp; 0.05 \end{bmatrix}$, nghịch đảo $\mathbf{S}_1^{-1} = \begin{bmatrix} 20 &amp; 0 \\ 0 &amp; 20 \end{bmatrix}$.<br/>Với $M_1$: Hiệu vị trí $\mathbf{d}_1 = [2.05 - 2.0, 1.95 - 2.0]^T = [0.05, -0.05]^T$. Khoảng cách Mahalanobis: $D_{M1}^2 = 20(0.05)^2 + 20(-0.05)^2 = 20(0.0025 + 0.0025) = 20(0.005) = 0.10$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Với $M_2$: Hiệu vị trí $\mathbf{d}_2 = [2.05 - 2.8, 1.95 - 1.9]^T = [-0.75, 0.05]^T$.<br/>Khoảng cách Mahalanobis: $D_{M2}^2 = 20(-0.75)^2 + 20(0.05)^2 = 20(0.5625 + 0.0025) = 20(0.565) = 11.30$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>So sánh với ngưỡng $\chi^2 = 5.991$:<br/>• $D_{M1}^2 = 0.10 \lt 5.991$ (Chấp nhận giả thuyết đồng nhất).<br/>• $D_{M2}^2 = 11.30 \gt 5.991$ (Bác bỏ giả thuyết).<br/>Kết luận: Phép đo mới chính là mốc $M_1$. Thuật toán tiến hành cập nhật Kalman để thu hẹp hiệp phương sai của $M_1$ thay vì tạo mốc thừa.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch08.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 08: Bản Đồ Ngữ Nghĩa &amp; Dual Quadrics</span>
+</a>
+<a class="ch-nav-card next" href="ch10.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 10: Khung Toán Học Active SLAM</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

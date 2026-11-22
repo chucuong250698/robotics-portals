@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 08: Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing) | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 08</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link active">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Robot Di Động, Thị Giác & Hoạch Định</span>
+          <span class="page-source-badge">📖 Siciliano et al. (2025), Chương 8, Trang 407–462</span>
+        </div>
+        <h1 class="chapter-title">Chương 08: Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô hình Camera Perspective, Ma trận tương tác thị giác (Interaction Matrix / Image Jacobian), Điều khiển PBVS vs IBVS, Điều khiển lai 2-1/2-D</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong các dây chuyền lắp ráp tự động hóa và thao tác thông minh (Robotic Manipulation), việc định vị và gắp các chi tiết cơ khí đang chuyển động trên băng chuyền hoặc tra đầu sạc xe tự hành (Tesla Snake Charger) đòi hỏi độ chính xác dưới mi-li-mét trong môi trường biến động liên tục. Nếu chỉ sử dụng phương pháp điều khiển hở "nhìn rồi gắp" (Look-and-Move) — tức chụp một bức ảnh tĩnh, tính tọa độ 3D rồi gửi lệnh chạy cho robot — thì mọi rung lắc cơ khí, trôi dạt của cảm biến hoặc sai số cân chỉnh camera (camera calibration error) sẽ dẫn đến va chạm thảm khốc hoặc gắp trượt mục tiêu.</p>
+          <p><strong>Điều khiển bằng thị giác máy tính (Visual Servoing)</strong> giải quyết triệt để bài toán này bằng cách đưa dữ liệu hình ảnh trực tiếp vào vòng lặp điều khiển phản hồi kín tốc độ cao (30–100 FPS). Robot liên tục quan sát sự chênh lệch giữa ảnh thực tế và ảnh mục tiêu để tự động triệt tiêu sai số theo thời gian thực.</p>
+        </div>
+        <p>Hai trường phái kiến trúc Visual Servoing kinh điển:</p>
+        <ul>
+          <li><strong>Điều khiển thị giác dựa trên vị trí (Position-Based Visual Servoing - PBVS):</strong> Tái tạo tư thế 3D của mục tiêu trong không gian Cartesian trước (Pose Estimation), sau đó tính sai số vị trí $\mathbf{e} = \mathbf{x} - \mathbf{x}^*$. Ưu điểm: đường đi của khâu tác động cuối trong không gian 3D là một đường thẳng hoàn hảo. Nhược điểm: cực kỳ nhạy cảm với sai số hiệu chuẩn tham số camera và mô hình vật thể.</li>
+          <li><strong>Điều khiển thị giác dựa trên ảnh (Image-Based Visual Servoing - IBVS):</strong> Định nghĩa vector sai số $\mathbf{e}_s = \mathbf{s} - \mathbf{s}^*$ trực tiếp trên mặt phẳng ảnh 2D (tọa độ pixel hoặc tọa độ chuẩn hóa). Thông qua <em>Ma trận tương tác (Interaction Matrix / Image Jacobian $\mathbf{L}_s$)</em>, hệ thống tính toán trực tiếp vận tốc camera cần thiết. Ưu điểm: cực kỳ bền vững (robust) với sai số hiệu chuẩn camera và không cần mô hình 3D hoàn chỉnh của vật thể. Nhược điểm: quỹ đạo Cartesian có thể bị cong vồng, nguy cơ mục tiêu văng ra khỏi trường nhìn (Field of View - FOV).</li>
+        </ul>
+        <p>Về bố trí phần cứng, ta phân biệt cấu hình <em>Eye-in-Hand</em> (camera gắn cứng trên khâu tác động cuối của robot, di chuyển cùng robot) và <em>Eye-to-Hand</em> (camera gắn cố định bên ngoài không gian làm việc, quan sát toàn cảnh robot và mục tiêu).</p>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét một camera mô hình lỗ kim (Pinhole Camera) với hệ tọa độ gắn tại quang tâm $C$: trục $Z_c$ trùng với trục quang học, mặt phẳng ảnh nằm tại khoảng cách tiêu cự $f$.</p>
+        
+        <h3>1. Phép Chiếu Phối Cảnh & Tọa Độ Ảnh Chuẩn Hóa</h3>
+        <p>Một điểm không gian 3D $\mathbf{P} = [X, Y, Z]^T$ trong hệ camera được chiếu lên mặt phẳng ảnh tại tọa độ chuẩn hóa $\mathbf{p} = [x, y]^T$:</p>
+        $$x = \frac{X}{Z}, \quad y = \frac{Y}{Z}$$
+        <p>Tọa độ pixel thực tế trên cảm biến $[u, v]^T$ liên hệ qua ma trận thông số nội (Intrinsic Matrix $\mathbf{K}$):</p>
+        $$u = u_0 + f_x x, \quad v = v_0 + f_y y$$
+        <p>trong đó $(u_0, v_0)$ là điểm gốc quang học (Principal point), $f_x, f_y$ là tiêu cự theo đơn vị pixel.</p>
+
+        <h3>2. Đạo Hàm Ma Trận Tương Tác Thị Giác (Interaction Matrix $\mathbf{L}_p$)</h3>
+        <p>Gọi $\mathbf{v}_c = [v_x, v_y, v_z]^T$ và $\boldsymbol{\omega}_c = [\omega_x, \omega_y, \omega_z]^T$ lần lượt là vận tốc tịnh tiến và vận tốc góc của camera trong không gian 3D. Vector Twist của camera là $\mathbf{V}_c = [\mathbf{v}_c^T, \boldsymbol{\omega}_c^T]^T \in \mathbb{R}^6$. Vận tốc tương đối của điểm $\mathbf{P}$ quan sát trong hệ camera là:</p>
+        $$\dot{\mathbf{P}} = -\mathbf{v}_c - \boldsymbol{\omega}_c \times \mathbf{P} \implies \begin{cases} \dot{X} = -v_x - \omega_y Z + \omega_z Y \\ \dot{Y} = -v_y - \omega_z X + \omega_x Z \\ \dot{Z} = -v_z - \omega_x Y + \omega_y X \end{cases}$$
+        <p>Lấy đạo hàm theo thời gian tọa độ ảnh chuẩn hóa $x = X/Z$ và $y = Y/Z$:</p>
+        $$\dot{x} = \frac{\dot{X}Z - X\dot{Z}}{Z^2} = \frac{\dot{X}}{Z} - \frac{x\dot{Z}}{Z} = -\frac{v_x}{Z} + \frac{x v_z}{Z} + xy \omega_x - (1 + x^2)\omega_y + y \omega_z$$
+        $$\dot{y} = \frac{\dot{Y}Z - Y\dot{Z}}{Z^2} = \frac{\dot{Y}}{Z} - \frac{y\dot{Z}}{Z} = -\frac{v_y}{Z} + \frac{y v_z}{Z} + (1 + y^2)\omega_x - xy \omega_y - x \omega_z$$
+        <p>Viết dưới dạng ma trận $\dot{\mathbf{p}} = \mathbf{L}_p(x, y, Z) \mathbf{V}_c$, trong đó $\mathbf{L}_p \in \mathbb{R}^{2 \times 6}$ là <strong>Ma trận tương tác (Interaction Matrix hay Image Jacobian)</strong> của một điểm đặc trưng:</p>
+        $$\mathbf{L}_p(x, y, Z) = \begin{bmatrix} -\frac{1}{Z} & 0 & \frac{x}{Z} & xy & -(1+x^2) & y \\ 0 & -\frac{1}{Z} & \frac{y}{Z} & 1+y^2 & -xy & -x \end{bmatrix}$$
+
+        <h3>3. Điều Khiển IBVS Cho Cụm Nhiều Điểm Ảnh</h3>
+        <p>Để điều khiển đầy đủ 6 bậc tự do không gian, ta chọn cụm $k \ge 3$ điểm đặc trưng không thẳng hàng (thông thường chọn $k=4$ điểm góc của một tấm bia phẳng hoặc mã ArUco). Vector đặc trưng tổng hợp là $\mathbf{s} = [x_1, y_1, \dots, x_k, y_k]^T \in \mathbb{R}^{2k}$. Khi đó ma trận tương tác tổng hợp $\mathbf{L}_s \in \mathbb{R}^{2k \times 6}$ được xếp chồng:</p>
+        $$\mathbf{L}_s = \begin{bmatrix} \mathbf{L}_{p1} \\ \mathbf{L}_{p2} \\ \vdots \\ \mathbf{L}_{pk} \end{bmatrix}$$
+        <p>Xác định sai số ảnh $\mathbf{e}_s = \mathbf{s} - \mathbf{s}^*$. Mong muốn sai số suy giảm hàm mũ theo thời gian $\dot{\mathbf{e}}_s = -\lambda \mathbf{e}_s$ với $\lambda \gt 0$. Vì $\dot{\mathbf{e}}_s = \dot{\mathbf{s}} = \mathbf{L}_s \mathbf{V}_c$, ta suy ra luật điều khiển camera:</p>
+        $$\mathbf{V}_c = -\lambda \mathbf{L}_s^\dagger \mathbf{e}_s = -\lambda (\mathbf{L}_s^T \mathbf{L}_s)^{-1} \mathbf{L}_s^T \mathbf{e}_s$$
+        <p>với $\mathbf{L}_s^\dagger$ là ma trận giả nghịch đảo Moore-Penrose của $\mathbf{L}_s$. Ma trận này phụ thuộc vào độ sâu thực tế $Z_i$ của từng điểm, trên thực tế thường được xấp xỉ bằng độ sâu mục tiêu $\hat{Z} = Z^*$ để đảm bảo ổn định tiệm cận địa phương.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <h3>Tích Hợp Robot Khớp & Kiến Trúc Sản Xuất ViSP / ROS 2</h3>
+        <p>Trong cấu hình Eye-in-Hand, vận tốc của camera $\mathbf{V}_c$ liên hệ với vận tốc các khớp của cánh tay robot $\dot{\mathbf{q}} \in \mathbb{R}^n$ qua ma trận chuyển đổi Twist ${}^c\mathbf{V}_e$ và ma trận Jacobian hình học của robot $\mathbf{J}_e(\mathbf{q})$:</p>
+        $$\mathbf{V}_c = {}^c\mathbf{V}_e \mathbf{V}_e = {}^c\mathbf{V}_e \mathbf{J}_e(\mathbf{q})\dot{\mathbf{q}} = \mathbf{J}_{v}(\mathbf{q})\dot{\mathbf{q}}$$
+        <p>trong đó $\mathbf{J}_v(\mathbf{q}) = \mathbf{L}_s {}^c\mathbf{V}_e \mathbf{J}_e(\mathbf{q}) \in \mathbb{R}^{2k \times n}$ được gọi là <em>Feature Jacobian</em>. Luật điều khiển vận tốc góc các khớp robot:</p>
+        $$\dot{\mathbf{q}} = -\lambda \mathbf{J}_v^\dagger(\mathbf{q}) \mathbf{e}_s + (\mathbf{I} - \mathbf{J}_v^\dagger \mathbf{J}_v)\dot{\mathbf{q}}_0$$
+        <p>với thành phần trong không gian rỗng $(\mathbf{I} - \mathbf{J}_v^\dagger \mathbf{J}_v)\dot{\mathbf{q}}_0$ được khai thác để tránh kỳ dị khớp, tránh giới hạn hành trình khớp hoặc tránh vật cản.</p>
+
+        <h4>Vấn Đề Thoái Hóa & Giải Pháp Điều Khiển Thị Giác Lai 2-1/2-D (Hybrid Visual Servoing)</h4>
+        <p>IBVS thuần túy gặp hiện tượng kinh điển gọi là <em>Camera Retreat Problem</em>: khi mục tiêu yêu cầu xoay quanh trục quang học một góc lớn ($180^\circ$), do ma trận $\mathbf{L}_s$ ép các điểm ảnh đi theo đường thẳng trên mặt phẳng 2D, camera sẽ bị lùi xa vô tận theo trục $Z$ làm thu nhỏ cụm điểm ảnh! Để khắc phục, giải thuật <strong>2-1/2-D Visual Servoing (Malis, Chaumette & Boudet)</strong> phân rã ma trận đồng điều (Homography Matrix $\mathbf{H}$) từ dữ liệu ảnh để tách riêng chuyển động xoay 3D và tịnh tiến 2D, đảm bảo quỹ đạo không gian 3D luôn hội tụ trơn tru.</p>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Toán Ma Trận Tương Tác Thị Giác $\mathbf{L}_s$ Và Vector Vận Tốc Camera Cho 4 Điểm Ảnh Đặc Trưng</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một camera Eye-in-Hand (tiêu cự chuẩn hóa $f = 1$) quan sát 4 điểm đặc trưng trên một chi tiết phẳng song song với mặt phẳng cảm biến. Độ sâu thực tế ước lượng của cả 4 điểm là $Z_1 = Z_2 = Z_3 = Z_4 = 0.80\text{ m}$.<br><br>Tọa độ chuẩn hóa của 4 điểm trên ảnh hiện tại $\mathbf{p}_i = [x_i, y_i]^T$ và tọa độ mong muốn $\mathbf{p}_i^* = [x_i^*, y_i^*]^T$ (đơn vị m) lần lượt là:<br>• Điểm 1: $\mathbf{p}_1 = [-0.10, -0.10]^T$, mong muốn $\mathbf{p}_1^* = [-0.05, -0.05]^T$<br>• Điểm 2: $\mathbf{p}_2 = [0.10, -0.10]^T$, mong muốn $\mathbf{p}_2^* = [0.05, -0.05]^T$<br>• Điểm 3: $\mathbf{p}_3 = [0.10, 0.10]^T$, mong muốn $\mathbf{p}_3^* = [0.05, 0.05]^T$<br>• Điểm 4: $\mathbf{p}_4 = [-0.10, 0.10]^T$, mong muốn $\mathbf{p}_4^* = [-0.05, 0.05]^T$<br><br>Hệ số hội tụ sai số chọn $\lambda = 2.0\text{ s}^{-1}$. Giả thiết chuyển động của camera chỉ gồm 3 chuyển động tịnh tiến $(v_x, v_y, v_z)$ và 1 chuyển động xoay quanh trục quang học $\omega_z$ (khóa $\omega_x = \omega_y = 0$). Hãy thực hiện: (1) Tính vector sai số ảnh $\mathbf{e}_s \in \mathbb{R}^8$; (2) Thiết lập ma trận tương tác rút gọn $\mathbf{L}_s \in \mathbb{R}^{8 \times 4}$ tương ứng với vector đầu vào $\mathbf{V}_r = [v_x, v_y, v_z, \omega_z]^T$; (3) Tính toán ma trận giả nghịch đảo $\mathbf{L}_s^\dagger$; (4) Xác định chính xác vector vận tốc điều khiển của camera $\mathbf{V}_r$ và biện luận ý nghĩa cơ học chiều chuyển động.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định vector sai số hình ảnh $\mathbf{e}_s = \mathbf{s} - \mathbf{s}^* \in \mathbb{R}^8$:<br>Vector đặc trưng hiện tại $\mathbf{s} = [x_1, y_1, x_2, y_2, x_3, y_3, x_4, y_4]^T$:<br>$$\mathbf{s} = [-0.10, -0.10, \quad 0.10, -0.10, \quad 0.10, 0.10, \quad -0.10, 0.10]^T\text{ m}$$<br>Vector đặc trưng mong muốn $\mathbf{s}^*$:<br>$$\mathbf{s}^* = [-0.05, -0.05, \quad 0.05, -0.05, \quad 0.05, 0.05, \quad -0.05, 0.05]^T\text{ m}$$<br>Tính từng thành phần sai số $e_{xi} = x_i - x_i^*$ và $e_{yi} = y_i - y_i^*$:<br>• Điểm 1: $e_{x1} = -0.10 - (-0.05) = -0.05\text{ m}$, $e_{y1} = -0.10 - (-0.05) = -0.05\text{ m}$<br>• Điểm 2: $e_{x2} = 0.10 - 0.05 = +0.05\text{ m}$, $e_{y2} = -0.10 - (-0.05) = -0.05\text{ m}$<br>• Điểm 3: $e_{x3} = 0.10 - 0.05 = +0.05\text{ m}$, $e_{y3} = 0.10 - 0.05 = +0.05\text{ m}$<br>• Điểm 4: $e_{x4} = -0.10 - (-0.05) = -0.05\text{ m}$, $e_{y4} = 0.10 - 0.05 = +0.05\text{ m}$<br>Do đó vector sai số là:<br>$$\mathbf{e}_s = [-0.05, -0.05, \quad 0.05, -0.05, \quad 0.05, 0.05, \quad -0.05, 0.05]^T\text{ m}$$<br>Chuẩn sai số Euclidean: $\|\mathbf{e}_s\| = \sqrt{8 \cdot (0.05)^2} = \sqrt{8 \cdot 0.0025} = \sqrt{0.02} \approx 0.1414\text{ m}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập ma trận tương tác rút gọn $\mathbf{L}_s \in \mathbb{R}^{8 \times 4}$:<br>Với mỗi điểm $\mathbf{p}_i = [x_i, y_i]^T$, cột tương ứng với $(v_x, v_y, v_z, \omega_z)$ của ma trận $\mathbf{L}_{pi}$ là:<br>$$\mathbf{L}_{pi} = \begin{bmatrix} -\frac{1}{Z} & 0 & \frac{x_i}{Z} & y_i \\ 0 & -\frac{1}{Z} & \frac{y_i}{Z} & -x_i \end{bmatrix}$$<br>Với $Z = 0.80\text{ m} \implies -\frac{1}{Z} = -\frac{1}{0.80} = -1.25\text{ m}^{-1}$. Thay tọa độ cụ thể của 4 điểm:<br>• Điểm 1 $(-0.10, -0.10)$: $\mathbf{L}_{p1} = \begin{bmatrix} -1.25 & 0 & -0.125 & -0.10 \\ 0 & -1.25 & -0.125 & 0.10 \end{bmatrix}$<br>• Điểm 2 $(0.10, -0.10)$: $\mathbf{L}_{p2} = \begin{bmatrix} -1.25 & 0 & +0.125 & -0.10 \\ 0 & -1.25 & -0.125 & -0.10 \end{bmatrix}$<br>• Điểm 3 $(0.10, 0.10)$: $\mathbf{L}_{p3} = \begin{bmatrix} -1.25 & 0 & +0.125 & +0.10 \\ 0 & -1.25 & +0.125 & -0.10 \end{bmatrix}$<br>• Điểm 4 $(-0.10, 0.10)$: $\mathbf{L}_{p4} = \begin{bmatrix} -1.25 & 0 & -0.125 & +0.10 \\ 0 & -1.25 & +0.125 & 0.10 \end{bmatrix}$<br>Ghép thành ma trận $\mathbf{L}_s \in \mathbb{R}^{8 \times 4}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính ma trận Gram $\mathbf{L}_s^T \mathbf{L}_s$ và nghịch đảo giả $\mathbf{L}_s^\dagger$:<br>Nhờ tính đối xứng hoàn hảo của hình vuông 4 điểm quanh tâm ảnh, các cột của $\mathbf{L}_s$ đôi một trực giao với nhau! Ta tính tích vô hướng của từng cột với chính nó:<br>• Cột 1 ($v_x$): $c_1^T c_1 = 4 \cdot (-1.25)^2 = 4 \cdot 1.5625 = 6.25$<br>• Cột 2 ($v_y$): $c_2^T c_2 = 4 \cdot (-1.25)^2 = 6.25$<br>• Cột 3 ($v_z$): $c_3^T c_3 = 8 \cdot (0.125)^2 = 8 \cdot 0.015625 = 0.125$<br>• Cột 4 ($\omega_z$): $c_4^T c_4 = 8 \cdot (0.10)^2 = 8 \cdot 0.01 = 0.08$<br>Các tích chéo giữa các cột đều triệt tiêu bằng 0 do đối xứng: $c_i^T c_j = 0$ với mọi $i \ne j$. Do đó:<br>$$\mathbf{L}_s^T \mathbf{L}_s = \text{diag}(6.25, \quad 6.25, \quad 0.125, \quad 0.08)$$<br>Ma trận nghịch đảo giả Moore-Penrose $\mathbf{L}_s^\dagger = (\mathbf{L}_s^T \mathbf{L}_s)^{-1} \mathbf{L}_s^T$ có dạng từng hàng là $\frac{1}{c_i^T c_i} c_i^T$.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Tính vector vận tốc điều khiển của camera $\mathbf{V}_r = -\lambda \mathbf{L}_s^\dagger \mathbf{e}_s$ và biện luận vật lý:<br>Tính tích vô hướng của từng cột $c_i$ với vector sai số $\mathbf{e}_s$:<br>• $c_1^T \mathbf{e}_s = -1.25 \cdot (e_{x1} + e_{x2} + e_{x3} + e_{x4}) = -1.25 \cdot (-0.05 + 0.05 + 0.05 - 0.05) = 0$<br>• $c_2^T \mathbf{e}_s = -1.25 \cdot (e_{y1} + e_{y2} + e_{y3} + e_{y4}) = -1.25 \cdot (-0.05 - 0.05 + 0.05 + 0.05) = 0$<br>• $c_3^T \mathbf{e}_s = (-0.125)(-0.05) - (0.125)(-0.05) + (0.125)(0.05) - (0.125)(-0.05) + (0.125)(0.05) + (0.125)(0.05) - (0.125)(-0.05) + (0.125)(0.05)$<br>Ta thấy tất cả 8 số hạng đều mang dấu dương: $c_3^T \mathbf{e}_s = 8 \cdot (0.125 \cdot 0.05) = 8 \cdot 0.00625 = +0.05$<br>• $c_4^T \mathbf{e}_s = (-0.10)(-0.05) + (0.10)(-0.05) + (-0.10)(0.05) - (0.10)(-0.05) + (0.10)(0.05) - (0.10)(0.05) + (0.10)(-0.05) + (0.10)(0.05) = 0$<br><br>Tính các thành phần vận tốc điều khiển với $\lambda = 2.0\text{ s}^{-1}$:<br>$$v_x = -2.0 \cdot \frac{0}{6.25} = 0.00\text{ m/s}$$<br>$$v_y = -2.0 \cdot \frac{0}{6.25} = 0.00\text{ m/s}$$<br>$$v_z = -2.0 \cdot \frac{c_3^T \mathbf{e}_s}{0.125} = -2.0 \cdot \frac{0.05}{0.125} = -2.0 \cdot 0.40 = -0.80\text{ m/s}$$<br>$$\omega_z = -2.0 \cdot \frac{0}{0.08} = 0.00\text{ rad/s}$$<br><strong>Biện luận vật lý sâu sắc:</strong> Vector sai số $\mathbf{e}_s$ thể hiện hình vuông trên ảnh hiện tại có cạnh $0.20\text{ m}$, to gấp đôi hình vuông mong muốn có cạnh $0.10\text{ m}$. Vì tâm hình vuông đã trùng hoàn hảo với tâm ảnh và không có xoay, hệ thống không cần tịnh tiến ngang ($v_x = v_y = 0$) và không cần xoay ($\omega_z = 0$). Để làm hình vuông trên cảm biến thu nhỏ lại một nửa, camera phải lùi ra xa vật thể theo trục quang học với vận tốc lùi $v_z = -0.80\text{ m/s}$!</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Điều Khiển Thị Giác IBVS 4 Điểm Ảnh (Camera Eye-in-Hand)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-08" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim08()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim08()">Thiết lập lại</button>
+        <label class="sim-label">Hệ số hội tụ $\lambda$: <input type="range" id="sim08-lambda" min="0.5" max="5.0" step="0.5" value="2.0" onchange="updateSim08Params()"></label>
+        <label class="sim-label">Độ sâu ước lượng $\hat{Z}$: <input type="range" id="sim08-depth" min="0.3" max="2.0" step="0.1" value="0.8" onchange="updateSim08Params()"></label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim08-stats" class="sim-telemetry-text">Sai số ảnh $\|\mathbf{e}_s\|$: 0.141 m | Vận tốc camera $v_z$: -0.80 m/s | Độ sâu $Z$: 0.80 m | $v_x, v_y, \omega_z$: 0.00</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// C++20 / Eigen Implementation: 4-Point IBVS Controller with Interaction Matrix
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;Eigen/Dense&gt;
+
+class IBVS4PointsController {
+public:
+    IBVS4PointsController(double lambda, double focal_length = 1.0)
+        : lambda_(lambda), f_(focal_length) {}
+
+    // Vector đặc trưng: 4 điểm (u_i, v_i) =&gt; Vector 8x1
+    Eigen::VectorXd computeControl(const std::vector&lt;Eigen::Vector2d&gt;&amp; current_points,
+                                   const std::vector&lt;Eigen::Vector2d&gt;&amp; desired_points,
+                                   double estimated_depth_Z) {
+        if (current_points.size() != 4 || desired_points.size() != 4) {
+            throw std::invalid_argument(&quot;IBVS requires exactly 4 feature points.&quot;);
+        }
+
+        // 1. Vector sai số hình ảnh: e_s = s - s* (8x1)
+        Eigen::VectorXd e_s(8);
+        for (int i = 0; i &lt; 4; ++i) {
+            e_s(2 * i)     = current_points[i].x() - desired_points[i].x();
+            e_s(2 * i + 1) = current_points[i].y() - desired_points[i].y();
+        }
+
+        // 2. Thiết lập ma trận tương tác L_s (8x6)
+        Eigen::MatrixXd L_s(8, 6);
+        double Z = estimated_depth_Z;
+        for (int i = 0; i &lt; 4; ++i) {
+            double x = current_points[i].x();
+            double y = current_points[i].y();
+
+            // Hàng cho x_i
+            L_s(2 * i, 0) = -1.0 / Z;
+            L_s(2 * i, 1) = 0.0;
+            L_s(2 * i, 2) = x / Z;
+            L_s(2 * i, 3) = x * y;
+            L_s(2 * i, 4) = -(1.0 + x * x);
+            L_s(2 * i, 5) = y;
+
+            // Hàng cho y_i
+            L_s(2 * i + 1, 0) = 0.0;
+            L_s(2 * i + 1, 1) = -1.0 / Z;
+            L_s(2 * i + 1, 2) = y / Z;
+            L_s(2 * i + 1, 3) = 1.0 + y * y;
+            L_s(2 * i + 1, 4) = -x * y;
+            L_s(2 * i + 1, 5) = -x;
+        }
+
+        // 3. Tính ma trận giả nghịch đảo Moore-Penrose: L_s^+ = (L^T * L)^-1 * L^T
+        // Sử dụng phân rã SVD (CompleteOrthogonalDecomposition) để đảm bảo độ ổn định số học
+        Eigen::CompleteOrthogonalDecomposition&lt;Eigen::MatrixXd&gt; cod(L_s);
+        Eigen::MatrixXd L_s_pinv = cod.pseudoInverse();
+
+        // 4. Luật điều khiển suy giảm sai số hàm mũ: V_c = -lambda * L_s^+ * e_s
+        Eigen::VectorXd V_c = -lambda_ * L_s_pinv * e_s; // 6x1 Twist
+        return V_c;
+    }
+
+private:
+    double lambda_;
+    double f_;
+};
+
+int main() {
+    IBVS4PointsController controller(2.0, 1.0);
+    std::vector&lt;Eigen::Vector2d&gt; current = {
+        {-0.10, -0.10}, {0.10, -0.10}, {0.10, 0.10}, {-0.10, 0.10}
+    };
+    std::vector&lt;Eigen::Vector2d&gt; desired = {
+        {-0.05, -0.05}, {0.05, -0.05}, {0.05, 0.05}, {-0.05, 0.05}
+    };
+
+    Eigen::VectorXd V_c = controller.computeControl(current, desired, 0.80);
+    std::cout &lt;&lt; &quot;Computed Camera Twist (vx, vy, vz, wx, wy, wz):\n&quot; &lt;&lt; V_c.transpose() &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Visual Servoing khép kín vòng điều khiển phản hồi trực tiếp từ cảm biến camera ở tần số cao, triệt tiêu sai số mô hình và trôi dạt cơ khí.</li><li>PBVS điều khiển trong không gian 3D Cartesian, trong khi IBVS điều khiển trực tiếp trên tọa độ đặc trưng ảnh 2D thông qua ma trận tương tác Ls.</li><li>Ma trận tương tác (Image Jacobian) Ls liên hệ vận tốc chuyển động camera Twist 6 chiều với đạo hàm thời gian của tọa độ ảnh 2D.</li><li>Vòng lặp IBVS có tính bền vững rất cao với sai số độ sâu ước lượng Z: chỉ cần ước lượng cùng dấu dương Z > 0, hệ thống vẫn hội tụ tiệm cận.</li><li>Kỹ thuật điều khiển thị giác lai 2-1/2-D kết hợp ma trận đồng điều Homography giải quyết triệt để hiện tượng thoái hóa Camera Retreat khi xoay góc lớn.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 8.1: Đánh giá tính ổn định của vòng lặp IBVS khi sai số độ sâu ước lượng $\hat{Z} \ne Z^*$</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Trong thực tế, độ sâu thực tế của điểm $Z^*$ không đo được chính xác mà phải sử dụng giá trị ước lượng $\hat{Z}$ trong ma trận tương tác $\hat{\mathbf{L}}_s = \mathbf{L}_s(\hat{Z})$. Phương trình động học sai số vòng kín trở thành: $\dot{\mathbf{e}}_s = -\lambda \mathbf{L}_s \hat{\mathbf{L}}_s^\dagger \mathbf{e}_s$. Với bài toán lùi camera theo trục $Z$ như trên, hãy chứng minh rằng vòng lặp điều khiển IBVS vẫn giữ được tính ổn định tiệm cận nếu và chỉ nếu độ sâu ước lượng thỏa mãn điều kiện $\frac{Z^*}{\hat{Z}} \gt 0$, tức chỉ cần $\hat{Z} \gt 0$ cùng chiều dương với trục quang học.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Với chuyển động tịnh tiến dọc trục $Z$, thành phần ma trận $\mathbf{L}_s(Z^*) = \frac{1}{Z^*} \mathbf{M}_0$ và $\hat{\mathbf{L}}_s(\hat{Z}) = \frac{1}{\hat{Z}} \mathbf{M}_0$. Khi đó: $\mathbf{L}_s \hat{\mathbf{L}}_s^\dagger = \frac{\hat{Z}}{Z^*} \mathbf{M}_0 \mathbf{M}_0^\dagger = \frac{\hat{Z}}{Z^*} \mathbf{I}$. Phương trình sai số trở thành $\dot{\mathbf{e}}_s = -\lambda \frac{\hat{Z}}{Z^*} \mathbf{e}_s$. Nghiệm sai số là $\mathbf{e}_s(t) = \mathbf{e}_s(0) \exp(-\lambda \frac{\hat{Z}}{Z^*} t)$. Hệ ổn định tiệm cận khi phần thực số mũ âm, tức $\frac{\hat{Z}}{Z^*} \gt 0$. Vì vật thể nằm trước camera ($Z^* \gt 0$), chỉ cần ta chọn ước lượng độ sâu $\hat{Z} \gt 0$, hệ thống chắc chắn hội tụ về 0 mà không bao giờ bị mất ổn định (tuy tốc độ hội tụ thực tế sẽ nhanh hơn hoặc chậm hơn giá trị danh định $\lambda$).</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch07.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 07: Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</span>
+        </a>
+        <a href="ch09.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Hoạch Định Chuyển Động Trong Không Gian Cấu Hình →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim08 === "function") {
+        initSim08();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

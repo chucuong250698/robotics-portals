@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 04: Bộ Lọc Kalman Rời Rạc/Liên Tục &amp; Gaussian Process | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-1">Track 1: Cơ Sở Xác Suất &amp; Tuyến Tính Gauss</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 04</span>
+<h3 class="sidebar-title">Bộ Lọc Kalman Rời Rạc/Liên Tục &amp; Gaussian Process</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 1 / Cơ Sở Xác Suất &amp; Tuyến Tính Gauss / Chương 04</div>
+<h1 class="chapter-main-title">Chương 04: Bộ Lọc Kalman Rời Rạc/Liên Tục &amp; Gaussian Process</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 3.2–3.4 (Trang 69–102)</span>
+<span class="meta-item">🎯 Trọng tâm: Vòng lặp Predict-Update, Phương trình Riccati &amp; Hồi quy Gaussian Process</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Bộ lọc Kalman (KF) được mệnh danh là một trong những thuật toán vĩ đại nhất của thế kỷ 20, từng dẫn đường cho tàu vũ trụ Apollo đáp xuống Mặt Trăng và ngày nay điều khiển mọi máy bay, tàu ngầm, xe tự hành. Nhiệm vụ cốt tử của nó: <strong>Dung hợp (Fusion)</strong> một mô hình vật lý không hoàn hảo với các cảm biến đầy nhiễu loạn để tìm ra ước lượng tối ưu không chệch có phương sai nhỏ nhất (BLUE).</p>
+</div>
+<p>Giáo trình của GS. Timothy Barfoot chỉ ra một góc nhìn sâu sắc: <em>Bộ lọc Kalman thời gian liên tục (Kalman-Bucy) chính là một trường hợp đặc biệt của Quá trình Gauss (Gaussian Process Regression - GPR)</em> với hàm hiệp phương sai có tính chất Markovian. Cầu nối này mở ra kỹ thuật STEAM (Simultaneous Trajectory Estimation and Mapping) đột phá trong các chương sau.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Chu trình của bộ lọc Kalman rời rạc kinh điển luân phiên giữa 2 bước lặp vĩnh cửu:</p>
+<div class="formula-card">
+<div class="formula-header">Chu Trình Kalman Filter Đầy Đủ</div>
+          $$\begin{align}
+          \textbf{Dự đoán (Predict):} \quad &amp; \check{\mathbf{x}}_k = \mathbf{F}_{k-1} \hat{\mathbf{x}}_{k-1} + \mathbf{B}_{k-1} \mathbf{u}_{k-1} \\
+          &amp; \check{\mathbf{P}}_k = \mathbf{F}_{k-1} \hat{\mathbf{P}}_{k-1} \mathbf{F}_{k-1}^T + \mathbf{Q}_{k-1} \\[8pt]
+          \textbf{Cập nhật (Update):} \quad &amp; \boldsymbol{\nu}_k = \mathbf{y}_k - \mathbf{H}_k \check{\mathbf{x}}_k \quad (\text{Innovation / Phần dư}) \\
+          &amp; \mathbf{S}_k = \mathbf{H}_k \check{\mathbf{P}}_k \mathbf{H}_k^T + \mathbf{R}_k \quad (\text{Hiệp phương sai phần dư}) \\
+          &amp; \mathbf{K}_k = \check{\mathbf{P}}_k \mathbf{H}_k^T \mathbf{S}_k^{-1} \quad (\text{Kalman Gain}) \\
+          &amp; \hat{\mathbf{x}}_k = \check{\mathbf{x}}_k + \mathbf{K}_k \boldsymbol{\nu}_k \\
+          &amp; \hat{\mathbf{P}}_k = (\mathbf{I} - \mathbf{K}_k \mathbf{H}_k) \check{\mathbf{P}}_k
+          \end{align}$$
+        </div>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<p>Khi chu kỳ lấy mẫu $\Delta t \to 0$, hệ thống chuyển sang dạng liên tục thời gian được mô tả bởi Phương trình Vi Phân Ngẫu Nhiên (SDE):</p>
+        $$\begin{equation}
+        \dot{\mathbf{x}}(t) = \mathbf{A}(t) \mathbf{x}(t) + \mathbf{w}(t), \quad \mathbf{y}(t) = \mathbf{C}(t) \mathbf{x}(t) + \mathbf{n}(t)
+        \end{equation}$$
+        <p>Hiệp phương sai bất định tiến hóa theo <strong>Phương trình Vi phân Riccati (Continuous-Time Riccati Equation)</strong>:</p>
+        $$\begin{equation}
+        \dot{\mathbf{P}}(t) = \mathbf{A}(t) \mathbf{P}(t) + \mathbf{P}(t) \mathbf{A}(t)^T + \mathbf{Q}_c - \mathbf{P}(t) \mathbf{C}(t)^T \mathbf{R}_c^{-1} \mathbf{C}(t) \mathbf{P}(t)
+        \end{equation}$$
+        <p>Khi hệ thống ổn định quan sát (Observable), $\dot{\mathbf{P}} \to \mathbf{0}$, nghiệm hội tụ về ma trận hiệp phương sai cân bằng trạng thái dừng $\mathbf{P}_\infty$ (Nghiệm của Phương trình Đại số Riccati - ARE).</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Vòng Lặp Predict-Update Của Bộ Lọc Kalman 2D (Vị Trí &amp; Vận Tốc) Cho Xe Tự Hành</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Một xe tự hành di chuyển trên đường thẳng với vector trạng thái $\mathbf{x} = [p, v]^T$ (vị trí $p$ và vận tốc $v$). Chu kỳ lấy mẫu $\Delta t = 1.0\text{ s}$. Tại thời điểm ban đầu $k=0$, xe có ước lượng $\hat{\mathbf{x}}_0 = [0\text{ m}, 2\text{ m/s}]^T$ và ma trận hiệp phương sai $P_0 = \begin{bmatrix} 1.0 &amp; 0.0 \\ 0.0 &amp; 0.5 \end{bmatrix}$.<br/>• Ma trận chuyển tiếp: $F = \begin{bmatrix} 1 &amp; \Delta t \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix}$, ma trận nhiễu quá trình $Q = \begin{bmatrix} 0.05 &amp; 0.05 \\ 0.05 &amp; 0.10 \end{bmatrix}$.<br/>• Cảm biến GPS đo trực tiếp vị trí với ma trận đo $H = [1, 0]$ và phương sai nhiễu đo $R = 0.5\text{ m}^2$. Tại bước $k=1$, GPS trả về số đo $y_1 = 2.6\text{ m}$.<br/>Yêu cầu: Hãy tính toán trọn vẹn bước Dự đoán (Predict) và bước Cập nhật (Update) để tìm trạng thái hậu nghiệm $\hat{\mathbf{x}}_1$ và hiệp phương sai $\hat{P}_1$.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Bước Dự đoán Tiên nghiệm (Predict Step):<br/>• Trạng thái tiên nghiệm: $\check{\mathbf{x}}_1 = F \hat{\mathbf{x}}_0 = \begin{bmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 0 \\ 2 \end{bmatrix} = \begin{bmatrix} 2.0\text{ m} \\ 2.0\text{ m/s} \end{bmatrix}$.<br/>• Hiệp phương sai tiên nghiệm:<br/>$$F P_0 F^T = \begin{bmatrix} 1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0.5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 1 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0.5 \\ 0 &amp; 0.5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ 1 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1.5 &amp; 0.5 \\ 0.5 &amp; 0.5 \end{bmatrix}$$<br/>Cộng nhiễu mô hình: $\check{P}_1 = F P_0 F^T + Q = \begin{bmatrix} 1.5 &amp; 0.5 \\ 0.5 &amp; 0.5 \end{bmatrix} + \begin{bmatrix} 0.05 &amp; 0.05 \\ 0.05 &amp; 0.10 \end{bmatrix} = \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính Innovation và Ma trận Hiệp phương sai phần dư $S_1$:<br/>• Phần dư (Innovation): $\nu_1 = y_1 - H \check{\mathbf{x}}_1 = 2.6 - [1, 0]\begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} = 2.6 - 2.0 = +0.60\text{ m}$.<br/>• Hiệp phương sai phần dư: $S_1 = H \check{P}_1 H^T + R = [1, 0] \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} + 0.5 = 1.55 + 0.50 = 2.05\text{ m}^2$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tính Kalman Gain $K_1$ và Cập nhật Hậu nghiệm:<br/>• Hệ số khuếch đại Kalman:<br/>$$K_1 = \check{P}_1 H^T S_1^{-1} = \begin{bmatrix} 1.55 \\ 0.55 \end{bmatrix} \frac{1}{2.05} = \begin{bmatrix} 0.7561 \\ 0.2683 \end{bmatrix}$$<br/>• Cập nhật trạng thái hậu nghiệm:<br/>$$\hat{\mathbf{x}}_1 = \check{\mathbf{x}}_1 + K_1 \nu_1 = \begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} + \begin{bmatrix} 0.7561 \\ 0.2683 \end{bmatrix} \times 0.60 = \begin{bmatrix} 2.0 + 0.4537 \\ 2.0 + 0.1610 \end{bmatrix} = \begin{bmatrix} 2.454\text{ m} \\ 2.161\text{ m/s} \end{bmatrix}$$<br/>• Cập nhật hiệp phương sai hậu nghiệm:<br/>$$\hat{P}_1 = (I - K_1 H) \check{P}_1 = \left( \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} - \begin{bmatrix} 0.7561 &amp; 0 \\ 0.2683 &amp; 0 \end{bmatrix} \right) \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix} = \begin{bmatrix} 0.2439 &amp; 0 \\ -0.2683 &amp; 1 \end{bmatrix} \begin{bmatrix} 1.55 &amp; 0.55 \\ 0.55 &amp; 0.60 \end{bmatrix} = \begin{bmatrix} 0.378 &amp; 0.134 \\ 0.134 &amp; 0.452 \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Diễn giải ý nghĩa: Điểm kỳ diệu của Kalman Filter: Dù chỉ đo trực tiếp vị trí ($p$), thông qua hiệp phương sai chéo ($0.55$) trong quá trình lan truyền động học, bộ lọc đã tự động hiệu chỉnh luôn cả vận tốc $v$ từ $2.0\text{ m/s}$ lên $2.161\text{ m/s}$! Đồng thời phương sai vị trí co lại mạnh từ $1.55\text{ m}^2$ xuống chỉ còn $0.378\text{ m}^2$.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 4.1: Giới hạn suy biến khi cảm biến hỏng</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu cảm biến GPS bị hỏng đột ngột và báo phương sai nhiễu $R \to \infty$. Hãy chứng minh rằng Kalman Gain $K \to \mathbf{0}$ và trạng thái hậu nghiệm $\hat{\mathbf{x}}_1$ thuần túy bằng trạng thái tiên nghiệm $\check{\mathbf{x}}_1$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Khi $R \to \infty$, $S_1 = H \check{P}_1 H^T + R \to \infty \implies S_1^{-1} \to 0$. Do đó $K_1 = \check{P}_1 H^T S_1^{-1} \to [0, 0]^T$. Khi đó $\hat{\mathbf{x}}_1 = \check{\mathbf{x}}_1 + \mathbf{0} = \check{\mathbf{x}}_1$ và $\hat{P}_1 = \check{P}_1$. Bộ lọc tự động phớt lờ cảm biến hỏng và thuần túy dựa vào mô hình quán tính!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 04: Động Lực Học Bộ Lọc Kalman 1D &amp; Tỷ Số Nhiễu Q/R</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-04" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Nhiễu mô hình Q: <span id="sim04-q-val">0.10</span></label>
+<input id="sim04-q" max="1.0" min="0.01" step="0.05" type="range" value="0.10"/>
+</div>
+<div class="control-group">
+<label>Nhiễu đo cảm biến R: <span id="sim04-r-val">0.50</span></label>
+<input id="sim04-r" max="2.0" min="0.05" step="0.05" type="range" value="0.50"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim04-stats">Kéo R tăng cao để thấy Kalman Gain K giảm xuống, bộ lọc tin tưởng vào mô hình dự đoán hơn cảm biến.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Standard 2D Kalman Filter in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+class KalmanFilter2D {
+public:
+    KalmanFilter2D(double dt, double q_pos, double q_vel, double r_pos) {
+        F &lt;&lt; 1.0, dt, 0.0, 1.0;
+        H &lt;&lt; 1.0, 0.0;
+        Q &lt;&lt; q_pos, 0.05, 0.05, q_vel;
+        R &lt;&lt; r_pos;
+        x_hat.setZero();
+        P = Eigen::Matrix2d::Identity();
+    }
+
+    void predict() {
+        x_check = F * x_hat;
+        P_check = F * P * F.transpose() + Q;
+    }
+
+    void update(double measurement) {
+        double y = measurement;
+        double nu = y - (H * x_check)(0);
+        double S = (H * P_check * H.transpose())(0, 0) + R(0, 0);
+        Eigen::Vector2d K = P_check * H.transpose() / S;
+        
+        x_hat = x_check + K * nu;
+        P = (Eigen::Matrix2d::Identity() - K * H) * P_check;
+    }
+
+    Eigen::Vector2d getState() const { return x_hat; }
+    Eigen::Matrix2d getCovariance() const { return P; }
+
+private:
+    Eigen::Matrix2d F, Q, P, P_check;
+    Eigen::RowVector2d H;
+    Eigen::Matrix&lt;double, 1, 1&gt; R;
+    Eigen::Vector2d x_hat, x_check;
+};
+
+int main() {
+    KalmanFilter2D kf(1.0, 0.05, 0.10, 0.50);
+    kf.predict();
+    kf.update(2.6);
+    std::cout &lt;&lt; "Updated State:\n" &lt;&lt; kf.getState() &lt;&lt; "\n\n";
+    std::cout &lt;&lt; "Updated Covariance:\n" &lt;&lt; kf.getCovariance() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Kalman Gain K:</strong> Trọng số cân bằng tối ưu giữa niềm tin vào mô hình vật lý ($Q$) và độ chính xác của cảm biến ($R$).</li><li><strong>Cơ chế quan sát gián tiếp:</strong> Hiệp phương sai chéo cho phép cập nhật các trạng thái ẩn (như vận tốc) dù cảm biến chỉ đo vị trí.</li><li><strong>Phương trình Riccati:</strong> Định hình quỹ đạo hội tụ phương sai của bộ lọc độc lập hoàn toàn với giá trị dữ liệu đo đạc thực tế.</li><li><strong>Cầu nối Gaussian Process:</strong> Mở ra kỷ nguyên ước lượng quỹ đạo liên tục thời gian STEAM cho các cảm biến tần số cao bất đồng bộ.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch03.html">← Chương 03: Tuyến Tính Gauss &amp; RTS Smoother</a>
+<a class="btn-nav btn-next" href="ch05.html">Chương tiếp theo: Ước Lượng Phi Tuyến: EKF, UKF &amp; Particle Filter →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

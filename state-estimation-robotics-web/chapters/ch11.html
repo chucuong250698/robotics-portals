@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 11: Tối Ưu Hóa Đồ Thị Tư Thế Pose-Graph SLAM | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-4">Track 4: Ứng Dụng Tư Thế &amp; IMU</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 11</span>
+<h3 class="sidebar-title">Tối Ưu Hóa Đồ Thị Tư Thế Pose-Graph SLAM</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 4 / Ứng Dụng Tư Thế &amp; IMU / Chương 11</div>
+<h1 class="chapter-main-title">Chương 11: Tối Ưu Hóa Đồ Thị Tư Thế Pose-Graph SLAM</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 8.4 &amp; 9.1–9.3 (Trang 343–388)</span>
+<span class="meta-item">🎯 Trọng tâm: Đóng vòng lặp (Loop Closure), Ma trận Hessian thưa &amp; Thuật toán Gauss-Newton trên Lie</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Khi robot di chuyển một quãng đường dài $5\text{ km}$, sai số trôi dạt tích lũy (Dead-reckoning Drift) của cảm biến quán tính và bánh xe sẽ khiến bản đồ bị méo mó, hai hành lang song song bị uốn cong đè lên nhau. Nhưng khi robot quay trở lại một vị trí quen thuộc trong quá khứ, cảm biến phát hiện <strong>Đóng Vòng Lặp (Loop Closure)</strong>! Thuật toán <strong>Pose-Graph SLAM</strong> hoạt động như một hệ thống lò xo cơ học ảo: nó kéo giật lùi toàn bộ chuỗi hàng nghìn tư thế trong quá khứ, giải phóng ứng suất sai số và uốn thẳng lại toàn bộ bản đồ.</p>
+</div>
+<p>Đồ thị tư thế xem mỗi vị trí của robot là một Node $\mathbf{T}_i \in SE(3)$, và các phép đo Odometry / Loop Closure là các cạnh rằng buộc (Edges). Ma trận thông tin của hệ thống có tính chất <em>cực kỳ thưa (Extremely Sparse)</em>, cho phép các bộ giải hiện đại như g2o hay GTSAM tối ưu hóa đồ thị hàng trăm nghìn node chỉ trong vài chục mili-giây.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Cho cạnh nối giữa hai tư thế $\mathbf{T}_i$ và $\mathbf{T}_j$ với giá trị đo đạc tương đối $\mathbf{T}_{ij}^{meas}$. Hàm sai số trên đại số Lie $\mathfrak{se}(3)$:</p>
+        $$\begin{equation}
+        \mathbf{e}_{ij}(\mathbf{T}_i, \mathbf{T}_j) = \ln\left( (\mathbf{T}_{ij}^{meas})^{-1} \mathbf{T}_i^{-1} \mathbf{T}_j \right)^\vee \in \mathbb{R}^6
+        \end{equation}$$
+        <p>Hàm mục tiêu tổng chi phí toàn cục:</p>
+        $$\begin{equation}
+        F(\mathbf{x}) = \frac{1}{2}\sum_{(i,j) \in \mathcal{E}} \mathbf{e}_{ij}^T \boldsymbol{\Omega}_{ij} \mathbf{e}_{ij}
+        \end{equation}$$
+        <p>Với $\boldsymbol{\Omega}_{ij} = \boldsymbol{\Sigma}_{ij}^{-1}$ là ma trận thông tin đo đạc.</p>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Phương Trình Chuẩn Pose-Graph SLAM (Normal Equation)</div>
+          $$\begin{equation}
+          \mathbf{H} \Delta \mathbf{x} = -\mathbf{b}, \quad \mathbf{H} = \sum \mathbf{J}_{ij}^T \boldsymbol{\Omega}_{ij} \mathbf{J}_{ij}, \quad \mathbf{b} = \sum \mathbf{J}_{ij}^T \boldsymbol{\Omega}_{ij} \mathbf{e}_{ij}
+          \end{equation}$$
+        </div>
+<p>Sau khi giải hệ phương trình thưa tìm bước nhảy $\Delta \mathbf{x} = [\delta \boldsymbol{\xi}_1^T, \dots, \delta \boldsymbol{\xi}_K^T]^T$, mỗi tư thế được cập nhật trực tiếp trên nhóm Lie:</p>
+        $$\begin{equation}
+        \mathbf{T}_i^{(new)} = \mathbf{T}_i \exp(\delta \boldsymbol{\xi}_i^\wedge)
+        \end{equation}$$
+        <p>Vòng lặp Gauss-Newton hoặc Levenberg-Marquardt tiếp tục cho đến khi $\|\Delta \mathbf{x}\| \lt \epsilon$.</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Tối Ưu Hóa Loop Closure Cho Đồ Thị Pose-Graph SLAM 3 Tư Thế</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Một robot di chuyển trên trục thẳng 1D qua 3 tư thế với giá trị khởi tạo bị trôi: $x_1 = 0.00\text{ m}, x_2 = 1.10\text{ m}, x_3 = 2.30\text{ m}$. Các cạnh đo đạc thực tế:<br/>• Odometry cạnh 1-2: đo $d_{12} = 1.00\text{ m}$ với độ chính xác $\Omega_{12} = 100\text{ m}^{-2}$.<br/>• Odometry cạnh 2-3: đo $d_{23} = 1.00\text{ m}$ với độ chính xác $\Omega_{23} = 100\text{ m}^{-2}$.<br/>• Cạnh đóng vòng lặp giữa 3 và 1 (Loop Closure): cảm biến camera nhận ra mốc ban đầu và đo $d_{31} = -2.00\text{ m}$ với độ chính xác cao $\Omega_{31} = 200\text{ m}^{-2}$.<br/>Cố định node mốc đầu tiên làm gốc tọa độ ($x_1 = 0.00\text{ m}$, không tối ưu). Yêu cầu: Thiết lập ma trận Hessian thưa $H$, vector gradient $b$ và giải nghiệm cập nhật Gauss-Newton cho hai tư thế $[x_2, x_3]^T$.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định các phần dư (Residuals):<br/>• $r_{12} = (x_2 - x_1) - d_{12} = (1.10 - 0) - 1.00 = +0.10\text{ m}$.<br/>• $r_{23} = (x_3 - x_2) - d_{23} = (2.30 - 1.10) - 1.00 = +0.20\text{ m}$.<br/>• $r_{31} = (x_1 - x_3) - d_{31} = (0 - 2.30) - (-2.00) = -0.30\text{ m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Thiết lập ma trận Hessian $H$ và vector $b$ cho biến $\Delta \mathbf{x} = [\Delta x_2, \Delta x_3]^T$:<br/>Ma trận Jacobian theo biến $[x_2, x_3]$:<br/>• Cạnh 12: $J_{12} = [1, 0]$<br/>• Cạnh 23: $J_{23} = [-1, 1]$<br/>• Cạnh 31: $J_{31} = [0, -1]$<br/>Tích lũy ma trận Hessian $H = \sum J_e^T \Omega_e J_e$:<br/>$$H = 100 \begin{bmatrix} 1 \\ 0 \end{bmatrix} [1, 0] + 100 \begin{bmatrix} -1 \\ 1 \end{bmatrix} [-1, 1] + 200 \begin{bmatrix} 0 \\ -1 \end{bmatrix} [0, -1] = \begin{bmatrix} 100 + 100 &amp; -100 \\ -100 &amp; 100 + 200 \end{bmatrix} = \begin{bmatrix} 200 &amp; -100 \\ -100 &amp; 300 \end{bmatrix}$$<br/>Tích lũy vector gradient $b = \sum J_e^T \Omega_e r_e$:<br/>$$b = 100 \begin{bmatrix} 1 \\ 0 \end{bmatrix}(0.10) + 100 \begin{bmatrix} -1 \\ 1 \end{bmatrix}(0.20) + 200 \begin{bmatrix} 0 \\ -1 \end{bmatrix}(-0.30) = \begin{bmatrix} 10 \\ 0 \end{bmatrix} + \begin{bmatrix} -20 \\ 20 \end{bmatrix} + \begin{bmatrix} 0 \\ 60 \end{bmatrix} = \begin{bmatrix} -10 \\ +80 \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Giải hệ phương trình chuẩn $H \Delta \mathbf{x} = -b$:<br/>• Định thức: $\det(H) = 200 \times 300 - (-100)^2 = 60000 - 10000 = 50000$.<br/>• Nghịch đảo ma trận:<br/>$$H^{-1} = \frac{1}{50000}\begin{bmatrix} 300 &amp; 100 \\ 100 &amp; 200 \end{bmatrix} = \begin{bmatrix} 0.006 &amp; 0.002 \\ 0.002 &amp; 0.004 \end{bmatrix}$$<br/>• Nghiệm bước nhảy $\Delta \mathbf{x} = -H^{-1} b$:<br/>$$\Delta \mathbf{x} = -\begin{bmatrix} 0.006 &amp; 0.002 \\ 0.002 &amp; 0.004 \end{bmatrix} \begin{bmatrix} -10 \\ 80 \end{bmatrix} = -\begin{bmatrix} -0.06 + 0.16 \\ -0.02 + 0.32 \end{bmatrix} = -\begin{bmatrix} +0.10 \\ +0.30 \end{bmatrix} = \begin{bmatrix} -0.10\text{ m} \\ -0.30\text{ m} \end{bmatrix}$$<br/>Cập nhật trạng thái tối ưu:<br/>• $x_2^{opt} = x_2 + \Delta x_2 = 1.10 - 0.10 = 1.00\text{ m}$<br/>• $x_3^{opt} = x_3 + \Delta x_3 = 2.30 - 0.30 = 2.00\text{ m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Kiểm tra lại hàm chi phí: Sau khi cập nhật, $r_{12} = 1.00 - 1.00 = 0$, $r_{23} = 2.00 - 1.00 - 1.00 = 0$, $r_{31} = 0 - 2.00 - (-2.00) = 0$! Toàn bộ sai số trôi dạt tích lũy $+0.30\text{ m}$ đã bị triệt tiêu về 0 hoàn hảo. Đồ thị tư thế đã kéo giật lùi toàn bộ sai số tích lũy, uốn thẳng lại bản đồ.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 11.1: Khảo sát khi cạnh vòng lặp có nhiễu lớn</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu cạnh vòng lặp có độ tin cậy thấp $\Omega_{31} = 10\text{ m}^{-2}$ (thay vì 200). Hãy tính lại ma trận $H$ và cho biết bước nhảy $\Delta x_3$ thay đổi như thế nào.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Phần tử $H_{22}$ giảm từ 300 xuống $100 + 10 = 110$. Định thức $\det(H) = 200(110) - 100^2 = 12000$. Bước nhảy $\Delta x_3$ co lại đáng kể, đồ thị sẽ không dám kéo giật lùi nhiều vì không tin tưởng cạnh vòng lặp có nhiễu lớn.
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 11: Đóng Vòng Lặp Loop Closure &amp; Uốn Cong Quỹ Đạo SLAM</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-11" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Độ trôi tích lũy ban đầu: <span id="sim11-drift-val">Lớn</span></label>
+<input id="sim11-drift" max="5" min="1" step="1" type="range" value="4"/>
+</div>
+<div class="control-group">
+<label>Độ cứng lò xo vòng lặp: <span id="sim11-stiff-val">Cao</span></label>
+<input id="sim11-stiff" max="5" min="1" step="1" type="range" value="4"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim11-stats">Nhấp nút 'Tối Ưu Hóa Loop Closure' trên canvas để thấy toàn bộ quỹ đạo bị trôi tự động nắn thẳng lại khớp với điểm gốc.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Pose Graph Optimization with GTSAM in C++
+#include &lt;iostream&gt;
+#include &lt;gtsam/geometry/Pose2.h&gt;
+#include &lt;gtsam/nonlinear/NonlinearFactorGraph.h&gt;
+#include &lt;gtsam/nonlinear/Values.h&gt;
+#include &lt;gtsam/slam/PriorFactor.h&gt;
+#include &lt;gtsam/slam/BetweenFactor.h&gt;
+#include &lt;gtsam/nonlinear/GaussNewtonOptimizer.h&gt;
+
+int main() {
+    gtsam::NonlinearFactorGraph graph;
+    
+    // Prior on node 1
+    auto priorNoise = gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector3(0.01, 0.01, 0.001));
+    graph.addPrior(1, gtsam::Pose2(0.0, 0.0, 0.0), priorNoise);
+    
+    // Odometry edges
+    auto odomNoise = gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector3(0.1, 0.1, 0.05));
+    graph.emplace_shared&lt;gtsam::BetweenFactor&lt;gtsam::Pose2&gt;&gt;(1, 2, gtsam::Pose2(1.0, 0.0, 0.0), odomNoise);
+    graph.emplace_shared&lt;gtsam::BetweenFactor&lt;gtsam::Pose2&gt;&gt;(2, 3, gtsam::Pose2(1.0, 0.0, 0.0), odomNoise);
+    
+    // Loop closure edge between 3 and 1
+    auto loopNoise = gtsam::noiseModel::Diagonal::Sigmas(gtsam::Vector3(0.05, 0.05, 0.02));
+    graph.emplace_shared&lt;gtsam::BetweenFactor&lt;gtsam::Pose2&gt;&gt;(3, 1, gtsam::Pose2(-2.0, 0.0, 0.0), loopNoise);
+    
+    // Initial estimates with drift
+    gtsam::Values initials;
+    initials.insert(1, gtsam::Pose2(0.0, 0.0, 0.0));
+    initials.insert(2, gtsam::Pose2(1.1, 0.0, 0.0));
+    initials.insert(3, gtsam::Pose2(2.3, 0.0, 0.0));
+    
+    gtsam::GaussNewtonOptimizer optimizer(graph, initials);
+    gtsam::Values results = optimizer.optimize();
+    
+    std::cout &lt;&lt; "Optimized Node 2: " &lt;&lt; results.at&lt;gtsam::Pose2&gt;(2).x() &lt;&lt; " m\n";
+    std::cout &lt;&lt; "Optimized Node 3: " &lt;&lt; results.at&lt;gtsam::Pose2&gt;(3).x() &lt;&lt; " m\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Dead-reckoning Drift:</strong> Bất kỳ bộ định vị tích lũy nào cũng bị trôi dạt; đóng vòng lặp là cơ chế duy nhất chặn đứng sai số này.</li><li><strong>Đồ thị nhân tử (Factor Graph):</strong> Khung biểu diễn toán học hợp nhất mọi loại cảm biến dưới dạng các liên kết xác suất.</li><li><strong>Tính thưa của Hessian:</strong> Robot chỉ tương tác với môi trường lân cận, biến ma trận giải thuật thành hệ thưa giải được cực nhanh.</li><li><strong>Cơ chế tối ưu On-Manifold:</strong> Cập nhật trạng thái thông qua đại số Lie $\exp(\delta \boldsymbol{\xi}^\wedge)$ bảo toàn hoàn hảo hình học đa tạp.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch10.html">← Chương 10: Căn Chỉnh Đám Mây Điểm SVD &amp; ICP</a>
+<a class="btn-nav btn-next" href="ch12.html">Chương tiếp theo: Tiền Tích Phân IMU Trên Nhóm Lie Cho VIO →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

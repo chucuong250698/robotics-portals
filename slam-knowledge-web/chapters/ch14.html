@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 14: Kiến Trúc Triển Khai Thực Tế: ROS 2 Humble, Nav2, SLAM Toolbox &amp; Benchmarks - SLAM &amp; Active Perception Portal</title>
+<meta content="Production SLAM Toolbox, Nav2 Lifelong Mapping &amp; ATE/RPE Benchmarks" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 6: ĐA ROBOT &amp; TRIỂN KHAI SẢN XUẤT</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 14</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 14</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-14-1">
+<span class="nav-text">14.1 So Sánh Ngăn Xếp SLAM Công Nghiệp</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-2">
+<span class="nav-text">14.2 Kỹ Thuật Bản Đồ Trọn Đời (Lifelong Mapping)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-3">
+<span class="nav-text">14.3 Thước Đo Benchmark Quốc Tế: ATE RMSE &amp; RPE</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-4">
+<span class="nav-text">14.4 Hướng Dẫn Tinh Chỉnh Tham Số SLAM Toolbox Thực Chiến</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-sim">
+<span class="nav-text">⚡ Mô Phỏng Đánh Giá Quỹ Đạo ATE / RPE (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Căn Chỉnh Umeyama &amp; ATE RMSE</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Cấu Hình slam_toolbox_params.yaml Chuẩn</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-14-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 6: ĐA ROBOT &amp; TRIỂN KHAI SẢN XUẤT • CHƯƠNG 14</div>
+<h1 class="chapter-title">Kiến Trúc Triển Khai Thực Tế: ROS 2 Humble, Nav2, SLAM Toolbox &amp; Benchmarks</h1>
+<p class="chapter-subtitle">Production SLAM Toolbox, Nav2 Lifelong Mapping &amp; ATE/RPE Benchmarks</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Julio A. Placed et al. (IEEE T-RO 2023) &amp; Thanh Nguyen Canh et al. (2021)</strong></span>
+</div>
+</div>
+<!-- 14.1 -->
+<h2 id="sec-14-1">14.1 Bảng So Sánh Toàn Diện Các Ngăn Xếp SLAM Công Nghiệp Hàng Đầu</h2>
+<table class="academic-table" style="width:100%; margin: 1.5rem 0; border-collapse: collapse;">
+<thead>
+<tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+<th style="padding: 0.75rem;">Phần Mềm</th>
+<th style="padding: 0.75rem;">Phương Pháp Lõi</th>
+<th style="padding: 0.75rem;">Cảm Biến Yêu Cầu</th>
+<th style="padding: 0.75rem;">Ưu Điểm Nổi Bật</th>
+<th style="padding: 0.75rem;">Môi Trường Khuyên Dùng</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>SLAM Toolbox (Steve Macenski)</strong></td>
+<td style="padding: 0.75rem;">Karto Graph-based SLAM tối ưu đa luồng</td>
+<td style="padding: 0.75rem;">2D LiDAR + Odometry</td>
+<td style="padding: 0.75rem;">Hỗ trợ Lifelong Mapping cực mạnh, bản đồ rộng hàng ngàn m², chuẩn mặc định của Nav2 ROS 2</td>
+<td style="padding: 0.75rem;">Xe tự hành AMR nhà kho, nhà máy công nghiệp</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Google Cartographer</strong></td>
+<td style="padding: 0.75rem;">Submap Branch-and-Bound Scan Matching</td>
+<td style="padding: 0.75rem;">2D/3D LiDAR + IMU</td>
+<td style="padding: 0.75rem;">Độ chính xác rất cao, ghép nối submap thông minh</td>
+<td style="padding: 0.75rem;">Khảo sát trắc địa, xe tải tự hành ngoài trời</td>
+</tr>
+<tr>
+<td style="padding: 0.75rem;"><strong>RTAB-Map (Labbe et al.)</strong></td>
+<td style="padding: 0.75rem;">Memory Management Graph SLAM (STM / LTM)</td>
+<td style="padding: 0.75rem;">RGB-D / Stereo Camera + LiDAR</td>
+<td style="padding: 0.75rem;">Cơ chế quên bộ nhớ tránh tràn RAM khi chạy nhiều ngày liên tục</td>
+<td style="padding: 0.75rem;">Robot dịch vụ trong nhà, cánh tay robot di động</td>
+</tr>
+</tbody>
+</table>
+<!-- 14.2 -->
+<h2 id="sec-14-2">14.2 Thước Đo Chuẩn Học Thuật Quốc Tế: ATE RMSE &amp; RPE</h2>
+<p>Để đánh giá bài báo khoa học hay sản phẩm thương mại có đạt chuẩn hay không, cộng đồng sử dụng 2 thước đo:</p>
+<div class="formula-hero">
+<div class="formula-title">Sai Số Quỹ Đạo Tuyệt Đối (Absolute Trajectory Error - ATE RMSE)</div>
+<div class="formula-math">
+            $$\text{ATE}_{\text{RMSE}} = \sqrt{\frac{1}{N} \sum_{i=1}^N \| \text{trans}(\mathbf{Q}_i^{-1} \mathbf{S} \mathbf{P}_i) \|^2}$$
+          </div>
+<div class="formula-legend">
+<strong>Ý nghĩa:</strong> Căn chỉnh toàn bộ quỹ đạo ước lượng $\mathbf{P}_{1:N}$ với quỹ đạo chân thực Ground Truth $\mathbf{Q}_{1:N}$ bằng thuật toán Umeyama $\mathbf{S} \in \mathrm{SE}(3)$, sau đó tính căn bậc hai trung bình bình phương sai số khoảng cách. Đo lường độ trôi dạt toàn cục (Global Drift).
+          </div>
+</div>
+<p><strong>Sai số tư thế tương đối (Relative Pose Error - RPE):</strong> Đo lường sai số vận tốc trôi trên mỗi mét hoặc mỗi giây di chuyển (Local Drift per second/meter).</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-14-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Đánh Giá Sai Số Quỹ Đạo ATE RMSE So Với Ground Truth</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-14" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-14-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Tính Toán ATE RMSE Giữa Quỹ Đạo Ước Lượng Và Ground Truth</h3>
+</div>
+<div class="exercise-statement">
+<p>Có 3 mốc vị trí 2D đo được sau khi căn chỉnh:
+          <br/>• Mốc 1: Ground Truth $Q_1 = [0.0, 0.0]$, Ước lượng $P_1 = [0.02, 0.01]$
+          <br/>• Mốc 2: Ground Truth $Q_2 = [2.0, 0.0]$, Ước lượng $P_2 = [2.05, -0.03]$
+          <br/>• Mốc 3: Ground Truth $Q_3 = [4.0, 1.0]$, Ước lượng $P_3 = [4.08, 0.94]$
+          Tính vector sai số vị trí từng bước, bình phương khoảng cách, và tính chỉ số ATE RMSE.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính vector sai lệch vị trí $\mathbf{e}_i = P_i - Q_i$</span>
+</div>
+<div class="step-content">
+<p>• $\mathbf{e}_1 = [0.02 - 0, 0.01 - 0] = [0.02, 0.01]$ m</p><p>• $\mathbf{e}_2 = [2.05 - 2.0, -0.03 - 0] = [0.05, -0.03]$ m</p><p>• $\mathbf{e}_3 = [4.08 - 4.0, 0.94 - 1.0] = [0.08, -0.06]$ m</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính bình phương khoảng cách Euclid $\|\mathbf{e}_i\|^2 = e_{x,i}^2 + e_{y,i}^2$</span>
+</div>
+<div class="step-content">
+<p>• $\|\mathbf{e}_1\|^2 = (0.02)^2 + (0.01)^2 = 0.0004 + 0.0001 = 0.0005\text{ m}^2$</p><p>• $\|\mathbf{e}_2\|^2 = (0.05)^2 + (-0.03)^2 = 0.0025 + 0.0009 = 0.0034\text{ m}^2$</p><p>• $\|\mathbf{e}_3\|^2 = (0.08)^2 + (-0.06)^2 = 0.0064 + 0.0036 = 0.0100\text{ m}^2$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính trung bình cộng các sai số bình phương (Mean Squared Error - MSE)</span>
+</div>
+<div class="step-content">
+<p>$$\text{MSE} = \frac{0.0005 + 0.0034 + 0.0100}{3} = \frac{0.0139}{3} \approx 0.004633\text{ m}^2$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Khai căn bậc hai để tìm ATE RMSE</span>
+</div>
+<div class="step-content">
+<p>$$\text{ATE}_{\text{RMSE}} = \sqrt{\text{MSE}} = \sqrt{0.004633} \approx 0.0681\text{ m} = 6.81\text{ cm}$$</p><p>Sai số quỹ đạo toàn cục chỉ $6.81$ cm trên toàn bộ hành trình 4 mét, đạt chuẩn chất lượng xuất sắc theo tiêu chuẩn TUM/KITTI!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Kiến trúc hệ thống ROS 2 Humble với phân tầng xử lý Node, cấu hình QoS linh hoạt và giao tiếp nội bộ Zero-Copy bảo đảm các luồng dữ liệu LiDAR, Camera và Odometry vận hành ổn định ở tần số cao thời gian thực.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-14-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Tệp Cấu Hình Tham Số slam_toolbox_params.yaml Tối Ưu Cho AMR</h4>
+<p>Tệp cấu hình tối ưu hóa bộ nhớ cho hoạt động Lifelong Mapping trong nhà máy công nghiệp:</p>
+<div class="code-card">
+<div class="code-header">
+<span>slam_toolbox_params.yaml (ROS 2 Humble / Nav2)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>slam_toolbox:
+  ros__parameters:
+    # Chế độ chạy: synchronous (đảm bảo không rơi khung hình scan)
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: JACOBI
+    
+    # Khung tọa độ chuẩn ROS
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+    scan_topic: /scan
+    mode: mapping # hoặc localization
+
+    # Tần số xử lý &amp; Khoảng cách cập nhật
+    map_update_interval: 1.0
+    minimum_travel_distance: 0.3 # Di chuyển ít nhất 30cm mới thêm node
+    minimum_travel_heading: 0.2  # Hoặc quay ít nhất 0.2 rad
+    
+    # Tham số quét khớp tia Laser
+    max_laser_range: 25.0
+    resolution: 0.05 # 5cm / ô
+    
+    # Tham số đóng vòng lặp Loop Closure
+    do_loop_closing: true
+    loop_search_maximum_distance: 8.0
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.35</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-14-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Toán Băng Thông &amp; Tối Ưu Hóa QoS DDS Trong Cụm Node ROS 2 SLAM</h4>
+</div>
+<div class="practice-statement">
+<p>Một hệ thống ROS 2 Humble SLAM hoạt động trên mạng Wi-Fi công nghiệp có băng thông hữu dụng tối đa $B_{\text{max}} = 50\text{ Mbps}$. Hệ thống gồm 3 luồng dữ liệu chính: 1) Cảm biến 3D LiDAR phát điểm đám mây `/cloud` (mỗi bản tin $1.2\text{ MB}$ ở tần số $10\text{ Hz}$); 2) Camera nén `/image_compressed` (mỗi ảnh $120\text{ KB}$ ở tần số $30\text{ Hz}$); 3) Dữ liệu Odometry &amp; TF2 `/odom` ($2\text{ KB}$ ở tần số $100\text{ Hz}$).<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính tổng thông lượng dữ liệu phát ra theo đơn vị Megabits per second (Mbps).<br/>2) Đánh giá hệ thống có bị nghẽn mạng Wi-Fi không.<br/>3) Đề xuất cấu hình QoS (Reliability &amp; History) và giải pháp giảm tải để hệ thống vận hành ổn định dưới $35\text{ Mbps}$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tính thông lượng từng luồng:<br/>• LiDAR: $1.2\text{ MB/msg} \times 10\text{ msg/s} = 12.0\text{ MB/s} = 12.0 \times 8 = 96.0\text{ Mbps}$.<br/>• Camera: $0.120\text{ MB/msg} \times 30\text{ msg/s} = 3.6\text{ MB/s} = 3.6 \times 8 = 28.8\text{ Mbps}$.<br/>• Odometry: $0.002\text{ MB/msg} \times 100\text{ msg/s} = 0.2\text{ MB/s} = 1.6\text{ Mbps}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tổng băng thông yêu cầu: $96.0 + 28.8 + 1.6 = 126.4\text{ Mbps}$.<br/>So sánh: $126.4\text{ Mbps} \gg 50\text{ Mbps}$ (vượt quá $250\%$ năng lực mạng). Hệ thống chắc chắn sẽ bị nghẽn tắc, gây mất gói và làm sập vòng lặp tối ưu hóa SLAM thời gian thực.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Giải pháp kỹ thuật tối ưu:<br/>1) Giảm tần số LiDAR qua VoxelGrid Filter trên node sensor tầng dưới trước khi phát, giảm kích thước gói xuống $0.3\text{ MB}$ ($24\text{ Mbps}$).<br/>2) Giảm FPS camera xuống $15\text{ Hz}$ ($14.4\text{ Mbps}$).<br/>3) Đặt cấu hình QoS: LiDAR dùng `Best Effort` kèm `Depth 1` (chỉ giữ bản tin mới nhất, không chờ phát lại), Odometry dùng `Reliable` kèm `Transient Local`.<br/>Tổng băng thông sau tối ưu: $24.0 + 14.4 + 1.6 = 40.0\text{ Mbps}$, kết hợp nén Zero-Copy qua ROS 2 Intra-Process Communication giúp toàn bộ luồng nội bộ đạt độ trễ dưới $5\text{ ms}$.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch13.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 13: Đa Robot SLAM &amp; Hợp Nhất Bản Đồ</span>
+</a>
+<a class="ch-nav-card next" href="../index.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Lộ trình Tổng quan</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

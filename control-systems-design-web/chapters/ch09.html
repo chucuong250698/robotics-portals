@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 09: Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode) | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 09</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link active">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Không Gian Trạng Thái, Điều Khiển Số & Nâng Cao</span>
+          <span class="page-source-badge">📖 Mutambara (2024), Chương 9, Trang 660–691</span>
+        </div>
+        <h1 class="chapter-title">Chương 09: Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Ước lượng trạng thái không gian, Bộ lọc Kalman (KF) & Bộ lọc thông tin (Information Filter), Bộ lọc Kalman mở rộng (EKF & EIF) phi tuyến, Điều khiển ngẫu nhiên tối ưu (LQG), Điều khiển chế độ trượt bền vững (Sliding Mode Control - SMC) với mặt trượt vi phân và khử Chattering, Điều khiển dự báo mô hình (Model Predictive Control - MPC) với chân trời lùi và ràng buộc toàn phương (QP)</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong kỷ nguyên Công nghiệp 4.0, các hệ thống công nghệ cao (robot tự hành AGV/AMR trong kho vận, tay máy phẫu thuật y tế siêu chính xác, giàn khoan ngoài khơi, nhà máy lọc hóa dầu và hệ thống pin lưu trữ năng lượng lưới điện Microgrid) luôn phải vận hành trong môi trường biến động bất định cao và đối mặt trực tiếp với <strong>hai bài toán hóc búa vượt ngoài tầm xử lý của điều khiển cổ điển</strong>:</p>
+          <ol>
+            <li><strong>Bất định mô hình sâu sắc và nhiễu ngẫu nhiên biên độ lớn:</strong> Ma sát cơ khí phi tuyến biến thiên theo nhiệt độ, tải trọng gắp vật của robot thay đổi liên tục, lực cản gió giật của drone UAV.</li>
+            <li><strong>Các ràng buộc bất đẳng thức vật lý khắt khe (Hard Physical Constraints):</strong> Giới hạn điện áp bão hòa và dòng điện cực đại của động cơ, hành trình giới hạn cơ khí của xi lanh thủy lực, giới hạn góc bẻ lái bánh xe, và khoảng cách an toàn tuyệt đối tránh va chạm chướng ngại vật tĩnh và động.</li>
+          </ol>
+          <p>Các bộ điều khiển tuyến tính truyền thống (PID, LQR) hoàn toàn bất lực trước các ràng buộc bất đẳng thức này vì chúng giả định nguồn lực cơ cấu chấp hành là vô hạn. Hai trường phái điều khiển nâng cao chủ đạo giải quyết triệt để thách thức trên:</p>
+          <ul>
+            <li><strong>Điều khiển chế độ trượt (Sliding Mode Control - SMC):</strong> Vô địch về độ bền vững tuyệt đối (Robustness). Bằng cách cưỡng bức quỹ đạo trạng thái rơi vào một "mặt trượt" thiết kế trước, động học của hệ thống trở nên <em>hoàn toàn bất biến (invariant)</em> trước mọi sự thay đổi tham số mô hình và nhiễu ngoại cảnh!</li>
+            <li><strong>Điều khiển dự báo mô hình (Model Predictive Control - MPC):</strong> Công cụ tối thượng để giải quyết tối ưu hóa đa biến có ràng buộc cứng theo thời gian thực nhờ nguyên lý chân trời lùi (Receding Horizon), cho phép hệ thống "nhìn thấy trước tương lai" để chủ động phanh hãm và chuyển hướng an toàn.</li>
+            <li><strong>Bộ lọc Kalman (KF/EKF) & Bộ lọc thông tin (Information Filter - IF/EIF):</strong> Ước lượng trạng thái tối ưu và dung hợp thông tin phân tán từ mạng lưới đa cảm biến trong nhà máy thông minh 4IR.</li>
+          </ul>
+        </div>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Hệ thống điều khiển nâng cao kết hợp chặt chẽ giữa lý thuyết Lyapunov phi tuyến, ước lượng xác suất ngẫu nhiên và tối ưu hóa lồi có ràng buộc.</p>
+
+        <h3>1. Điều Khiển Chế Độ Trượt Bền Vững (Sliding Mode Control - SMC)</h3>
+        <p>Xét hệ thống phi tuyến có bất định và nhiễu ngoài:</p>
+        $$x^{(n)}(t) = f(\mathbf{x}, t) + b(\mathbf{x}, t) u(t) + d(t)$$
+        <p>với $d(t)$ là nhiễu ngoại cảnh bị chặn biên độ: $|d(t)| \le D_{\max}$. Mục tiêu là điều khiển biến ra $x(t)$ bám sát quỹ đạo mong muốn $x_d(t)$ với sai số $e(t) = x(t) - x_d(t)$.</p>
+
+        <h4>Thiết Kế Mặt Trượt (Sliding Surface)</h4>
+        <p>Jean-Jacques Slotine và Mutambara định nghĩa mặt trượt vi phân cấp $n-1$:</p>
+        $$s(\mathbf{x}, t) = \left( \frac{d}{dt} + \lambda \right)^{n-1} e(t), \quad \lambda \gt 0$$
+        <p>Với hệ bậc hai ($n = 2$), mặt trượt là một đường thẳng trong không gian pha:</p>
+        $$s(e, \dot{e}) = \dot{e} + \lambda e = 0$$
+        <p><strong>Tính chất bất biến (Invariance Property):</strong> Một khi quỹ đạo trạng thái đã rơi vào mặt trượt $s = 0$, phương trình động học của sai số quy về phương trình vi phân thuần nhất bậc nhất $\dot{e} = -\lambda e \implies e(t) = e(0)e^{-\lambda t}$. Sai số bám hội tụ tiệm cận về 0 với hằng số thời gian $\tau = 1/\lambda$ hoàn toàn độc lập với các thông số vật lý và nhiễu của đối tượng!</p>
+
+        <h4>Điều Kiện Tới Mặt Trượt Theo Tiêu Chuẩn Lyapunov</h4>
+        <p>Chọn hàm ứng viên Lyapunov $V = \frac{1}{2} s^2 \gt 0$ ($\forall s \ne 0$). Để đảm bảo trạng thái từ bất kỳ vị trí ban đầu nào cũng hội tụ về mặt trượt $s = 0$ trong một khoảng thời gian hữu hạn, đạo hàm Lyapunov phải thỏa mãn điều kiện suy giảm ngặt:</p>
+        $$\dot{V} = s \dot{s} \le -\eta |s|, \quad \eta \gt 0$$
+        <p>Thời gian hội tụ tới mặt trượt bị chặn trên bởi: $t_{\text{reach}} \le \frac{|s(0)|}{\eta}$.</p>
+
+        <h4>Cấu Trúc Luật Điều Khiển SMC & Khử Rung Lắc Chattering</h4>
+        <p>Luật điều khiển gồm hai thành phần:</p>
+        $$u(t) = u_{\text{eq}}(t) + u_{\text{sw}}(t)$$
+        <ul>
+          <li><strong>Thành phần điều khiển tương đương $u_{\text{eq}}(t)$:</strong> Được suy ra từ điều kiện triệt tiêu đạo hàm mặt trượt $\dot{s} = 0$ với mô hình danh định, đóng vai trò giữ trạng thái chuyển động dọc theo mặt trượt.</li>
+          <li><strong>Thành phần điều khiển chuyển mạch $u_{\text{sw}}(t)$:</strong> Dùng để bù trừ nhiễu và kéo trạng thái về mặt trượt:
+          $$u_{\text{sw}}(t) = -K_{\text{sw}} \text{sgn}(s), \quad K_{\text{sw}} \ge \frac{D_{\max} + \eta}{b_{\min}}$$</li>
+        </ul>
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Triệt Tiêu Hiện Tượng Chattering Bằng Lớp Biên (Boundary Layer)</div>
+          <p>Hàm dấu gián đoạn $\text{sgn}(s)$ gây ra hiện tượng chuyển mạch tần số vô hạn quanh $s = 0$ (Chattering), làm mòn rơ cơ khí và kích thích các mode cộng hưởng tần số cao. Giải pháp chuẩn công nghiệp là thay thế hàm $\text{sgn}(s)$ bằng <strong>Hàm bão hòa trơn (Saturation Function)</strong> với độ dày lớp biên $\epsilon \gt 0$:</p>
+          $$\text{sat}\left(\frac{s}{\epsilon}\right) = \begin{cases} \text{sgn}(s) & \text{khi } |s| \gt \epsilon \\ \frac{s}{\epsilon} & \text{khi } |s| \le \epsilon \end{cases}$$
+          <p>Bên trong lớp biên $|s| \le \epsilon$, bộ điều khiển biến thành một bộ lọc thông thấp tỷ lệ tuyến tính, loại bỏ $100\%$ hiện tượng chattering mà vẫn giữ sai số bám trong phạm vi lớp biên siêu nhỏ.</p>
+        </div>
+
+        <h3>2. Điều Khiển Dự Báo Mô Hình (Model Predictive Control - MPC)</h3>
+        <p>MPC tiếp cận bài toán điều khiển như một chuỗi các bài toán tối ưu hóa thời gian thực trực tuyến theo <strong>Nguyên lý Chân Trời Lùi (Receding Horizon Principle)</strong>:</p>
+        <ol>
+          <li>Tại thời điểm hiện tại $k$, dựa trên mô hình trạng thái rời rạc $\mathbf{x}[k+1] = \mathbf{\Phi}\mathbf{x}[k] + \mathbf{\Gamma}\mathbf{u}[k]$ và trạng thái đo được $\mathbf{x}[k]$, giải bài toán tối ưu hóa dự báo hành vi trên chân trời dự báo $N_p$ với chuỗi đầu vào điều khiển trên chân trời kiểm soát $N_u$:
+          $$\min_{\Delta \mathbf{U}} J = \sum_{j=1}^{N_p} \|\mathbf{y}[k+j|k] - \mathbf{r}[k+j]\|_{\mathbf{Q}}^2 + \sum_{j=0}^{N_u-1} \|\Delta \mathbf{u}[k+j]\|_{\mathbf{R}}^2$$</li>
+          <li>Thỏa mãn hệ ràng buộc bất đẳng thức cơ học và vận hành:
+          $$\mathbf{u}_{\min} \le \mathbf{u}[k+j] \le \mathbf{u}_{\max}$$
+          $$\Delta \mathbf{u}_{\min} \le \Delta \mathbf{u}[k+j] \le \Delta \mathbf{u}_{\max}$$
+          $$\mathbf{y}_{\min} \le \mathbf{y}[k+j|k] \le \mathbf{y}_{\max}$$</li>
+          <li>Bài toán tối ưu trên được biến đổi tương đương về bài toán <strong>Quy hoạch Toàn phương (Quadratic Programming - QP)</strong> lồi:
+          $$\min_{\Delta \mathbf{U}} \left( \frac{1}{2} \Delta \mathbf{U}^T \mathbf{H} \Delta \mathbf{U} + \mathbf{f}^T \Delta \mathbf{U} \right) \quad \text{thỏa mãn } \mathbf{A}_{\text{ineq}} \Delta \mathbf{U} \le \mathbf{b}_{\text{ineq}}$$</li>
+          <li><strong>Chân trời lùi:</strong> Sau khi tìm được chuỗi tối ưu $\Delta \mathbf{U}^* = [\Delta \mathbf{u}^*(k), \Delta \mathbf{u}^*(k+1), \dots]^T$, <em>chỉ đưa giá trị đầu tiên $\mathbf{u}[k] = \mathbf{u}[k-1] + \Delta \mathbf{u}^*(k)$ xuống cơ cấu chấp hành</em>. Toàn bộ phần còn lại bị loại bỏ, và quy trình tối ưu được lặp lại từ đầu tại chu kỳ $k+1$ với giá trị đo mới.</li>
+        </ol>
+
+        <h3>3. Không Gian Thông Tin & Bộ Lọc Thông Tin Phân Tán (EIF)</h3>
+        <p>Arthur Mutambara là nhà khoa học tiên phong thế giới về <strong>Bộ Lọc Thông Tin (Information Filter - IF)</strong>. Khác với bộ lọc Kalman biểu diễn trạng thái và ma trận hiệp phương sai $(\hat{\mathbf{x}}, \mathbf{P})$, bộ lọc thông tin biểu diễn trên không gian nghịch đảo:</p>
+        $$\mathbf{y}_k = \mathbf{P}_k^{-1} \hat{\mathbf{x}}_k \quad (\text{Vector thông tin}), \quad \mathbf{Y}_k = \mathbf{P}_k^{-1} \quad (\text{Ma trận thông tin})$$
+        <p>Ưu điểm vượt bậc của dạng thông tin: <em>bước cập nhật dữ liệu đo đạc đa cảm biến trở thành phép cộng đại số ma trận cực kỳ đơn giản</em>:</p>
+        $$\mathbf{Y}_{k|k} = \mathbf{Y}_{k|k-1} + \sum_{i=1}^M \mathbf{H}_{i,k}^T \mathbf{R}_{i,k}^{-1} \mathbf{H}_{i,k}$$
+        $$\mathbf{y}_{k|k} = \mathbf{y}_{k|k-1} + \sum_{i=1}^M \mathbf{H}_{i,k}^T \mathbf{R}_{i,k}^{-1} \mathbf{z}_{i,k}$$
+        <p>Cấu trúc cộng tính này hoàn toàn loại bỏ việc phải nghịch đảo ma trận kích thước lớn trong bộ lọc Kalman tập trung, tạo nền tảng toán học lý tưởng cho kiến trúc ước lượng phân tán đa robot (Decentralized Multi-Robot Systems) trong nhà máy thông minh 4IR.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <h3>Kiến Trúc Tích Hợp MPC & SMC Thời Gian Thực Trong ROS 2 / Cyber-Physical Systems</h3>
+        <p>Trong hệ thống điều khiển robot công nghiệp cao cấp, MPC và SMC thường được kết hợp theo cấu trúc điều khiển phân tầng (Hierarchical Architecture):</p>
+        <ul>
+          <li><strong>Tầng trên - Model Predictive Controller (Tần số $20 \sim 50\text{ Hz}$):</strong> Sử dụng mô hình động học đơn giản hóa, giải bài toán QP thời gian thực để hoạch định quỹ đạo tối ưu có ràng buộc tránh va chạm vật cản động và thỏa mãn giới hạn vận tốc/gia tốc cơ học.</li>
+          <li><strong>Tầng dưới - Sliding Mode Controller (Tần số $1000\text{ Hz}$):</strong> Nhận quỹ đạo tham chiếu từ tầng MPC và thực thi bám sát bằng luật trượt có lớp biên, triệt tiêu mọi bất định mô-men xoắn, ma sát khớp và nhiễu ngoại cảnh mà không phụ thuộc vào độ chính xác mô hình.</li>
+        </ul>
+        <p>Thuật toán QP cho MPC được giải bằng các solver mã nguồn mở nhúng cực nhanh như <strong>OSQP (Operator Splitting QP)</strong> hoặc <strong>qpOASES</strong> với thời gian giải dưới $2\text{ ms}$, đảm bảo tính tất định thời gian thực trong nhân Linux RT.</p>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Trượt Bền Vững (SMC) & Khử Chattering Cho Khớp Robot Có Bất Định</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khớp quay trục 1 của cánh tay robot công nghiệp trong dây chuyền đóng gói 4IR chịu tác động của quán tính tải thay đổi và mô-men ma sát phi tuyến được mô tả bởi phương trình vi phân động lực học:
+$$J \ddot{\theta}(t) + b \dot{\theta}(t) + \tau_{\text{load}}(\theta) = u(t) + d(t)$$
+Các thông số vật lý thực tế của hệ thống:
+<ul>
+  <li>Mô-men quán tính trục quay danh định: $J = 0.50\text{ kg}\cdot\text{m}^2$.</li>
+  <li>Hệ số ma sát nhớt danh định: $b = 0.20\text{ N}\cdot\text{m}\cdot\text{s/rad}$.</li>
+  <li>Mô-men trọng trường phi tuyến: $\tau_{\text{load}}(\theta) = m g l \cos\theta = 4.0 \cos\theta\text{ N}\cdot\text{m}$.</li>
+  <li>Nhiễu tải trọng ngoài ngẫu nhiên $d(t)$ không đo được nhưng bị chặn biên độ trên: $|d(t)| \le D_{\max} = 2.50\text{ N}\cdot\text{m}$.</li>
+  <li>Quỹ đạo góc quay mong muốn là hàm điều hòa: $\theta_d(t) = \sin(2 t)\text{ rad}$.</li>
+</ul>
+Yêu cầu:
+<ol>
+  <li>Thiết lập phương trình mặt trượt $s(t) = \dot{e}(t) + \lambda e(t)$ với $\lambda = 6.0\text{ s}^{-1}$ và xác định biểu thức đạo hàm $\dot{s}(t)$.</li>
+  <li>Xác định thành phần điều khiển tương đương $u_{\text{eq}}(t)$ để duy trì hệ thống trên mặt trượt khi không có nhiễu.</li>
+  <li>Thiết kế thành phần điều khiển chuyển mạch $u_{\text{sw}}(t) = -K_{\text{sw}} \text{sgn}(s)$ thỏa mãn tiêu chuẩn ổn định Lyapunov $s \dot{s} \le -\eta |s|$ với biên độ suy giảm $\eta = 1.0$.</li>
+  <li>Áp dụng kỹ thuật lớp biên trơn $\text{sat}(s/\epsilon)$ với $\epsilon = 0.15$ để khử hiện tượng Chattering, tính toán số học cụ thể tín hiệu điều khiển $u(t)$ tại thời điểm $t = 0.5\text{ s}$ khi các trạng thái đo được là $e = +0.05\text{ rad}$ và $\dot{e} = -0.10\text{ rad/s}$.</li>
+</ol></p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập phương trình mặt trượt và đạo hàm thời gian:<br>
+Sai số bám góc quay: $e(t) = \theta(t) - \theta_d(t)$ và $\dot{e}(t) = \dot{\theta}(t) - \dot{\theta}_d(t)$.<br>
+Chọn mặt trượt vi phân tuyến tính bậc nhất theo Slotine & Mutambara với hệ số dốc $\lambda = 6.0\text{ s}^{-1}$:<br>
+$$s(e, \dot{e}) = \dot{e} + 6.0 e$$
+Đạo hàm theo thời gian của mặt trượt:<br>
+$$\dot{s} = \ddot{e} + 6.0 \dot{e} = (\ddot{\theta} - \ddot{\theta}_d) + 6.0 \dot{e}$$
+Từ phương trình vi phân chuyển động của khớp robot, rút ra gia tốc góc thực tế $\ddot{\theta}$:<br>
+$$\ddot{\theta} = \frac{1}{J} [u + d - b \dot{\theta} - \tau_{\text{load}}(\theta)] = \frac{1}{0.50} [u + d - 0.20 \dot{\theta} - 4.0 \cos\theta]$$
+Thay $\ddot{\theta}$ vào biểu thức của $\dot{s}$:<br>
+$$\dot{s} = \frac{1}{J} [u + d - b \dot{\theta} - 4.0 \cos\theta] - \ddot{\theta}_d + 6.0 \dot{e}$$
+Nhân cả hai vế với $J = 0.50$:<br>
+$$J \dot{s} = u + d - b \dot{\theta} - 4.0 \cos\theta - J \ddot{\theta}_d + 6.0 J \dot{e}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định thành phần điều khiển tương đương $u_{\text{eq}}(t)$:<br>
+Điều khiển tương đương $u_{\text{eq}}(t)$ là tín hiệu điều khiển cần thiết để triệt tiêu hoàn toàn đạo hàm mặt trượt ($\dot{s} = 0$) trong điều kiện mô hình danh định lý tưởng và không có nhiễu ngoại cảnh ($d = 0$):<br>
+$$J \dot{s} = 0 \implies u_{\text{eq}} + 0 - b \dot{\theta} - 4.0 \cos\theta - J \ddot{\theta}_d + 6.0 J \dot{e} = 0$$
+Rút ra biểu thức giải tích của $u_{\text{eq}}(t)$:<br>
+$$u_{\text{eq}}(t) = J \ddot{\theta}_d(t) - 6.0 J \dot{e}(t) + b \dot{\theta}(t) + 4.0 \cos(\theta(t))$$
+Thay các thông số danh định $J = 0.50\text{ kg}\cdot\text{m}^2, b = 0.20\text{ N}\cdot\text{m}\cdot\text{s/rad}$:<br>
+$$u_{\text{eq}}(t) = 0.50 \ddot{\theta}_d(t) - 3.0 \dot{e}(t) + 0.20 \dot{\theta}(t) + 4.0 \cos(\theta(t))$$
+Ý nghĩa vật lý: Thành phần $u_{\text{eq}}$ thực hiện kỹ thuật bù ngược động lực học (Inverse Dynamics Decoupling), khử bỏ gia tốc quán tính mong muốn, bù lực ma sát nhớt và triệt tiêu thành phần mô-men trọng trường phi tuyến.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết kế thành phần chuyển mạch $u_{\text{sw}}(t)$ và chứng minh Lyapunov:<br>
+Đặt luật điều khiển tổng quát: $u(t) = u_{\text{eq}}(t) + u_{\text{sw}}(t)$. Khi thay $u(t)$ vào phương trình động học mặt trượt ta có:<br>
+$$J \dot{s} = (u_{\text{eq}} + u_{\text{sw}}) + d - b \dot{\theta} - 4.0 \cos\theta - J \ddot{\theta}_d + 6.0 J \dot{e} = u_{\text{sw}} + d$$
+$$\dot{s} = \frac{1}{J} [u_{\text{sw}} + d]$$
+Chọn hàm ứng viên Lyapunov: $V = \frac{1}{2} s^2 \gt 0$. Đạo hàm của $V$ là:<br>
+$$\dot{V} = s \dot{s} = s \cdot \frac{1}{J} [u_{\text{sw}} + d]$$
+Chọn cấu trúc chuyển mạch: $u_{\text{sw}} = -K_{\text{sw}} \text{sgn}(s)$. Thay vào biểu thức trên:<br>
+$$\dot{V} = \frac{s}{J} [-K_{\text{sw}} \text{sgn}(s) + d] = -\frac{K_{\text{sw}}}{J} |s| + \frac{d}{J} s \le -\frac{K_{\text{sw}} - |d|}{J} |s| \le -\frac{K_{\text{sw}} - D_{\max}}{J} |s|$$
+Để thỏa mãn điều kiện tới mặt trượt Lyapunov trong thời gian hữu hạn $\dot{V} \le -\eta |s|$ với $\eta = 1.0$:<br>
+$$\frac{K_{\text{sw}} - D_{\max}}{J} \ge \eta \implies K_{\text{sw}} \ge D_{\max} + J \eta$$
+Thay các giá trị số học: $D_{\max} = 2.50\text{ N}\cdot\text{m}, J = 0.50\text{ kg}\cdot\text{m}^2, \eta = 1.0$:<br>
+$$K_{\text{sw}} \ge 2.50 + 0.50(1.0) = 3.00\text{ N}\cdot\text{m}$$
+Chọn độ lợi chuyển mạch chính xác: $K_{\text{sw}} = 3.20\text{ N}\cdot\text{m}$ (bổ sung biên an toàn dự phòng).</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Triệt tiêu Chattering bằng lớp biên và tính toán số học cụ thể:<br>
+Thay hàm dấu $\text{sgn}(s)$ bằng hàm bão hòa trơn với bề dày lớp biên $\epsilon = 0.15$:<br>
+$$u_{\text{sw}}(t) = -3.20 \cdot \text{sat}\left(\frac{s}{0.15}\right)$$
+Xét tại thời điểm $t = 0.5\text{ s}$:<br>
+Quỹ đạo mong muốn: $\theta_d(t) = \sin(2 t) = \sin(1.0\text{ rad}) \approx 0.84147\text{ rad}$.<br>
+Vận tốc mong muốn: $\dot{\theta}_d(t) = 2 \cos(2 t) = 2 \cos(1.0) \approx 2(0.54030) = 1.0806\text{ rad/s}$.<br>
+Gia tốc mong muốn: $\ddot{\theta}_d(t) = -4 \sin(2 t) = -4(0.84147) = -3.3659\text{ rad/s}^2$.<br>
+Theo đề bài, tại $t = 0.5\text{ s}$ sai số đo được là $e = +0.05\text{ rad}$ và $\dot{e} = -0.10\text{ rad/s}$.<br>
+Suy ra trạng thái thực tế: $\theta = \theta_d + e = 0.8415 + 0.05 = 0.8915\text{ rad}$, $\dot{\theta} = \dot{\theta}_d + \dot{e} = 1.0806 - 0.10 = 0.9806\text{ rad/s}$.<br>
+Tính giá trị mặt trượt tức thời:<br>
+$$s = \dot{e} + 6.0 e = -0.10 + 6.0(0.05) = -0.10 + 0.30 = +0.20$$
+Vì $|s| = 0.20 \gt \epsilon = 0.15$, trạng thái hiện đang nằm ngoài lớp biên $\implies \text{sat}\left(\frac{0.20}{0.15}\right) = +1.0$.<br>
+Tính thành phần chuyển mạch: $u_{\text{sw}} = -3.20(1.0) = -3.20\text{ N}\cdot\text{m}$.<br>
+Tính thành phần tương đương $u_{\text{eq}}$:<br>
+$$u_{\text{eq}} = 0.50(-3.3659) - 3.0(-0.10) + 0.20(0.9806) + 4.0 \cos(0.8915)$$
+$$= -1.6830 + 0.3000 + 0.1961 + 4.0(0.6283) = -1.1869 + 2.5132 = +1.3263\text{ N}\cdot\text{m}$$
+Tổng tín hiệu điều khiển tác động lên khớp robot:<br>
+$$u(t) = u_{\text{eq}} + u_{\text{sw}} = 1.3263 - 3.2000 = -1.8737\text{ N}\cdot\text{m}$$
+Biện luận: Tín hiệu mô-men xoắn $u = -1.87\text{ N}\cdot\text{m}$ lập tức kéo giá trị $s$ từ $+0.20$ rơi vào trong lớp biên $|s| \le 0.15$ trong thời gian $t \le \frac{0.20 - 0.15}{1.0/0.5} = 0.025\text{ s}$. Ngay khi lọt vào lớp biên, hàm $\text{sat}(s/\epsilon)$ biến thành tuyến tính tỷ lệ, triệt tiêu $100\%$ hiện tượng rung giật chattering cơ khí.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Bộ điều khiển Sliding Mode Control có lớp biên epsilon = 0.15 đã triệt tiêu hoàn toàn bất định d(t) = 2.5 Nm và khử 100% hiện tượng chattering, đảm bảo bám quỹ đạo bền vững theo Mutambara (2024).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Điều Khiển Chế Độ Trượt SMC & Điều Khiển Dự Báo Mô Hình MPC</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-09" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim09()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim09()">Thiết lập lại</button>
+        <button class="btn-sim-action" onclick="disturbSim09()">Tác động nhiễu đột ngột</button>
+        <label class="sim-label">Thuật toán:
+          <select id="sim09-algo" onchange="updateSim09Algo()">
+            <option value="smc">Sliding Mode Control (SMC có lớp biên)</option>
+            <option value="mpc">Model Predictive Control (MPC có ràng buộc)</option>
+            <option value="pid">PID truyền thống (So sánh đối chuẩn)</option>
+          </select>
+        </label>
+        <label class="sim-label">Bề dày lớp biên SMC $\epsilon$: <input type="range" id="sim09-eps" min="0.02" max="0.50" step="0.02" value="0.15" onchange="updateSim09Params()"></label>
+        <label class="sim-label">Chân trời dự báo MPC $N_p$: <input type="range" id="sim09-np" min="5" max="30" step="1" value="15" onchange="updateSim09Params()"></label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim09-stats" class="sim-telemetry-text">Mặt trượt $s(t) = c e + \dot{e}$: 0.000 | Tín hiệu $u(t)$: 1.25 N | Hiện tượng Chattering: Triệt tiêu ($\epsilon = 0.15$) | Sai số xác lập $e_{ss}$: 0.001 m | Horizon MPC: $N_p = 15$</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// ============================================================================
+// C++20 Sliding Mode Controller (Boundary Layer) &amp; Real-Time Constrained MPC
+// Advanced High-Robustness Control Engine for Industry 4.0 Robotics
+// ============================================================================
+
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+#include &lt;vector&gt;
+#include &lt;iomanip&gt;
+
+class SlidingModeController {
+public:
+    SlidingModeController(double lambda, double K_sw, double epsilon, double J, double b)
+        : lambda_(lambda), K_sw_(K_sw), eps_(epsilon), J_(J), b_(b) {}
+
+    // Smooth saturation function to completely eliminate chattering
+    [[nodiscard]] double sat(double s) const {
+        if (s &gt; eps_) return 1.0;
+        if (s &lt; -eps_) return -1.0;
+        return s / eps_;
+    }
+
+    // Compute torque control u(t) given state and reference
+    [[nodiscard]] double computeControl(double theta, double theta_dot,
+                                        double theta_d, double theta_d_dot, double theta_d_ddot) const {
+        double e = theta - theta_d;
+        double e_dot = theta_dot - theta_d_dot;
+
+        // Sliding surface: s = e_dot + lambda * e
+        double s = e_dot + lambda_ * e;
+
+        // Equivalent control: cancel nominal dynamics
+        double tau_grav = 4.0 * std::cos(theta);
+        double u_eq = J_ * theta_d_ddot - J_ * lambda_ * e_dot + b_ * theta_dot + tau_grav;
+
+        // Switching control with continuous boundary layer
+        double u_sw = -K_sw_ * sat(s);
+
+        return u_eq + u_sw;
+    }
+
+private:
+    double lambda_{6.0};
+    double K_sw_{3.2};
+    double eps_{0.15};
+    double J_{0.5};
+    double b_{0.2};
+};
+
+int main() {
+    std::cout &lt;&lt; &quot;=== ADVANCED SLIDING MODE CONTROLLER (MUTAMBARA CH 09) ===\n&quot;;
+    SlidingModeController smc(6.0, 3.2, 0.15, 0.5, 0.2);
+
+    // Initial state: theta = 0.8915 rad, theta_dot = 0.9806 rad/s at t = 0.5s
+    constexpr double t = 0.5;
+    double theta_d = std::sin(2.0 * t);
+    double theta_d_dot = 2.0 * std::cos(2.0 * t);
+    double theta_d_ddot = -4.0 * std::sin(2.0 * t);
+
+    double theta = 0.8915;
+    double theta_dot = 0.9806;
+
+    double u = smc.computeControl(theta, theta_dot, theta_d, theta_d_dot, theta_d_ddot);
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;Time t: &quot; &lt;&lt; t &lt;&lt; &quot; s\n&quot;;
+    std::cout &lt;&lt; &quot;Desired Theta: &quot; &lt;&lt; theta_d &lt;&lt; &quot; rad | Actual Theta: &quot; &lt;&lt; theta &lt;&lt; &quot; rad\n&quot;;
+    std::cout &lt;&lt; &quot;Error e: &quot; &lt;&lt; (theta - theta_d) &lt;&lt; &quot; rad | Sliding Surface s: &quot;
+              &lt;&lt; (theta_dot - theta_d_dot + 6.0 * (theta - theta_d)) &lt;&lt; &quot;\n&quot;;
+    std::cout &lt;&lt; &quot;Computed Control Torque u(t): &quot; &lt;&lt; u &lt;&lt; &quot; N.m\n&quot;;
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Sliding Mode Control (SMC) sở hữu tính chất bất biến hoàn hảo: khi quỹ đạo đã rơi vào mặt trượt s = 0, động học hệ thống hoàn toàn độc lập với mọi bất định mô hình và nhiễu ngoại cảnh.</li><li>Kỹ thuật lớp biên trơn sat(s/epsilon) loại bỏ triệt để hiện tượng rung giật cơ khí (Chattering) mà vẫn đảm bảo độ chính xác bám bến vững.</li><li>Điều khiển dự báo mô hình MPC giải quyết xuất sắc bài toán tối ưu hóa đa biến có ràng buộc cứng theo thời gian thực dựa trên nguyên lý chân trời lùi (Receding Horizon).</li><li>Bộ lọc thông tin (Information Filter - EIF) của Mutambara chuyển phép cập nhật hiệp phương sai thành phép cộng ma trận, tạo nền tảng cho mạng ước lượng phân tán đa robot.</li><li>Kiến trúc kết hợp MPC tầng cao (hoạch định quỹ đạo có ràng buộc) và SMC tầng thấp (thực thi bám bền vững) là chuẩn mực của các hệ thống Cyber-Physical Systems 4IR.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 9.1: Xây dựng bài toán QP có ràng buộc cho bộ điều khiển MPC SISO</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một xe tự hành AMR trong kho thông minh có mô hình vận tốc rời rạc bậc nhất:
+$$x[k+1] = 0.8 x[k] + 0.5 u[k]$$
+Thiết kế bộ điều khiển dự báo MPC với chân trời dự báo $N_p = 2$ và chân trời điều khiển $N_u = 2$. Hàm mục tiêu chi phí là:
+$$J = \sum_{j=1}^2 (x[k+j] - r)^2 + 0.1 \sum_{j=0}^1 u[k+j]^2$$
+với điểm đặt mục tiêu $r = 1.0\text{ m/s}$ và trạng thái ban đầu đo được tại chu kỳ hiện tại là $x[k] = 0.2\text{ m/s}$.<br>
+Cơ cấu chấp hành bị ràng buộc độ lớn lực đẩy: $|u[k+j]| \le 1.5\text{ N}$.
+<ol>
+  <li>Biểu diễn các trạng thái tương lai $x[k+1]$ và $x[k+2]$ theo chuỗi đầu vào $\mathbf{U} = [u[k], u[k+1]]^T$.</li>
+  <li>Chuyển đổi bài toán tối ưu hóa $J$ về dạng quy hoạch toàn phương ma trận chuẩn: $\min_{\mathbf{U}} \left(\frac{1}{2} \mathbf{U}^T \mathbf{H} \mathbf{U} + \mathbf{f}^T \mathbf{U}\right)$ thỏa mãn $-\mathbf{1.5} \le \mathbf{U} \le \mathbf{1.5}$.</li>
+  <li>Xác định ma trận Hessian $\mathbf{H}$ và vector gradient $\mathbf{f}$.</li>
+</ol></p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Hướng dẫn giải chi tiết:<br>
+1. Khai triển phương trình trạng thái dự báo:<br>
+$x[k+1] = 0.8 x[k] + 0.5 u[k] = 0.8(0.2) + 0.5 u[k] = 0.16 + 0.5 u[k]$.<br>
+$x[k+2] = 0.8 x[k+1] + 0.5 u[k+1] = 0.8(0.16 + 0.5 u[k]) + 0.5 u[k+1] = 0.128 + 0.4 u[k] + 0.5 u[k+1]$.<br>
+2. Viết dạng ma trận dự báo: $\mathbf{X} = \begin{bmatrix} x[k+1] \\ x[k+2] \end{bmatrix} = \begin{bmatrix} 0.16 \\ 0.128 \end{bmatrix} + \begin{bmatrix} 0.5 & 0 \\ 0.4 & 0.5 \end{bmatrix} \begin{bmatrix} u[k] \\ u[k+1] \end{bmatrix} = \mathbf{F} x[k] + \mathbf{\Phi}_u \mathbf{U}$.<br>
+Vector sai số bám: $\mathbf{E} = \mathbf{X} - \mathbf{R}_{\text{ref}} = \mathbf{\Phi}_u \mathbf{U} + (\mathbf{F} x[k] - \mathbf{R}_{\text{ref}}) = \begin{bmatrix} 0.5 & 0 \\ 0.4 & 0.5 \end{bmatrix} \mathbf{U} + \begin{bmatrix} -0.84 \\ -0.872 \end{bmatrix}$.<br>
+3. Hàm mục tiêu: $J = \mathbf{E}^T \mathbf{E} + \mathbf{U}^T \begin{bmatrix} 0.1 & 0 \\ 0 & 0.1 \end{bmatrix} \mathbf{U} = \mathbf{U}^T (\mathbf{\Phi}_u^T \mathbf{\Phi}_u + \mathbf{R}) \mathbf{U} + 2 (\mathbf{F} x[k] - \mathbf{R}_{\text{ref}})^T \mathbf{\Phi}_u \mathbf{U} + \text{const}$.<br>
+Tính toán ma trận Hessian $\mathbf{H}$ (theo dạng chuẩn $\frac{1}{2} \mathbf{U}^T \mathbf{H} \mathbf{U}$ nên $\mathbf{H} = 2(\mathbf{\Phi}_u^T \mathbf{\Phi}_u + \mathbf{R})$):<br>
+$$\mathbf{\Phi}_u^T \mathbf{\Phi}_u = \begin{bmatrix} 0.5 & 0.4 \\ 0 & 0.5 \end{bmatrix} \begin{bmatrix} 0.5 & 0 \\ 0.4 & 0.5 \end{bmatrix} = \begin{bmatrix} 0.41 & 0.20 \\ 0.20 & 0.25 \end{bmatrix}$$
+$$\mathbf{H} = 2 \left( \begin{bmatrix} 0.41 & 0.20 \\ 0.20 & 0.25 \end{bmatrix} + \begin{bmatrix} 0.1 & 0 \\ 0 & 0.1 \end{bmatrix} \right) = 2 \begin{bmatrix} 0.51 & 0.20 \\ 0.20 & 0.35 \end{bmatrix} = \begin{bmatrix} 1.02 & 0.40 \\ 0.40 & 0.70 \end{bmatrix}$$
+Vector gradient $\mathbf{f} = 2 \mathbf{\Phi}_u^T (\mathbf{F} x[k] - \mathbf{R}_{\text{ref}})$:<br>
+$$\mathbf{f} = 2 \begin{bmatrix} 0.5 & 0.4 \\ 0 & 0.5 \end{bmatrix} \begin{bmatrix} -0.84 \\ -0.872 \end{bmatrix} = 2 \begin{bmatrix} -0.42 - 0.3488 \\ -0.436 \end{bmatrix} = 2 \begin{bmatrix} -0.7688 \\ -0.436 \end{bmatrix} = \begin{bmatrix} -1.5376 \\ -0.8720 \end{bmatrix}$$
+Kết luận: Bài toán QP chuẩn lồi với $\mathbf{H} \gt 0$, giải bằng thuật toán Active-Set tìm được nghiệm không bị bão hòa $\mathbf{U}^* = [1.326, 0.487]^T$, áp dụng $u[k] = 1.326\text{ N}$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch08.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 08: Hệ Thống Điều Khiển Số (Digital Control Systems)</span>
+        </a>
+        <a href="ch10.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim09 === "function") {
+        initSim09();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

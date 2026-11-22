@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 07: Định vị Trực tiếp &amp; Phương pháp Hình học (Localization) - Elements of Robotics</title>
+<meta content="Bản chất bài toán định vị không gian, giải mã giới hạn tích lũy odometry, định vị khoảng cách Trilateration đa trạm và góc phương vị Triangulation." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 4: Dẫn đường &amp; Định vị Bayes</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 07</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 07</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-7-1">
+<span class="nav-text">7.1 Bản chất của Bài toán Định vị</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-2">
+<span class="nav-text">7.2 Giới hạn Trôi dạt của Odometry</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-3">
+<span class="nav-text">7.3 Định vị Khoảng cách Giao nhau (Trilateration)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-4">
+<span class="nav-text">7.4 Định vị Góc Phương vị (Triangulation)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-5">
+<span class="nav-text">7.5 Ghép nối Mốc tiêu (Landmark Correspondence)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-worked">
+<span class="nav-text">Ví dụ tính số: Giải hệ Trilateration 3 trạm</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (robot_localization EKF)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-7-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 4: DẪN ĐƯỜNG &amp; ĐỊNH VỊ BAYES</div>
+<h1>Chương 07: Định vị Trực tiếp &amp; Phương pháp Hình học (Localization)</h1>
+<p class="chapter-subtitle">Bản chất bài toán định vị không gian, giải mã giới hạn tích lũy odometry, định vị khoảng cách Trilateration đa trạm và góc phương vị Triangulation.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 7.1, 7.2 -->
+<h4 id="sec-7-1">7.1 Bản chất của Bài toán Định vị (The Localization Problem)</h4>
+<p>Định vị là quá trình ước lượng vị trí và góc hướng của robot trong một hệ tọa độ quy chiếu toàn cục cố định. Nếu không có định vị chính xác, mọi thuật toán quy hoạch đường đi và dẫn đường tự động đều vô nghĩa.</p>
+<h4 id="sec-7-2">7.2 Giới hạn Chết người của Odometry Thuần túy</h4>
+<p>Như đã khảo sát ở Chương 5, odometry chỉ đo lường sự dịch chuyển tương đối. Bất kỳ sai lệch góc nào cũng tích lũy không giới hạn theo thời gian. Do đó, định vị bắt buộc phải sử dụng các phép đo ngoại tại tương quan với các mốc tiêu (Landmarks) trong môi trường.</p>
+<!-- Mục 7.3 & 7.4 -->
+<h4 id="sec-7-3">7.3 Phương pháp Định vị Khoảng cách Giao nhau (Trilateration)</h4>
+<p>Khi robot đo được khoảng cách $d_i$ tới $N \ge 3$ mốc phát tín hiệu (Beacons / UWB / Vệ tinh GPS) đã biết trước tọa độ $(x_i, y_i)$:</p>
+<p>$$(x - x_i)^2 + (y - y_i)^2 = d_i^2 \quad (i = 1, 2, \dots, N)$$</p>
+<p>Khử các số hạng bậc hai $x^2 + y^2$ bằng cách trừ phương trình thứ $i$ cho phương trình thứ nhất, ta thu được hệ phương trình tuyến tính dạng $A \mathbf{x} = \mathbf{b}$ có thể giải chính xác bằng phương pháp bình phương tối thiểu (Least Squares):</p>
+<p>$$2(x_i - x_1)x + 2(y_i - y_1)y = (d_1^2 - d_i^2) + (x_i^2 - x_1^2) + (y_i^2 - y_1^2)$$</p>
+<h4 id="sec-7-4">7.4 Phương pháp Định vị Góc Phương vị Giao nhau (Triangulation)</h4>
+<p>Khi robot sử dụng camera hoặc LiDAR quay để đo góc kẹp $\alpha_i$ giữa các mốc tiêu thị giác đã biết vị trí, tọa độ robot được xác định dựa trên giao điểm của các cung chứa góc thông qua định lý hàm số Sin.</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-7-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 GIẢI HỆ TRILATERATION TUYẾN TÍNH HÓA ĐỊNH VỊ ROBOT</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Ba trạm phát sóng UWB đặt tại các tọa độ: $B_1(0, 0)$, $B_2(8, 0)$, $B_3(0, 6)$ (đơn vị: mét). Robot đo được khoảng cách tới 3 trạm lần lượt là $d_1 = 5.0\text{ m}$, $d_2 = 5.0\text{ m}$, $d_3 = 5.0\text{ m}$. Hãy xác định tọa độ $(x, y)$ của robot.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết Lập Hệ 3 Phương Trình Đường Tròn</span>
+</div>
+<div class="step-content">
+<p>(1) $x^2 + y^2 = 5^2 = 25$<br/>
+                  (2) $(x - 8)^2 + y^2 = x^2 - 16x + 64 + y^2 = 25$<br/>
+                  (3) $x^2 + (y - 6)^2 = x^2 + y^2 - 12y + 36 = 25$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Trừ Phương Trình (1) Cho (2)</span>
+</div>
+<div class="step-content">
+<p>$(x^2 + y^2) - (x^2 - 16x + 64 + y^2) = 25 - 25$<br/>
+                  $16x - 64 = 0 \Rightarrow 16x = 64 \Rightarrow x = 4.0\text{ m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Trừ Phương Trình (1) Cho (3)</span>
+</div>
+<div class="step-content">
+<p>$(x^2 + y^2) - (x^2 + y^2 - 12y + 36) = 25 - 25$<br/>
+                  $12y - 36 = 0 \Rightarrow 12y = 36 \Rightarrow y = 3.0\text{ m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kiểm Chứng Nghiệm &amp; Đánh Giá</span>
+</div>
+<div class="step-content">
+<p>Thử lại vào phương trình (1): $x^2 + y^2 = 4^2 + 3^2 = 16 + 9 = 25$ (Chính xác tuyệt đối!).<br/>
+                  Tọa độ vị trí xác định của robot là $(x, y) = (4.0\text{ m}, 3.0\text{ m})$.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Phương pháp Trilateration 2D giải quyết bài toán định vị mốc tuyệt đối thông qua việc tuyến tính hóa hệ phương trình đường tròn: 3 phép đo cự ly độc lập cho phép xác định tọa độ robot duy nhất và khử nhiễu hình học.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-7-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Package chuẩn công nghiệp <code>robot_localization</code> trong ROS 2 cung cấp node <code>ekf_node</code> (Extended Kalman Filter) và <code>ukf_node</code> (Unscented Kalman Filter). Node này dung hợp đa cảm biến: nhận odometry bánh xe, IMU và các nguồn định vị tuyệt đối (GPS, UWB, Visual Odometry) để xuất bản một ước lượng trạng thái lọc mượt mà nhất.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-7-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Xác Định Vị Trí 2D Bằng Phương Pháp Tam Giác Cự Ly (Trilateration)</h4>
+</div>
+<div class="practice-statement">
+<p>Robot định vị trong nhà dựa vào 3 mốc cố định: $A(0, 0)$, $B(4, 0)$, $C(0, 3)$ (đơn vị mét). Cảm biến UWB đo được khoảng cách từ robot tới 3 mốc lần lượt là: $d_A = 2.5\text{ m}, d_B = 2.5\text{ m}, d_C = 2.5\text{ m}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thiết lập hệ 3 phương trình đường tròn khoảng cách $(x - x_i)^2 + (y - y_i)^2 = d_i^2$.<br/>2) Tuyến tính hóa hệ phương trình bằng cách trừ phương trình thứ 2 và thứ 3 cho phương trình thứ 1.<br/>3) Giải tọa độ chính xác $(x^*, y^*)$ của robot.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Hệ 3 phương trình:<br/>1) $x^2 + y^2 = (2.5)^2 = 6.25$<br/>2) $(x - 4)^2 + y^2 = x^2 - 8x + 16 + y^2 = 6.25$<br/>3) $x^2 + (y - 3)^2 = x^2 + y^2 - 6y + 9 = 6.25$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Trừ phương trình (2) cho (1):<br/>$(x^2 - 8x + 16 + y^2) - (x^2 + y^2) = 6.25 - 6.25 \implies -8x + 16 = 0 \implies 8x = 16 \implies x = 2.0\text{ m}$.<br/>Trừ phương trình (3) cho (1):<br/>$(x^2 + y^2 - 6y + 9) - (x^2 + y^2) = 6.25 - 6.25 \implies -6y + 9 = 0 \implies 6y = 9 \implies y = 1.5\text{ m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Kiểm tra lại với phương trình (1): $x^2 + y^2 = (2.0)^2 + (1.5)^2 = 4.0 + 2.25 = 6.25 = (2.5)^2$. Tọa độ robot xác định chính xác tuyệt đối là $(2.0\text{ m}, 1.5\text{ m})$.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch06.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 06: Điều khiển Vòng kín PID &amp; Chống ...</span>
+</a>
+<a class="page-nav-btn next" href="ch08.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 08: Định vị Xác suất &amp; Bộ lọc Bayes ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

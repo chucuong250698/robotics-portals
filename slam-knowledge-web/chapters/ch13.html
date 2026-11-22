@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 13: Đa Robot SLAM: Phân Tán, Hợp Nhất Bản Đồ &amp; Active Exploration - SLAM &amp; Active Perception Portal</title>
+<meta content="Distributed Multi-Robot SLAM, Map Stitching &amp; Collaborative Exploration" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 6: ĐA ROBOT &amp; TRIỂN KHAI SẢN XUẤT</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 13</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 13</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-13-1">
+<span class="nav-text">13.1 Kiến Trúc Đa Robot: Tập Trung vs Phân Tán</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-2">
+<span class="nav-text">13.2 Bài Toán Hợp Nhất Bản Đồ (Map Merging)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-3">
+<span class="nav-text">13.3 Đóng Vòng Lặp Liên Robot (Inter-Robot Loop Closure)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-4">
+<span class="nav-text">13.4 Phân Bổ Biên Giới Khám Phá Hợp Tác</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-sim">
+<span class="nav-text">⚡ Mô Phỏng Ghép Nối Bản Đồ Đa Robot (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Thuật Toán Biến Đổi SVD / Horn</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2 C++: Node Hợp Nhất Bản Đồ Map Stitcher</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-13-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 6: ĐA ROBOT &amp; TRIỂN KHAI SẢN XUẤT • CHƯƠNG 13</div>
+<h1 class="chapter-title">Đa Robot SLAM: Phân Tán, Hợp Nhất Bản Đồ &amp; Active Exploration</h1>
+<p class="chapter-subtitle">Distributed Multi-Robot SLAM, Map Stitching &amp; Collaborative Exploration</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Julio A. Placed et al. (IEEE T-RO 2023) &amp; Thanh Nguyen Canh et al. (2021)</strong></span>
+</div>
+</div>
+<!-- 13.1 -->
+<h2 id="sec-13-1">13.1 Kiến Trúc Đa Robot SLAM: Tập Trung (Centralized) vs Phân Tán (Decentralized)</h2>
+<p>Khi triển khai một đội gồm $N$ robot cùng vẽ bản đồ một khu vực rộng lớn:</p>
+<table class="academic-table" style="width:100%; margin: 1.5rem 0; border-collapse: collapse;">
+<thead>
+<tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+<th style="padding: 0.75rem;">Đặc Tính Kỹ Thuật</th>
+<th style="padding: 0.75rem;">Kiến Trúc Tập Trung (Centralized)</th>
+<th style="padding: 0.75rem;">Kiến Trúc Phân Tán (Decentralized / P2P)</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Cấu trúc</strong></td>
+<td style="padding: 0.75rem;">Các robot gửi toàn bộ dữ liệu thô về một máy chủ trung tâm xử lý</td>
+<td style="padding: 0.75rem;">Mỗi robot tự chạy SLAM cục bộ, chỉ trao đổi mốc đặc trưng khi gặp nhau</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Điểm nghẽn hạ tầng</strong></td>
+<td style="padding: 0.75rem;">Nếu trạm chủ mất kết nối hoặc sập nguồn, toàn bộ hệ thống tê liệt</td>
+<td style="padding: 0.75rem;">Không có điểm lỗi đơn (No single point of failure), chịu lỗi cực cao</td>
+</tr>
+<tr>
+<td style="padding: 0.75rem;"><strong>Băng thông mạng</strong></td>
+<td style="padding: 0.75rem;">Đòi hỏi băng thông cực lớn để truyền mây điểm và ảnh RGB liên tục</td>
+<td style="padding: 0.75rem;">Băng thông siêu nhỏ (chỉ gửi vector đặc trưng và ma trận con g2o)</td>
+</tr>
+</tbody>
+</table>
+<!-- 13.2 -->
+<h2 id="sec-13-2">13.2 Hợp Nhất Bản Đồ &amp; Đóng Vòng Lặp Liên Robot (Inter-Robot Loop Closure)</h2>
+<p>Thách thức lớn nhất của Multi-Robot SLAM là các robot thường xuất phát từ các vị trí ngẫu nhiên mà <em>không hề biết trước tư thế tương đối ban đầu</em>. Khi Robot $A$ và Robot $B$ tình cờ đi vào cùng một sảnh và quan sát chung một nhóm mốc đặc trưng, thuật toán phát hiện vòng lặp liên robot (Inter-Robot Loop Closure) kích hoạt để tìm ra phép biến đổi đồng dạng cứng $\mathbf{T}_B^A = (\mathbf{R}, \mathbf{t}) \in \mathrm{SE}(2)$:</p>
+        $$\mathbf{p}_i^A = \mathbf{R} \mathbf{p}_i^B + \mathbf{t}$$
+        <p>Hai đồ thị con độc lập lập tức được "khâu vá" (Stitched) thành một đồ thị Pose Graph hợp nhất toàn cầu duy nhất!</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-13-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Khâu Vá Hợp Nhất Bản Đồ Đa Robot (Map Stitching)</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-13" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-13-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Tìm Phép Biến Đổi Tọa Độ $(\theta, t_x, t_y)$ Giữa Hai Đội Robot Bằng SVD</h3>
+</div>
+<div class="exercise-statement">
+<p>Hai robot cùng nhận diện 2 mốc chuẩn trong hệ tọa độ riêng của mình:
+          <br/>• Tọa độ của Robot A: $p_1^A = [1.0, 2.0]^T$, $p_2^A = [4.0, 2.0]^T$.
+          <br/>• Tọa độ của Robot B: $p_1^B = [2.0, -1.0]^T$, $p_2^B = [2.0, -4.0]^T$.
+          Tính toán góc quay tương đối $\theta$ và vector tịnh tiến $\mathbf{t} = [t_x, t_y]^T$ để chuyển đổi bản đồ từ Robot B sang Robot A.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính trọng tâm của 2 tập điểm</span>
+</div>
+<div class="step-content">
+<p>• Trọng tâm A: $\bar{p}^A = \frac{[1+4, 2+2]^T}{2} = [2.5, 2.0]^T$</p><p>• Trọng tâm B: $\bar{p}^B = \frac{[2+2, -1-4]^T}{2} = [2.0, -2.5]^T$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Dời về gốc tọa độ và xác định vector hướng</span>
+</div>
+<div class="step-content">
+<p>• Vector hướng A: $\Delta p^A = p_2^A - p_1^A = [4 - 1, 2 - 2]^T = [3.0, 0.0]^T$ (hướng góc $0^\circ$)</p><p>• Vector hướng B: $\Delta p^B = p_2^B - p_1^B = [2 - 2, -4 - (-1)]^T = [0.0, -3.0]^T$ (hướng góc $-90^\circ$)</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính góc quay $\theta$</span>
+</div>
+<div class="step-content">
+<p>Góc quay làm cho vector $\Delta p^B$ trùng với $\Delta p^A$:</p><p>$$\theta = \theta_A - \theta_B = 0^\circ - (-90^\circ) = +90^\circ \quad (\frac{\pi}{2}\text{ rad})$$</p><p>Ma trận quay: $$\mathbf{R} = \begin{bmatrix} \cos(90^\circ) &amp; -\sin(90^\circ) \\ \sin(90^\circ) &amp; \cos(90^\circ) \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính vector tịnh tiến $\mathbf{t} = \bar{p}^A - \mathbf{R} \bar{p}^B$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{R} \bar{p}^B = \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix} \begin{bmatrix} 2.0 \\ -2.5 \end{bmatrix} = \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix}$$</p><p>$$\mathbf{t} = \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix} - \begin{bmatrix} 2.5 \\ 2.0 \end{bmatrix} = \begin{bmatrix} 0.0 \\ 0.0 \end{bmatrix}$$</p><p>Phép biến đổi đồng dạng cứng: Quay một góc $+90^\circ$ quanh gốc tọa độ. Bản đồ Robot B được xoay khớp hoàn hảo vào khung tham chiếu của Robot A!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Hợp nhất bản đồ đa robot đòi hỏi phép biến đổi tọa độ tương đối chính xác và cơ chế tối ưu hóa đồ thị phân tán. Việc chia sẻ bản đồ con (Submaps) giúp tối ưu băng thông vô tuyến trong khi vẫn bảo toàn tính toàn vẹn bản đồ.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-13-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Node ROS 2 Ghép Nối Bản Đồ Hai Robot (C++)</h4>
+<p>Mã nguồn nhận bản đồ từ `/robot1/map` và `/robot2/map` để hợp nhất thành `/merged_map`:</p>
+<div class="code-card">
+<div class="code-header">
+<span>map_stitcher_node.cpp (ROS 2 / C++)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;nav_msgs/msg/occupancy_grid.hpp&gt;
+
+class MapStitcher : public rclcpp::Node {
+public:
+  MapStitcher() : Node("map_stitcher") {
+    sub_map1_ = this-&gt;create_subscription&lt;nav_msgs::msg::OccupancyGrid&gt;(
+      "/robot1/map", 1, [this](nav_msgs::msg::OccupancyGrid::SharedPtr msg){ map1_ = msg; tryMerge(); });
+    sub_map2_ = this-&gt;create_subscription&lt;nav_msgs::msg::OccupancyGrid&gt;(
+      "/robot2/map", 1, [this](nav_msgs::msg::OccupancyGrid::SharedPtr msg){ map2_ = msg; tryMerge(); });
+    pub_merged_ = this-&gt;create_publisher&lt;nav_msgs::msg::OccupancyGrid&gt;("/merged_map", 1);
+  }
+
+private:
+  void tryMerge() {
+    if (!map1_ || !map2_) return;
+    // Khởi tạo bản đồ hợp nhất với kích thước bao phủ cả hai
+    auto merged = std::make_shared&lt;nav_msgs::msg::OccupancyGrid&gt;(*map1_);
+    merged-&gt;header.stamp = this-&gt;now();
+    merged-&gt;header.frame_id = "map";
+    
+    // Ghép dữ liệu ô lưới (Logic OR chướng ngại vật)
+    for (size_t i = 0; i \lt merged-&gt;data.size() &amp;&amp; i \lt map2_-&gt;data.size(); ++i) {
+      if (map2_-&gt;data[i] \gt merged-&gt;data[i]) {
+        merged-&gt;data[i] = map2_-&gt;data[i];
+      }
+    }
+    pub_merged_-&gt;publish(*merged);
+  }
+  nav_msgs::msg::OccupancyGrid::SharedPtr map1_, map2_;
+  rclcpp::Subscription&lt;nav_msgs::msg::OccupancyGrid&gt;::SharedPtr sub_map1_, sub_map2_;
+  rclcpp::Publisher&lt;nav_msgs::msg::OccupancyGrid&gt;::SharedPtr pub_merged_;
+};</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-13-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Hợp Nhất Bản Đồ Đa Robot Bằng Phép Biến Đổi Tọa Độ Tương Đối $SE(2)$</h4>
+</div>
+<div class="practice-statement">
+<p>Hai robot $R_A$ và $R_B$ cùng lập bản đồ một tòa nhà độc lập. Khi gặp nhau (Rendezvous), hệ thống xác định tư thế tương đối của $R_B$ trong hệ quy chiếu của $R_A$ là $\mathbf{T}_{AB} = [x=4.0\text{ m}, y=2.0\text{ m}, \theta = \frac{\pi}{2}\text{ rad}]^T$. Robot $B$ phát hiện một vật cản tại tọa độ cục bộ của nó là $\mathbf{p}_B = [1.0\text{ m}, 0.5\text{ m}]^T$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thiết lập ma trận biến đổi thuần nhất $\mathbf{T}_{AB} \in SE(2)$.<br/>2) Chuyển đổi tọa độ vật cản $\mathbf{p}_B$ sang hệ quy chiếu của Robot $A$: $\mathbf{p}_A = \mathbf{T}_{AB} \mathbf{p}_B$.<br/>3) Nếu ma trận hiệp phương sai của phép đo tương đối là $\mathbf{\Sigma}_{AB} = 0.04 \mathbf{I}_2$, hãy tính toán mức tăng phương sai của vị trí vật cản trong bản đồ của Robot $A$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Ma trận biến đổi $SE(2)$ với $\theta = 90^\circ$ ($\cos=0, \sin=1$):<br/>$$\mathbf{T}_{AB} = \begin{bmatrix} \cos\theta &amp; -\sin\theta &amp; x_{AB} \\ \sin\theta &amp; \cos\theta &amp; y_{AB} \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 4.0 \\ 1 &amp; 0 &amp; 2.0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tọa độ vật cản trong hệ $A$ dạng thuần nhất: $\begin{bmatrix} x_A \\ y_A \\ 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; -1 &amp; 4.0 \\ 1 &amp; 0 &amp; 2.0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 1.0 \\ 0.5 \\ 1 \end{bmatrix} = \begin{bmatrix} 0 - 0.5 + 4.0 \\ 1.0 + 0 + 2.0 \\ 1 \end{bmatrix} = \begin{bmatrix} 3.5 \\ 3.0 \\ 1 \end{bmatrix}$.<br/>Vậy vật cản nằm tại tọa độ $(3.5\text{ m}, 3.0\text{ m})$ trong bản đồ của Robot $A$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Hiệp phương sai vị trí trong hệ $A$ bị cộng thêm hiệp phương sai của phép căn chỉnh: $\mathbf{P}_{A} = \mathbf{R}_{AB} \mathbf{P}_B \mathbf{R}_{AB}^T + \mathbf{\Sigma}_{AB}$. Điều này chứng minh rằng việc sáp nhập bản đồ đa robot luôn làm tăng độ bất định hình học nếu không có bước tối ưu hóa khớp đồ thị toàn cục (Distributed Pose Graph Optimization).</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch12.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 12: Song Đề Khám Phá vs Khai Thác BSP</span>
+</a>
+<a class="ch-nav-card next" href="ch14.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 14: Kiến Trúc Triển Khai Thực Tế Nav2</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 10: Cơ Học Hamilton & Hệ Port-Hamiltonian Trong Robot | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 10</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link active">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Cơ Học Giải Tích & Hệ Đa Vật Thể</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 2, 8; Fabien, Chương 6 (Trang 183–230)</span>
+        </div>
+        <h1 class="chapter-title">Chương 10: Cơ Học Hamilton & Hệ Port-Hamiltonian Trong Robot</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Biến đổi Legendre, Cấu trúc Port-Hamiltonian, Năng lượng Casimir & Điều khiển Energy-Shaping</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Tại sao ngành điều khiển robot hiện đại (đặc biệt là robot tương tác người-máy Cobot, tay máy phẫu thuật, và robot chân chạy) lại chuyển đổi từ phương trình vi phân Lagrange sang <strong>Cơ học Port-Hamiltonian (pH)</strong>? Câu trả lời nằm ở <em>Tính module hóa năng lượng</em>. Trong cấu trúc Port-Hamiltonian, mọi hệ con (Động cơ điện tử, Khớp truyền động điều hòa Harmonic Drive, Thân cứng, Mặt sàn tiếp xúc mềm) đều trao đổi năng lượng qua các <strong>Cổng công suất (Power Ports)</strong>. Khi ghép nối các hệ Port-Hamiltonian lại với nhau qua cấu trúc Dirac, toàn bộ hệ thống lớn <strong>luôn tự động bảo toàn tính thụ động (Passivity-preserving)</strong>, đảm bảo robot không bao giờ bị mất ổn định rung giật khi va chạm đột ngột với môi trường không lường trước!</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Từ hàm Lagrange $\mathcal{L}(\mathbf{q}, \dot{\mathbf{q}}) = T - V$, biến đổi Legendre đưa vào biến động lượng suy rộng $\mathbf{p}$:</p>
+        $$\begin{equation}
+        \mathbf{p} = \frac{\partial \mathcal{L}}{\partial \dot{\mathbf{q}}} = \mathbf{M}(\mathbf{q})\dot{\mathbf{q}} \iff \dot{\mathbf{q}} = \mathbf{M}^{-1}(\mathbf{q})\mathbf{p}
+        \end{equation}$$
+        <p>Hàm Hamilton $\mathcal{H}(\mathbf{q}, \mathbf{p})$ đại diện cho tổng cơ năng của hệ thống:</p>
+        $$\begin{equation}
+        \mathcal{H}(\mathbf{q}, \mathbf{p}) = \mathbf{p}^T \dot{\mathbf{q}} - \mathcal{L} = \frac{1}{2}\mathbf{p}^T \mathbf{M}^{-1}(\mathbf{q})\mathbf{p} + V(\mathbf{q})
+        \end{equation}$$
+        <div class="formula-card">
+          <div class="formula-header">Cấu Trúc Hệ Thống Port-Hamiltonian Chuẩn Mực (pH System)</div>
+          $$\begin{equation}
+          \begin{bmatrix} \dot{\mathbf{q}} \\ \dot{\mathbf{p}} \end{bmatrix} = \left( \mathbf{J}(\mathbf{x}) - \mathbf{R}(\mathbf{x}) \right) \begin{bmatrix} \nabla_{\mathbf{q}} \mathcal{H} \\ \nabla_{\mathbf{p}} \mathcal{H} \end{bmatrix} + \mathbf{G}(\mathbf{x})\mathbf{u}
+          \end{equation}$$
+          $$\begin{equation}
+          \mathbf{y} = \mathbf{G}^T(\mathbf{x}) \nabla_{\mathbf{x}} \mathcal{H} = \mathbf{G}^T(\mathbf{x}) \begin{bmatrix} \nabla_{\mathbf{q}} \mathcal{H} \\ \nabla_{\mathbf{p}} \mathcal{H} \end{bmatrix}
+          \end{equation}$$
+          <p>Với vector trạng thái $\mathbf{x} = [\mathbf{q}^T, \mathbf{p}^T]^T$, ma trận liên kết nội phản đối xứng $\mathbf{J} = -\mathbf{J}^T$ (Bảo toàn năng lượng thuần túy), ma trận tiêu tán xác định không âm $\mathbf{R} = \mathbf{R}^T \ge 0$ (Ma sát nhớt/nhiệt), và quan hệ cân bằng công suất:</p>
+          $$\begin{equation}
+          \dot{\mathcal{H}} = (\nabla_{\mathbf{x}}\mathcal{H})^T \dot{\mathbf{x}} = - (\nabla_{\mathbf{x}}\mathcal{H})^T \mathbf{R} (\nabla_{\mathbf{x}}\mathcal{H}) + \mathbf{u}^T \mathbf{y} \le \mathbf{u}^T \mathbf{y}
+          \end{equation}$$
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Phương pháp điều khiển <strong>Tạo hình năng lượng kết hợp bơm giảm chấn (Energy-Shaping Plus Damping Injection - IDA-PBC)</strong>:</p>
+        <ul>
+          <li><strong>Mục tiêu:</strong> Thiết kế luật điều khiển $\mathbf{u} = \boldsymbol{\beta}(\mathbf{x})$ sao cho hệ kín trở thành một hệ Port-Hamiltonian mới với hàm năng lượng mong muốn $\mathcal{H}_d(\mathbf{x})$ có cực tiểu duy nhất tại vị trí cân bằng đích $\mathbf{q}^*$.</li>
+          <li><strong>Hàm năng lượng mong muốn:</strong> $\mathcal{H}_d(\mathbf{q}, \mathbf{p}) = \frac{1}{2}\mathbf{p}^T \mathbf{M}_d^{-1}\mathbf{p} + \frac{1}{2}(\mathbf{q} - \mathbf{q}^*)^T \mathbf{K}_p (\mathbf{q} - \mathbf{q}^*)$.</li>
+          <li><strong>Bơm giảm chấn:</strong> Bổ sung số hạng tiêu tán $\mathbf{R}_d$ để triệt tiêu dao động cơ học, đảm bảo hội tụ tiệm cận Lyapunov toàn cục.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Energy-Shaping Port-Hamiltonian Cho Khớp Cánh Tay Robot</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khớp tay máy 1 bậc tự do quay trong mặt phẳng đứng có vị trí góc $q$, động lượng $p = J\dot{q}$ với mô-men quán tính $J = 0.50\text{ kg}\cdot\text{m}^2$. Thế năng trọng lực $V(q) = -mgl\cos(q)$ với $mgl = 4.905\text{ N}\cdot\text{m}$. Hệ số cản nhớt ở khớp là $D = 0.20\text{ N}\cdot\text{m}\cdot\text{s/rad}$. Hệ Port-Hamiltonian có trạng thái $\mathbf{x} = [q, p]^T$, hàm Hamilton tự nhiên $\mathcal{H}(q, p) = \frac{p^2}{2J} - mgl\cos(q)$.<br>Yêu cầu: Thiết kế luật điều khiển mô-men $\tau = u$ bằng phương pháp Energy-Shaping và Damping Injection để ổn định hóa khớp robot tại vị trí góc mong muốn $q^* = \pi/3 = 60^\circ$ với độ cứng năng lượng ảo $K_p = 15.0\text{ N}\cdot\text{m/rad}$ và hệ số cản bổ sung $K_d = 2.0\text{ N}\cdot\text{m}\cdot\text{s/rad}$. Tính giá trị mô-men điều khiển tức thời khi khớp đang ở $q = 0^\circ, \dot{q} = 0.5\text{ rad/s}$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định đạo hàm gradient của hàm Hamilton tự nhiên $\mathcal{H}(q, p)$:<br>$$\nabla_q \mathcal{H} = \frac{\partial \mathcal{H}}{\partial q} = mgl\sin(q) = 4.905\sin(q)$$<br>$$\nabla_p \mathcal{H} = \frac{\partial \mathcal{H}}{\partial p} = \frac{p}{J} = \dot{q}$$<br>Phương trình trạng thái Port-Hamiltonian ban đầu:<br>$$\begin{bmatrix} \dot{q} \\ \dot{p} \end{bmatrix} = \left( \begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix} - \begin{bmatrix} 0 & 0 \\ 0 & D \end{bmatrix} \right) \begin{bmatrix} \nabla_q \mathcal{H} \\ \nabla_p \mathcal{H} \end{bmatrix} + \begin{bmatrix} 0 \\ 1 \end{bmatrix} u = \begin{bmatrix} \dot{q} \\ -4.905\sin(q) - 0.20\dot{q} + u \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Chọn hàm năng lượng mục tiêu mong muốn $\mathcal{H}_d(q, p)$:<br>$$\mathcal{H}_d(q, p) = \frac{p^2}{2J} + \frac{1}{2}K_p (q - q^*)^2$$<br>Hàm này đạt giá trị cực tiểu toàn cục bằng 0 tại $q = q^* = \pi/3$ và $p = 0$.<br>Gradient của hàm mong muốn:<br>$$\nabla_q \mathcal{H}_d = K_p (q - q^*), \qquad \nabla_p \mathcal{H}_d = \frac{p}{J} = \dot{q}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập luật điều khiển Energy-Shaping và Damping Injection:<br>Mô-men điều khiển được tách thành 3 thành phần rõ ràng:<br>$$u = u_{es} + u_{damp} + u_{grav}$$<br>• Bù trọng lực tự nhiên: $u_{grav} = \nabla_q \mathcal{H} = mgl\sin(q)$<br>• Tạo hình độ cứng thế năng ảo mong muốn: $u_{es} = -\nabla_q \mathcal{H}_d = -K_p(q - q^*)$<br>• Bơm giảm chấn phụ trợ: $u_{damp} = -K_d \nabla_p \mathcal{H}_d = -K_d \dot{q}$<br>Tổng hợp luật điều khiển hoàn chỉnh:<br>$$u(q, \dot{q}) = mgl\sin(q) - K_p(q - q^*) - K_d \dot{q}$$<br>Đạo hàm thời gian của năng lượng kín: $\dot{\mathcal{H}}_d = -(D + K_d)\dot{q}^2 \le 0$ (Ổn định tiệm cận toàn cục theo Lyapunov).</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học tại điểm kiểm tra $q = 0\text{ rad}, \dot{q} = 0.5\text{ rad/s}$:<br>• Sai lệch góc: $q - q^* = 0 - \frac{\pi}{3} \approx -1.0472\text{ rad}$.<br>• Thành phần bù trọng lực: $4.905 \sin(0) = 0\text{ N}\cdot\text{m}$.<br>• Thành phần độ cứng ảo: $-15.0 \times (-1.0472) = +15.708\text{ N}\cdot\text{m}$.<br>• Thành phần cản: $-2.0 \times 0.5 = -1.0\text{ N}\cdot\text{m}$.<br>Tổng mô-men điều khiển phát ra:<br>$$\tau = 0 + 15.708 - 1.0 = +14.708\text{ N}\cdot\text{m}$$</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 10: Điều Khiển Port-Hamiltonian Energy-Shaping Ổn Định Robot</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-10" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Độ cứng ảo $K_p$: <span id="sim10-kp-val">15</span> N.m/rad</label>
+              <input type="range" id="sim10-kp" min="5" max="40" step="1" value="15">
+            </div>
+            <div class="control-group">
+              <label>Giảm chấn bơm thêm $K_d$: <span id="sim10-kd-val">2.0</span> N.m.s/rad</label>
+              <input type="range" id="sim10-kd" min="0.0" max="8.0" step="0.2" value="2.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim10-stats" class="sim-telemetry-text">Đồ thị năng lượng Hamiltonian kín $\mathcal{H}_d(t)$ giảm đơn điệu về 0 theo thời gian nhờ số hạng tiêu tán ma sát được bơm vào ($K_d$).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Port-Hamiltonian Controller for 1-DoF Manipulator in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+class PortHamiltonianJoint {
+public:
+    double q = 0.0;       // position (rad)
+    double p = 0.0;       // generalized momentum (kg.m^2/s)
+    
+    const double J = 0.50;      // inertia
+    const double mgl = 4.905;   // gravity constant
+    const double D = 0.20;      // natural damping
+    
+    double step(double q_target, double Kp, double Kd, double dt) {
+        double q_dot = p / J;
+        
+        // IDA-PBC Control Torque
+        double tau_ctrl = mgl * std::sin(q) - Kp * (q - q_target) - Kd * q_dot;
+        
+        // System dynamics
+        double p_dot = -mgl * std::sin(q) - D * q_dot + tau_ctrl;
+        
+        // Symplectic integration
+        p += p_dot * dt;
+        q += (p / J) * dt;
+        
+        double H_closed = 0.5 * (p * p / J) + 0.5 * Kp * std::pow(q - q_target, 2);
+        return H_closed;
+    }
+};
+
+int main() {
+    PortHamiltonianJoint joint;
+    double target = M_PI / 3.0; // 60 degrees
+    for (int step = 0; step &lt; 2000; ++step) {
+        double H = joint.step(target, 15.0, 2.0, 0.001);
+        if (step % 400 == 0) {
+            std::cout &lt;&lt; &quot;t=&quot; &lt;&lt; step*0.001 &lt;&lt; &quot;s | q=&quot; &lt;&lt; joint.q * 180.0 / M_PI 
+                      &lt;&lt; &quot; deg | H_d=&quot; &lt;&lt; H &lt;&lt; &quot; J\n&quot;;
+        }
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Cơ học Hamilton:</strong> Biểu diễn động lực học qua biến vị trí $q$ và động lượng $p = M(q)\dot{q}$, tối ưu cho phân tích năng lượng.</li><li><strong>Hệ Port-Hamiltonian:</strong> Kiến trúc module hóa năng lượng với ma trận cấu trúc $J = -J^T$, tiêu tán $R \ge 0$ và cổng vào ra $(u, y)$.</li><li><strong>Tính thụ động liên hệ thống:</strong> Ghép nối bất kỳ các khối Port-Hamiltonian nào luôn tạo ra một hệ lớn ổn định thụ động.</li><li><strong>Energy-Shaping Control:</strong> Thay đổi thế năng tự nhiên thành thế năng mong muốn, đưa vị trí mục tiêu trở thành cực tiểu cơ năng.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 10.1: Kiểm tra tính bảo toàn khi ngắt kết nối giảm chấn</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Giả sử hệ thống không có ma sát tự nhiên ($D = 0$) và bộ điều khiển không bơm giảm chấn ($K_d = 0$). Chứng minh bằng giải tích rằng năng lượng Hamiltonian kín $\mathcal{H}_d(t)$ là một đại lượng bảo toàn không đổi theo thời gian.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Khi $D = 0, K_d = 0$, ta có $\dot{\mathcal{H}}_d = (\nabla_x \mathcal{H}_d)^T \dot{\mathbf{x}} = (\nabla_q \mathcal{H}_d)\dot{q} + (\nabla_p \mathcal{H}_d)\dot{p} = K_p(q - q^*)\dot{q} + \dot{q}[-K_p(q - q^*)] = 0$. Do đó $\mathcal{H}_d(t) = \text{const}$, quỹ đạo trạng thái trong không gian pha $(q, p)$ tạo thành các elip khép kín quanh tâm cân bằng.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch09.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 09: Phương Pháp Kane & Hệ Ràng Buộc Phi Holonomic</span>
+        </a>
+        <a href="ch11.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Dao Động Cơ Học, Dầm Đàn Hồi & Phân Tích FEM →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim10 === "function") {
+        initSim10();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 06: Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist) | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 06</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link active">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Thiết Kế Quỹ Đạo Nghiệm & Miền Tần Số</span>
+          <span class="page-source-badge">📖 Mutambara (2024), Chương 6, Trang 445–507</span>
+        </div>
+        <h1 class="chapter-title">Chương 06: Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Đáp ứng tần số, Biểu đồ Bode, Biểu đồ cực Nyquist & Tiêu chuẩn ổn định Nyquist (Cauchy's Argument Principle), Độ dự trữ biên (Gain Margin) & Độ dự trữ pha (Phase Margin), Khâu trễ thời gian (Transport Delay), Thiết kế bộ hiệu chỉnh Sớm pha (Lead), Trễ pha (Lag) và Sớm-Trễ pha (Lag-Lead)</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong nền Công nghiệp 4.0, các hệ thống chuyển động servo tốc độ cao (máy công cụ CNC 5 trục, robot hàn laser, thiết bị quang khắc bán dẫn wafer-stepper và hệ thống quang học vệ tinh) hoạt động liên tục dưới dải tần số kích thích rất rộng sinh ra từ dao động cơ học, độ rung nền và nhiễu cảm biến cao tần. Khi thiết kế trong miền thời gian, kỹ sư rất khó phát hiện các tần số cộng hưởng ký sinh (parasitic mechanical resonances) hoặc sự suy giảm ổn định do độ trễ truyền thông mạng (EtherCAT / TSN delays). Phương pháp thiết kế miền tần số (Frequency-Response Methods) của Hendrik Bode và Harry Nyquist chính là chiếc chìa khóa vàng giúp giải quyết triệt để thách thức này.</p>
+          <p>Khác biệt cốt lõi của miền tần số nằm ở chỗ: <strong>đặc tính tần số của hệ thống có thể được đo đạc trực tiếp trên thực nghiệm</strong> (bằng máy phân tích phổ tín hiệu động học Dynamic Signal Analyzer) thông qua hàm truyền tần số thực nghiệm (Empirical Frequency Response Function - FRF) mà <em>không cần phải xây dựng trước phương trình vi phân mô hình giải tích chính xác của đối tượng</em>! Kỹ sư có thể định lượng chính xác độ bền vững kháng nhiễu thông qua <strong>Độ dự trữ biên độ (Gain Margin - GM)</strong> và <strong>Độ dự trữ pha (Phase Margin - PM)</strong>, đồng thời thiết kế các bộ lọc khuyết (Notch Filter) và bộ hiệu chỉnh sớm-trễ pha để triệt tiêu dao động cơ học mà vẫn tối đa hóa băng thông điều khiển.</p>
+        </div>
+        <p>Về mặt toán học, khi đặt tín hiệu kích thích hình sin $u(t) = A \sin(\omega t)$ vào một hệ thống tuyến tính dừng (LTI) ổn định có hàm truyền $G(s)$, đáp ứng ở trạng thái xác lập $y_{ss}(t)$ vẫn là một tín hiệu hình sin cùng tần số $\omega$, nhưng có biên độ bị khuếch đại (hoặc suy giảm) theo hệ số $|G(j\omega)|$ và bị dịch pha một góc $\phi(\omega) = \angle G(j\omega)$:</p>
+        $$y_{ss}(t) = A |G(j\omega)| \sin(\omega t + \angle G(j\omega))$$
+        <p>Biểu đồ Bode giải quyết bài toán phức tạp bằng cách chuyển các phép nhân và chia hàm truyền phức thành các phép cộng trừ đại số tuyến tính nhờ thang đo Decibel (dB) và trục tần số logarit. Trong khi đó, biểu đồ cực Nyquist mở rộng phạm vi phân tích cho các hệ thống vòng hở vốn không ổn định hoặc các hệ thống chứa khâu trễ thời gian thuần túy (dead-time) $e^{-s\tau}$ – điều mà phương pháp quỹ đạo nghiệm (Root Locus) không thể giải quyết trọn vẹn.</p>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Phương pháp miền tần số khảo sát hành vi của hệ thống dọc theo trục ảo $s = j\omega$ trên mặt phẳng phức Laplace.</p>
+
+        <h3>1. Bốn Nhóm Nhân Tử Cơ Bản Trên Biểu Đồ Bode</h3>
+        <p>Hàm truyền vòng hở tổng quát có thể phân tích thành tích của 4 dạng nhân tử tiêu chuẩn:</p>
+        $$G(s) = \frac{K \prod (1 + T_i s) \prod [1 + 2\zeta_k (s/\omega_{nk}) + (s/\omega_{nk})^2]}{s^N \prod (1 + T_j s) \prod [1 + 2\zeta_m (s/\omega_{nm}) + (s/\omega_{nm})^2]}$$
+        <ul>
+          <li><strong>Hệ số khuếch đại tĩnh $K$:</strong> Biên độ là đường nằm ngang cố định $20\log_{10}|K|\text{ dB}$ trên mọi dải tần; góc pha bằng $0^\circ$ (khi $K \gt 0$) hoặc $-180^\circ$ (khi $K \lt 0$).</li>
+          <li><strong>Khâu tích phân $(j\omega)^{-N}$ / Vi phân $(j\omega)^N$:</strong> Đường tiệm cận biên độ có độ dốc tuyến tính $-20N\text{ dB/dec}$ (hoặc $+20N\text{ dB/dec}$), cắt trục $0\text{ dB}$ tại $\omega = 1\text{ rad/s}$. Góc pha cố định bằng $-90^\circ \times N$ (hoặc $+90^\circ \times N$).</li>
+          <li><strong>Khâu quán tính bậc nhất $(1 + j\omega/\omega_p)^{-1}$:</strong> Tại tần số cắt $\omega_p = 1/T_p$, biên độ thực tế sụt giảm chính xác $-3.01\text{ dB}$ so với tiệm cận $0\text{ dB}$; với $\omega \gg \omega_p$, đường tiệm cận dốc $-20\text{ dB/dec}$. Góc pha chuyển dịch trơn từ $0^\circ$ qua $-45^\circ$ (tại $\omega = \omega_p$) và tiệm cận $-90^\circ$ khi $\omega \to \infty$.</li>
+          <li><strong>Khâu dao động bậc hai $[1 + 2\zeta(j\omega/\omega_n) + (j\omega/\omega_n)^2]^{-1}$:</strong> Khi hệ số tắt dần $\zeta \lt 1/\sqrt{2} \approx 0.707$, đường biên độ xuất hiện đỉnh cộng hưởng (Resonance Peak) tại tần số cộng hưởng:
+          $$\omega_r = \omega_n \sqrt{1 - 2\zeta^2}$$
+          Độ lớn đỉnh cộng hưởng cực đại:
+          $$M_r = |G(j\omega_r)| = \frac{1}{2\zeta\sqrt{1 - \zeta^2}} \implies M_{r,dB} = 20\log_{10} M_r$$
+          Độ dốc tiệm cận tần số cao là $-40\text{ dB/dec}$. Góc pha tại $\omega = \omega_n$ bằng đúng $-90^\circ$ và tiệm cận $-180^\circ$.</li>
+        </ul>
+
+        <h3>2. Tác Động Của Khâu Trễ Thời Gian (Transport Delay)</h3>
+        <p>Khâu trễ thời gian thuần túy $e^{-s\tau}$ là đặc trưng cố hữu của các quá trình vận chuyển vật chất (băng tải, dòng chất lỏng trong đường ống) và mạng truyền thông công nghiệp (Ethernet/IP, CAN bus, Wi-Fi 6). Khi chuyển sang miền tần số:</p>
+        $$G_{\text{delay}}(j\omega) = e^{-j\omega\tau} \implies |G_{\text{delay}}(j\omega)| = 1 \ (0\text{ dB}), \quad \angle G_{\text{delay}}(j\omega) = -\omega \tau \text{ (rad)} = -57.296^\circ \cdot \omega \tau$$
+        <p><strong>Hệ quả chí mạng:</strong> Khâu trễ thời gian hoàn toàn không làm suy giảm biên độ ($0\text{ dB}$), nhưng gây ra <em>sự trễ pha sụt giảm không giới hạn và tỷ lệ tuyến tính với tần số $\omega$</em>! Điều này làm dịch chuyển tần số cắt pha $\omega_{pc}$ về phía tần số thấp hơn, làm suy giảm nghiêm trọng độ dự trữ pha và đẩy hệ thống vòng kín vào tình trạng dao động tự kích hoặc mất ổn định hoàn toàn.</p>
+
+        <h3>3. Tiêu Chuẩn Ổn Định Nyquist & Nguyên Lý Góc Quay Cauchy</h3>
+        <p>Xét đường bao Nyquist đóng $\Gamma_s$ bao bọc toàn bộ nửa phải mặt phẳng phức $s$ ($\text{Re}(s) \ge 0$). Ánh xạ của $\Gamma_s$ qua hàm truyền vòng hở $L(s) = G(s)H(s)$ tạo thành quỹ đạo Nyquist $\Gamma_L$ trên mặt phẳng phức $L(s)$.</p>
+        <p>Theo <strong>Định lý số gia góc quay Cauchy (Argument Principle)</strong>, số vòng quay thuần theo chiều kim đồng hồ $N$ của đường cong $\Gamma_L$ quanh điểm găng $(-1, j0)$ thỏa mãn phương trình cơ bản:</p>
+        $$Z = N + P$$
+        <p>trong đó:</p>
+        <ul>
+          <li>$P$: Số nghiệm cực không ổn định của hàm truyền vòng hở $L(s)$ nằm ở nửa phải mặt phẳng phức ($\text{Re} \gt 0$).</li>
+          <li>$N$: Số vòng quay theo chiều kim đồng hồ quanh điểm $(-1, j0)$ ($N \gt 0$ là cùng chiều kim đồng hồ, $N \lt 0$ là ngược chiều kim đồng hồ).</li>
+          <li>$Z$: Số nghiệm cực của hệ thống vòng kín $1 + L(s) = 0$ nằm ở nửa phải mặt phẳng phức.</li>
+        </ul>
+        <div class="callout callout-warning">
+          <div class="callout-title">⚠️ Định Lý Ổn Định Nyquist Tuyệt Đối</div>
+          <p>Điều kiện cần và đủ để hệ thống hồi tiếp âm vòng kín ổn định tiệm cận là: <strong>$Z = 0 \iff N = -P$</strong>. Nghĩa là, quỹ đạo Nyquist phải quay chính xác $P$ vòng ngược chiều kim đồng hồ quanh điểm găng $(-1, j0)$. Đặc biệt, nếu hệ vòng hở vốn dĩ đã ổn định ($P = 0$), thì hệ vòng kín ổn định khi và chỉ khi quỹ đạo Nyquist <em>không bao điểm $(-1, j0)$</em> ($N = 0$).</p>
+        </div>
+
+        <h3>4. Thước Đo Độ Bền Vững: Gain Margin (GM) & Phase Margin (PM)</h3>
+        <p>Hai chỉ số định lượng độ bền vững của hệ thống vòng kín trước biến động thông số mô hình:</p>
+        <ul>
+          <li><strong>Tần số cắt pha $\omega_{pc}$ (Phase Crossover Frequency):</strong> Tần số tại đó góc pha vòng hở đạt $-180^\circ$:
+          $$\angle L(j\omega_{pc}) = -180^\circ$$
+          <strong>Độ dự trữ biên độ (Gain Margin - $GM$):</strong> Nghịch đảo biên độ tại $\omega_{pc}$:
+          $$GM = \frac{1}{|L(j\omega_{pc})|} \implies GM_{\text{dB}} = -20\log_{10} |L(j\omega_{pc})|$$</li>
+          <li><strong>Tần số cắt biên độ $\omega_{gc}$ (Gain Crossover Frequency):</strong> Tần số tại đó biên độ vòng hở bằng 1 ($0\text{ dB}$):
+          $$|L(j\omega_{gc})| = 1 \implies 20\log_{10}|L(j\omega_{gc})| = 0\text{ dB}$$
+          <strong>Độ dự trữ pha (Phase Margin - $PM$):</strong> Lượng góc pha còn dư trước ranh giới bất ổn định $-180^\circ$:
+          $$PM = 180^\circ + \angle L(j\omega_{gc})$$</li>
+        </ul>
+        <p>Trong tiêu chuẩn thiết kế công nghiệp chuẩn mực, hệ thống yêu cầu: $GM \ge 6\text{ dB}$ (tức biên độ có thể tăng gấp 2 lần trước khi mất ổn định) và $PM \in [45^\circ, 60^\circ]$ (tương ứng với hệ số tắt dần $\zeta \approx 0.45 \sim 0.60$, đảm bảo vọt lố $M_p \le 16\%$ và triệt tiêu dao động nhanh chóng).</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <h3>Nguyên Lý Thiết Kế Bộ Hiệu Chỉnh Miền Tần Số (Compensator Design)</h3>
+        <p>Khi hệ thống hở ban đầu không đáp ứng được yêu cầu về độ chính xác tĩnh ($K_p, K_v$) hoặc độ bền vững ($GM, PM, \omega_{gc}$), ta bổ sung bộ hiệu chỉnh nối tiếp $C(s)$ để tái định hình đường cong Bode (Loop Shaping):</p>
+
+        <h4>1. Bộ Hiệu Chỉnh Sớm Pha (Lead Compensator)</h4>
+        <p>Cung cấp một lượng góc pha dương nhằm nâng cao $PM$ và mở rộng dải thông $\omega_{gc}$, tăng tốc độ phản ứng:</p>
+        $$C_{\text{lead}}(s) = \frac{1 + \alpha T s}{1 + T s} = \frac{1}{\alpha} \frac{s + 1/(\alpha T)}{s + 1/T}, \quad \alpha \gt 1$$
+        <p>Góc pha sớm cực đại $\phi_m$ xuất hiện tại tần số trung bình nhân hình học giữa zero và cực $\omega_m = \frac{1}{T\sqrt{\alpha}}$:</p>
+        $$\sin(\phi_m) = \frac{\alpha - 1}{\alpha + 1} \implies \alpha = \frac{1 + \sin(\phi_m)}{1 - \sin(\phi_m)}$$
+        <p>Độ khuếch đại biên độ tại $\omega_m$ bằng $|C_{\text{lead}}(j\omega_m)|_{\text{dB}} = 10\log_{10}(\alpha)\text{ dB}$. Điểm zero nằm gần trục ảo hơn cực ($|z_c| = 1/(\alpha T) \lt |p_c| = 1/T$), hoạt động tương tự khâu vi phân tỷ lệ (PD) nhưng có khâu lọc thông thấp bậc nhất ở tần số cao để triệt tiêu nhiễu đo cảm biến.</p>
+
+        <h4>2. Bộ Hiệu Chỉnh Trễ Pha (Lag Compensator)</h4>
+        <p>Nâng cao hệ số khuếch đại ở tần số thấp để triệt tiêu sai số xác lập mà không làm thay đổi tần số cắt và độ dự trữ pha ở tần số cao:</p>
+        $$C_{\text{lag}}(s) = \frac{1 + \beta T s}{1 + T s}, \quad \beta \lt 1 \quad \left(\text{hoặc } \frac{s + 1/T}{s + 1/(\gamma T)}, \gamma \gt 1\right)$$
+        <p>Bộ trễ pha đặt cặp zero-cực ở dải tần số rất thấp ($\omega \ll \omega_{gc}$) để không làm suy giảm góc pha tại tần số cắt biên độ, tương đương với khâu tỷ lệ tích phân (PI).</p>
+
+        <h4>3. Bộ Hiệu Chỉnh Sớm-Trễ Pha (Lag-Lead Compensator)</h4>
+        <p>Kết hợp đồng thời tầng trễ pha ở tần số thấp (đạt $K_v$ cao, loại bỏ sai số xác lập) và tầng sớm pha tại dải tần cắt (tăng $PM$ và dải thông $\omega_{gc}$), mang lại hiệu năng tối ưu toàn diện cho các hệ thống servo khắt khe.</p>
+
+        <h3>Kiến Trúc Thực Thi Trong Điều Khiển Servo Công Nghiệp & ROS 2</h3>
+        <p>Trong các biến tần servo số hiện đại (như Beckhoff AX5000, Yaskawa Sigma-7) kết nối mạng EtherCAT chu kỳ $1\text{ ms}$ hoặc $250\ \mu\text{s}$, bộ hiệu chỉnh miền tần số được số hóa bằng biến đổi song tuyến Tustin $s \approx \frac{2}{T_s}\frac{z-1}{z+1}$ kết hợp với các bộ lọc triệt cộng hưởng cơ khí (Biquad Notch Filter):</p>
+        $$H_{\text{notch}}(s) = \frac{s^2 + 2\zeta_z \omega_n s + \omega_n^2}{s^2 + 2\zeta_p \omega_n s + \omega_n^2}, \quad \zeta_z \ll \zeta_p$$
+        <p>Bộ lọc Notch triệt tiêu chính xác đỉnh nhọn biên độ tại tần số cộng hưởng xoắn của trục cơ khí $\omega_n$, cho phép kỹ sư đẩy độ lợi vòng lặp lên mức cực đại mà không kích thích rung lắc cơ khí.</p>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Bộ Hiệu Chỉnh Sớm Pha (Lead Compensator) Cho Hệ Thống Servo Băng Tải Vi Mạch</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một hệ thống truyền động servo băng tải cấp phôi tự động trong dây chuyền đóng gói vi mạch thông minh được dẫn động bởi động cơ DC không chổi than (BLDC). Hàm truyền vòng hở chưa hiệu chỉnh của hệ thống đo được từ dữ liệu thực nghiệm là:
+$$G(s) = \frac{40}{s(s + 2)}$$
+Yêu cầu kỹ thuật điều khiển khắt khe của dây chuyền 4IR:
+<ol>
+  <li>Hệ số sai số vận tốc xác lập phải thỏa mãn $K_v \ge 20\text{ s}^{-1}$ để đảm bảo sai số bám vận tốc khi phôi di chuyển $e_{ss} \le 5\%$.</li>
+  <li>Độ dự trữ pha của hệ thống vòng kín sau hiệu chỉnh phải đạt $PM \ge 50^\circ$ nhằm đảm bảo độ vọt lố $M_p \le 16\%$.</li>
+  <li>Tần số cắt biên độ $\omega_{gc}$ mong muốn đạt trong khoảng $8 \sim 10\text{ rad/s}$ để rút ngắn thời gian quá độ $t_s \le 0.5\text{ s}$.</li>
+</ol>
+Hãy thiết kế bộ hiệu chỉnh sớm pha $C_{\text{lead}}(s) = \frac{1 + \alpha T s}{1 + T s}$ để thỏa mãn toàn bộ các chỉ tiêu kỹ thuật trên.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích đặc tính tần số ban đầu và kiểm tra sai số xác lập:<br>
+Hệ số sai số vận tốc xác lập ban đầu của đối tượng:<br>
+$$K_{v0} = \lim_{s\to 0} s G(s) = \lim_{s\to 0} \frac{40}{s + 2} = \frac{40}{2} = 20\text{ s}^{-1}$$
+Vì $K_{v0} = 20\text{ s}^{-1} \ge 20\text{ s}^{-1}$, yêu cầu sai số xác lập đã được thỏa mãn chính xác mà không cần tăng thêm độ lợi tĩnh ở tần số thấp (chọn độ lợi DC của bộ bù $K_c = 1$).<br>
+Xác định tần số cắt biên độ ban đầu $\omega_{gc0}$ bằng cách giải điều kiện $|G(j\omega)| = 1$ ($0\text{ dB}$):<br>
+$$|G(j\omega)| = \frac{40}{\omega\sqrt{\omega^2 + 2^2}} = 1 \implies \omega^2(\omega^2 + 4) = 40^2 = 1600$$
+$$\omega^4 + 4\omega^2 - 1600 = 0$$
+Đặt $X = \omega^2 \gt 0$, giải phương trình bậc hai:<br>
+$$X = \frac{-4 + \sqrt{4^2 - 4(1)(-1600)}}{2} = \frac{-4 + \sqrt{16 + 6400}}{2} = \frac{-4 + \sqrt{6416}}{2} \approx \frac{-4 + 80.100}{2} = 38.050$$
+Suy ra tần số cắt biên độ ban đầu:<br>
+$$\omega_{gc0} = \sqrt{38.050} \approx 6.168\text{ rad/s}$$
+Tính góc pha của hàm truyền hở tại tần số $\omega_{gc0}$:<br>
+$$\phi_0 = \angle G(j 6.168) = -90^\circ - \arctan\left(\frac{6.168}{2}\right) = -90^\circ - \arctan(3.084) = -90^\circ - 72.04^\circ = -162.04^\circ$$
+Độ dự trữ pha ban đầu của hệ thống:<br>
+$$PM_0 = 180^\circ + \phi_0 = 180^\circ - 162.04^\circ = 17.96^\circ \approx 18.0^\circ$$
+Nhận xét: Độ dự trữ pha $18.0^\circ$ quá nhỏ, hệ thống kém ổn định và dao động rất dữ dội (độ vọt lố lên tới hơn $55\%$), không thể đáp ứng tiêu chuẩn sản xuất vi mạch.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định độ bù pha cực đại cần thiết $\phi_m$ và tính toán tỷ số $\alpha$:<br>
+Chỉ tiêu yêu cầu $PM_{\text{req}} \ge 50^\circ$. Khi đưa bộ hiệu chỉnh sớm pha vào, điểm cắt biên độ mới $\omega_{gc}'$ sẽ bị dịch chuyển sang phải (tần số cao hơn), làm cho góc pha của hệ ban đầu giảm thêm một lượng nhỏ. Do đó, ta cần bổ sung thêm một lượng biên an toàn dự phòng $\theta_{\text{margin}} = 6^\circ$:<br>
+$$\phi_m = PM_{\text{req}} - PM_0 + \theta_{\text{margin}} = 50^\circ - 17.96^\circ + 6^\circ = 38.04^\circ \approx 38^\circ$$
+Áp dụng công thức giải tích cho góc pha sớm cực đại của khâu Lead:<br>
+$$\sin(\phi_m) = \sin(38^\circ) \approx 0.61566$$
+Từ đó suy ra hệ số sớm pha $\alpha$:<br>
+$$\alpha = \frac{1 + \sin(\phi_m)}{1 - \sin(\phi_m)} = \frac{1 + 0.61566}{1 - 0.61566} = \frac{1.61566}{0.38434} \approx 4.204 \approx 4.20$$
+Hệ số khuếch đại biên độ do bộ hiệu chỉnh tạo ra tại tần số pha cực đại $\omega_m$ là:<br>
+$$|C_{\text{lead}}(j\omega_m)|_{\text{dB}} = 10\log_{10}(\alpha) = 10\log_{10}(4.204) \approx 6.237\text{ dB}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định tần số cực đại $\omega_m$, hằng số thời gian $T$, zero và cực của bộ bù:<br>
+Để tần số $\omega_m$ trở thành tần số cắt biên độ mới của toàn hệ thống vòng hở ($|C(j\omega_m)G(j\omega_m)| = 1$), hàm truyền gốc $G(j\omega)$ tại tần số đó phải có độ lớn bù trừ đúng bằng $-6.237\text{ dB}$, tức $|G(j\omega_m)| = 1/\sqrt{\alpha} = 1/\sqrt{4.204} \approx 0.4877$:<br>
+$$|G(j\omega_m)| = \frac{40}{\omega_m \sqrt{\omega_m^2 + 4}} = 0.4877 \implies \omega_m \sqrt{\omega_m^2 + 4} = \frac{40}{0.4877} \approx 82.018$$
+Bình phương hai vế để tìm $\omega_m$:<br>
+$$\omega_m^2(\omega_m^2 + 4) = 82.018^2 \approx 6727 \implies \omega_m^4 + 4\omega_m^2 - 6727 = 0$$
+Giải phương trình bậc hai theo $Y = \omega_m^2 \gt 0$:<br>
+$$Y = \frac{-4 + \sqrt{16 + 4(6727)}}{2} = \frac{-4 + \sqrt{16 + 26908}}{2} = \frac{-4 + \sqrt{26924}}{2} \approx \frac{-4 + 164.085}{2} = 80.043$$
+Suy ra tần số cắt biên độ mới:<br>
+$$\omega_m = \sqrt{80.043} \approx 8.947\text{ rad/s}$$
+Tần số này hoàn toàn nằm trong dải mục tiêu thiết kế $8 \sim 10\text{ rad/s}$!<br>
+Tính hằng số thời gian $T$ của bộ hiệu chỉnh:<br>
+$$T = \frac{1}{\omega_m \sqrt{\alpha}} = \frac{1}{8.947 \cdot \sqrt{4.204}} = \frac{1}{8.947 \cdot 2.0504} = \frac{1}{18.345} \approx 0.05451\text{ s}$$
+Từ đó tính được chính xác tọa độ zero và cực của bộ lọc Lead:<br>
+$$z_c = \frac{1}{\alpha T} = \frac{1}{4.204 \cdot 0.05451} = \frac{1}{0.22916} \approx 4.364\text{ rad/s}$$
+$$p_c = \frac{1}{T} = \frac{1}{0.05451} \approx 18.345\text{ rad/s}$$
+Hàm truyền hoàn chỉnh của bộ hiệu chỉnh sớm pha được thiết kế:<br>
+$$C_{\text{lead}}(s) = \frac{1 + 0.2292 s}{1 + 0.0545 s} = 4.204 \frac{s + 4.364}{s + 18.345}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm chứng độ dự trữ pha thực tế và biện luận động học servo:<br>
+Tính toán chính xác góc pha của hệ thống hở mới $L(s) = C_{\text{lead}}(s)G(s)$ tại tần số cắt $\omega_m = 8.947\text{ rad/s}$:<br>
+$$\angle L(j 8.947) = \angle G(j 8.947) + \angle C_{\text{lead}}(j 8.947)$$
+$$\angle G(j 8.947) = -90^\circ - \arctan\left(\frac{8.947}{2}\right) = -90^\circ - \arctan(4.4735) = -90^\circ - 77.40^\circ = -167.40^\circ$$
+$$\angle C_{\text{lead}}(j 8.947) = \arctan(0.2292 \cdot 8.947) - \arctan(0.0545 \cdot 8.947) = \arctan(2.0506) - \arctan(0.4876) = 64.00^\circ - 26.00^\circ = 38.00^\circ$$
+Góc pha tổng cộng của hệ hở tại tần số cắt mới:<br>
+$$\angle L(j 8.947) = -167.40^\circ + 38.00^\circ = -129.40^\circ$$
+Độ dự trữ pha thực tế đạt được:<br>
+$$PM = 180^\circ + (-129.40^\circ) = 50.60^\circ \ge 50^\circ \quad (\text{Thỏa mãn hoàn hảo chỉ tiêu!})$$
+Biện luận chất lượng công nghiệp 4IR:<br>
+1. Tần số cắt biên độ tăng từ $6.17\text{ rad/s}$ lên $8.95\text{ rad/s}$ làm dải thông hệ kín mở rộng thêm $45\%$, rút ngắn thời gian đáp ứng quá độ từ $1.8\text{ s}$ xuống còn $t_s \approx \frac{4}{\zeta \omega_n} \approx 0.45\text{ s}$.<br>
+2. Độ dự trữ pha tăng vọt từ $18^\circ$ lên $50.6^\circ$ tương ứng với hệ số tắt dần tương đương $\zeta \approx 0.52$, kéo giảm độ vọt lố từ $55\%$ xuống dưới $15\%$, đảm bảo phôi vi mạch chuyển động êm ái, hoàn toàn triệt tiêu nguy cơ rung chấn gãy nứt cơ học trên băng chuyền.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Bộ hiệu chỉnh sớm pha Lead Compensator đã nâng độ dự trữ pha PM từ 18.0° lên 50.60° và tăng tần số cắt biên độ lên 8.95 rad/s, thỏa mãn xuất sắc mọi chỉ tiêu công nghiệp 4.0 theo Mutambara (2024).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Biểu Đồ Bode & Quỹ Đạo Cực Nyquist Tương Tác Với Điểm Găng (-1, j0)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-06" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim06()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim06()">Thiết lập lại</button>
+        <label class="sim-label">Hệ số khuếch đại $K$: <input type="range" id="sim06-k" min="0.5" max="25" step="0.5" value="5.0" onchange="updateSim06Params()"></label>
+        <label class="sim-label">Hệ số tắt dần $\zeta$: <input type="range" id="sim06-zeta" min="0.05" max="1.5" step="0.05" value="0.45" onchange="updateSim06Params()"></label>
+        <label class="sim-label">Tần số riêng $\omega_n$: <input type="range" id="sim06-wn" min="1.0" max="10.0" step="0.5" value="4.0" onchange="updateSim06Params()"></label>
+        <label class="sim-label">Chế độ hiển thị:
+          <select id="sim06-view" onchange="updateSim06View()">
+            <option value="both">Song song Bode & Nyquist</option>
+            <option value="bode">Chuyên sâu Biểu đồ Bode</option>
+            <option value="nyquist">Chuyên sâu Biểu đồ Nyquist</option>
+          </select>
+        </label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim06-stats" class="sim-telemetry-text">Tần số cắt biên độ $\omega_{gc}$: 2.85 rad/s | Độ dự trữ pha (PM): +48.2° | Tần số cắt pha $\omega_{pc}$: 6.12 rad/s | Độ dự trữ biên (GM): +14.5 dB | Hệ thống: Ổn định bền vững</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// ============================================================================
+// C++20 Frequency Domain Analysis &amp; Lead/Lag Loop Shaping Engine
+// High-Performance Implementation for Industry 4.0 Real-Time Control
+// ============================================================================
+
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;complex&gt;
+#include &lt;cmath&gt;
+#include &lt;numbers&gt;
+#include &lt;iomanip&gt;
+
+class FrequencyResponseAnalyzer {
+public:
+    using Complex = std::complex&lt;double&gt;;
+
+    struct Margins {
+        double w_gc{0.0};     // Gain crossover frequency (rad/s)
+        double pm_deg{0.0};   // Phase margin (degrees)
+        double w_pc{0.0};     // Phase crossover frequency (rad/s)
+        double gm_db{0.0};    // Gain margin (dB)
+        bool is_stable{false};
+    };
+
+    // Plant: G(s) = K / (s * (s + a))
+    FrequencyResponseAnalyzer(double K, double a) : K_(K), a_(a) {}
+
+    // Evaluate open-loop frequency response G(j*w)
+    [[nodiscard]] Complex evaluate(double w) const {
+        if (w &lt;= 0.0) return {0.0, 0.0};
+        Complex s(0.0, w);
+        Complex den = s * (s + a_);
+        return K_ / den;
+    }
+
+    // Evaluate Lead Compensator: C(s) = (1 + alpha * T * s) / (1 + T * s)
+    [[nodiscard]] static Complex evaluateLead(Complex s, double alpha, double T) {
+        return (1.0 + alpha * T * s) / (1.0 + T * s);
+    }
+
+    // Compute Gain and Phase Margins via frequency sweep
+    [[nodiscard]] Margins computeStabilityMargins(double alpha = 1.0, double T = 0.0) const {
+        Margins res;
+        constexpr double w_start = 0.01;
+        constexpr double w_end = 100.0;
+        constexpr int steps = 5000;
+        const double factor = std::pow(w_end / w_start, 1.0 / steps);
+
+        double w = w_start;
+        double prev_mag_db = 0.0;
+        double prev_phase_deg = 0.0;
+        double prev_w = w;
+
+        for (int i = 0; i &lt;= steps; ++i) {
+            Complex s(0.0, w);
+            Complex L = evaluate(w);
+            if (alpha &gt; 1.0 &amp;&amp; T &gt; 0.0) {
+                L *= evaluateLead(s, alpha, T);
+            }
+
+            double mag = std::abs(L);
+            double mag_db = 20.0 * std::log10(mag);
+            double phase_rad = std::arg(L);
+            double phase_deg = phase_rad * 180.0 / std::numbers::pi;
+            if (phase_deg &gt; 0.0) phase_deg -= 360.0; // Wrap to [-360, 0]
+
+            // Detect Gain Crossover w_gc (magnitude crosses 0 dB)
+            if (i &gt; 0 &amp;&amp; prev_mag_db &gt; 0.0 &amp;&amp; mag_db &lt;= 0.0) {
+                double frac = (0.0 - prev_mag_db) / (mag_db - prev_mag_db);
+                res.w_gc = prev_w + frac * (w - prev_w);
+                double p_cross = prev_phase_deg + frac * (phase_deg - prev_phase_deg);
+                res.pm_deg = 180.0 + p_cross;
+            }
+
+            // Detect Phase Crossover w_pc (phase crosses -180 deg)
+            if (i &gt; 0 &amp;&amp; prev_phase_deg &gt; -180.0 &amp;&amp; phase_deg &lt;= -180.0) {
+                double frac = (-180.0 - prev_phase_deg) / (phase_deg - prev_phase_deg);
+                res.w_pc = prev_w + frac * (w - prev_w);
+                double m_cross = prev_mag_db + frac * (mag_db - prev_mag_db);
+                res.gm_db = -m_cross;
+            }
+
+            prev_mag_db = mag_db;
+            prev_phase_deg = phase_deg;
+            prev_w = w;
+            w *= factor;
+        }
+
+        res.is_stable = (res.pm_deg &gt; 0.0 &amp;&amp; res.gm_db &gt; 0.0);
+        return res;
+    }
+
+private:
+    double K_{40.0};
+    double a_{2.0};
+};
+
+int main() {
+    std::cout &lt;&lt; &quot;=== BODE &amp; NYQUIST FREQUENCY DOMAIN DESIGN (MUTAMBARA 2024) ===\n&quot;;
+    FrequencyResponseAnalyzer system(40.0, 2.0);
+
+    // 1. Uncompensated Plant
+    auto uncomp = system.computeStabilityMargins();
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(2);
+    std::cout &lt;&lt; &quot;[Uncompensated Plant G(s) = 40 / (s*(s+2))]:\n&quot;;
+    std::cout &lt;&lt; &quot;  w_gc: &quot; &lt;&lt; uncomp.w_gc &lt;&lt; &quot; rad/s | Phase Margin (PM): &quot; &lt;&lt; uncomp.pm_deg &lt;&lt; &quot; deg\n&quot;;
+    std::cout &lt;&lt; &quot;  w_pc: &quot; &lt;&lt; uncomp.w_pc &lt;&lt; &quot; rad/s | Gain Margin (GM):  &quot; &lt;&lt; uncomp.gm_db &lt;&lt; &quot; dB\n&quot;;
+
+    // 2. Lead Compensated System: alpha = 4.204, T = 0.05451 s
+    constexpr double alpha = 4.204;
+    constexpr double T = 0.05451;
+    auto comp = system.computeStabilityMargins(alpha, T);
+    std::cout &lt;&lt; &quot;\n[Lead-Compensated System L(s) = C_lead(s)*G(s)]:\n&quot;;
+    std::cout &lt;&lt; &quot;  w_gc: &quot; &lt;&lt; comp.w_gc &lt;&lt; &quot; rad/s | Phase Margin (PM): &quot; &lt;&lt; comp.pm_deg &lt;&lt; &quot; deg\n&quot;;
+    std::cout &lt;&lt; &quot;  Status: &quot; &lt;&lt; (comp.is_stable ? &quot;STABLE &amp; ROBUST&quot; : &quot;UNSTABLE&quot;) &lt;&lt; &quot;\n&quot;;
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Đặc tính tần số G(jω) thể hiện đáp ứng biên độ và dịch pha của hệ LTI với kích thích điều hòa; có thể nhận diện trực tiếp bằng đo đạc thực nghiệm mà không cần phương trình vi phân mô hình.</li><li>Biểu đồ Bode sử dụng thang Decibel và logarit, phân rã hàm truyền thành 4 nhóm nhân tử cơ bản, biến phép nhân hàm truyền phức thành phép cộng hình học trực quan.</li><li>Khâu trễ thời gian e^(-sτ) giữ nguyên biên độ 0 dB nhưng gây sụt giảm pha tỷ lệ tuyến tính với tần số, là nguyên nhân hàng đầu gây mất ổn định trong mạng truyền thông công nghiệp.</li><li>Tiêu chuẩn ổn định Nyquist dựa trên nguyên lý góc quay Cauchy Z = N + P xác định chính xác tính ổn định vòng kín, áp dụng được cho cả hệ hở bất ổn định và hệ có trễ.</li><li>Bộ hiệu chỉnh sớm pha (Lead) nâng cao độ dự trữ pha PM và mở rộng dải thông; bộ trễ pha (Lag) triệt tiêu sai số xác lập; kết hợp sớm-trễ pha đem lại chất lượng tối ưu toàn diện.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 6.1: Phân tích ổn định Nyquist và độ dự trữ cho hệ có trễ thời gian thuần túy</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một hệ thống gia nhiệt sấy khô bản mạch in (PCB) được mô hình hóa bởi hàm truyền quán tính bậc nhất có khâu trễ thời gian thuần túy:
+$$G(s) = \frac{2 e^{-0.2 s}}{s + 1}$$
+Hệ thống sử dụng phản hồi âm đơn vị ($H(s) = 1$).
+<ol>
+  <li>Xác định tần số cắt pha $\omega_{pc}$ và tính độ dự trữ biên độ $GM$ (theo hệ số tuyệt đối và dB).</li>
+  <li>Xác định tần số cắt biên độ $\omega_{gc}$ và tính độ dự trữ pha $PM$.</li>
+  <li>Tìm độ trễ thời gian tới hạn $\tau_{\text{crit}}$ mà tại đó hệ thống bước vào ranh giới tự kích mất ổn định.</li>
+</ol></p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Hướng dẫn giải chi tiết:<br>
+1. Tìm $\omega_{pc}$: Điều kiện góc pha $\angle G(j\omega) = -180^\circ$:<br>
+$$\angle G(j\omega) = -\arctan(\omega) - 0.2\omega \cdot \frac{180^\circ}{\pi} = -180^\circ \implies \arctan(\omega) + 11.459^\circ \cdot \omega = 180^\circ$$
+Giải phương trình phi tuyến bằng phương pháp lặp hoặc xấp xỉ ta tìm được $\omega_{pc} \approx 6.81\text{ rad/s}$.<br>
+Tính biên độ tại $\omega_{pc}$: $|G(j\omega_{pc})| = \frac{2}{\sqrt{6.81^2 + 1}} = \frac{2}{\sqrt{47.38}} \approx \frac{2}{6.883} \approx 0.2905$.<br>
+Độ dự trữ biên: $GM = \frac{1}{0.2905} \approx 3.44 \implies GM_{\text{dB}} = 20\log_{10}(3.44) \approx +10.73\text{ dB} \gt 6\text{ dB}$ (đạt an toàn).<br>
+2. Tìm $\omega_{gc}$: Điều kiện biên độ $|G(j\omega)| = 1$:<br>
+$$\frac{2}{\sqrt{\omega^2 + 1}} = 1 \implies \omega^2 + 1 = 4 \implies \omega_{gc} = \sqrt{3} \approx 1.732\text{ rad/s}$$
+Tính góc pha tại $\omega_{gc} = 1.732\text{ rad/s}$:<br>
+$$\angle G(j 1.732) = -\arctan(1.732) - 0.2(1.732)\text{ rad} = -60.0^\circ - 0.3464 \cdot 57.296^\circ = -60.0^\circ - 19.85^\circ = -79.85^\circ$$
+Độ dự trữ pha: $PM = 180^\circ - 79.85^\circ = 100.15^\circ \gt 50^\circ$ (hệ thống rất ổn định ở dải tần này).<br>
+3. Tìm độ trễ tới hạn $\tau_{\text{crit}}$: Hệ mất ổn định khi tại $\omega_{gc} = \sqrt{3}\text{ rad/s}$, góc pha bị kéo tụt xuống $-180^\circ$ ($PM = 0$):<br>
+$$-60^\circ - \omega_{gc} \tau_{\text{crit}} \cdot \frac{180^\circ}{\pi} = -180^\circ \implies \sqrt{3} \tau_{\text{crit}} = \frac{120^\circ \cdot \pi}{180^\circ} = \frac{2\pi}{3} \approx 2.0944\text{ rad}$$
+$$\tau_{\text{crit}} = \frac{2.0944}{\sqrt{3}} \approx 1.209\text{ s}$$
+Kết luận: Nếu độ trễ mạng hoặc trễ truyền nhiệt tăng vượt quá $1.209\text{ s}$, hệ thống sẽ mất ổn định hoàn toàn.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch05.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 05: Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</span>
+        </a>
+        <a href="ch07.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space) →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim06 === "function") {
+        initSim06();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

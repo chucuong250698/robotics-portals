@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 06: Diffusion Policy &amp; Action Chunking Transformers - Imitation Learning in Robotics</title>
+<meta content="State-of-the-Art Generative Policies in Robot Manipulation" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 3: BIỂU DIỄN ĐỘNG TÁC &amp; DEEP IL</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 06</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-6-1">
+<span class="nav-text">6.1 Giới Hạn MLP &amp; Phân Phối Hành Vi Đa Đỉnh</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-2">
+<span class="nav-text">6.2 Kiến Trúc Denoising Diffusion Probabilistic Models (DDPM)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-3">
+<span class="nav-text">6.3 Action Chunking with Transformers (ACT)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-4">
+<span class="nav-text">6.4 Kỹ Thuật Ghép Quỹ Đạo Temporal Ensembling</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-sim">
+<span class="nav-text">⚡ Mô Phỏng Diffusion Khử Nhiễu Đa Mốt (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Khử Nhiễu Bước k -&gt; k-1</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-bridge">
+<span class="nav-text">🛠️ Cầu Nối PyTorch: Huấn Luyện Diffusion Policy U-Net</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-6-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 3: BIỂU DIỄN ĐỘNG TÁC &amp; DEEP IL • CHƯƠNG 06</div>
+<h1 class="chapter-title">Diffusion Policy &amp; Action Chunking Transformers</h1>
+<p class="chapter-subtitle">State-of-the-Art Generative Policies in Robot Manipulation</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Carlos Celemin et al. (FnT Robotics 2022) &amp; Zare et al. (IEEE 2023)</strong></span>
+</div>
+</div>
+<!-- 6.1 -->
+<h2 id="sec-6-1">6.1 Giới Hạn Của MLP Truyền Thống &amp; Phân Phối Hành Vi Đa Đỉnh (Multimodal Action Distributions)</h2>
+<p>Trong suốt nhiều năm, các mô hình Behavioral Cloning sử dụng mạng nơ-ron truyền thẳng (Multi-Layer Perceptrons - MLP) tối ưu hóa bằng hàm mất mát sai số toàn phương trung bình (Mean Squared Error - MSE):</p>
+        $$\mathcal{L}_{MSE}(\theta) = \mathbb{E}_{(s, a) \sim \mathcal{D}_E} \left[ \| \pi_\theta(s) - a \|^2 \right]$$
+        <p>Hàm mất mát này mang một giả định ngầm cực kỳ nguy hiểm: phân phối hành động có điều kiện $p(a \mid s)$ tuân theo phân phối chuẩn đơn mốt (Unimodal Gaussian). Khi đối mặt với tác vụ đa mốt (Multimodal), trong đó con người có nhiều phương án hành động đều đúng (ví dụ: vòng tránh vật cản sang bên trái HOẶC bên phải), MLP tối ưu bằng MSE sẽ cho ra kết quả trung bình cộng:</p>
+        $$a_{\text{MLP}} = \frac{a_{\text{left}} + a_{\text{right}}}{2} = a_{\text{va chạm}}$$
+        <p>Kết quả là robot lao thẳng vào vật cản! Đây chính là điểm tắc nghẽn lớn nhất khiến robot không thể thực hiện các thao tác khéo léo trong thế giới thực.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 DIFFUSION POLICY &amp; ACT GIẢI QUYẾT BÀI TOÁN NÀY NHƯ THẾ NÀO?</div>
+<div class="why-matters-body">
+            Đột phá xuất hiện vào giai đoạn 2023 - 2024 với hai kiến trúc SOTA:
+            <br/>1. <strong>Diffusion Policy (Cheng Chi et al., Columbia / TRI):</strong> Thay vì dự đoán trực tiếp hành động, mạng học cách khử nhiễu dần dần một vector nhiễu ngẫu nhiên Gaussian thành quỹ đạo hành vi hợp lệ, dễ dàng biểu diễn phân phối đa mốt tùy ý mà không bị trung bình hóa.
+            <br/>2. <strong>Action Chunking with Transformers - ACT (Tony Zhao et al., Stanford / ALOHA):</strong> Dự đoán đồng thời một chuỗi khối hành động tương lai (Action Chunks) thay vì từng bước riêng lẻ, kết hợp bộ mã hóa biến thiên C-VAE và Temporal Ensembling để động tác đạt độ mượt mà cấp độ con người.
+          </div>
+</div>
+<!-- 6.2 -->
+<h2 id="sec-6-2">6.2 Kiến Trúc Denoising Diffusion Probabilistic Models (DDPM) Cho Robot Manipulation</h2>
+<p>Diffusion Policy xây dựng quy trình sinh hành động gồm hai chiều:</p>
+<div class="formula-hero">
+<div class="formula-title">1. Quá Trình Khuếch Tán Thuận (Forward Diffusion Process)</div>
+<div class="formula-math">
+            $$q(A^k \mid A^0) = \mathcal{N}\left(A^k; \sqrt{\bar{\alpha}_k} A^0, (1 - \bar{\alpha}_k) \mathbf{I}\right)$$
+          </div>
+<div class="formula-legend">
+<strong>Ý nghĩa:</strong> Thêm nhiễu Gauss tăng dần vào chuỗi hành động chuyên gia $A^0$ qua $K$ bước khuếch tán. Khi $k = K$, $A^K \sim \mathcal{N}(0, \mathbf{I})$ trở thành nhiễu trắng thuần túy.
+          </div>
+</div>
+<div class="formula-hero" style="margin-top: 1.5rem;">
+<div class="formula-title">2. Quá Trình Khử Nhiễu Ngược (Reverse Denoising Process) Có Điều Kiện Quan Sát $O_t$</div>
+<div class="formula-math">
+            $$p_\theta(A^{k-1} \mid A^k, O_t) = \mathcal{N}\left(A^{k-1}; \mu_\theta(A^k, k, O_t), \sigma_k^2 \mathbf{I}\right)$$
+          </div>
+<div class="formula-legend">
+<strong>Trong đó:</strong> Mạng nơ-ron U-Net 1D hoặc Transformer $\epsilon_\theta(A^k, k, O_t)$ học cách dự đoán vector nhiễu $\epsilon$ đã được thêm vào ở bước $k$, với điều kiện đầu vào là chuỗi quan sát thị giác $O_t$:
+            $$\mathcal{L}_{\text{Diffusion}}(\theta) = \mathbb{E}_{k, A^0, \epsilon} \left[ \| \epsilon - \epsilon_\theta(\sqrt{\bar{\alpha}_k} A^0 + \sqrt{1 - \bar{\alpha}_k} \epsilon, k, O_t) \|^2 \right]$$
+          </div>
+</div>
+<!-- 6.3 -->
+<h2 id="sec-6-3">6.3 Action Chunking With Transformers (ACT) &amp; Conditional VAE</h2>
+<p>Thay vì sinh hành động từng bước thời gian $a_t = \pi(s_t)$, ACT dự đoán một khối gồm $H$ hành động liên tiếp trong tương lai:</p>
+        $$A_t = [a_t, a_{t+1}, \dots, a_{t+H-1}] \in \mathbb{R}^{H \times d_a}$$
+        <p>Việc nhóm hành động (Action Chunking) mang lại 3 ưu điểm vượt trội:
+        <br/>• Triệt tiêu sai số tích lũy Covariate Shift vì số lần robot phải quyết định giảm đi $H$ lần.
+        <br/>• Khắc phục hiện tượng trễ truyền thông và độ trễ suy luận của mạng nơ-ron sâu.
+        <br/>• Cho phép robot tự điều hòa động học nội tại giữa các bước để đảm bảo gia tốc và lực giật (Jerk) êm dịu.</p>
+<!-- 6.4 -->
+<h2 id="sec-6-4">6.4 Kỹ Thuật Ghép Quỹ Đạo Temporal Ensembling Chống Rung Giật</h2>
+<p>Tại mỗi bước thời gian $t$, robot thực hiện truy vấn mạng ACT để lấy ra một khối mới $A_t$. Như vậy, tại thời điểm hiện tại sẽ có sự trùng lặp của $H$ dự đoán khác nhau đến từ các thời điểm $t-H+1, \dots, t$. Kỹ thuật <strong>Temporal Ensembling</strong> tổng hợp hành động thực thi bằng trọng số hàm mũ:</p>
+        $$a_t = \sum_{i=0}^{\min(t, H-1)} w_i A_{t-i}[i], \quad w_i = \frac{\exp(-m \cdot i)}{\sum_j \exp(-m \cdot j)}$$
+        <p>Hệ số $m \gt 0$ gán trọng số cao hơn cho các dự đoán mới nhất. Kỹ thuật này giúp quỹ đạo thực thi mượt như nhung, loại bỏ hiện tượng giật cục tại các mốc phân ranh giới chunk.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-6-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Quy Trình Khử Nhiễu Denoising Sinh Hành Động Đa Mốt</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-06" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Bước khử nhiễu $k$ (Khuếch tán ngược): <input id="sim06-step" max="16" min="0" step="1" type="range" value="10"/> <span id="sim06-step-val">Bước khử nhiễu: k = 10 / 16</span></label>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-6-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Một Bước Khử Nhiễu DDPM Lấy Mẫu Hành Động Khớp $a^{k-1}$ Từ $a^k$</h3>
+</div>
+<div class="exercise-statement">
+<p>Xét một bậc tự do tay gắp với hành động $a \in [-1.0, 1.0]$. Tại bước khử nhiễu $k = 5$, tham số lịch trình nhiễu là $\beta_5 = 0.1$, $\alpha_5 = 1 - \beta_5 = 0.9$, $\bar{\alpha}_5 = 0.65$. Hành động nhiễu hiện tại đo được là $a^5 = 0.82$. Mạng nơ-ron U-Net dự đoán thành phần nhiễu là $\epsilon_\theta(a^5, 5, O_t) = 0.35$. Vector ngẫu nhiên sinh từ phân phối chuẩn tại bước này là $z = 0.12$. Tính giá trị hành động khử nhiễu $a^4$ theo phương trình lấy mẫu DDPM.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập công thức lấy mẫu khử nhiễu ngược DDPM</span>
+</div>
+<div class="step-content">
+<p>Phương trình cập nhật trạng thái hành động từ bước $k$ về $k-1$:</p><p>$$a^{k-1} = \frac{1}{\sqrt{\alpha_k}} \left( a^k - \frac{\beta_k}{\sqrt{1 - \bar{\alpha}_k}} \epsilon_\theta(a^k, k, O_t) \right) + \sigma_k z$$</p><p>với độ lệch chuẩn nhiễu lấy mẫu $\sigma_k = \sqrt{\beta_k} = \sqrt{0.1} \approx 0.3162$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính thành phần hiệu chỉnh dự đoán nhiễu</span>
+</div>
+<div class="step-content">
+<p>• Mẫu số căn bậc hai: $\sqrt{1 - \bar{\alpha}_5} = \sqrt{1 - 0.65} = \sqrt{0.35} \approx 0.5916$</p><p>• Tỷ số trọng số: $\frac{\beta_5}{\sqrt{1 - \bar{\alpha}_5}} = \frac{0.1}{0.5916} \approx 0.1690$</p><p>• Lượng trừ đi: $0.1690 \times \epsilon_\theta = 0.1690 \times 0.35 \approx 0.0592$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính kỳ vọng giá trị trung bình $\mu_\theta$</span>
+</div>
+<div class="step-content">
+<p>• Hiệu số trong ngoặc: $a^5 - 0.0592 = 0.82 - 0.0592 = 0.7608$</p><p>• Nhân với nghịch đảo $\frac{1}{\sqrt{\alpha_5}} = \frac{1}{\sqrt{0.9}} \approx \frac{1}{0.9487} \approx 1.0541$</p><p>• Kỳ vọng trung bình: $\mu_5 = 1.0541 \times 0.7608 \approx 0.8019$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Cộng thành phần nhiễu ngẫu nhiên Langevin &amp; Kết luận</span>
+</div>
+<div class="step-content">
+<p>• Thành phần ngẫu nhiên: $\sigma_5 \times z = 0.3162 \times 0.12 \approx 0.0379$</p><p>• Hành động khử nhiễu: $$a^4 = 0.8019 + 0.0379 = 0.8398$$</p><p>Sau 16 bước lặp khử nhiễu liên tiếp từ $k = 16$ về $k = 0$, mẫu hành động cuối cùng $a^0$ sẽ hội tụ chính xác về một mốt hành vi tối ưu của người làm mẫu.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Diffusion Policy giải quyết triệt để bài toán phân phối đa mốt bằng cách dự đoán trường vector khử nhiễu: Giúp robot đưa ra các chuỗi hành động mượt mà, loại bỏ hiện tượng dao động khi có nhiều phương án tránh vật cản.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-6-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Vòng Lặp Suy Luận Diffusion Policy U-Net 1D (PyTorch)</h4>
+<p>Mã nguồn chuẩn triển khai mạng U-Net 1D khử nhiễu hành động đa chiều cho cánh tay thao tác robot:</p>
+<div class="code-card">
+<div class="code-header">
+<span>diffusion_policy_infer.py (PyTorch / GPU)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import torch
+import torch.nn as nn
+
+class DiffusionPolicyRunner:
+    def __init__(self, model, noise_scheduler, obs_horizon=2, pred_horizon=16, action_dim=7):
+        self.model = model # U-Net 1D Conditional Denoising Network
+        self.scheduler = noise_scheduler
+        self.pred_horizon = pred_horizon
+        self.action_dim = action_dim
+
+    @torch.no_grad()
+    def predict_action_chunk(self, condition_obs):
+        # condition_obs: Tensor [1, obs_horizon, obs_dim]
+        # Khởi tạo chuỗi hành động ngẫu nhiên thuần Gaussian
+        noisy_action = torch.randn((1, self.pred_horizon, self.action_dim), device='cuda')
+        
+        # Vòng lặp khử nhiễu ngược 16 bước
+        for k in reversed(range(len(self.scheduler.timesteps))):
+            t = torch.tensor([k], device='cuda')
+            # Dự đoán vector nhiễu epsilon
+            noise_pred = self.model(noisy_action, t, condition_obs)
+            # Khử nhiễu bước k -&gt; k-1
+            noisy_action = self.scheduler.step(noise_pred, k, noisy_action).prev_sample
+            
+        # Trả về chunk hành động tối ưu [pred_horizon, action_dim]
+        return noisy_action.squeeze(0).cpu().numpy()</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-6-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Ước Lượng Nhiễu Khử Trong Diffusion Policy Bằng Kiến Trúc U-Net 1D</h4>
+</div>
+<div class="practice-statement">
+<p>Trong Diffusion Policy, quá trình khử nhiễu DDPM tại bước khuếch tán $k=200$ (trong tổng $K=1000$ bước) sử dụng mạng U-Net $\epsilon_\theta(a^k, k, s)$ để dự đoán thành phần nhiễu Gaussian đã thêm vào chuỗi hành động chunking $a_t \in \mathbb{R}^{16 \times 2}$. Cho tham số lịch trình nhiễu $\alpha_k = 0.996$, $\bar{\alpha}_k = 0.45$. Hành động nhiễu hiện tại đo được tại một khớp là $a^k = 0.85$, mạng dự đoán nhiễu $\epsilon_\theta = 0.32$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính giá trị hành động ước lượng không nhiễu $\hat{a}^0 = \frac{a^k - \sqrt{1 - \bar{\alpha}_k} \epsilon_\theta}{\sqrt{\bar{\alpha}_k}}$.<br/>2) Tính giá trị hành động lùi bước thời gian $a^{k-1}$ theo công thức DDPM.<br/>3) Giải thích vì sao Diffusion Policy mô hình hóa tốt hơn phân phối đa mốt so với hồi quy Gaussian đơn lẻ.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tính $\hat{a}^0$:<br/>$\sqrt{\bar{\alpha}_k} = \sqrt{0.45} \approx 0.6708$; $\sqrt{1 - \bar{\alpha}_k} = \sqrt{0.55} \approx 0.7416$.<br/>$$\hat{a}^0 = \frac{0.85 - (0.7416 \times 0.32)}{0.6708} = \frac{0.85 - 0.2373}{0.6708} = \frac{0.6127}{0.6708} \approx 0.9134\text{ rad}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Bước lùi DDPM: $a^{k-1} = \frac{1}{\sqrt{\alpha_k}} \left(a^k - \frac{1 - \alpha_k}{\sqrt{1 - \bar{\alpha}_k}} \epsilon_\theta\right) + \sigma_k z$.<br/>Số hạng tiền tố: $\frac{1 - 0.996}{0.7416} \times 0.32 = \frac{0.004}{0.7416} \times 0.32 \approx 0.00539 \times 0.32 \approx 0.00172$.<br/>Kỳ vọng: $\mu_{k-1} = \frac{1}{\sqrt{0.996}} (0.85 - 0.00172) = \frac{0.84828}{0.9980} \approx 0.84998\text{ rad}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Phân phối đa mốt (Multimodal): Khi robot gặp vật cản, có thể tránh trái HOẶC tránh phải. Hồi quy MSE đơn mốt sẽ lấy trung bình cộng hai hướng $\implies$ đi thẳng đâm vào vật cản! Diffusion Policy biểu diễn trường vector gradient điểm (Score Matching), bảo toàn hoàn hảo các cực đại địa phương độc lập mà không bị hiện tượng sụp đổ mode.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch05.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 05: Động Tác Nguyên Mẫu DMPs</span>
+</a>
+<a class="ch-nav-card next" href="ch07.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 07: Học Tăng Cường Nghịch Đảo IRL</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 03: Hành vi Phản xạ &amp; Phương tiện Braitenberg - Elements of Robotics</title>
+<meta content="Vòng lặp Perception-Action, 4 loại xe Braitenberg (Sợ hãi, Hung hăng, Yêu thương, Thám hiểm), thuật toán bám vạch quang và kiến trúc phân tầng Subsumption." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 2: Hành vi Phản xạ &amp; Máy trạng thái</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 03</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-3-1">
+<span class="nav-text">3.1 Vòng lặp Nhận thức - Hành động</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-2">
+<span class="nav-text">3.2 Các Phương tiện Braitenberg Kinh điển</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-braitenberg">
+<span class="nav-text">⚡ Mô phỏng Xe Braitenberg 2D</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-3">
+<span class="nav-text">3.3 Bám Vạch Dẫn Hướng (Line Following)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-4">
+<span class="nav-text">3.4 Trọng tài Hành vi: Kiến trúc Subsumption</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-worked">
+<span class="nav-text">Ví dụ tính số: Bẻ lái xe Braitenberg 2b</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (Behavior Trees)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-3-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 2: HÀNH VI PHẢN XẠ &amp; MÁY TRẠNG THÁI</div>
+<h1>Chương 03: Hành vi Phản xạ &amp; Phương tiện Braitenberg</h1>
+<p class="chapter-subtitle">Vòng lặp Perception-Action, 4 loại xe Braitenberg (Sợ hãi, Hung hăng, Yêu thương, Thám hiểm), thuật toán bám vạch quang và kiến trúc phân tầng Subsumption.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 3.1 -->
+<h4 id="sec-3-1">3.1 Vòng lặp Nhận thức - Hành động (Perception-Action Loop)</h4>
+<p>Hành vi phản xạ (Reactive Behavior) là mô hình điều khiển trực tiếp nối tín hiệu cảm biến tới cơ cấu chấp hành mà không thông qua mô hình biểu diễn thế giới phức tạp. Ưu điểm vượt trội là độ trễ gần như bằng 0, cho phép robot phản ứng tức thì với các mối nguy hiểm cận kề.</p>
+<!-- Mục 3.2 -->
+<h4 id="sec-3-2">3.2 Các Phương tiện Braitenberg (Braitenberg Vehicles)</h4>
+<p>Năm 1984, nhà thần kinh học Valentino Braitenberg đề xuất một thí nghiệm tư duy nổi tiếng: bằng cách thay đổi cấu hình kết nối dây điện giữa cảm biến ánh sáng và động cơ bánh xe, những cỗ máy đơn giản nhất có thể biểu lộ các "cảm xúc" phức tạp như sinh vật sống:</p>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ 4 loại xe Braitenberg: Sợ hãi, Hung hăng, Yêu thương, Thám hiểm" src="../assets/images/braitenberg.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 3.1:</strong> Sơ đồ cấu tạo 4 phương tiện Braitenberg. Đường nét liền biểu thị liên kết kích thích (Excitatory); đường nét đứt biểu thị liên kết ức chế (Inhibitory).
+              </div>
+</div>
+<ul>
+<li><strong>Xe 2a - Sợ hãi (Fear):</strong> Kết nối thẳng cùng bên (Ipsilateral Excitatory). Cảm biến trái kích thích motor trái; cảm biến phải kích thích motor phải. Khi nguồn sáng ở bên phải, motor phải quay nhanh hơn đẩy robot rẽ ngoặt sang trái trốn chạy khỏi nguồn sáng.</li>
+<li><strong>Xe 2b - Hung hăng (Aggression):</strong> Kết nối chéo (Contralateral Excitatory). Cảm biến trái kích thích motor phải; cảm biến phải kích thích motor trái. Khi nguồn sáng ở bên phải, motor trái quay nhanh hơn đẩy robot hướng thẳng đầu và lao vọt về phía nguồn sáng.</li>
+<li><strong>Xe 3a - Yêu thương (Love):</strong> Kết nối thẳng ức chế (Ipsilateral Inhibitory). Ánh sáng làm giảm tốc motor cùng phía. Robot tiến dần về nguồn sáng, giảm tốc độ và dừng lại âu yếm trước ngọn đèn.</li>
+<li><strong>Xe 3b - Thám hiểm (Explorer):</strong> Kết nối chéo ức chế (Contralateral Inhibitory). Robot giảm tốc độ motor đối diện khi tới gần ánh sáng, lách qua nguồn sáng và tiếp tục hành trình khám phá không gian mới.</li>
+</ul>
+<!-- SIMULATOR CONTAINER: BRAITENBERG -->
+<div class="simulator-wrapper" id="sim-braitenberg">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 02: PHƯƠNG TIỆN PHẢN XẠ 2D BRAITENBERG</span>
+</div>
+<span class="sim-badge">Interactive Light Attraction</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="300" id="braitenberg-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item" style="flex: 2;">
+<span class="telemetry-label">HÀNH VI HIỆN TẠI:</span>
+<span class="telemetry-val" id="bv-desc">Xe 2a: Sợ hãi (Ipsilateral Excitatory) - Tránh xa ánh sáng</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Chọn Loại Xe Braitenberg:</label>
+<select class="control-select" id="bv-type">
+<option value="2a">Xe 2a: Sợ hãi (Fear - Nối thẳng kích thích)</option>
+<option selected="" value="2b">Xe 2b: Hung hăng (Aggression - Nối chéo kích thích)</option>
+<option value="3a">Xe 3a: Yêu thương (Love - Nối thẳng ức chế)</option>
+<option value="3b">Xe 3b: Thám hiểm (Explorer - Nối chéo ức chế)</option>
+</select>
+</div>
+<div class="control-group" style="flex: 0 0 auto;">
+<button class="control-btn secondary" id="bv-reset">Đặt lại vị trí</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Mục 3.3 & 3.4 -->
+<h4 id="sec-3-3">3.3 Bám Vạch Dẫn Hướng (Line Following) &amp; Bộ điều khiển Ngưỡng</h4>
+<p>Hành vi bám đường sử dụng cặp cảm biến quang trở đo độ phản xạ mặt sàn (nền sáng phản xạ cao, vạch đen phản xạ thấp). Thuật toán cơ bản áp dụng điều khiển phân ngưỡng (Bang-Bang Control):</p>
+<p>$$v_l = v_0 - K \cdot (s_l - s_r), \quad v_r = v_0 + K \cdot (s_l - s_r)$$</p>
+<p>Nếu sai lệch vượt ngưỡng, một bánh xe dừng hẳn hoặc quay ngược chiều để đưa vạch đen trở lại vị trí trung tâm.</p>
+<h4 id="sec-3-4">3.4 Trọng tài Hành vi: Kiến trúc Phân tầng Subsumption của Rodney Brooks</h4>
+<p>Khi robot có nhiều hành vi xung đột (ví dụ: vừa muốn bám vạch tiến tới, vừa phát hiện vật cản cần tránh), kiến trúc Subsumption tổ chức các hành vi thành các tầng ưu tiên (Layers). Tầng cao hơn (Tránh va chạm) có quyền <strong>triệt tiêu (Suppress)</strong> hoặc <strong>ghi đè (Inhibit)</strong> tín hiệu điều khiển của tầng thấp hơn (Tiến tới mục tiêu).</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-3-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 TÍNH TOÁN QUỸ ĐẠO BẺ LÁI CỦA XE BRAITENBERG 2B</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Xe Braitenberg 2b (Hung hăng) có khoảng cách 2 bánh xe $b = 12\text{ cm}$. Hai cảm biến ánh sáng đặt ở góc trước cách nhau $w = 10\text{ cm}$. Nguồn sáng phát cường độ $I_0 = 1000\text{ lux}$. Robot nhận tín hiệu ánh sáng $s_l = 400\text{ lux}$ ở cảm biến trái và $s_r = 750\text{ lux}$ ở cảm biến phải. Hệ số chuyển đổi vận tốc motor là $k = 0.05\text{ (m/s)/lux}$. Hãy tính vận tốc góc bẻ lái $\omega$ của robot.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Xác Định Luật Nối Dây Xe 2b</span>
+</div>
+<div class="step-content">
+<p>Xe 2b nối chéo kích thích: cảm biến trái điều khiển bánh phải, cảm biến phải điều khiển bánh trái:<br/>
+                  $v_r = k \cdot s_l$, $\quad v_l = k \cdot s_r$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Vận Tốc Dài 2 Bánh Xe</span>
+</div>
+<div class="step-content">
+<p>$v_l = 0.05 \times 750 \times 10^{-3} = 0.0375\text{ m/s} = 3.75\text{ cm/s}$<br/>
+                  $v_r = 0.05 \times 400 \times 10^{-3} = 0.0200\text{ m/s} = 2.00\text{ cm/s}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Vận Tốc Góc Bẻ Lái $\omega$</span>
+</div>
+<div class="step-content">
+<p>Áp dụng động học vi sai:<br/>
+                  $\omega = \frac{v_r - v_l}{b} = \frac{0.0200 - 0.0375}{0.12} = \frac{-0.0175}{0.12} = -0.1458\text{ rad/s}$<br/>
+                  Dấu âm chứng minh robot quay sang phải (hướng thẳng về nguồn sáng mạnh hơn!).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính Bán Kính Cong Quỹ Đạo $R$</span>
+</div>
+<div class="step-content">
+<p>Vận tốc tịnh tiến trung bình: $v = \frac{v_r + v_l}{2} = \frac{0.0575}{2} = 0.02875\text{ m/s}$<br/>
+                  Bán kính quay: $R = \frac{v}{\omega} = \frac{0.02875}{-0.1458} \approx -0.197\text{ m} = -19.7\text{ cm}$.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Mô hình phương tiện Braitenberg chứng minh nguyên lý điều khiển phản xạ: Kết nối cảm biến chéo với hàm ức chế tạo ra hành vi né tránh nguồn sáng thông minh mà không cần bộ xử lý tính toán phức tạp.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-3-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Mô hình phản xạ và phân tầng hành vi Subsumption ngày nay được triển khai trong ROS 2 thông qua <strong>Nav2 Behavior Trees</strong> kết hợp các plugin <code>RecoveryNode</code> và <code>PipelineSequence</code>. Khi cảm biến laser phát hiện vật cản nguy cấp, node kiểm soát an toàn (Costmap Safety layer) lập tức chặn lệnh từ Global Planner và phát xung dừng khẩn cấp.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-3-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Mô Phỏng Quỹ Đạo Phương Tiện Braitenberg Loại 3a (Explorer)</h4>
+</div>
+<div class="practice-statement">
+<p>Phương tiện Braitenberg loại 3a có 2 cảm biến ánh sáng kết nối chéo ức chế với 2 bánh xe: $v_L = v_0 - k \cdot I_R$ và $v_R = v_0 - k \cdot I_L$ với vận tốc nền $v_0 = 0.5\text{ m/s}$, độ lợi ức chế $k = 0.004$, khoảng cách giữa 2 bánh $b = 0.2\text{ m}$. Khi gặp nguồn sáng lệch bên phải, cảm biến đo được $I_R = 100\text{ lux}$ và $I_L = 25\text{ lux}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính vận tốc tức thời của bánh trái $v_L$ và bánh phải $v_R$.<br/>2) Tính vận tốc dài trung bình $v$ và vận tốc góc quay $\omega$ của phương tiện.<br/>3) Xác định bán kính cong quỹ đạo $R_{\text{curve}}$ và cho biết hành vi phản xạ này là gì.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Vận tốc bánh xe:<br/>• Bánh trái (nối chéo cảm biến phải): $v_L = 0.5 - 0.004 \times 100 = 0.5 - 0.4 = 0.10\text{ m/s}$.<br/>• Bánh phải (nối chéo cảm biến trái): $v_R = 0.5 - 0.004 \times 25 = 0.5 - 0.1 = 0.40\text{ m/s}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Vận tốc dài: $v = \frac{v_R + v_L}{2} = \frac{0.40 + 0.10}{2} = 0.25\text{ m/s}$.<br/>Vận tốc góc: $\omega = \frac{v_R - v_L}{b} = \frac{0.40 - 0.10}{0.20} = \frac{0.30}{0.20} = +1.50\text{ rad/s}$ ($85.9^\circ/\text{s}$, quay sang trái).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Bán kính cong: $R_{\text{curve}} = \frac{v}{|\omega|} = \frac{0.25}{1.50} \approx 0.167\text{ m} = 16.7\text{ cm}$.<br/>Hành vi: Xe tiến lại gần nguồn sáng, khi ánh sáng quá mạnh bánh xe giảm tốc và rẽ ngoặt hướng khác để tiếp tục thám hiểm (Hành vi 'Explorer' - ưa thích ánh sáng vừa phải).</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch02.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 02: Hệ thống Cảm biến Thu nhận Môi t...</span>
+</a>
+<a class="page-nav-btn next" href="ch04.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 04: Máy trạng thái hữu hạn &amp; Vùng tr... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

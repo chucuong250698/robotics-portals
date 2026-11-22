@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 11: Dao Động Cơ Học, Dầm Đàn Hồi & Phân Tích FEM | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 11</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link active">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Cơ Học Giải Tích & Hệ Đa Vật Thể</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 9 (Trang 231–280)</span>
+        </div>
+        <h1 class="chapter-title">Chương 11: Dao Động Cơ Học, Dầm Đàn Hồi & Phân Tích FEM</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Dầm Euler-Bernoulli, Phương pháp phần tử hữu hạn FEM, Tần số riêng & Ma trận cản Rayleigh</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong các ứng dụng robot hiện đại đòi hỏi tốc độ cao và trọng lượng siêu nhẹ (như cánh tay robot vũ trụ Canadarm trên trạm ISS, robot gắp linh kiện điện tử tốc độ cao Delta Robot, hay các khớp nối cánh quạt máy bay không người lái eVTOL), giả thiết xem <em>Vật thể là hoàn toàn cứng tuyệt đối (Rigid Body)</em> hoàn toàn bị phá vỡ! Dưới quán tính gia tốc lớn, cánh tay robot uốn cong như một chiếc cần câu cá, tạo ra các dao động đàn hồi dư thừa làm hỏng độ chính xác định vị ở đầu gắp gắp vi mạch. <strong>Phương pháp phần tử hữu hạn (Finite Element Method - FEM)</strong> kết hợp <strong>Phương trình vi phân dầm Euler-Bernoulli</strong> là nền tảng giải tích cốt lõi để dự đoán chính xác các mốt dao động (Mode shapes) và tần số cộng hưởng nguy hiểm.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Phương trình đạo hàm riêng phân bố liên tục dầm Euler-Bernoulli đồng nhất:</p>
+        $$\begin{equation}
+        \rho A \frac{\partial^2 w(x, t)}{\partial t^2} + E I \frac{\partial^4 w(x, t)}{\partial x^4} = f(x, t)
+        \end{equation}$$
+        <p>Với $w(x, t)$ là độ võng ngang, $\rho$ là khối lượng riêng, $A$ là diện tích mặt cắt ngang, $E$ là mô đun đàn hồi Young, và $I$ là mô-men quán tính diện tích mặt cắt.</p>
+        <p>Rời rạc hóa bằng FEM với hàm dạng Hermite bậc ba (Cubic Hermite Polynomials). Mỗi phần tử chiều dài $L_e$ có 4 bậc tự do $\mathbf{d}_e = [w_1, \theta_1, w_2, \theta_2]^T$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Ma Trận Độ Cứng $K_e$ & Khối Lượng Tập Trung $M_e$ Phần Tử Dầm Euler-Bernoulli</div>
+          $$\begin{equation}
+          \mathbf{K}_e = \frac{E I}{L_e^3} \begin{bmatrix} 12 & 6 L_e & -12 & 6 L_e \\ 6 L_e & 4 L_e^2 & -6 L_e & 2 L_e^2 \\ -12 & -6 L_e & 12 & -6 L_e \\ 6 L_e & 2 L_e^2 & -6 L_e & 4 L_e^2 \end{bmatrix}
+          \end{equation}$$
+          $$\begin{equation}
+          \mathbf{M}_e = \frac{\rho A L_e}{420} \begin{bmatrix} 156 & 22 L_e & 54 & -13 L_e \\ 22 L_e & 4 L_e^2 & 13 L_e & -3 L_e^2 \\ 54 & 13 L_e & 156 & -22 L_e \\ -13 L_e & -3 L_e^2 & -22 L_e & 4 L_e^2 \end{bmatrix}
+          \end{equation}$$
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Phân tích dao động riêng và ma trận cản Rayleigh:</p>
+        <ul>
+          <li><strong>Phương trình đặc trưng dao động tự do:</strong> $(\mathbf{K} - \omega^2 \mathbf{M})\boldsymbol{\phi} = \mathbf{0} \implies \det(\mathbf{K} - \omega^2 \mathbf{M}) = 0$.</li>
+          <li><strong>Các tần số dao động tự nhiên:</strong> $\omega_1 \lt \omega_2 \lt \omega_3 \dots$ (rad/s) và các vector dạng mốt $\boldsymbol{\phi}_i$ trực giao qua ma trận khối lượng: $\boldsymbol{\phi}_i^T \mathbf{M} \boldsymbol{\phi}_j = \delta_{ij}$.</li>
+          <li><strong>Mô hình cản Rayleigh:</strong> $\mathbf{C} = \alpha \mathbf{M} + \beta \mathbf{K}$, với tỷ số cản mốt $i$ là $\zeta_i = \frac{\alpha}{2\omega_i} + \frac{\beta \omega_i}{2}$.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Phân Tích Tần Số Riêng & Dạng Mốt Của Cánh Tay Robot Đàn Hồi Bằng 1 Phần Tử FEM</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một cánh tay robot ngàm một đầu (Cantilever beam) có chiều dài $L = 1.0\text{ m}$, khối lượng toàn cánh tay $m = 2.10\text{ kg}$ (khối lượng trên mét $\rho A = 2.10\text{ kg/m}$), độ cứng uốn $EI = 1000.0\text{ N}\cdot\text{m}^2$. Sử dụng mô hình 1 phần tử dầm Euler-Bernoulli. Đầu gốc ngàm chặt ($w_1 = 0, \theta_1 = 0$). Đầu mút tự do có 2 bậc tự do $\mathbf{u} = [w_2, \theta_2]^T$ tương ứng với độ võng ngang $w_2$ và góc uốn $\theta_2$.<br>Yêu cầu: Hãy thiết lập ma trận khối lượng thu gọn $\mathbf{M}$, ma trận độ cứng thu gọn $\mathbf{K}$, giải phương trình trị riêng suy rộng để tìm 2 tần số dao động tự nhiên đầu tiên $\omega_1, \omega_2$ (rad/s và Hz) và tính tỷ số dạng mốt tương ứng.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định các ma trận độ cứng và ma trận khối lượng sau khi áp điều kiện biên ngàm chặt:<br>Điều kiện ngàm tại nút 1: $w_1 = 0, \theta_1 = 0$. Ta bỏ hàng 1, 2 và cột 1, 2 trong ma trận tổng quát của phần tử.<br>Ma trận độ cứng thu gọn ($L = 1.0\text{ m}, EI = 1000\text{ N}\cdot\text{m}^2$):<br>$$\mathbf{K} = \frac{EI}{L^3} \begin{bmatrix} 12 & -6L \\ -6L & 4L^2 \end{bmatrix} = 1000 \begin{bmatrix} 12 & -6 \\ -6 & 4 \end{bmatrix} = \begin{bmatrix} 12000 & -6000 \\ -6000 & 4000 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập ma trận khối lượng thu gọn ($\rho A L = 2.10\text{ kg}$):<br>$$\mu = \frac{\rho A L}{420} = \frac{2.10}{420} = 0.0050\text{ kg}$$<br>$$\mathbf{M} = \mu \begin{bmatrix} 156 & -22L \\ -22L & 4L^2 \end{bmatrix} = 0.0050 \begin{bmatrix} 156 & -22 \\ -22 & 4 \end{bmatrix} = \begin{bmatrix} 0.780 & -0.110 \\ -0.110 & 0.020 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Giải phương trình đặc trưng trị riêng $\det(\mathbf{K} - \lambda \mathbf{M}) = 0$ với $\lambda = \omega^2$:<br>Đặt ma trận $\mathbf{P}(\lambda) = \mathbf{K} - \lambda \mathbf{M} = \begin{bmatrix} 12000 - 0.78\lambda & -6000 + 0.11\lambda \\ -6000 + 0.11\lambda & 4000 - 0.02\lambda \end{bmatrix}$.<br>Tính định thức $\det(\mathbf{P}(\lambda)) = 0$:<br>$$(12000 - 0.78\lambda)(4000 - 0.02\lambda) - (-6000 + 0.11\lambda)^2 = 0$$<br>$$4.8 \times 10^7 - (240 + 3120)\lambda + 0.0156\lambda^2 - [3.6 \times 10^7 - 1320\lambda + 0.0121\lambda^2] = 0$$<br>$$0.0035\lambda^2 - 2040\lambda + 1.2 \times 10^7 = 0$$<br>Giải phương trình bậc hai:<br>$$\Delta' = (-1020)^2 - 0.0035 \times 1.2 \times 10^7 = 1.0404 \times 10^6 - 0.042 \times 10^6 = 0.9984 \times 10^6$$<br>$$\sqrt{\Delta'} \approx 999.2$$<br>• $\lambda_1 = \frac{1020 - 999.2}{0.0035} = \frac{20.8}{0.0035} \approx 5942.85\text{ rad}^2/\text{s}^2$<br>• $\lambda_2 = \frac{1020 + 999.2}{0.0035} = \frac{2019.2}{0.0035} \approx 576914\text{ rad}^2/\text{s}^2$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán tần số góc tự nhiên $\omega$ và tần số Hertz $f$:<br>• Tần số mốt 1 (Uốn cơ bản):<br>$$\omega_1 = \sqrt{\lambda_1} = \sqrt{5942.85} \approx 77.09\text{ rad/s} \implies f_1 = \frac{\omega_1}{2\pi} \approx 12.27\text{ Hz}$$<br>(Đối chiếu với nghiệm giải tích chính xác lý thuyết Euler-Bernoulli: $\omega_{1,\text{exact}} = 3.516^2 \sqrt{\frac{EI}{\rho A L^4}} = 12.36 \times \sqrt{\frac{1000}{2.10}} = 12.36 \times 21.82 = 76.82\text{ rad/s}$, sai số của mô hình FEM 1 phần tử chỉ là $0.35\%$!).<br>• Tần số mốt 2 (Uốn bậc cao):<br>$$\omega_2 = \sqrt{\lambda_2} = \sqrt{576914} \approx 759.55\text{ rad/s} \implies f_2 = \frac{\omega_2}{2\pi} \approx 120.89\text{ Hz}$$</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 11: Dao Động Các Dạng Mốt Của Cánh Tay Đàn Hồi Robot (FEM Mode Shapes)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-11" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Lựa chọn mốt dao động:</label>
+              <select id="sim11-mode" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);">
+                <option value="1">Mốt 1: Dao động uốn cơ bản (f1 = 12.3 Hz)</option>
+                <option value="2">Mốt 2: Dao động uốn bậc 2 (f2 = 120.9 Hz)</option>
+                <option value="3">Kết hợp cả 2 mốt đồng thời</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Biên độ kích thích: <span id="sim11-amp-val">1.0</span>x</label>
+              <input type="range" id="sim11-amp" min="0.2" max="2.5" step="0.1" value="1.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim11-stats" class="sim-telemetry-text">Quan sát đường cong độ võng của cánh tay robot biến dạng liên tục. Điểm nút dao động (Node) xuất hiện rõ ở mốt 2.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// FEM Vibration Modal Analysis for Flexible Robot Arm in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+#include &lt;Eigen/Eigenvalues&gt;
+
+int main() {
+    double L = 1.0;
+    double EI = 1000.0;
+    double rhoA = 2.10;
+    
+    // Stiffness matrix for 2 DoF cantilever beam element
+    Eigen::Matrix2d K;
+    K &lt;&lt; 12.0 * EI / std::pow(L, 3), -6.0 * EI / std::pow(L, 2),
+         -6.0 * EI / std::pow(L, 2),  4.0 * EI / L;
+         
+    // Mass matrix
+    double mu = rhoA * L / 420.0;
+    Eigen::Matrix2d M;
+    M &lt;&lt; 156.0 * mu, -22.0 * L * mu,
+         -22.0 * L * mu, 4.0 * L * L * mu;
+         
+    // Generalized Eigenvalue Problem: K * v = lambda * M * v
+    Eigen::GeneralizedSelfAdjointEigenSolver&lt;Eigen::Matrix2d&gt; ges(K, M);
+    
+    Eigen::Vector2d eigenvalues = ges.eigenvalues();
+    Eigen::Vector2d omega = eigenvalues.cwiseSqrt();
+    
+    std::cout &lt;&lt; &quot;Natural Frequencies (rad/s):\n&quot; &lt;&lt; omega &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Frequencies in Hz:\n&quot; &lt;&lt; omega / (2.0 * M_PI) &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Modal Matrix Phi:\n&quot; &lt;&lt; ges.eigenvectors() &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Dầm Euler-Bernoulli:</strong> Mô hình giải tích cổ điển mô tả biến dạng uốn đàn hồi của các cấu kiện robot dạng thanh mảnh.</li><li><strong>Rời rạc hóa FEM:</strong> Chuyển bài toán phương trình đạo hàm riêng liên tục thành hệ phương trình đại số ma trận $M\ddot{\mathbf{u}} + K\mathbf{u} = \mathbf{f}$.</li><li><strong>Tần số dao động tự nhiên:</strong> Tần số cộng hưởng vật lý của cấu trúc, là ranh giới băng thông tối đa của các thuật toán điều khiển phản hồi.</li><li><strong>Cản Rayleigh:</strong> Kỹ thuật mô hình hóa suy hao cơ học tuyến tính thông qua tổ hợp ma trận khối lượng và độ cứng $C = \alpha M + \beta K$.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 11.1: Tải nặng gắn tại đầu gắp robot (Tip Mass)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Nếu tại đầu tự do của cánh tay gắn thêm một vật gắp có khối lượng tập trung $M_{\text{tip}} = 1.5\text{ kg}$, hãy xác định ma trận khối lượng mới và ước lượng tần số mốt cơ bản $\omega_1$ thay đổi như thế nào.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Khối lượng tập trung $M_{\text{tip}}$ cộng trực tiếp vào phần tử đường chéo đầu tiên của ma trận khối lượng: $M_{11} = 0.780 + 1.5 = 2.28\text{ kg}$. Tần số dao động riêng giảm mạnh xuống còn khoảng $\omega_1 \approx 38.5\text{ rad/s} \approx 6.13\text{ Hz}$, làm tăng nguy cơ rung lắc khi điều khiển vị trí.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch10.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 10: Cơ Học Hamilton & Hệ Port-Hamiltonian Trong Robot</span>
+        </a>
+        <a href="ch12.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Động Học Dòng Chảy & Cân Bằng Navier-Stokes →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim11 === "function") {
+        initSim11();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

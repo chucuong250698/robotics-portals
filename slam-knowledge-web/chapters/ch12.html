@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 12: Song Đề Khám Phá vs Khai Thác &amp; Lập Kế Hoạch Không Gian Niềm Tin (BSP) - SLAM &amp; Active Perception Portal</title>
+<meta content="Exploration vs Exploitation Dilemma &amp; Belief-Space Planning" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 5: SLAM CHỦ ĐỘNG &amp; RA QUYẾT ĐỊNH</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 12</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 12</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-12-1">
+<span class="nav-text">12.1 Song Đề Cốt Lõi: Exploration vs Exploitation</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-2">
+<span class="nav-text">12.2 Lập Kế Hoạch Trong Không Gian Niềm Tin (BSP)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-3">
+<span class="nav-text">12.3 Thiết Kế Hàm Thỏa Dụng Đa Mục Tiêu Pareto</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-4">
+<span class="nav-text">12.4 Cơ Chế Tự Động Kích Hoạt Active Loop Closure</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-sim">
+<span class="nav-text">⚡ Mô Phỏng Bộ Chuyển Đổi Explore vs Loop Close (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Hàm Thỏa Dụng Đa Mục Tiêu</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Cây Hành Vi BehaviorTree Nav2</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-12-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 5: SLAM CHỦ ĐỘNG &amp; RA QUYẾT ĐỊNH • CHƯƠNG 12</div>
+<h1 class="chapter-title">Song Đề Khám Phá vs Khai Thác &amp; Lập Kế Hoạch Không Gian Niềm Tin (BSP)</h1>
+<p class="chapter-subtitle">Exploration vs Exploitation Dilemma &amp; Belief-Space Planning</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Julio A. Placed et al. (IEEE T-RO 2023) &amp; Thanh Nguyen Canh et al. (2021)</strong></span>
+</div>
+</div>
+<!-- 12.1 -->
+<h2 id="sec-12-1">12.1 Song Đề Sinh Tử Của Active SLAM: Exploration vs Exploitation</h2>
+<p>Mâu thuẫn lớn nhất trong điều khiển robot thám hiểm tự hành:</p>
+<ul>
+<li><strong>Khám phá (Exploration):</strong> Thúc đẩy robot liên tục lao vào các vùng chưa biết để tăng độ phủ bản đồ. Tuy nhiên, càng đi xa, sai số Dead Reckoning càng tích lũy, các tia laser đo được bị gán sai vị trí khiến bản đồ mới bị méo mó.</li>
+<li><strong>Khai thác / Đóng vòng lặp (Exploitation / Loop Closure):</strong> Điều khiển robot quay ngược trở lại các vùng đã lập bản đồ trước đó để tái nhận diện mốc quen thuộc. Vòng lặp đóng lại triệt tiêu toàn bộ hiệp phương sai sai số, nhưng lại làm tốn pin và không mở rộng thêm mét vuông bản đồ nào.</li>
+</ul>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 GIẢI PHÁP LẬP KẾ HOẠCH TRONG KHÔNG GIAN NIỀM TIN (BSP)</div>
+<div class="why-matters-body">
+            Belief-Space Planning (BSP) không chỉ lập kế hoạch trong không gian tọa độ vật lý thông thường $(x, y)$, mà lập kế hoạch trực tiếp trên <strong>Không gian Niềm tin (Belief Space)</strong> bao gồm cả phân phối xác suất và ma trận hiệp phương sai $\mathcal{B} = (\mathbf{x}, \mathbf{\Sigma})$. Hệ thống dự đoán trước độ bất định sẽ tăng lên bao nhiêu nếu đi hướng A, và sẽ giảm được bao nhiêu nếu quay lại đóng vòng lặp ở hướng B, từ đó đưa ra quyết định chuyển đổi trạng thái tối ưu toán học!
+          </div>
+</div>
+<!-- 12.2 -->
+<h2 id="sec-12-2">12.2 Thiết Kế Hàm Thỏa Dụng Đa Mục Tiêu</h2>
+<p>Hàm chi phí tổng hợp cho mỗi quỹ đạo ứng viên $\tau$:</p>
+<div class="formula-hero">
+<div class="formula-title">Hàm Thỏa Dụng Cân Bằng Năng Lượng &amp; Độ Bất Định</div>
+<div class="formula-math">
+            $$J(\tau) = \alpha \cdot \text{Cost}_{\text{distance}}(\tau) - \beta \cdot \text{InfoGain}_{\text{map}}(\tau) - \gamma \cdot \Delta H_{\text{pose}}(\tau)$$
+          </div>
+<div class="formula-legend">
+<strong>Trọng số điều tiết:</strong>
+<br/>• $\alpha$: Phạt quãng đường di chuyển (tiết kiệm thời gian và pin).
+            <br/>• $\beta$: Thưởng số lượng ô lưới Unknown dự kiến sẽ được quét sạch.
+            <br/>• $\gamma$: Thưởng mức độ giảm Entropy của tư thế (khi quỹ đạo chứa khả năng đóng vòng lặp).
+          </div>
+</div>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-12-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Bộ Chuyển Đổi Trạng Thái Khám Phá vs Active Loop Closing</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-12" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-12-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 So Sánh Hàm Thỏa Dụng Đa Mục Tiêu Cho 2 Quỹ Đạo Ứng Viên</h3>
+</div>
+<div class="exercise-statement">
+<p>Hệ thống có các hệ số trọng số: $\alpha = 0.5$ (chi phí/mét), $\beta = 0.1$ (điểm/ô mới), $\gamma = 2.0$ (điểm/đơn vị entropy giảm).
+          <br/>• <strong>Ứng viên 1 (Đi tới biên giới xa):</strong> Quãng đường $d = 8.0$ m, khám phá được $120$ ô mới, làm tăng Entropy thêm $\Delta H = +1.5$ (không có loop closure).
+          <br/>• <strong>Ứng viên 2 (Quay đầu đóng vòng lặp gần):</strong> Quãng đường $d = 3.0$ m, chỉ mở thêm $10$ ô mới, nhưng giảm Entropy $\Delta H = -2.2$ (giảm bất định).
+          Tính điểm thỏa dụng $J_1$ và $J_2$, và xác định quyết định hành động của robot.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập công thức tính điểm thỏa dụng $J = -\alpha d + \beta \text{Gain} - \gamma \Delta H$</span>
+</div>
+<div class="step-content">
+<p>Điểm càng cao thì hành động càng được ưu tiên lựa chọn.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính điểm cho Ứng viên 1 (Mở rộng biên giới)</span>
+</div>
+<div class="step-content">
+<p>• Chi phí di chuyển: $-0.5 \times 8.0 = -4.0$</p><p>• Lợi ích bản đồ: $+0.1 \times 120 = +12.0$</p><p>• Phạt tăng bất định: $-2.0 \times (+1.5) = -3.0$</p><p>$$J_1 = -4.0 + 12.0 - 3.0 = +5.0$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính điểm cho Ứng viên 2 (Active Loop Closing)</span>
+</div>
+<div class="step-content">
+<p>• Chi phí di chuyển: $-0.5 \times 3.0 = -1.5$</p><p>• Lợi ích bản đồ: $+0.1 \times 10 = +1.0$</p><p>• Thưởng giảm bất định: $-2.0 \times (-2.2) = +4.4$</p><p>$$J_2 = -1.5 + 1.0 + 4.4 = +3.9$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Ra quyết định điều khiển</span>
+</div>
+<div class="step-content">
+<p>Do $J_1 = 5.0 \gt J_2 = 3.9$, hệ thống chọn <strong>Ứng viên 1</strong> để tiếp tục mở rộng bản đồ. Tuy nhiên, nếu ở bước tiếp theo sai số tiếp tục tăng khiến $\Delta H \gt 2.5$, điểm $J_1$ sẽ tụt xuống dưới $3.0$ và quyền ưu tiên sẽ lập tức chuyển sang Ứng viên 2 để kích hoạt quay đầu đóng vòng lặp!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Bài toán song đề Thám hiểm vs Khai thác được giải quyết hài hòa bằng hàm chi phí đa mục tiêu có trọng số thích nghi, bảo đảm robot hoàn thành việc lập bản đồ toàn diện trong thời gian ngắn nhất mà vẫn duy trì an toàn vận hành.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-12-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Cấu Trúc Cây Hành Vi Active SLAM Trong Nav2 (XML)</h4>
+<p>Mã nguồn định nghĩa Behavior Tree điều phối chuyển trạng thái giữa Khám phá và Đóng vòng lặp:</p>
+<div class="code-card">
+<div class="code-header">
+<span>active_slam_behavior_tree.xml (Nav2 / ROS 2)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>&lt;root main_tree_to_execute="MainTree"&gt;
+  &lt;BehaviorTree ID="MainTree"&gt;
+    &lt;RecoveryNode number_of_retries="3"&gt;
+      &lt;Fallback name="ActiveSLAMStrategy"&gt;
+        &lt;!-- Nếu hiệp phương sai quá cao -&gt; Kích hoạt Loop Closure --&gt;
+        &lt;Sequence name="TriggerLoopClosure"&gt;
+          &lt;Condition ID="IsUncertaintyHigh" threshold="0.8"/&gt;
+          &lt;Action ID="NavigateToKnownLandmark" goal="{loop_goal}"/&gt;
+          &lt;Action ID="PerformScanMatching"/&gt;
+        &lt;/Sequence&gt;
+        
+        &lt;!-- Ngược lại -&gt; Tiếp tục khám phá biên giới --&gt;
+        &lt;Sequence name="ExploreFrontier"&gt;
+          &lt;Action ID="ComputeBestFrontier" goal="{frontier_goal}"/&gt;
+          &lt;Action ID="NavigateToPose" goal="{frontier_goal}"/&gt;
+        &lt;/Sequence&gt;
+      &lt;/Fallback&gt;
+      &lt;Action ID="SpinRecovery"/&gt;
+    &lt;/RecoveryNode&gt;
+  &lt;/BehaviorTree&gt;
+&lt;/root&gt;</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-12-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tối Ưu Hóa Đường Đi Thám Hiểm Frontier Bằng Hàm Chi Phí Đa Mục Tiêu</h4>
+</div>
+<div class="practice-statement">
+<p>Hệ thống quy hoạch đường đi thám hiểm Frontier Exploration có 3 cụm frontier $F_1, F_2, F_3$. Số ô biên giới (đại diện cho kích thước vùng chưa biết $S$) lần lượt là $S_1 = 150, S_2 = 280, S_3 = 80$. Chi phí độ dài hành trình di chuyển $L$ (mét) lần lượt là $L_1 = 5.0\text{ m}, L_2 = 12.0\text{ m}, L_3 = 2.0\text{ m}$. Hàm tiện ích được tính bằng: $J(F) = \frac{S}{1.0 + \lambda \cdot L}$ với hệ số phạt cự ly $\lambda = 0.1\text{ m}^{-1}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính giá trị hàm mục tiêu $J(F)$ cho từng cụm frontier.<br/>2) Lựa chọn mục tiêu tối ưu để robot di chuyển đến.<br/>3) Phân tích hành vi thuật toán nếu tăng hệ số phạt khoảng cách lên $\lambda = 0.5\text{ m}^{-1}$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Áp dụng công thức với $\lambda = 0.1$:<br/>• $J(F_1) = \frac{150}{1.0 + 0.1 \times 5.0} = \frac{150}{1.5} = 100.0$.<br/>• $J(F_2) = \frac{280}{1.0 + 0.1 \times 12.0} = \frac{280}{2.2} \approx 127.27$.<br/>• $J(F_3) = \frac{80}{1.0 + 0.1 \times 2.0} = \frac{80}{1.2} \approx 66.67$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>So sánh: $J(F_2) = 127.27$ là lớn nhất. Thuật toán chọn $F_2$ vì mặc dù xa hơn ($12\text{ m}$), lượng thông tin tiềm năng tại đây ($280$ ô) vượt trội hơn hẳn chi phí di chuyển phụ trội.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Nếu tăng $\lambda = 0.5$:<br/>• $J(F_1) = \frac{150}{1 + 2.5} = \frac{150}{3.5} = 42.86$.<br/>• $J(F_2) = \frac{280}{1 + 6.0} = \frac{280}{7.0} = 40.00$.<br/>• $J(F_3) = \frac{80}{1 + 1.0} = \frac{80}{2.0} = 40.00$.<br/>Khi đó $F_1$ trở thành tối ưu. Robot chuyển sang chiến lược thận trọng, ưu tiên giải quyết các vùng cận kề trước khi dấn thân xa.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch11.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 11: Đo Lường Thông Tin Toán Học TOED</span>
+</a>
+<a class="ch-nav-card next" href="ch13.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 13: Đa Robot SLAM &amp; Hợp Nhất Bản Đồ</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

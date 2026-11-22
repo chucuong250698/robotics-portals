@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: Mô Hình Hóa Hệ Thống Động Lực Đa Miền | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 02</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link active">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Mô Hình Hóa & Phân Tích Hệ Động Lực</span>
+          <span class="page-source-badge">📖 Mutambara, Chương 2 (Trang 44–184)</span>
+        </div>
+        <h1 class="chapter-title">Chương 02: Mô Hình Hóa Hệ Thống Động Lực Đa Miền</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> 4 dạng mô hình cốt lõi (Vi phân vào-ra, Biến trạng thái, Hàm truyền, Sơ đồ khối); Hệ cơ học tịnh tiến/quay, Mạch điện RLC, Hệ cơ điện tử Servomotor; Quy tắc đại số sơ đồ khối; Tuyến tính hóa tín hiệu nhỏ Taylor; Hệ có trễ thời gian.</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Mô hình hóa toán học là "trái tim" và là bước tiên quyết của mọi quy trình thiết kế kỹ thuật điều khiển. Trong công nghiệp, một kỹ sư không thể "thử và sai" trực tiếp trên phần cứng thật đắt đỏ (như tuabin điện gió ngàn tỷ, lò phản ứng hạt nhân, hay cánh tay robot lắp ráp vi mạch bán dẫn) vì một thông số sai lệch có thể dẫn tới phá hủy thiết bị cơ khí nghiêm trọng. Việc xây dựng mô hình toán học giải tích đa miền chuẩn xác cho phép kỹ sư tạo ra một <strong>Bản sao kỹ thuật số (Digital Twin)</strong>, kiểm thử toàn bộ thuật toán điều khiển qua mô phỏng phần cứng trong vòng lặp (Hardware-in-the-Loop - HIL), và dự báo trước mọi nguy cơ mất ổn định trước khi chế tạo thực tế.</p>
+        </div>
+        <p>Theo giáo trình của Mutambara, mọi hệ thống động lực trong tự nhiên và kỹ thuật đều có thể được quy đổi về <strong>4 dạng biểu diễn mô hình toán học tương đương</strong>:</p>
+        <ol>
+          <li><strong>Phương trình vi phân vào-ra (Input-Output Differential Equation):</strong> Mô tả mối quan hệ trực tiếp giữa kích thích đầu vào $u(t)$ và đáp ứng đầu ra $y(t)$ theo thời gian liên tục thông qua các định luật vật lý cơ bản (Newton, Kirchhoff, Fourier, Navier-Stokes).</li>
+          <li><strong>Hàm truyền (Transfer Function Form - TF):</strong> Biểu diễn tỉ số giữa biến đổi Laplace của đầu ra và đầu vào tại điều kiện biên bằng không ($G(s) = \frac{Y(s)}{U(s)}$), thuận tiện cho phân tích miền tần số và quỹ đạo nghiệm.</li>
+          <li><strong>Mô hình không gian trạng thái (State-Variable Matrix Form - SS):</strong> Hệ phương trình vi phân bậc nhất vector ma trận $\dot{\mathbf{x}} = A\mathbf{x} + B\mathbf{u}, \mathbf{y} = C\mathbf{x} + D\mathbf{u}$, là ngôn ngữ chuẩn mực của lý thuyết điều khiển hiện đại, điều khiển tối ưu (LQR/LQE) và hệ nhiều đầu vào nhiều đầu ra (MIMO).</li>
+          <li><strong>Sơ đồ khối (Block Diagram Form):</strong> Biểu diễn trực quan dòng truyền tín hiệu và tương tác giữa các hệ con, cho phép phân rã các hệ thống phức tạp thông qua các quy tắc đại số sơ đồ khối.</li>
+        </ol>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Các công thức nền tảng trong mô hình hóa và chuyển đổi giữa 4 dạng mô hình được trình bày chi tiết dưới đây:</p>
+        <div class="formula-card">
+          <div class="formula-header">Công Thức Chuyển Đổi Không Gian Trạng Thái $\to$ Hàm Truyền</div>
+          $$\begin{align}
+          \dot{\mathbf{x}}(t) &= A \mathbf{x}(t) + B \mathbf{u}(t) \\
+          \mathbf{y}(t) &= C \mathbf{x}(t) + D \mathbf{u}(t)
+          \end{align}$$
+          <p>Lấy biến đổi Laplace hai vế với điều kiện đầu $\mathbf{x}(0) = \mathbf{0}$:</p>
+          $$\begin{align}
+          s \mathbf{X}(s) &= A \mathbf{X}(s) + B \mathbf{U}(s) \implies (sI - A)\mathbf{X}(s) = B \mathbf{U}(s) \\
+          \mathbf{X}(s) &= (sI - A)^{-1} B \mathbf{U}(s)
+          \end{align}$$
+          <p>Thay $\mathbf{X}(s)$ vào phương trình đầu ra $\mathbf{Y}(s) = C \mathbf{X}(s) + D \mathbf{U}(s)$, ta thu được ma trận hàm truyền:</p>
+          $$\begin{equation}
+          G(s) = C (sI - A)^{-1} B + D = \frac{C \cdot \text{adj}(sI - A) \cdot B}{\det(sI - A)} + D
+          \end{equation}$$
+          <p>Phương trình đặc trưng của hệ thống chính là định thức: $\det(sI - A) = 0$. Các nghiệm của định thức này chính là các <em>điểm cực (Poles)</em> quyết định tính ổn định tự nhiên của hệ thống.</p>
+        </div>
+
+        <p>Ngược lại, từ hàm truyền tổng quát có bậc tử $m \le n$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Dạng Chính Tắc Điều Khiển Được (Controllable Canonical Form - CCF)</div>
+          $$G(s) = \frac{Y(s)}{U(s)} = \frac{b_m s^m + \dots + b_1 s + b_0}{s^n + a_{n-1}s^{n-1} + \dots + a_1 s + a_0}$$
+          <p>Ma trận trạng thái đồng hành $A$, vector đầu vào $B$, và ma trận đầu ra $C$ (khi $m \lt n \implies D = 0$) có dạng tiêu chuẩn:</p>
+          $$\begin{equation}
+          A = \begin{bmatrix}
+          0 & 1 & 0 & \dots & 0 \\
+          0 & 0 & 1 & \dots & 0 \\
+          \vdots & \vdots & \vdots & \ddots & \vdots \\
+          0 & 0 & 0 & \dots & 1 \\
+          -a_0 & -a_1 & -a_2 & \dots & -a_{n-1}
+          \end{bmatrix}, \quad
+          B = \begin{bmatrix} 0 \\ 0 \\ \vdots \\ 0 \\ 1 \end{bmatrix}, \quad
+          C = \begin{bmatrix} b_0 & b_1 & \dots & b_{n-1} \end{bmatrix}
+          \end{equation}$$
+        </div>
+
+        <p>Đối với hệ phi tuyến tổng quát $\dot{\mathbf{x}} = \mathbf{f}(\mathbf{x}, \mathbf{u}), \mathbf{y} = \mathbf{g}(\mathbf{x}, \mathbf{u})$, phương pháp <strong>Tuyến tính hóa tín hiệu nhỏ (Small-Signal Linearisation)</strong> sử dụng chuỗi Taylor quanh điểm làm việc cân bằng $(\mathbf{x}_0, \mathbf{u}_0)$ với $\mathbf{f}(\mathbf{x}_0, \mathbf{u}_0) = \mathbf{0}$:</p>
+        $$\begin{equation}
+        A = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}, \quad
+        B = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}, \quad
+        C = \left. \frac{\partial \mathbf{g}}{\partial \mathbf{x}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}, \quad
+        D = \left. \frac{\partial \mathbf{g}}{\partial \mathbf{u}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}
+        \end{equation}$$
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <p>Hệ thống Cơ - Điện (Electromechanical Systems) đóng vai trò nền tảng trong toàn bộ các ngành công nghiệp chế tạo, cơ điện tử và robotics. Trọng tâm của hệ cơ điện là <strong>Động cơ điện một chiều kích từ vĩnh cửu điều khiển phần ứng (Armature-Controlled DC Motor)</strong>:</p>
+        <ul>
+          <li><strong>Mạch điện phần ứng (Armature Circuit):</strong> Tuân theo định luật điện áp Kirchhoff (KVL):
+          $$v_a(t) = R_a i_a(t) + L_a \frac{di_a(t)}{dt} + e_b(t)$$
+          với $e_b(t) = K_b \omega(t)$ là sức điện động cảm ứng phản kháng (Back-EMF) tỉ lệ thuận với vận tốc góc rotor qua hằng số $K_b$.</li>
+          <li><strong>Cơ cấu chuyển động quay rotor (Mechanical Rotor):</strong> Tuân theo định luật chuyển động quay Newton II:
+          $$J \frac{d\omega(t)}{dt} + B \omega(t) = \tau_m(t) - \tau_L(t)$$
+          với $\tau_m(t) = K_t i_a(t)$ là mô-men điện từ do từ trường sinh ra tỉ lệ với dòng điện phần ứng qua hằng số mô-men $K_t$, và $\tau_L(t)$ là mô-men cản của tải ngoài.</li>
+        </ul>
+        <p>Ghép nối hai phương trình vi phân trên cho thấy sự tương tác hai chiều chặt chẽ: Dòng điện sinh ra mô-men đẩy cơ cấu cơ khí chuyển động, ngược lại vận tốc quay cơ khí sinh ra sức điện động phản kháng kiềm chế dòng điện phần ứng!</p>
+        <p>Trong thực tiễn kỹ thuật công nghiệp, tỷ số giữa hằng số thời gian điện $\tau_e = \frac{L_a}{R_a}$ và hằng số thời gian cơ $\tau_m = \frac{J}{B}$ đóng vai trò sống còn. Với các servomotor chất lượng cao, thường $\tau_e \ll \tau_m$ (thời gian điện tính bằng mili-giây trong khi thời gian cơ tính bằng phần mười giây), cho phép xấp xỉ giảm bậc mô hình bỏ qua $L_a \approx 0$ trong thiết kế ban đầu.</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Mô Hình Hóa Đa Miền Hệ Truyền Động Servomotor DC Điều Khiển Phần Ứng & Chuyển Đổi Không Gian Trạng Thái</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một động cơ điện một chiều điều khiển phần ứng dẫn động khớp quay của cánh tay robot có các thông số vật lý danh định do nhà sản xuất cung cấp như sau:<br>• Điện trở cuộn dây phần ứng: $R_a = 2.0\ \Omega$<br>• Độ tự cảm cuộn dây phần ứng: $L_a = 0.5\text{ H}$<br>• Hằng số mô-men động cơ: $K_t = 0.1\text{ N}\cdot\text{m/A}$<br>• Hằng số sức điện động phản kháng: $K_b = 0.1\text{ V}\cdot\text{s/rad}$<br>• Tổng mô-men quán tính trục quay (rotor + khớp tải): $J = 0.02\text{ kg}\cdot\text{m}^2$<br>• Hệ số ma sát nhớt ổ bi trục quay: $B = 0.01\text{ N}\cdot\text{m}\cdot\text{s/rad}$<br>Điện áp phần ứng $v_a(t)$ là tín hiệu đầu vào điều khiển, và vận tốc góc quay của trục $\omega(t)$ (rad/s) là tín hiệu đầu ra. Mô-men tải cản bên ngoài ban đầu bằng $0$ ($\tau_L = 0$).<br><br><strong>Yêu cầu:</strong><br>1) Thiết lập phương trình vi phân vào-ra bậc hai liên hệ giữa điện áp $v_a(t)$ và vận tốc góc $\omega(t)$.<br>2) Tìm hàm truyền liên tục $G(s) = \frac{\Omega(s)}{V_a(s)}$ và xác định chính xác các điểm cực (Poles) của hệ thống.<br>3) Lập mô hình không gian trạng thái $\dot{\mathbf{x}} = A\mathbf{x} + B u, y = C\mathbf{x} + D u$ bằng cách chọn vector biến trạng thái $\mathbf{x} = [\omega(t), i_a(t)]^T$.<br>4) Sử dụng công thức nghịch đảo ma trận $G(s) = C(sI - A)^{-1}B + D$ để kiểm chứng lại tính đồng nhất tuyệt đối với hàm truyền thu được ở câu 2, và phân tích đáp ứng khi có mô-men tải cản bước nhảy $\tau_L = 0.2\text{ N}\cdot\text{m}$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập hệ phương trình vi phân liên kết hai miền Điện học - Cơ học:<br>• <strong>Miền Điện học:</strong> Áp dụng định luật điện áp Kirchhoff cho mạch phần ứng kín:<br>$$L_a \frac{di_a(t)}{dt} + R_a i_a(t) + e_b(t) = v_a(t)$$<br>Thay thế quan hệ sức điện động phản ứng $e_b(t) = K_b \omega(t)$:<br>$$0.5 \frac{di_a(t)}{dt} + 2.0 i_a(t) + 0.1 \omega(t) = v_a(t) \quad \text{(Phương trình 1)}$$<br>• <strong>Miền Cơ học:</strong> Áp dụng định luật II Newton cho trục quay chuyển động dưới tác dụng của mô-men điện từ $\tau_m = K_t i_a(t)$ và ma sát nhớt $\tau_f = B \omega(t)$:<br>$$J \frac{d\omega(t)}{dt} + B \omega(t) = K_t i_a(t) - \tau_L(t)$$<br>Với $\tau_L = 0$:<br>$$0.02 \frac{d\omega(t)}{dt} + 0.01 \omega(t) = 0.1 i_a(t) \implies i_a(t) = \frac{0.02 \dot{\omega}(t) + 0.01 \omega(t)}{0.1} = 0.2 \dot{\omega}(t) + 0.1 \omega(t) \quad \text{(Phương trình 2)}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Khử biến dòng điện $i_a(t)$ để tìm Phương trình Vi phân Vào-Ra và Hàm truyền $G(s)$:<br>• Lấy đạo hàm hai vế Phương trình 2 theo thời gian: $\frac{di_a}{dt} = 0.2 \ddot{\omega}(t) + 0.1 \dot{\omega}(t)$.<br>• Thay biểu thức của $i_a(t)$ và $\frac{di_a}{dt}$ vào Phương trình 1:<br>$$0.5 [0.2 \ddot{\omega} + 0.1 \dot{\omega}] + 2.0 [0.2 \dot{\omega} + 0.1 \omega] + 0.1 \omega = v_a(t)$$<br>$$0.10 \ddot{\omega}(t) + [0.05 + 0.40] \dot{\omega}(t) + [0.20 + 0.10] \omega(t) = v_a(t)$$<br>$$0.10 \ddot{\omega}(t) + 0.45 \dot{\omega}(t) + 0.30 \omega(t) = v_a(t)$$<br>Chia hai vế cho $0.10$ để chuẩn hóa hệ số của $\ddot{\omega}$ về $1$:<br>$$\ddot{\omega}(t) + 4.5 \dot{\omega}(t) + 3.0 \omega(t) = 10.0 v_a(t)$$<br>• Biến đổi Laplace hai vế với điều kiện biên bằng $0$:<br>$$(s^2 + 4.5 s + 3.0) \Omega(s) = 10.0 V_a(s) \implies G(s) = \frac{\Omega(s)}{V_a(s)} = \frac{10.0}{s^2 + 4.5 s + 3.0}$$<br>• Giải phương trình đặc trưng tìm các điểm cực (Poles):<br>$$s^2 + 4.5 s + 3.0 = 0 \implies \Delta = (4.5)^2 - 4(1)(3.0) = 20.25 - 12.0 = 8.25 \gt 0$$<br>$$s_{1,2} = \frac{-4.5 \pm \sqrt{8.25}}{2} = \frac{-4.5 \pm 2.87228}{2}$$<br>$$s_1 = \frac{-4.5 + 2.87228}{2} \approx -0.8139\text{ s}^{-1}, \quad s_2 = \frac{-4.5 - 2.87228}{2} \approx -3.6861\text{ s}^{-1}$$<br>Hệ thống có hai điểm cực thực âm phân biệt nằm hoàn toàn bên nửa trái mặt phẳng phức, khẳng định hệ thống ổn định tiệm cận vững chắc!</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Xây dựng Mô hình Không Gian Trạng Thái (State-Space Form):<br>Chọn vector biến trạng thái tự nhiên mang ý nghĩa năng lượng vật lý tích lũy:<br>$\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} = \begin{bmatrix} \omega(t) \\ i_a(t) \end{bmatrix}$ (vận tốc góc đại diện cho động năng cơ khí, dòng điện đại diện cho từ trường cuộn dây).<br>• Từ phương trình động học cơ khí: $\dot{\omega} = -\frac{B}{J}\omega + \frac{K_t}{J} i_a = -\frac{0.01}{0.02}\omega + \frac{0.1}{0.02} i_a = -0.5 x_1 + 5.0 x_2$.<br>• Từ phương trình mạch điện: $\dot{i}_a = -\frac{K_b}{L_a}\omega - \frac{R_a}{L_a} i_a + \frac{1}{L_a} v_a = -\frac{0.1}{0.5}\omega - \frac{2.0}{0.5} i_a + \frac{1}{0.5} v_a = -0.2 x_1 - 4.0 x_2 + 2.0 v_a$.<br>• Biểu diễn ma trận vector:<br>$$\begin{bmatrix} \dot{x}_1 \\ \dot{x}_2 \end{bmatrix} = \begin{bmatrix} -0.5 & 5.0 \\ -0.2 & -4.0 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + \begin{bmatrix} 0 \\ 2.0 \end{bmatrix} v_a(t)$$<br>Đầu ra là vận tốc góc $y(t) = \omega(t) = x_1(t)$:<br>$$y(t) = \begin{bmatrix} 1 & 0 \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} + [0] v_a(t)$$<br>Vậy các ma trận hệ thống là: $A = \begin{bmatrix} -0.5 & 5.0 \\ -0.2 & -4.0 \end{bmatrix}, B = \begin{bmatrix} 0 \\ 2.0 \end{bmatrix}, C = \begin{bmatrix} 1 & 0 \end{bmatrix}, D = [0]$.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm chứng giải tích chuyển đổi State-Space $\to$ Transfer Function & Biện luận tải cản:<br>• Tính ma trận $(sI - A)$:<br>$$sI - A = \begin{bmatrix} s + 0.5 & -5.0 \\ 0.2 & s + 4.0 \end{bmatrix}$$<br>• Định thức: $\det(sI - A) = (s + 0.5)(s + 4.0) - (-5.0)(0.2) = s^2 + 4.5 s + 2.0 + 1.0 = s^2 + 4.5 s + 3.0$. Khớp chính xác mẫu số hàm truyền!<br>• Ma trận phụ hợp $\text{adj}(sI - A) = \begin{bmatrix} s + 4.0 & 5.0 \\ -0.2 & s + 0.5 \end{bmatrix}$.<br>• Tính tích $C \cdot \text{adj}(sI - A) \cdot B$:<br>$$C \cdot \text{adj}(sI - A) = \begin{bmatrix} 1 & 0 \end{bmatrix} \begin{bmatrix} s + 4.0 & 5.0 \\ -0.2 & s + 0.5 \end{bmatrix} = \begin{bmatrix} s + 4.0 & 5.0 \end{bmatrix}$$<br>$$C \cdot \text{adj}(sI - A) \cdot B = \begin{bmatrix} s + 4.0 & 5.0 \end{bmatrix} \begin{bmatrix} 0 \\ 2.0 \end{bmatrix} = 0 \cdot (s + 4.0) + 5.0 \times 2.0 = 10.0$$<br>Do đó: $G(s) = \frac{10.0}{s^2 + 4.5 s + 3.0} + 0 \equiv G(s)$. Kết quả chuyển đổi hoàn toàn chính xác tuyệt đối!<br>• <strong>Biện luận tải cản:</strong> Khi cấp điện áp không đổi $V_a = 12\text{ V}$, vận tốc xác lập không tải là $\omega_{nl} = G(0) \times 12 = \frac{10}{3.0} \times 12 = 40.0\text{ rad/s} \approx 382\text{ rpm}$. Khi chịu thêm mô-men tải cản $\tau_L = 0.2\text{ N}\cdot\text{m}$, phương trình xác lập cho thấy vận tốc bị sụt giảm: $\Delta \omega = \frac{R_a}{R_a B + K_t K_b} \tau_L = \frac{2.0}{(2.0 \times 0.01) + (0.1 \times 0.1)} \times 0.2 = \frac{2.0}{0.03} \times 0.2 = \frac{0.4}{0.03} \approx 13.33\text{ rad/s}$, vận tốc thực tế chỉ còn $26.67\text{ rad/s}$, khẳng định nhu cầu cấp thiết của vòng lặp điều khiển kín!</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết mô hình hóa, nhận dạng và thiết kế hệ thống điều khiển tự động trong giáo trình Design and Analysis of Control Systems (Arthur G.O. Mutambara, CRC Press). Đây là cơ sở định lượng vững chắc cho các hệ thống điều khiển công nghiệp 4IR thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 02: Động Thái Hệ Cơ Điện Servomotor DC — Điện Áp, Dòng Điện & Tốc Độ Góc</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-02" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Điện áp phần ứng ($V_a$): <span id="sim02-vin-val">12 V</span></label>
+              <input type="range" id="sim02-vin" min="0" max="24" step="1" value="12">
+            </div>
+            <div class="control-group">
+              <label>Mô-men tải cản ($\tau_L$): <span id="sim02-torque-val">0.20 N·m</span></label>
+              <input type="range" id="sim02-torque" min="0" max="0.8" step="0.05" value="0.2">
+            </div>
+            <div class="control-group">
+              <label>Điện trở phần ứng ($R_a$): <span id="sim02-ra-val">2.0 Ω</span></label>
+              <input type="range" id="sim02-ra" min="0.5" max="5.0" step="0.5" value="2.0">
+            </div>
+            <div class="control-group">
+              <label>Quán tính rotor ($J$): <span id="sim02-j-val">0.02 kg·m²</span></label>
+              <input type="range" id="sim02-j" min="0.005" max="0.05" step="0.005" value="0.02">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim02-stats" class="sim-telemetry-text">Đang tính toán dòng điện phần ứng ia(t), vận tốc góc omega(t), và hằng số thời gian điện - cơ học.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// DC Motor State-Space Simulator in C++20 with 4th-Order Runge-Kutta
+#include &lt;iostream&gt;
+#include &lt;array&gt;
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+
+struct DCMotorParams {
+    double Ra = 2.0;    // Armature resistance (Ohm)
+    double La = 0.5;    // Armature inductance (H)
+    double Kt = 0.1;    // Motor torque constant (N*m/A)
+    double Kb = 0.1;    // Back-EMF constant (V*s/rad)
+    double J  = 0.02;   // Rotor + load inertia (kg*m^2)
+    double B  = 0.01;   // Viscous friction (N*m*s/rad)
+};
+
+class DCMotorSimulator {
+public:
+    using State = std::array&lt;double, 2&gt;; // [omega, i_a]
+
+    DCMotorSimulator(const DCMotorParams&amp; p) : p_(p), state_{0.0, 0.0} {}
+
+    State derivatives(const State&amp; x, double Va, double tau_L) const {
+        double omega = x[0];
+        double ia = x[1];
+
+        // d(omega)/dt = (-B*omega + Kt*ia - tau_L) / J
+        double d_omega = (-p_.B * omega + p_.Kt * ia - tau_L) / p_.J;
+        // d(ia)/dt = (-Kb*omega - Ra*ia + Va) / La
+        double d_ia = (-p_.Kb * omega - p_.Ra * ia + Va) / p_.La;
+
+        return {d_omega, d_ia};
+    }
+
+    void stepRK4(double Va, double tau_L, double dt) {
+        auto k1 = derivatives(state_, Va, tau_L);
+        
+        State s_k2 = {state_[0] + 0.5 * dt * k1[0], state_[1] + 0.5 * dt * k1[1]};
+        auto k2 = derivatives(s_k2, Va, tau_L);
+
+        State s_k3 = {state_[0] + 0.5 * dt * k2[0], state_[1] + 0.5 * dt * k2[1]};
+        auto k3 = derivatives(s_k3, Va, tau_L);
+
+        State s_k4 = {state_[0] + dt * k3[0], state_[1] + dt * k3[1]};
+        auto k4 = derivatives(s_k4, Va, tau_L);
+
+        state_[0] += (dt / 6.0) * (k1[0] + 2.0 * k2[0] + 2.0 * k3[0] + k4[0]);
+        state_[1] += (dt / 6.0) * (k1[1] + 2.0 * k2[1] + 2.0 * k3[1] + k4[1]);
+    }
+
+    double speed() const { return state_[0]; }
+    double current() const { return state_[1]; }
+
+private:
+    DCMotorParams p_;
+    State state_;
+};
+
+int main() {
+    DCMotorParams params;
+    DCMotorSimulator motor(params);
+
+    const double Va = 12.0;       // 12V Step voltage input
+    const double tau_L = 0.20;    // 0.2 N*m load torque applied at t=2.0s
+    const double dt = 0.005;
+    const double t_final = 5.0;
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;Time(s)    Voltage(V)  Load(N*m)   Speed(rad/s)  Speed(rpm)   Current(A)\n&quot;;
+    std::cout &lt;&lt; &quot;----------------------------------------------------------------------\n&quot;;
+
+    for (double t = 0.0; t &lt;= t_final; t += dt) {
+        double current_load = (t &gt;= 2.0) ? tau_L : 0.0;
+        motor.stepRK4(Va, current_load, dt);
+
+        if (std::abs(std::remainder(t, 0.5)) &lt; 1e-6) {
+            std::cout &lt;&lt; std::setw(7) &lt;&lt; t &lt;&lt; &quot;    &quot;
+                      &lt;&lt; std::setw(10) &lt;&lt; Va &lt;&lt; &quot;  &quot;
+                      &lt;&lt; std::setw(9) &lt;&lt; current_load &lt;&lt; &quot;   &quot;
+                      &lt;&lt; std::setw(12) &lt;&lt; motor.speed() &lt;&lt; &quot;  &quot;
+                      &lt;&lt; std::setw(10) &lt;&lt; motor.speed() * 60.0 / (2.0 * M_PI) &lt;&lt; &quot;   &quot;
+                      &lt;&lt; std::setw(10) &lt;&lt; motor.current() &lt;&lt; &quot;\n&quot;;
+        }
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>4 Dạng mô hình động lực:</strong> Phương trình vi phân vào-ra, Biến trạng thái vector, Hàm truyền Laplace, và Sơ đồ khối là các cách nhìn tương đương của cùng một bản chất vật lý.</li><li><strong>Chuyển đổi trạng thái $\to$ hàm truyền:</strong> Công thức $G(s) = C(sI - A)^{-1}B + D$ kết nối trực tiếp nghiệm định thức $\det(sI - A) = 0$ với các điểm cực hệ thống.</li><li><strong>Tương tác Cơ - Điện Servomotor:</strong> Dòng điện phần ứng sinh mô-men kéo cơ cấu quay; ngược lại vận tốc góc sinh sức điện động phản kháng kiềm chế dòng điện.</li><li><strong>Tuyến tính hóa Taylor:</strong> Cho phép xấp xỉ chính xác các cơ cấu phi tuyến quanh điểm cân bằng làm việc cục bộ phục vụ thiết kế bộ điều khiển tuyến tính LTI.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 2.1: Chuyển đổi mô hình cơ học lò xo - giảm chấn sang dạng CCF</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một hệ thống cơ học giảm chấn tịnh tiến gồm một vật nặng khối lượng $M = 2\text{ kg}$, một giảm chấn có hệ số ma sát nhớt $B = 8\text{ N}\cdot\text{s/m}$, và một lò xo có độ cứng $K = 10\text{ N/m}$. Lực tác động ngoài là $f(t)$ và chuyển vị của vật là $x(t)$. Hãy: 1) Lập phương trình vi phân và tìm hàm truyền $G(s) = \frac{X(s)}{F(s)}$. 2) Biến đổi hệ sang dạng chính tắc điều khiển được (Controllable Canonical Form - CCF). 3) Tìm các điểm cực của hệ thống và nhận xét đặc tính tắt dần.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>1) Định luật II Newton: $M \ddot{x} + B \dot{x} + K x = f(t) \implies 2 \ddot{x} + 8 \dot{x} + 10 x = f(t)$. Chia cho 2: $\ddot{x} + 4 \dot{x} + 5 x = 0.5 f(t)$.<br>Hàm truyền: $G(s) = \frac{0.5}{s^2 + 4s + 5}$.<br>2) Theo dạng chính tắc điều khiển CCF: Đa thức mẫu có $a_1 = 4, a_0 = 5$; tử số $b_0 = 0.5$.<br>Chọn biến trạng thái $z_1 = x, z_2 = \dot{x}$:<br>$\begin{bmatrix} \dot{z}_1 \\ \dot{z}_2 \end{bmatrix} = \begin{bmatrix} 0 & 1 \\ -5 & -4 \end{bmatrix} \begin{bmatrix} z_1 \\ z_2 \end{bmatrix} + \begin{bmatrix} 0 \\ 1 \end{bmatrix} f(t)$, $y = \begin{bmatrix} 0.5 & 0 \end{bmatrix} \begin{bmatrix} z_1 \\ z_2 \end{bmatrix}$.<br>3) Phương trình đặc trưng: $s^2 + 4s + 5 = 0 \implies s_{1,2} = -2 \pm j 1$. Điểm cực là cặp phức liên hợp có phần thực âm, hệ thuộc dạng dưới tắt dần (Underdamped) với hệ số dập tắt $\zeta = \frac{2}{\sqrt{5}} \approx 0.894$ và tần số dao động tự nhiên $\omega_n = \sqrt{5} \approx 2.236\text{ rad/s}$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch01.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 01: Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</span>
+        </a>
+        <a href="ch03.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 03: Phân Tích Đáp Ứng Động Thái Miền Thời Gian →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim02 === "function") {
+        initSim02();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

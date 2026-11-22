@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Mô Hình Ma Sát Tĩnh & Ma Sát Động (Coulomb, Stribeck, Dahl & LuGre) | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 05</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link active">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Động Cơ, Thủy Lực & Mô Hình Ma Sát</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 5 (Trang 191–206)</span>
+        </div>
+        <h1 class="chapter-title">Chương 05: Mô Hình Ma Sát Tĩnh & Ma Sát Động (Coulomb, Stribeck, Dahl & LuGre)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô hình tĩnh Stribeck, Ma sát động Dahl, LuGre bristle deflection & Stick-slip</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Tại sao các robot cánh tay khi di chuyển ở vận tốc cực kỳ chậm (như khi tra đầu vít, mài bóng bề mặt hoặc phẫu thuật tinh vi) lại bị hiện tượng <strong>giật cục từng nhịp (Stick-Slip motion)</strong> thay vì trượt êm ái? Nguyên nhân xuất phát từ <em>hiện tượng Stribeck và tính đàn hồi vi mô của bề mặt tiếp xúc</em>: ma sát tĩnh cực đại $F_s$ lớn hơn nhiều so với ma sát trượt động Coulomb $F_c$. Các mô hình ma sát tĩnh đơn giản $F = F_c \operatorname{sgn}(v)$ gây ra lỗi chia cho 0 và chattering tại vận tốc $v = 0$. <strong>Mô hình ma sát động LuGre (Lund-Grenoble 1995)</strong> xem bề mặt tiếp xúc như hàng triệu lông tơ đàn hồi vi mô, giải quyết triệt để bài toán mô phỏng và bù ma sát chính xác cao.</p>
+        </div>
+        <p>Mô hình LuGre nắm bắt toàn bộ các hiện tượng vật lý phức tạp: Ma sát tĩnh, hiệu ứng Stribeck suy giảm lực ở vận tốc thấp, trễ pha ma sát (Frictional hysteresis), và độ dịch chuyển trước khi trượt (Pre-sliding displacement).</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Mô hình ma sát tĩnh kinh điển Stribeck biểu diễn lực ma sát theo vận tốc tức thời:</p>
+        $$\begin{equation}
+        F_{static}(v) = \left( F_c + (F_s - F_c) e^{-(v/v_s)^2} \right) \operatorname{sgn}(v) + \sigma_2 v
+        \end{equation}$$
+        <p>Với $F_c$ là lực Coulomb, $F_s$ là lực ma sát tĩnh cực đại (Stiction), $v_s$ là vận tốc Stribeck đặc trưng, $\sigma_2$ là hệ số cản nhớt.</p>
+        <div class="formula-card">
+          <div class="formula-header">Hệ Phương Trình Mô Hình Ma Sát Động Học LuGre (1995)</div>
+          $$\begin{align}
+          \dot{z} &= v - \frac{\sigma_0 |v|}{g(v)} z \\
+          g(v) &= F_c + (F_s - F_c) e^{-(v/v_s)^2} \\
+          F_f &= \sigma_0 z + \sigma_1 \dot{z} + \sigma_2 v
+          \end{align}$$
+        </div>
+        <p>Trong đó:</p>
+        <ul>
+          <li>$z$: Biến trạng thái độ võng trung bình của các lông tơ vi mô (Average bristle deflection, mét).</li>
+          <li>$\sigma_0$: Độ cứng đàn hồi của lông tơ vi mô ($\text{N/m}$).</li>
+          <li>$\sigma_1$: Hệ số cản giảm chấn của lông tơ ($\text{N}\cdot\text{s/m}$).</li>
+          <li>$g(v)$: Hàm bao Stribeck định hình giá trị bão hòa của độ võng lông tơ tại trạng thái dừng: $z_{ss} = \frac{g(v)}{\sigma_0} \operatorname{sgn}(v)$.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p><strong>Tính thụ động của mô hình LuGre:</strong> GS. Canudas de Wit và Egeland đã chứng minh ánh xạ từ vận tốc $v(t)$ sang lực ma sát $F_f(t)$ là một toán tử thụ động nghiêm ngặt nếu $\sigma_1 \le \frac{4 g(v)}{\sigma_0 |v|}$. Điều này đảm bảo khi tích hợp mô hình bù ma sát LuGre vào vòng điều khiển kín, robot không bao giờ bị mất ổn định.</p>
+        <p><strong>Mô hình Elasto-Plastic (Đàn-Dẻo):</strong> Để khắc phục hiện tượng trôi dạt lông tơ vô lý khi đảo chiều lực nhỏ trong vùng pre-sliding, mô hình Elasto-Plastic phân chia độ võng $z$ thành thành phần đàn hồi thuận nghịch $z_e$ và thành phần biến dạng dẻo trượt $z_p$.</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Lực Ma Sát Động LuGre & Khảo Sát Hiện Tượng Stick-Slip</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khớp trượt robot có các thông số mô hình ma sát LuGre đã nhận dạng như sau: Lực Coulomb $F_c = 15.0\text{ N}$, lực ma sát tĩnh $F_s = 25.0\text{ N}$, vận tốc Stribeck $v_s = 0.05\text{ m/s}$, độ cứng lông tơ $\sigma_0 = 10^5\text{ N/m}$, hệ số cản lông tơ $\sigma_1 = 300\text{ N}\cdot\text{s/m}$, hệ số nhớt $\sigma_2 = 2.0\text{ N}\cdot\text{s/m}$.<br>Tại thời điểm khảo sát, robot chuyển động ở vận tốc rất chậm $v = 0.02\text{ m/s}$ và độ võng lông tơ hiện thời $z = 1.2 \times 10^{-4}\text{ m}$ ($0.12\text{ mm}$).<br>Yêu cầu: (a) Tính giá trị hàm Stribeck $g(v)$; (b) Tính tốc độ biến thiên độ võng $\dot{z}$; (c) Xác định lực ma sát LuGre tổng hợp $F_f$; (d) So sánh với giá trị ma sát dừng trạng thái xác lập $F_{ss}$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính giá trị hàm Stribeck $g(v)$ tại $v = 0.02\text{ m/s}$:<br>Tỷ số vận tốc: $v / v_s = 0.02 / 0.05 = 0.40 \implies (v / v_s)^2 = 0.16$.<br>Hàm số mũ: $e^{-0.16} \approx 0.8521$.<br>Hàm Stribeck:<br>$$g(v) = F_c + (F_s - F_c) e^{-(v/v_s)^2} = 15.0 + (25.0 - 15.0) \times 0.8521 = 15.0 + 8.521 = 23.521\text{ N}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính tốc độ biến thiên độ võng lông tơ $\dot{z}$:<br>Công thức vi phân LuGre: $\dot{z} = v - \frac{\sigma_0 |v|}{g(v)} z$<br>Tích trung gian:<br>$$\frac{\sigma_0 |v|}{g(v)} z = \frac{10^5 \times 0.02}{23.521} \times (1.2 \times 10^{-4}) = \frac{2000}{23.521} \times 1.2 \times 10^{-4} \approx 85.03 \times 1.2 \times 10^{-4} \approx 0.01020\text{ m/s}$$<br>Do đó tốc độ biến thiên độ võng:<br>$$\dot{z} = 0.0200 - 0.01020 = +0.00980\text{ m/s} = 9.80\text{ mm/s}$$<br>(Độ võng lông tơ đang tiếp tục uốn cong tăng lên vì $\dot{z} \gt 0$).</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán lực ma sát LuGre tổng hợp $F_f = \sigma_0 z + \sigma_1 \dot{z} + \sigma_2 v$:<br>• Lực đàn hồi lông tơ: $F_{bristle} = \sigma_0 z = 10^5 \times (1.2 \times 10^{-4}) = 12.000\text{ N}$.<br>• Lực cản giảm chấn lông tơ: $F_{damping} = \sigma_1 \dot{z} = 300 \times 0.00980 = 2.940\text{ N}$.<br>• Lực cản nhớt: $F_{viscous} = \sigma_2 v = 2.0 \times 0.02 = 0.040\text{ N}$.<br>Tổng hợp lực ma sát tức thời:<br>$$F_f = 12.000 + 2.940 + 0.040 = 14.980\text{ N}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>So sánh với trạng thái dừng xác lập (Steady-state):<br>Khi đạt trạng thái dừng ($\dot{z} = 0$), độ võng cực đại: $z_{ss} = \frac{g(v)}{\sigma_0} = \frac{23.521}{10^5} = 2.352 \times 10^{-4}\text{ m} = 0.235\text{ mm}$.<br>Lực ma sát dừng tương ứng: $F_{ss} = g(v) + \sigma_2 v = 23.521 + 0.040 = 23.561\text{ N}$.<br>Diễn giải: Lực ma sát hiện tại ($14.98\text{ N}$) nhỏ hơn lực ma sát dừng ($23.56\text{ N}$) vì lông tơ chưa bị uốn cong đến giới hạn bão hòa. Khả năng mô phỏng sự trễ pha đàn hồi vi mô này chính là ưu thế vượt trội giúp LuGre mô phỏng hoàn hảo hiện tượng Stick-Slip mà mô hình tĩnh hoàn toàn bất lực.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 05: Hiện Tượng Stick-Slip & Đường Cong Ma Sát Động LuGre</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-05" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Vận tốc kéo v_drive: <span id="sim05-v-val">0.05</span> m/s</label>
+              <input type="range" id="sim05-v" min="0.01" max="0.30" step="0.01" value="0.05">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim05-stats" class="sim-telemetry-text">Kéo vận tốc xuống cực thấp (< 0.06 m/s) để chứng kiến khối m bị dính-trượt giật cục, và các lông tơ màu cam uốn cong biến dạng.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// LuGre Friction Model Implementation in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+class LuGreFriction {
+public:
+    LuGreFriction(double fc, double fs, double vs, double s0, double s1, double s2)
+        : Fc(fc), Fs(fs), vs(vs), sigma0(s0), sigma1(s1), sigma2(s2), z(0.0) {}
+
+    double computeFriction(double v, double dt) {
+        double g_v = Fc + (Fs - Fc) * std::exp(-std::pow(v / vs, 2.0));
+        double dz = v - (sigma0 * std::abs(v) / g_v) * z;
+        z += dz * dt;
+        return sigma0 * z + sigma1 * dz + sigma2 * v;
+    }
+
+    double getDeflection() const { return z; }
+
+private:
+    double Fc, Fs, vs, sigma0, sigma1, sigma2;
+    double z; // bristle state
+};
+
+int main() {
+    LuGreFriction friction(15.0, 25.0, 0.05, 1e5, 300.0, 2.0);
+    double v = 0.02, dt = 0.001;
+    double F = friction.computeFriction(v, dt);
+    
+    std::cout &lt;&lt; &quot;Computed LuGre Friction Force: &quot; &lt;&lt; F &lt;&lt; &quot; N\n&quot;;
+    std::cout &lt;&lt; &quot;Bristle Deflection z: &quot; &lt;&lt; friction.getDeflection() * 1e3 &lt;&lt; &quot; mm\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Hạn chế của mô hình tĩnh:</strong> Mô hình Coulomb-Stribeck tĩnh gặp bế tắc gián đoạn tại $v=0$ và không giải thích được hiện tượng trễ pha.</li><li><strong>Mô hình LuGre:</strong> Mô hình hóa độ võng vi mô của lông tơ bề mặt $z$, tái hiện trung thực hiện tượng Stick-Slip ở vận tốc siêu chậm.</li><li><strong>Hiệu ứng Stribeck:</strong> Hiện tượng lực ma sát suy giảm khi bắt đầu trượt, nguồn gốc sinh ra chu trình giới hạn tự kích dao động.</li><li><strong>Bù ma sát trong Robotics:</strong> Sử dụng bộ quan sát trạng thái lông tơ $\hat{z}$ để triệt tiêu ma sát feedforward trong điều khiển lực và vị trí.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 5.1: Kiểm tra điều kiện thụ động của LuGre</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Tại điểm vận hành trên ($g(v) = 23.521\text{ N}, v = 0.02\text{ m/s}$), hãy kiểm tra điều kiện thụ động nghiêm ngặt $\sigma_1 \le \frac{4 g(v)}{\sigma_0 |v|}$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Ngưỡng giới hạn cản: $\\frac{4 g(v)}{\\sigma_0 |v|} = \\frac{4 \\times 23.521}{10^5 \\times 0.02} = \\frac{94.084}{2000} = 0.0470\\text{ s} = 47.0\\text{ ms}$. Nếu chuẩn hóa hệ số cản theo công thức thụ động, $\\sigma_1$ phải được lựa chọn phù hợp để bộ bù ma sát không sinh công ảo.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch04.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 04: Động Lực Học Hệ Thủy Lực</span>
+        </a>
+        <a href="ch06.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Động Học Vật Rắn 3D: Quaternions & Dyadics Quán Tính →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim05 === "function") {
+        initSim05();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

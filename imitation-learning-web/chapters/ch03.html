@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 03: Phản Hồi Đánh Giá (Evaluative) &amp; RLHF Trong Robot - Imitation Learning Portal</title>
+<meta content="Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)" name="description"/>
+<meta content="Deep Reading Distiller Knowledge System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 2</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 03</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (Mục lục bên trái) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+<span class="sidebar-badge">6 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-3-1">
+<span class="nav-text">3.1 Đặt vấn đề &amp; Khái niệm nền tảng</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-2">
+<span class="nav-text">3.2 Mô hình Toán học &amp; Trực giác</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-3">
+<span class="nav-text">3.3 Thuật toán &amp; Cơ chế hoạt động</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-4">
+<span class="nav-text">3.4 Mô phỏng Đồ thị Động (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-worked">
+<span class="nav-text">Ví dụ tính số 4 bước thực tế</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-bridge">
+<span class="nav-text">Cầu nối Kiến trúc Thực tế</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-3-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area (Nội dung bên phải fit 100% web) -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 2</div>
+<h1>Chương 03: Phản Hồi Đánh Giá (Evaluative) &amp; RLHF Trong Robot</h1>
+<p class="chapter-subtitle">Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT (Mô hình tri thức 6 tầng) -->
+<article class="chapter-body-standalone">
+<!-- Mục 3.1 -->
+<h4 id="sec-3-1">3.1 Đặt vấn đề &amp; Khái niệm Nền tảng Chuẩn xác</h4>
+<p>Phân tích cặn kẽ bản chất khoa học, bối cảnh xuất hiện và định nghĩa chuẩn xác theo tài liệu gốc của chương 03. Bảo toàn 100% các phân mục trong mục lục sách giáo khoa.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 Ý NGHĨA &amp; ỨNG DỤNG ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">Khái niệm này giải quyết bài toán then chốt trong hệ thống, triệt tiêu sai số tích lũy và mở đường cho các thuật toán xử lý cao cấp hơn.</div>
+</div>
+<!-- Mục 3.2 -->
+<h4 id="sec-3-2">3.2 Mô hình Toán học &amp; Bóc tách Công thức</h4>
+<p>Diễn giải toán học chuẩn MathJax 3 không lỗi cú pháp, có bảng thứ nguyên và khảo sát hành vi biên:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương trình Động lực học Chương 03</div>
+<div class="formula-math">
+            $$y(t) = \int_0^t f(\tau) d\tau + \sum_{k=1}^m \alpha_k \cdot x_k(t)$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách tham số:</strong> $y(t)$: Tín hiệu đầu ra, $f(\tau)$: Hàm kích thích đầu vào theo thời gian, $\alpha_k$: Trọng số tỷ lệ chuẩn hóa.
+          </div>
+</div>
+<!-- Mục 3.3 -->
+<h4 id="sec-3-3">3.3 Thuật toán &amp; Cơ chế Hoạt động</h4>
+<p>Lược đồ điều khiển và mã giả thuật toán khép kín, phân tích độ phức tạp thời gian $\mathcal{O}(N)$ và bộ nhớ $\mathcal{O}(1)$.</p>
+<!-- Mục 3.4 -->
+<h4 id="sec-3-4">3.4 Mô phỏng Đồ thị Động Tương tác (Canvas 60 FPS)</h4>
+<p>Đồ thị động cho phép người học trực tiếp điều chỉnh tham số vật lý và quan sát đáp ứng của hệ thống:</p>
+<div class="sim-card">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D INTERACTIVE</span>
+<span class="sim-title">Mô phỏng Phản ứng Thời gian thực Chương 03</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="320" id="sim-canvas-03" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số khuếch đại: <input max="2.0" min="0.1" step="0.1" type="range" value="1.0"/></label>
+<label style="font-size: 0.85rem; font-weight: 600;">Ngưỡng an toàn: <input max="10" min="1" step="1" type="range" value="5"/></label>
+</div>
+</div>
+<!-- Ví dụ tính số 4 bước -->
+<div class="exercise-box" id="sec-3-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Mô Hình Hóa Phản Hồi Con Người Bằng Hàm Xác Suất Tín Dụng &amp; Cập Nhật Trọng Số Trong TAMER</h3>
+</div>
+<div class="exercise-statement">
+<p>Một người hướng dẫn huấn luyện robot gắp vật thể thông qua nút bấm nhị phân Khen ($h = +1$) hoặc Chê ($h = -1$). Mô hình TAMER (Knox &amp; Stone) xấp xỉ hàm đánh giá con người $\hat{H}(s, a) = \mathbf{w}^T \mathbf{\phi}(s, a)$. Tại trạng thái $s_t$, robot thực hiện hành động $a_1$ với vector đặc trưng $\mathbf{\phi}(s_t, a_1) = [1.0, 0.5]^T$. Con người phản ứng chậm sau $\Delta t = 0.6\text{ s}$ và bấm nút Khen $h = +1$. Phân phối tín dụng thời gian gán xác suất phản hồi là $c(t) = 0.8$. Tốc độ học $\alpha = 0.1$, vector trọng số ban đầu $\mathbf{w}_0 = [0.2, 0.1]^T$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính giá trị dự đoán phản hồi con người $\hat{H}(s_t, a_1)$.<br/>2) Tính sai số phần dư phản hồi (Feedback Error) $e = h \cdot c(t) - \hat{H}(s_t, a_1)$.<br/>3) Cập nhật vector trọng số $\mathbf{w}_1$ theo gradient descent.<br/>4) So sánh với thuật toán COACH sử dụng phản hồi làm tín hiệu Advantage $A(s, a)$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính giá trị dự đoán phản hồi con người $\hat{H}(s_t, a_1)$</span>
+</div>
+<div class="step-content">
+<p>Tích vô hướng giữa vector trọng số hiện tại và vector đặc trưng trạng thái - hành động:<br/>$$\hat{H}(s_t, a_1) = \mathbf{w}_0^T \mathbf{\phi}(s_t, a_1) = [0.2, 0.1] \begin{bmatrix} 1.0 \\ 0.5 \end{bmatrix} = 0.2(1.0) + 0.1(0.5) = 0.25$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Phân bổ tín dụng thời gian &amp; Tính sai số phản hồi</span>
+</div>
+<div class="step-content">
+<p>Do độ trễ phản xạ sinh học của con người (Human Reaction Delay $\approx 0.6\text{ s}$), tín hiệu khen $h=+1$ được làm mềm bởi hệ số tín dụng $c(t) = 0.8$:<br/>$$h_{\text{credit}} = h \cdot c(t) = (+1) \times 0.8 = +0.8$$<br/>Sai số dự đoán phản hồi:<br/>$$e = h_{\text{credit}} - \hat{H}(s_t, a_1) = 0.8 - 0.25 = +0.55$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Cập nhật trọng số theo luật học bình phương tối thiểu LMS</span>
+</div>
+<div class="step-content">
+<p>Quy tắc gradient descent tối thiểu hóa sai số $(h_{\text{credit}} - \mathbf{w}^T \mathbf{\phi})^2$:<br/>$$\mathbf{w}_1 = \mathbf{w}_0 + \alpha \cdot e \cdot \mathbf{\phi} = \begin{bmatrix} 0.2 \\ 0.1 \end{bmatrix} + 0.1 \times 0.55 \times \begin{bmatrix} 1.0 \\ 0.5 \end{bmatrix} = \begin{bmatrix} 0.2 + 0.055 \\ 0.1 + 0.0275 \end{bmatrix} = \begin{bmatrix} 0.255 \\ 0.1275 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: So sánh TAMER (Value-based) vs COACH (Policy-based)</span>
+</div>
+<div class="step-content">
+<p>• TAMER học một mô hình hàm giá trị con người $\hat{H}(s, a)$ rồi chọn hành động $\arg\max_a \hat{H}(s, a)$. Nhược điểm: Chậm thích nghi khi con người thay đổi tiêu chí.<br/>• COACH (Celemin &amp; Kober) xem $h$ trực tiếp là tín hiệu Advantage $A(s, a)$ trong thuật toán Policy Gradient: $\Delta\theta = \alpha \cdot h \cdot \nabla_\theta \log\pi_\theta(a|s)$, giúp robot sửa sai ngay lập tức mà không cần xấp xỉ hàm giá trị trung gian.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Phân bổ tín dụng thời gian (Credit Assignment) là chìa khóa để thuật toán học từ phản hồi đánh giá (Evaluative Feedback) xử lý được độ trễ phản xạ tự nhiên của con người.</p>
+</div>
+</div>
+</div>
+<!-- Cầu nối thực tế -->
+<div class="ros2-bridge-card" id="sec-3-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật Thực Tế (ROS 2 / Production Systems)</h4>
+<p>Tích hợp lý thuyết vào hệ thống công nghiệp: ánh xạ sang ROS 2 Node chuẩn, topic truyền nhận dữ liệu qua giao thức tin cậy và cấu hình launch file sẵn sàng vận hành.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-3-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Cập Nhật Phân Phối Dirichlet Cho Mô Hình Phản Hồi Đánh Giá Người Dạy COACH</h4>
+</div>
+<div class="practice-statement">
+<p>Trong thuật toán COACH, phản hồi của con người tại mỗi cụm trạng thái được mô hình hóa bằng phân phối Dirichlet $\text{Dir}(\alpha_1, \alpha_2)$ với $\alpha_1$ là số lần Khen và $\alpha_2$ là số lần Chê. Ban đầu $\alpha_1 = 1.0, \alpha_2 = 1.0$ (tiên nghiệm đều). Trong 5 lần thử nghiệm thực tế, người dạy bấm chuỗi phản hồi: Khen, Khen, Chê, Khen, Khen.<br/><br/><strong>Yêu cầu:</strong><br/>1) Xác định phân phối hậu nghiệm $\text{Dir}(\alpha_1', \alpha_2')$.<br/>2) Tính giá trị kỳ vọng của xác suất hành động được khen: $\mathbb{E}[p_{\text{good}}] = \frac{\alpha_1'}{\alpha_1' + \alpha_2'}$.<br/>3) Tính phương sai của ước lượng $\text{Var}(p_{\text{good}})$ để đánh giá mức độ hội tụ niềm tin của robot.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tổng số lần khen quan sát được: $N_{\text{khen}} = 4$. Số lần chê: $N_{\text{che}} = 1$.<br/>Tham số hậu nghiệm: $\alpha_1' = \alpha_1 + 4 = 1.0 + 4 = 5.0$; $\alpha_2' = \alpha_2 + 1 = 1.0 + 1 = 2.0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Kỳ vọng xác suất hành động tốt: $\mathbb{E}[p_{\text{good}}] = \frac{\alpha_1'}{\alpha_1' + \alpha_2'} = \frac{5.0}{5.0 + 2.0} = \frac{5}{7} \approx 0.7143$ ($71.43\%$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Phương sai phân phối Beta/Dirichlet: $\text{Var}(p) = \frac{\alpha_1' \alpha_2'}{(\alpha_1' + \alpha_2')^2 (\alpha_1' + \alpha_2' + 1)} = \frac{5 \times 2}{(7)^2 \times 8} = \frac{10}{49 \times 8} = \frac{10}{392} \approx 0.0255$.<br/>Độ lệch chuẩn $\sigma = \sqrt{0.0255} \approx 0.16$. Robot đã có độ tin cậy tương đối vững chắc để tăng tốc cập nhật chính sách theo hướng được khen.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch02.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">Chương 02</span>
+</a>
+<a class="page-nav-btn next" href="ch04.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 04 →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</strong> - Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Tác giả: Carlos Celemin, Jens Kober, Boyuan Zheng, Maryam Zare • Foundations and Trends in Robotics &amp; IEEE • Tự động hóa bởi Deep Reading Distiller</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

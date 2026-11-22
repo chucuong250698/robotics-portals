@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Biểu Diễn Mô Hình: Không Gian Trạng Thái, Tuyến Tính Hóa & Bond Graph | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 01</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link active">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Mô Hình Hóa & Phân Tích Thụ Động</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 1 (Trang 3–40)</span>
+        </div>
+        <h1 class="chapter-title">Chương 01: Biểu Diễn Mô Hình: Không Gian Trạng Thái, Tuyến Tính Hóa & Bond Graph</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô hình không gian trạng thái, Tuyến tính hóa Taylor & Đồ thị Bond Graph</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Mọi hệ thống robot và cơ điện trong thực tế đều là hệ thống đa miền ghép nối phức tạp (Cơ khí, Điện tử, Từ trường, Thủy lực). Nếu không có một ngôn ngữ biểu diễn toán học hợp nhất, kỹ sư cơ khí sẽ viết phương trình vi phân theo lực $F = ma$, kỹ sư điện viết theo định luật Kirchhoff $V = IR + L\dot{I}$, và kỹ sư điều khiển sẽ bị bế tắc khi tích hợp toàn hệ thống! <strong>Không gian trạng thái (State-space)</strong> và <strong>Đồ thị liên kết Bond Graph</strong> chuẩn hóa mọi miền vật lý thông qua hai đại lượng vạn năng: <em>Biến nỗ lực (Effort $e$)</em> và <em>Biến dòng chảy (Flow $f$)</em> với tích của chúng luôn là công suất thực $P(t) = e(t)f(t)$.</p>
+        </div>
+        <p>Bên cạnh đó, các phương trình cơ học robot luôn chứa các hàm phi tuyến lượng giác ($\sin\theta, \cos\theta$) hoặc phi tuyến vận tốc ($\dot{\theta}^2$). Để áp dụng các công cụ điều khiển tuyến tính kinh điển (PID, LQR, Bode), kỹ sư bắt buộc phải thành thạo kỹ thuật <strong>Tuyến tính hóa chuỗi Taylor quanh điểm cân bằng vận hành</strong>.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Mô hình không gian trạng thái phi tuyến tổng quát của hệ động lực học:</p>
+        $$\begin{align}
+        \dot{\mathbf{x}} &= \mathbf{f}(\mathbf{x}, \mathbf{u}), \quad \mathbf{x} \in \mathbb{R}^n, \, \mathbf{u} \in \mathbb{R}^m \\
+        \mathbf{y} &= \mathbf{h}(\mathbf{x}, \mathbf{u}), \quad \mathbf{y} \in \mathbb{R}^p
+        \end{align}$$
+        <p>Điểm cân bằng $\mathbf{x}_0$ ứng với đầu vào danh định $\mathbf{u}_0$ thỏa mãn điều kiện dừng: $\mathbf{f}(\mathbf{x}_0, \mathbf{u}_0) = \mathbf{0}$.</p>
+        <div class="formula-card">
+          <div class="formula-header">Ma Trận Tuyến Tính Hóa Jacobian Chuỗi Taylor Bậc 1</div>
+          $$\begin{equation}
+          \Delta \dot{\mathbf{x}} = \mathbf{A} \Delta \mathbf{x} + \mathbf{B} \Delta \mathbf{u}, \qquad \Delta \mathbf{y} = \mathbf{C} \Delta \mathbf{x} + \mathbf{D} \Delta \mathbf{u}
+          \end{equation}$$
+          $$\begin{equation}
+          \mathbf{A} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}, \quad \mathbf{B} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{u}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}, \quad \mathbf{C} = \left. \frac{\partial \mathbf{h}}{\partial \mathbf{x}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}, \quad \mathbf{D} = \left. \frac{\partial \mathbf{h}}{\partial \mathbf{u}} \right|_{(\mathbf{x}_0, \mathbf{u}_0)}
+          \end{equation}$$
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Trong lý thuyết mạng và Bond Graph (Paynter 1961), các phần tử lưu trữ và tiêu tán năng lượng được phân loại theo cấu trúc cổng:</p>
+        <ul>
+          <li><strong>Phần tử lưu thế năng (C-element):</strong> Tích lũy biến vị trí $q = \int f dt$, quan hệ trạng thái $e = \frac{1}{C} q$ (Tụ điện, Lò xo đàn hồi, Bình tích áp).</li>
+          <li><strong>Phần tử lưu động năng (I-element):</strong> Tích lũy biến động lượng $p = \int e dt$, quan hệ trạng thái $f = \frac{1}{I} p$ (Cuộn cảm, Khối lượng cơ học, Quán tính quay).</li>
+          <li><strong>Phần tử tiêu tán (R-element):</strong> Biến đổi năng lượng thành nhiệt $e = R f$ (Điện trở, Ống giảm chấn nhớt, Ma sát).</li>
+          <li><strong>Biến đổi năng lượng (TF / GY):</strong> Biến áp (Transformer) và Con quay con lắc (Gyrator) bảo toàn công suất $e_1 f_1 = e_2 f_2$.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tuyến Tính Hóa Hệ Thống Động Cơ DC Kéo Tải Có Trọng Lực Phi Tuyến</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một động cơ DC dẫn động trực tiếp cánh tay robot 1 bậc tự do có chiều dài $l = 0.5\\text{ m}$, khối lượng đầu công tác $m = 2.0\\text{ kg}$, gia tốc trọng trường $g = 9.81\\text{ m/s}^2$. Mô-men quán tính tổng quy đổi về trục động cơ $J = 0.25\\text{ kg}\\cdot\\text{m}^2$, hệ số cản nhớt $B = 0.10\\text{ N}\\cdot\\text{m}\\cdot\\text{s/rad}$. Động cơ có hằng số mô-men $K_t = 0.50\\text{ N}\\cdot\\text{m/A}$, điện trở phần ứng $R_a = 2.0\\,\\Omega$, điện cảm bỏ qua ($L_a \\approx 0$), hằng số suất điện động ngược $K_b = 0.50\\text{ V}\\cdot\\text{s/rad}$. Phương trình chuyển động góc quay $\\theta$:<br>$$J\\ddot{\\theta} + B\\dot{\\theta} + mgl\\sin\\theta = \\tau = K_t i_a = \\frac{K_t}{R_a}(V_a - K_b \\dot{\\theta})$$<br>Yêu cầu: Hãy xác định điện áp cân bằng $V_{a0}$ để giữ cánh tay nằm ngang ($\\theta_0 = \\pi/2 = 90^\\circ, \\dot{\\theta}_0 = 0$), thiết lập hệ ma trận trạng thái tuyến tính hóa $A, B$, và đánh giá các trị riêng (Eigenvalues) của hệ thống.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Chọn vector trạng thái $\mathbf{x} = [x_1, x_2]^T = [\theta, \dot{\theta}]^T$ và đầu vào $u = V_a$.<br>Phương trình không gian trạng thái phi tuyến:<br>$$\begin{cases} \dot{x}_1 = x_2 \\ \dot{x}_2 = -\frac{mgl}{J}\sin(x_1) - \left(\frac{B + K_t K_b / R_a}{J}\right) x_2 + \frac{K_t}{J R_a} u \end{cases}$$<br>Tính các tham số số học cụ thể:<br>• Trọng lực: $\frac{mgl}{J} = \frac{2.0 \times 9.81 \times 0.5}{0.25} = \frac{9.81}{0.25} = 39.24\\text{ s}^{-2}$.<br>• Cản tổng hợp: $\frac{K_t K_b}{R_a} = \frac{0.5 \times 0.5}{2.0} = 0.125\\text{ N}\\cdot\\text{m}\\cdot\\text{s/rad}$.<br>Hệ số cản quy đổi: $\frac{B + 0.125}{J} = \frac{0.10 + 0.125}{0.25} = \frac{0.225}{0.25} = 0.90\\text{ s}^{-1}$.<br>• Độ khuếch đại vào: $\frac{K_t}{J R_a} = \frac{0.50}{0.25 \times 2.0} = 1.00\\text{ rad}/(\\text{V}\\cdot\\text{s}^2)$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định điểm cân bằng vận hành và điện áp giữ tải $V_{a0}$:<br>Tại điểm nằm ngang $\theta_0 = \pi/2$ và $\dot{\theta}_0 = 0$:<br>$$\dot{x}_2 = 0 \implies -39.24 \sin(\pi/2) - 0.90(0) + 1.00 V_{a0} = 0 \implies V_{a0} = 39.24\text{ Volts}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán các ma trận Jacobian tuyến tính hóa chuỗi Taylor:<br>$$\mathbf{A} = \left. \begin{bmatrix} \frac{\partial \dot{x}_1}{\partial x_1} & \frac{\partial \dot{x}_1}{\partial x_2} \\ \frac{\partial \dot{x}_2}{\partial x_1} & \frac{\partial \dot{x}_2}{\partial x_2} \end{bmatrix} \right|_{(\theta_0, 0)} = \begin{bmatrix} 0 & 1 \\ -39.24\cos(x_1) & -0.90 \end{bmatrix}_{x_1 = \pi/2} = \begin{bmatrix} 0 & 1 \\ 0 & -0.90 \end{bmatrix}$$<br>$$\mathbf{B} = \left. \begin{bmatrix} 0 \\ 1.00 \end{bmatrix} \right|_{(\theta_0, 0)} = \begin{bmatrix} 0 \\ 1.00 \end{bmatrix}$$<br>Phương trình đặc trưng tìm trị riêng: $\det(\lambda I - A) = \det\begin{bmatrix} \lambda & -1 \\ 0 & \lambda + 0.90 \end{bmatrix} = \lambda(\lambda + 0.90) = 0$.<br>Các trị riêng: $\lambda_1 = 0$, $\lambda_2 = -0.90$.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Diễn giải ý nghĩa vật lý: Tại vị trí nằm ngang $\\theta_0 = 90^\\circ$, đạo hàm mô-men trọng lực $-\\cos(\\pi/2) = 0$, nghĩa là hệ thống không có độ cứng hồi phục trọng lực (Zero stiffness gradient). Do đó xuất hiện trị riêng $\\lambda_1 = 0$ (Hệ thống nằm ở bờ vực ổn định phiếm định Marginal Stability). Để giữ vững vị trí và triệt tiêu rung lắc, bắt buộc phải có vòng điều khiển phản hồi vị trí góc PID hoặc LQR.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 01: So Sánh Quỹ Đạo Hệ Tuyến Tính Hóa Taylor vs Hệ Phi Tuyến Thực</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-01" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Biên độ góc kích thích $\theta_{amp}$: <span id="sim01-amp-val">1.0</span> rad</label>
+              <input type="range" id="sim01-amp" min="0.2" max="2.5" step="0.1" value="1.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim01-stats" class="sim-telemetry-text">Kéo biên độ góc tăng cao để thấy đường đỏ (phi tuyến thực tế) trôi lệch pha và méo mó rõ rệt so với đường xanh (xấp xỉ tuyến tính).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Linearized State-Space Modeling in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+int main() {
+    // Parameters
+    double m = 2.0, l = 0.5, g = 9.81, J = 0.25, B = 0.10;
+    double Kt = 0.50, Kb = 0.50, Ra = 2.0;
+    
+    double theta_eq = M_PI / 2.0; // 90 deg horizontal
+    double Va_eq = m * g * l * std::sin(theta_eq) / (Kt / Ra);
+    
+    Eigen::Matrix2d A;
+    A &lt;&lt; 0.0, 1.0,
+         -(m * g * l / J) * std::cos(theta_eq), -(B + Kt * Kb / Ra) / J;
+         
+    Eigen::Vector2d B_mat(0.0, Kt / (J * Ra));
+    
+    std::cout &lt;&lt; &quot;Equilibrium Arm Voltage: &quot; &lt;&lt; Va_eq &lt;&lt; &quot; V\n\n&quot;;
+    std::cout &lt;&lt; &quot;Linearized Matrix A:\n&quot; &lt;&lt; A &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Input Matrix B:\n&quot; &lt;&lt; B_mat &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Mô hình không gian trạng thái:</strong> Cấu trúc chuẩn mực mô tả động lực học phi tuyến của hệ thống qua hệ phương trình vi phân cấp 1.</li><li><strong>Tuyến tính hóa Taylor:</strong> Xấp xỉ vi phân bậc nhất quanh điểm cân bằng, nền tảng cho thiết kế bộ điều khiển phản hồi tuyến tính.</li><li><strong>Bond Graph:</strong> Ngôn ngữ mô hình hóa thống nhất đa miền vật lý thông qua biến nỗ lực (Effort) và biến dòng chảy (Flow).</li><li><strong>Bảo toàn công suất:</strong> Tích của Effort và Flow luôn đại diện cho công suất truyền qua cổng kết nối liên hệ thống.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 1.1: Tuyến tính hóa tại điểm thẳng đứng hướng xuống</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Hãy tính ma trận trạng thái tuyến tính hóa $A$ và các trị riêng của hệ thống trên khi cánh tay ở vị trí cân bằng tự nhiên hướng thẳng đứng xuống dưới ($\\theta_0 = 0^\\circ, \\dot{\\theta}_0 = 0$).</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Tại $\\theta_0 = 0$, $\\cos(0) = 1 \\implies A = [0, 1; -39.24, -0.90]$. Phương trình đặc trưng: $\\lambda^2 + 0.90\\lambda + 39.24 = 0$. Trị riêng là cặp phức liên hợp: $\\lambda_{1,2} = -0.45 \\pm j 6.25$ (Hệ thống dao động tắt dần ổn định tiệm cận với tần số tự nhiên $\\omega_n \\approx 6.26\\text{ rad/s}$).</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="../index.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Quay lại Portal Hub</span>
+        </a>
+        <a href="ch02.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Năng Lượng, Tính Thụ Động (Passivity) & Lyapunov →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim01 === "function") {
+        initSim01();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

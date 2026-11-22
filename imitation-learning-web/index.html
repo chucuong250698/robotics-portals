@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Học Bắt Chước Trong Robot Học (Imitation Learning & Interactive IL) - Portal Hub Khảo Sát & Trưng Cất Tri Thức</title>
+  <meta name="description" content="Chương trình chưng cất tri thức chuẩn học thuật đa tầng: Khảo sát hệ thống 14 chương chuyên khảo Học Bắt Chước Trong Robot Học (Imitation Learning & Interactive IL) qua 6 Master Tracks.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div style="background: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 0.6rem 1.5rem; display: flex; align-items: center; justify-content: space-between;"><a href="../index.html" style="font-size: 0.88rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;"><span>🏛️</span><span>Viện Tri Thức Robotics & Hệ Thống Điều Khiển</span></a><span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">PORTAL CHUYÊN KHẢO</span></div>
+
+  <div id="reading-progress"></div>
+  
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-icon">🤖</span>
+        <div class="brand-text">
+          <span class="brand-title">Học Bắt Chước Trong Robot Học (Imitation Learning & Interactive IL)</span>
+          <span class="brand-subtitle">EXPLORABLE KNOWLEDGE PLATFORM • SOTA PEDAGOGICAL PORTAL</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="book-badge">
+        <span class="badge-icon">📖</span> Nguồn: Carlos Celemin et al. (FnT Robotics 2022), Boyuan Zheng (2021) & Maryam Zare (IEEE 2023)
+      </div>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Portal Hub Matrix Roadmap -->
+  <div class="app-layout single-col">
+    <main class="main-content" style="max-width: 1240px; margin: 0 auto; width: 100%; padding: 1.5rem 1rem 4rem;">
+      <section class="curriculum-roadmap" id="curriculum-roadmap">
+        <div class="roadmap-header">
+          <div class="card-track-badge" style="margin-bottom: 0.5rem; display: inline-block;">LỘ TRÌNH TRI THỨC TOÀN DIỆN CHUẨN 6 TẦNG</div>
+          <h2>MA TRẬN CHƯƠNG TRÌNH KHẢO SÁT HỌC BẮT CHƯỚC</h2>
+          <p>Hệ thống tri thức chuyên sâu 14 chương xuyên suốt từ nền tảng toán học MDPs, Behavioral Cloning, DAgger, Dynamic Movement Primitives, Diffusion Policy, Inverse RL, GAIL đến triển khai thực tế trên HuggingFace LeRobot & ALOHA 50 Hz.</p>
+          
+          <div class="roadmap-stats">
+            <span class="stat-badge"><span class="stat-num">14</span> Chương Toàn Diện</span>
+            <span class="stat-badge"><span class="stat-num">6</span> Master Tracks</span>
+            <span class="stat-badge"><span class="stat-num">14</span> Mô Phỏng Canvas 2D 60 FPS</span>
+            <span class="stat-badge"><span class="stat-num">14</span> Ví Dụ Tính Số 4 Bước</span>
+            <span class="stat-badge"><span class="stat-num">100%</span> Zero-Error MathJax & ROS 2 Bridge</span>
+          </div>
+        </div>
+
+        <!-- Live Search & Filter Controls -->
+        <div class="search-filter-wrapper">
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="matrix-search-input" placeholder="Tìm kiếm khái niệm, thuật toán, công thức (BC, DAgger, DMPs, Diffusion, GAIL, T-REX, LeRobot)...">
+          </div>
+          
+          <div class="filter-pills">
+            <button class="filter-pill active" data-filter="all">Tất cả (14 Chương)</button>
+            <button class="filter-pill" data-filter="track-1">Track 1: Nền Tảng & Lệch Phân Phối (Ch 1-2)</button>
+            <button class="filter-pill" data-filter="track-2">Track 2: Học Tương Tác IIL (Ch 3-4)</button>
+            <button class="filter-pill" data-filter="track-3">Track 3: Động Tác & Deep IL SOTA (Ch 5-6)</button>
+            <button class="filter-pill" data-filter="track-4">Track 4: Inverse RL & GAIL (Ch 7-8)</button>
+            <button class="filter-pill" data-filter="track-5">Track 5: Quan Sát & Dữ Liệu Lỗi (Ch 9-11)</button>
+            <button class="filter-pill" data-filter="track-6">Track 6: HRI & Triển Khai Thực Tế (Ch 12-14)</button>
+          </div>
+        </div>
+
+        <!-- Curriculum Matrix Grid Cards -->
+        <div class="curriculum-matrix-grid" id="matrix-grid">
+
+          <!-- Card Ch 01 -->
+          <a href="chapters/ch01.html" class="matrix-card" data-track="track-1">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 1: NỀN TẢNG</span>
+              <span class="card-ch-num">CHƯƠNG 01</span>
+            </div>
+            <h3 class="card-title">Chương 01: Giới Thiệu Học Bắt Chước & Khung Quyết Định Toán Học</h3>
+            <p class="card-desc">Bản chất toán học MDPs, so sánh hiệu quả mẫu IL vs RL, tập dữ liệu chuyên gia D_E và phân loại 3 trường phái BC, IRL, IIL.</p>
+            <div class="card-tags">
+              <span class="card-tag">MDP</span><span class="card-tag">D_E</span><span class="card-tag">BC vs IRL vs IIL</span><span class="card-tag">Hiệu quả mẫu</span><span class="card-tag">Canvas 2D</span><span class="card-tag">Ví dụ số 4 bước</span><span class="card-tag">HDF5</span>
+            </div>
+          </a>
+          <!-- Card Ch 02 -->
+          <a href="chapters/ch02.html" class="matrix-card" data-track="track-1">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 1: NỀN TẢNG</span>
+              <span class="card-ch-num">CHƯƠNG 02</span>
+            </div>
+            <h3 class="card-title">Chương 02: Nhân Bản Hành Vi (BC) & Tích Lũy Sai Số Covariate Shift</h3>
+            <p class="card-desc">Behavioral Cloning dưới góc nhìn Supervised Learning, chứng minh cận sai số bậc hai O(T^2 epsilon) và hiện tượng Causal Confusion.</p>
+            <div class="card-tags">
+              <span class="card-tag">Supervised Learning</span><span class="card-tag">Covariate Shift</span><span class="card-tag">O(T^2)</span><span class="card-tag">Causal Confusion</span><span class="card-tag">Canvas 2D</span><span class="card-tag">PyTorch BC</span>
+            </div>
+          </a>
+          <!-- Card Ch 03 -->
+          <a href="chapters/ch03.html" class="matrix-card" data-track="track-2">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 2: HỌC TƯƠNG TÁC IIL</span>
+              <span class="card-ch-num">CHƯƠNG 03</span>
+            </div>
+            <h3 class="card-title">Chương 03: Phản Hồi Đánh Giá (Evaluative) & RLHF Trong Robot</h3>
+            <p class="card-desc">Khung phản hồi nhị phân khen/chê TAMER, phân phối Dirichlet của COACH và tối ưu hóa phản hồi con người trong vòng lặp thời gian thực.</p>
+            <div class="card-tags">
+              <span class="card-tag">Evaluative Feedback</span><span class="card-tag">TAMER</span><span class="card-tag">COACH</span><span class="card-tag">RLHF</span><span class="card-tag">Human Credit</span><span class="card-tag">Canvas 2D</span><span class="card-tag">HRI</span>
+            </div>
+          </a>
+          <!-- Card Ch 04 -->
+          <a href="chapters/ch04.html" class="matrix-card" data-track="track-2">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 2: HỌC TƯƠNG TÁC IIL</span>
+              <span class="card-ch-num">CHƯƠNG 04</span>
+            </div>
+            <h3 class="card-title">Chương 04: Phản Hồi Hiệu Chỉnh & Họ Thuật Toán DAgger / SafeDAgger</h3>
+            <p class="card-desc">Tập hợp dữ liệu gộp DAgger chặn sai số O(T epsilon), cơ chế can thiệp an toàn SafeDAgger và giảm tải cho người làm mẫu.</p>
+            <div class="card-tags">
+              <span class="card-tag">Corrective Feedback</span><span class="card-tag">DAgger</span><span class="card-tag">SafeDAgger</span><span class="card-tag">Cận O(T)</span><span class="card-tag">No-regret</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2</span>
+            </div>
+          </a>
+          <!-- Card Ch 05 -->
+          <a href="chapters/ch05.html" class="matrix-card" data-track="track-3">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 3: ĐỘNG TÁC & DEEP IL</span>
+              <span class="card-ch-num">CHƯƠNG 05</span>
+            </div>
+            <h3 class="card-title">Chương 05: Động Tác Nguyên Mẫu Động Lực Học (DMPs) & ProMPs</h3>
+            <p class="card-desc">Hệ chính tắc pha Canonical System, hệ biến đổi bậc 2 ổn định Lyapunov, hàm lực phi tuyến RBF và xác suất vận động ProMPs.</p>
+            <div class="card-tags">
+              <span class="card-tag">DMP</span><span class="card-tag">Canonical System</span><span class="card-tag">Lyapunov</span><span class="card-tag">RBF</span><span class="card-tag">ProMP</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2 C++</span>
+            </div>
+          </a>
+          <!-- Card Ch 06 -->
+          <a href="chapters/ch06.html" class="matrix-card" data-track="track-3">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 3: ĐỘNG TÁC & DEEP IL</span>
+              <span class="card-ch-num">CHƯƠNG 06</span>
+            </div>
+            <h3 class="card-title">Chương 06: Diffusion Policy & Action Chunking Transformers (ACT)</h3>
+            <p class="card-desc">Phá vỡ giới hạn phân phối đa mốt bằng DDPM, kiến trúc Action Chunking Transformers (ACT) và ghép khối Temporal Ensembling.</p>
+            <div class="card-tags">
+              <span class="card-tag">Diffusion Policy</span><span class="card-tag">DDPM</span><span class="card-tag">ACT</span><span class="card-tag">Temporal Ensembling</span><span class="card-tag">U-Net 1D</span><span class="card-tag">Canvas 2D</span><span class="card-tag">PyTorch</span>
+            </div>
+          </a>
+          <!-- Card Ch 07 -->
+          <a href="chapters/ch07.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 4: INVERSE RL & GAIL</span>
+              <span class="card-ch-num">CHƯƠNG 07</span>
+            </div>
+            <h3 class="card-title">Chương 07: Học Tăng Cường Nghịch Đảo (Inverse RL) & Maximum Entropy</h3>
+            <p class="card-desc">Khôi phục hàm phần thưởng ẩn bất biến R*(s,a), thuật toán Maximum Margin, nguyên lý Maximum Entropy và Feature Matching.</p>
+            <div class="card-tags">
+              <span class="card-tag">Inverse RL</span><span class="card-tag">Max-Margin</span><span class="card-tag">MaxEnt IRL</span><span class="card-tag">Feature Matching</span><span class="card-tag">Boltzmann</span><span class="card-tag">Canvas 2D</span><span class="card-tag">SVF Solver</span>
+            </div>
+          </a>
+          <!-- Card Ch 08 -->
+          <a href="chapters/ch08.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 4: INVERSE RL & GAIL</span>
+              <span class="card-ch-num">CHƯƠNG 08</span>
+            </div>
+            <h3 class="card-title">Chương 08: Học Bắt Chước Đối Nghịch GAIL & Khớp Phân Phối Chiếm Dụng</h3>
+            <p class="card-desc">Đồng nhất hóa IRL với GAN, khớp phân phối chiếm dụng d_pi = d_E, bộ sinh Discriminator và mở rộng sang AIRL.</p>
+            <div class="card-tags">
+              <span class="card-tag">GAIL</span><span class="card-tag">Occupancy Measure</span><span class="card-tag">GAN</span><span class="card-tag">Jensen-Shannon</span><span class="card-tag">PPO</span><span class="card-tag">AIRL</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 09 -->
+          <a href="chapters/ch09.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 5: QUAN SÁT & MIỀN DỮ LIỆU</span>
+              <span class="card-ch-num">CHƯƠNG 09</span>
+            </div>
+            <h3 class="card-title">Chương 09: Học Bắt Chước Chỉ Từ Quan Sát (Imitation from Observation - IfO)</h3>
+            <p class="card-desc">Khai thác dữ liệu video không có nhãn hành động qua BCO (Behavioral Cloning from Observation) và mô hình động lực học nghịch.</p>
+            <div class="card-tags">
+              <span class="card-tag">IfO</span><span class="card-tag">BCO</span><span class="card-tag">Inverse Dynamics</span><span class="card-tag">Video Learning</span><span class="card-tag">GAIfO</span><span class="card-tag">Canvas 2D</span><span class="card-tag">PyTorch</span>
+            </div>
+          </a>
+          <!-- Card Ch 10 -->
+          <a href="chapters/ch10.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 5: QUAN SÁT & MIỀN DỮ LIỆU</span>
+              <span class="card-ch-num">CHƯƠNG 10</span>
+            </div>
+            <h3 class="card-title">Chương 10: Học Từ Chuyên Gia Lỗi & Ngoại Suy Phần Thưởng (T-REX & D-REX)</h3>
+            <p class="card-desc">Vượt qua trần con người bằng Trajectory Ranking, mô hình lựa chọn Bradley-Terry, và ngoại suy siêu phàm Super-Human.</p>
+            <div class="card-tags">
+              <span class="card-tag">T-REX</span><span class="card-tag">D-REX</span><span class="card-tag">Suboptimal Demos</span><span class="card-tag">Bradley-Terry</span><span class="card-tag">Super-Human</span><span class="card-tag">Canvas 2D</span><span class="card-tag">Ranking Loss</span>
+            </div>
+          </a>
+          <!-- Card Ch 11 -->
+          <a href="chapters/ch11.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 5: QUAN SÁT & MIỀN DỮ LIỆU</span>
+              <span class="card-ch-num">CHƯƠNG 11</span>
+            </div>
+            <h3 class="card-title">Chương 11: Bất Đồng Hình Thái & Chuyển Đổi Sim-to-Real</h3>
+            <p class="card-desc">Giải quyết Correspondence Problem giữa người và robot, Domain Randomization vượt qua Reality Gap và Open X-Embodiment.</p>
+            <div class="card-tags">
+              <span class="card-tag">Correspondence Problem</span><span class="card-tag">Sim-to-Real</span><span class="card-tag">Domain Randomization</span><span class="card-tag">Jacobian IK</span><span class="card-tag">Cross-Embodiment</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2</span>
+            </div>
+          </a>
+          <!-- Card Ch 12 -->
+          <a href="chapters/ch12.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 6: HRI & BENCHMARK THỰC TẾ</span>
+              <span class="card-ch-num">CHƯƠNG 12</span>
+            </div>
+            <h3 class="card-title">Chương 12: Giao Diện HRI, Dạy Học Động Học & Tự Chủ Chia Sẻ (Shared Autonomy)</h3>
+            <p class="card-desc">Kinesthetic Teaching, Leader-Follower teleoperation và bộ điều khiển hòa trộn tín hiệu alpha-blending kèm Barrier Functions.</p>
+            <div class="card-tags">
+              <span class="card-tag">Kinesthetic</span><span class="card-tag">Leader-Follower</span><span class="card-tag">Shared Autonomy</span><span class="card-tag">Alpha-Blending</span><span class="card-tag">CBF</span><span class="card-tag">Canvas 2D</span><span class="card-tag">ROS 2 C++</span>
+            </div>
+          </a>
+          <!-- Card Ch 13 -->
+          <a href="chapters/ch13.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 6: HRI & BENCHMARK THỰC TẾ</span>
+              <span class="card-ch-num">CHƯƠNG 13</span>
+            </div>
+            <h3 class="card-title">Chương 13: Thước Đo Đánh Giá & Các Bộ Benchmark Tiêu Chuẩn Trong Robot Học</h3>
+            <p class="card-desc">Đánh giá quỹ đạo bằng Dynamic Time Warping (DTW), chỉ số an toàn cơ học tích phân độ giật Jerk Metric và bộ dữ liệu RoboMimic.</p>
+            <div class="card-tags">
+              <span class="card-tag">Task Success</span><span class="card-tag">DTW</span><span class="card-tag">Jerk Metric</span><span class="card-tag">RoboMimic</span><span class="card-tag">RLBench</span><span class="card-tag">Mechanical Safety</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+          <!-- Card Ch 14 -->
+          <a href="chapters/ch14.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">TRACK 6: HRI & BENCHMARK THỰC TẾ</span>
+              <span class="card-ch-num">CHƯƠNG 14</span>
+            </div>
+            <h3 class="card-title">Chương 14: Kiến Trúc Triển Khai Thực Tế: HuggingFace LeRobot, ALOHA & ROS 2</h3>
+            <p class="card-desc">Vòng lặp thực thi thời gian thực 50 Hz, chuẩn dữ liệu Zarr/Parquet, nén video AV1 và kiến trúc Node ROS 2 kết nối GPU suy luận.</p>
+            <div class="card-tags">
+              <span class="card-tag">LeRobot</span><span class="card-tag">ALOHA</span><span class="card-tag">50 Hz Loop</span><span class="card-tag">Zarr</span><span class="card-tag">ROS 2 Humble</span><span class="card-tag">Real-Time</span><span class="card-tag">Canvas 2D</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <footer class="site-footer" style="margin-top: 3rem; text-align: center; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+        <p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức Đa Tầng</p>
+        <p class="footer-meta">Biên dịch & Chưng cất theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% & Xuất bản GitHub Pages</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

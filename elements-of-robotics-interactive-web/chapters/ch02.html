@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 02: Hệ thống Cảm biến Thu nhận Môi trường - Elements of Robotics</title>
+<meta content="Nguyên lý vật lý của đo lường, quang sai hồng ngoại PSD tam giác đạc, sóng siêu âm ToF theo nhiệt độ, 2D LiDAR và mô hình nhiễu cảm biến Gaussian." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 1: Foundations &amp; Cảm biến</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 02</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+<span class="sidebar-badge">9 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-2-1">
+<span class="nav-text">2.1 Bản chất Vật lý của Đo lường &amp; Phân loại</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-2">
+<span class="nav-text">2.2 Cảm biến Hồng ngoại PSD (Triangulation)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-3">
+<span class="nav-text">2.3 Cảm biến Siêu âm Thời gian bay ToF</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-tof">
+<span class="nav-text">⚡ Mô phỏng Sóng Siêu âm ToF</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-4">
+<span class="nav-text">2.4 Cảm biến Laser &amp; 2D LiDAR</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-5">
+<span class="nav-text">2.5 Bộ giải mã Xung quang học (Optical Encoders)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-6">
+<span class="nav-text">2.6 Mô hình Nhiễu Cảm biến Gaussian &amp; Hiệu chuẩn</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-worked">
+<span class="nav-text">Ví dụ tính số: Hiệu chuẩn đo khoảng cách ToF</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (sensor_msgs)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-2-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 1: FOUNDATIONS &amp; CẢM BIẾN</div>
+<h1>Chương 02: Hệ thống Cảm biến Thu nhận Môi trường</h1>
+<p class="chapter-subtitle">Nguyên lý vật lý của đo lường, quang sai hồng ngoại PSD tam giác đạc, sóng siêu âm ToF theo nhiệt độ, 2D LiDAR và mô hình nhiễu cảm biến Gaussian.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 2.1 -->
+<h4 id="sec-2-1">2.1 Bản chất Vật lý của Đo lường &amp; Phân loại Cảm biến</h4>
+<p>Cảm biến là cầu nối duy nhất giúp bộ não điện tử của robot "chạm" vào thực tại. Trong robot học, cảm biến được phân loại thành 2 cặp tiêu chí cốt lõi:</p>
+<ul>
+<li><strong>Chủ động (Active) vs Bị động (Passive):</strong> Cảm biến chủ động tự phát năng lượng vào môi trường rồi thu tín hiệu dội về (như chùm tia hồng ngoại, sóng siêu âm, tia laser LiDAR); cảm biến bị động chỉ đo năng lượng tự nhiên có sẵn (như camera RGB, la bàn từ trường, nhiệt điện trở).</li>
+<li><strong>Nội tại (Proprioceptive) vs Ngoại tại (Exteroceptive):</strong> Cảm biến nội tại đo trạng thái bên trong của robot (vận tốc bánh xe qua encoder, gia tốc góc qua IMU, dung lượng pin); cảm biến ngoại tại đo lường môi trường bao quanh (khoảng cách tới vật cản, cường độ ánh sáng phòng).</li>
+</ul>
+<!-- Mục 2.2 -->
+<h4 id="sec-2-2">2.2 Cảm biến Hồng ngoại PSD (Position Sensitive Detector - Triangulation)</h4>
+<p>Cảm biến hồng ngoại cự ly (như dòng Sharp GP2Y0A21YK) không sử dụng cường độ sáng đơn thuần để tính cự ly (vì màu sắc và độ phản xạ của bề mặt vật cản sẽ làm sai lệch cường độ). Thay vào đó, cảm biến áp dụng nguyên lý <strong>Tam giác đạc quang học (Optical Triangulation)</strong>:</p>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ nguyên lý Tam giác đạc quang học PSD" src="../assets/images/psd_triangulation.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 2.1:</strong> Nguyên lý đo cự ly bằng phương pháp Tam giác đạc PSD (Optical Triangulation). Đèn LED hồng ngoại phát chùm tia chuẩn trực; thấu kính thu hội tụ tia phản xạ lên thanh cảm quang PSD tại vị trí lệch $x_p$.
+              </div>
+</div>
+<div class="formula-hero">
+<div class="formula-title">CÔNG THỨC TAM GIÁC ĐẠC QUANG HỌC PSD</div>
+<div class="formula-math">
+                $$D = \frac{f \cdot B}{x_p}$$
+              </div>
+<div class="formula-legend">
+                Trong đó: $D$ là khoảng cách từ cảm biến tới vật cản; $f$ là tiêu cự thấu kính thu (focal length); $B$ là chiều dài đường đáy cơ sở giữa bộ phát và bộ thu (baseline distance); $x_p$ là vị trí điểm hội tụ trên mảng cảm biến PSD. Mối quan hệ giữa điện áp ra $V_{out}$ và khoảng cách $D$ có dạng phi tuyến hyperbolic $V_{out} \propto \frac{1}{D + k}$.
+              </div>
+</div>
+<!-- Mục 2.3 -->
+<h4 id="sec-2-3">2.3 Cảm biến Siêu âm Thời gian bay ToF (Time-of-Flight)</h4>
+<p>Cảm biến siêu âm (như HC-SR04 hoặc dòng công nghiệp MaxBotix) phát ra một chùm xung sóng âm tần số cao (thường là $40\text{ kHz}$) và bấm giờ chờ xung phản xạ dội về từ bề mặt vật cản.</p>
+<p>Vận tốc truyền sóng âm trong không khí phụ thuộc vào nhiệt độ môi trường theo công thức thực nghiệm:</p>
+<p>$$v_{sound}(T) = 331.3 \cdot \sqrt{1 + \frac{T}{273.15}} \approx 331.3 + 0.606 \cdot T \quad (\text{m/s})$$</p>
+<p>với $T$ là nhiệt độ tính theo độ Celsius ($^\circ\text{C}$). Khoảng cách được tính bằng:</p>
+<p>$$d = \frac{v_{sound} \cdot \Delta t}{2}$$</p>
+<p><em>Lưu ý hiện tượng phản xạ gương (Specular Reflection):</em> Khi sóng âm chạm vào mặt tường phẳng ở góc xiên lớn hơn góc nửa hình nón ($\theta \gt 15^\circ - 30^\circ$), toàn bộ sóng âm dội đi hướng khác thay vì phản xạ lại đầu thu, khiến cảm biến đọc giá trị cực đại giả (vô cực).</p>
+<!-- SIMULATOR CONTAINER: TOF -->
+<div class="simulator-wrapper" id="sim-tof">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 01: SÓNG SIÊU ÂM THỜI GIAN BAY (TIME-OF-FLIGHT)</span>
+</div>
+<span class="sim-badge">HTML5 Real-time Physics</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="260" id="tof-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item">
+<span class="telemetry-label">VẬN TỐC ÂM $v(T)$:</span>
+<span class="telemetry-val" id="tof-metric-speed">343.3 m/s</span>
+</div>
+<div class="telemetry-item">
+<span class="telemetry-label">THỜI GIAN BAY $\Delta t$:</span>
+<span class="telemetry-val" id="tof-metric-time">5.82 ms</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Khoảng cách vật cản $d$: <span id="tof-dist-val">1.0</span> m</label>
+<input class="control-slider" id="tof-dist" max="3.5" min="0.2" step="0.05" type="range" value="1.0"/>
+</div>
+<div class="control-group">
+<label class="control-label">Nhiệt độ môi trường $T$: <span id="tof-temp-val">20</span> °C</label>
+<input class="control-slider" id="tof-temp" max="45" min="-10" step="1" type="range" value="20"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Mục 2.4 & 2.5 -->
+<h4 id="sec-2-4">2.4 Cảm biến Laser &amp; 2D LiDAR</h4>
+<p>2D LiDAR (Light Detection and Ranging) quay một chùm tia laser hồng ngoại với tốc độ cao ($5 - 15\text{ Hz}$), đo cự ly bằng ToF quang học ($c \approx 3 \times 10^8\text{ m/s}$) hoặc dịch pha điều chế tần số. Kết quả quét tạo thành một mảng điểm cực (Polar Scan Array) gồm các cặp góc - cự ly $(\theta_i, r_i)$, tạo nên "đôi mắt" quan trọng nhất cho thuật toán lập bản đồ SLAM.</p>
+<h4 id="sec-2-5">2.5 Bộ giải mã xung quang học (Optical Encoders)</h4>
+<p>Encoder gắn trên trục động cơ biến đổi chuyển động quay thành chuỗi xung điện áp nhị phân vuông. Cơ cấu gồm đĩa quay có vạch trong suốt xen kẽ vạch mờ quang, nguồn LED phát và cặp cảm biến quang điện A và B bố trí lệch pha $90^\circ$ (Quadrature Encoding):</p>
+<ul>
+<li><strong>Đo chiều quay:</strong> Dựa vào trạng thái tín hiệu: nếu kênh A dẫn trước kênh B, trục quay theo chiều kim đồng hồ; nếu kênh B dẫn trước kênh A, trục quay ngược chiều.</li>
+<li><strong>Độ phân giải:</strong> Đĩa có $N$ vạch kết hợp giải mã 4 cạnh xung (quadrature $4\times$) cho $4N$ xung trên một vòng quay (Ticks Per Revolution - TPR).</li>
+</ul>
+<!-- Mục 2.6 -->
+<h4 id="sec-2-6">2.6 Mô hình Nhiễu Cảm biến Gaussian &amp; Hiệu chuẩn Thực nghiệm</h4>
+<p>Mọi phép đo cảm biến trong thực tế đều chứa sai số. Theo giáo trình GS. Ben-Ari, sai số đo được mô hình hóa tốt nhất bằng phân phối chuẩn Gauss (Gaussian Distribution):</p>
+<p>$$z = z_{true} + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2)$$</p>
+<p>với hàm mật độ xác suất:</p>
+<p>$$p(z \mid z_{true}) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left( -\frac{(z - z_{true})^2}{2\sigma^2} \right)$$</p>
+<p>Độ lệch chuẩn $\sigma$ phản ánh mức độ không chắc chắn (uncertainty) của cảm biến, đóng vai trò trọng tâm trong ma trận hiệp phương sai đo lường $R$ của bộ lọc Kalman và cập nhật xác suất Bayes.</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-2-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 HIỆU CHUẨN ĐO KHOẢNG CÁCH SIÊU ÂM TRONG ĐIỀU KIỆN NHIỆT ĐỘ THAY ĐỔI</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Một robot làm việc trong kho lạnh nhiệt độ $T_1 = -5^\circ\text{C}$ đo được thời gian khứ hồi của xung siêu âm là $\Delta t = 5.95\text{ ms}$. Khi robot di chuyển sang gian hàng sưởi ấm nhiệt độ $T_2 = 35^\circ\text{C}$, nó đọc cùng một thời gian bay $\Delta t = 5.95\text{ ms}$. Hãy tính khoảng cách thực tế trong từng trường hợp và sai số nếu lập trình viên mặc định cố định vận tốc âm $v = 340\text{ m/s}$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Vận Tốc Âm ở Kho Lạnh $T_1$</span>
+</div>
+<div class="step-content">
+<p>$v(-5^\circ\text{C}) = 331.3 + 0.606 \times (-5) = 331.3 - 3.03 = 328.27\text{ m/s}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Khoảng Cách Thực Tế Tại $T_1$</span>
+</div>
+<div class="step-content">
+<p>$d_1 = \frac{v_1 \cdot \Delta t}{2} = \frac{328.27 \times 0.00595}{2} = 0.9766\text{ m} \approx 97.7\text{ cm}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Vận Tốc Âm &amp; Khoảng Cách Tại $T_2$</span>
+</div>
+<div class="step-content">
+<p>$v(35^\circ\text{C}) = 331.3 + 0.606 \times 35 = 352.51\text{ m/s}$<br/>
+                  $d_2 = \frac{v_2 \cdot \Delta t}{2} = \frac{352.51 \times 0.00595}{2} = 1.0487\text{ m} \approx 104.9\text{ cm}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Đánh Giá Sai Số nếu Dùng Giá Trị Cố Định</span>
+</div>
+<div class="step-content">
+<p>Khoảng cách mặc định: $d_{def} = \frac{340 \times 0.00595}{2} = 1.0115\text{ m} \approx 101.2\text{ cm}$.<br/>
+                  Sai lệch tại $T_1$: $+3.5\text{ cm}$ (đo thừa).<br/>
+                  Sai lệch tại $T_2$: $-3.7\text{ cm}$ (đo thiếu, nguy cơ đâm va vật cản!).</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Hiệu chuẩn thực nghiệm chứng minh ảnh hưởng rõ rệt của nhiệt độ môi trường lên vận tốc sóng âm: Việc bù trừ nhiệt độ kịp thời giúp loại bỏ sai số đo khoảng cách, bảo đảm độ chính xác trong định vị và tránh vật cản.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-2-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Dữ liệu cảm biến khoảng cách trong ROS 2 được chuẩn hóa theo chuẩn REP-103: cự ly đo tính bằng mét ($\text{m}$), xuất bản lên các topic có kiểu thông điệp chuẩn <code>sensor_msgs/msg/Range</code> (cho siêu âm, hồng ngoại) hoặc <code>sensor_msgs/msg/LaserScan</code> (cho LiDAR 2D với mảng float32 <code>ranges</code>).</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-2-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Hiệu Chuẩn Cảm Biến Khoảng Cách Siêu Âm Theo Nhiệt Độ Môi Trường</h4>
+</div>
+<div class="practice-statement">
+<p>Một cảm biến siêu âm ToF đo khoảng cách trong xưởng sản xuất. Vận tốc sóng âm trong không khí phụ thuộc nhiệt độ $T$ ($^\circ\text{C}$) theo công thức $v(T) = 331.3 \sqrt{1 + \frac{T}{273.15}}\text{ m/s}$. Cảm biến được hiệu chuẩn mặc định tại $T_0 = 20^\circ\text{C}$. Trong ca sản xuất mùa hè, nhiệt độ xưởng tăng lên $T = 38^\circ\text{C}$. Cảm biến ghi nhận thời gian bay khứ hồi của xung âm là $\Delta t = 8.50\text{ ms}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính khoảng cách mà cảm biến báo về khi chưa bù trừ nhiệt độ (dùng $v(20^\circ\text{C})$).<br/>2) Tính vận tốc sóng âm thực tế tại $38^\circ\text{C}$ và khoảng cách vật lý thực tế.<br/>3) Tính sai số khoảng cách tuyệt đối và tương đối do biến động nhiệt độ gây ra.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Vận tốc âm tại $20^\circ\text{C}$: $v(20) = 331.3 \sqrt{1 + \frac{20}{273.15}} = 331.3 \times \sqrt{1.0732} \approx 343.2\text{ m/s}$.<br/>Khoảng cách chưa bù: $d_{\text{raw}} = \frac{v(20) \cdot \Delta t}{2} = \frac{343.2 \times 0.0085}{2} = 1.4586\text{ m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Vận tốc âm thực tế tại $38^\circ\text{C}$: $v(38) = 331.3 \sqrt{1 + \frac{38}{273.15}} = 331.3 \times \sqrt{1.1391} \approx 353.6\text{ m/s}$.<br/>Khoảng cách vật lý thực tế: $d_{\text{true}} = \frac{v(38) \cdot \Delta t}{2} = \frac{353.6 \times 0.0085}{2} = 1.5028\text{ m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Sai số tuyệt đối: $\Delta d = d_{\text{true}} - d_{\text{raw}} = 1.5028 - 1.4586 = 0.0442\text{ m} = 4.42\text{ cm}$.<br/>Sai số tương đối: $\frac{4.42}{150.28} \approx 2.94\%$. Với robot kích thước nhỏ, sai số $4.4\text{ cm}$ đủ gây va chạm khi tiếp cận giá hàng.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch01.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 01: Robot là gì? - Khái niệm &amp; Giải ...</span>
+</a>
+<a class="page-nav-btn next" href="ch03.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 03: Hành vi Phản xạ &amp; Phương tiện Br... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

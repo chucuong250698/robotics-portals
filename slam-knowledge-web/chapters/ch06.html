@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 06: Visual Odometry Hình Học: Trích Xuất Đặc Trưng &amp; Hình Học Epipolar - SLAM &amp; Active Perception Portal</title>
+<meta content="Feature-Based VO, Essential Matrix &amp; 3D Triangulation" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 3: SLAM HÌNH HỌC CỔ ĐIỂN &amp; ĐỒ THỊ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 06</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-6-1">
+<span class="nav-text">6.1 Feature-Based (ORB-SLAM) vs Direct Methods (DSO)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-2">
+<span class="nav-text">6.2 Hình Học Epipolar: Ma Trận Thiết Yếu E = [t]x R</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-3">
+<span class="nav-text">6.3 Giải PnP &amp; Tam Giác Hóa 3D (Triangulation)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-4">
+<span class="nav-text">6.4 Bundle Adjustment &amp; DBoW2 Loop Closing</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-sim">
+<span class="nav-text">⚡ Mô Phỏng Tam Giác Hóa Epipolar 3D (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Ma Trận Thiết Yếu E</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-bridge">
+<span class="nav-text">🛠️ Cầu Nối C++: Node Visual Odometry OpenCV &amp; ROS 2</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-6-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 3: SLAM HÌNH HỌC CỔ ĐIỂN &amp; ĐỒ THỊ • CHƯƠNG 06</div>
+<h1 class="chapter-title">Visual Odometry Hình Học: Trích Xuất Đặc Trưng &amp; Hình Học Epipolar</h1>
+<p class="chapter-subtitle">Feature-Based VO, Essential Matrix &amp; 3D Triangulation</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Thanh Nguyen Canh et al. (IEEE 2021) &amp; Timothy Barfoot (2024)</strong></span>
+</div>
+</div>
+<!-- 6.1 -->
+<h2 id="sec-6-1">6.1 Bức Tranh Toàn Cảnh: Feature-Based (ORB-SLAM) vs Direct Methods (DSO)</h2>
+<p>Thị giác máy tính trong SLAM được phân nhánh thành 2 trường phái lớn:</p>
+<table class="academic-table" style="width:100%; margin: 1.5rem 0; border-collapse: collapse;">
+<thead>
+<tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+<th style="padding: 0.75rem;">Đặc Tính Kỹ Thuật</th>
+<th style="padding: 0.75rem;">Phương Pháp Đặc Trưng (Feature-Based)</th>
+<th style="padding: 0.75rem;">Phương Pháp Trực Tiếp (Direct Methods)</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Hệ thống tiêu biểu</strong></td>
+<td style="padding: 0.75rem;">ORB-SLAM2/3, PTAM</td>
+<td style="padding: 0.75rem;">DSO (Direct Sparse Odometry), LSD-SLAM, SVO</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Hàm mất mát tối ưu</strong></td>
+<td style="padding: 0.75rem;">Sai số chiếu lại hình học (Geometric reprojection error)</td>
+<td style="padding: 0.75rem;">Sai số trắc quang cường độ sáng (Photometric error)</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Độ bền vững với ngoại cảnh</strong></td>
+<td style="padding: 0.75rem;">Bất biến với thay đổi ánh sáng mạnh; thất bại ở tường trắng trơn</td>
+<td style="padding: 0.75rem;">Hoạt động tốt ở vùng ít vân bề mặt; nhạy cảm với phơi sáng tự động</td>
+</tr>
+</tbody>
+</table>
+<!-- 6.2 -->
+<h2 id="sec-6-2">6.2 Hình Học Epipolar Giữa Hai Khung Nhìn (Two-View Epipolar Geometry)</h2>
+<p>Cho hai camera quan sát cùng một điểm 3D $\mathbf{X}$ trong không gian. Tia chiếu từ tâm quang học $C_1$ qua điểm ảnh $\mathbf{x}_1$ và tia chiếu từ $C_2$ qua $\mathbf{x}_2$ cùng nằm trên một mặt phẳng gọi là <strong>Mặt phẳng Epipolar</strong>.</p>
+<div class="formula-hero">
+<div class="formula-title">Ràng Buộc Đại Số Epipolar Cơ Bản</div>
+<div class="formula-math">
+            $$\mathbf{x}_2^T \mathbf{K}^{-T} \mathbf{E} \mathbf{K}^{-1} \mathbf{x}_1 = 0, \quad \text{với } \mathbf{E} = [\mathbf{t}]_\times \mathbf{R}$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách thành phần:</strong>
+<br/>• $\mathbf{K}$: Ma trận thông số nội tại camera (Camera Intrinsic Matrix: tiêu cự $f_x, f_y$, tâm quang học $c_x, c_y$).
+            <br/>• $\mathbf{E}$: Ma trận thiết yếu (Essential Matrix) mã hóa phép quay $\mathbf{R} \in \mathrm{SO}(3)$ và tịnh tiến $\mathbf{t} \in \mathbb{R}^3$ giữa hai camera.
+            <br/>• $[\mathbf{t}]_\times$: Ma trận phản đối xứng (Skew-symmetric matrix) của vector $\mathbf{t}$.
+          </div>
+</div>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-6-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Tia Chiếu Epipolar &amp; Tam Giác Hóa Điểm 3D (Triangulation)</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-06" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-6-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Thiết Lập Ma Trận Essential $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R}$ &amp; Kiểm Tra Ràng Buộc Epipolar</h3>
+</div>
+<div class="exercise-statement">
+<p>Camera 2 dịch chuyển tịnh tiến thuần túy theo trục hoành so với Camera 1 một khoảng $t_x = 0.2$ m ($\mathbf{t} = [0.2, 0, 0]^T$), không có góc xoay ($\mathbf{R} = \mathbf{I}_{3 \times 3}$). Tọa độ chuẩn hóa của một điểm trên ảnh 1 là $\mathbf{x}_1 = [0.1, 0.2, 1.0]^T$, trên ảnh 2 là $\mathbf{x}_2 = [0.0, 0.2, 1.0]^T$ (có độ chênh lệch thị sai $d = 0.1$). Tính ma trận phản đối xứng $[\mathbf{t}]_\times$, ma trận Essential $\mathbf{E}$, và kiểm tra xem ràng buộc $\mathbf{x}_2^T \mathbf{E} \mathbf{x}_1$ có bằng $0$ không.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính ma trận phản đối xứng $[\mathbf{t}]_\times$</span>
+</div>
+<div class="step-content">
+<p>$$[\mathbf{t}]_\times = \begin{bmatrix} 0 &amp; -t_z &amp; t_y \\ t_z &amp; 0 &amp; -t_x \\ -t_y &amp; t_x &amp; 0 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính ma trận Essential $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R}$</span>
+</div>
+<div class="step-content">
+<p>Do $\mathbf{R} = \mathbf{I}$, ta có: $$\mathbf{E} = [\mathbf{t}]_\times = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Nhân ma trận với vector điểm $\mathbf{x}_1$ để tìm đường Epipolar $\mathbf{l}_2 = \mathbf{E} \mathbf{x}_1$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{l}_2 = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix} \begin{bmatrix} 0.1 \\ 0.2 \\ 1.0 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \times 1.0 \\ 0.2 \times 0.2 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kiểm tra điều kiện Epipolar $\mathbf{x}_2^T \mathbf{l}_2$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{x}_2^T \mathbf{l}_2 = [0.0, 0.2, 1.0] \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix} = (0.0)(0) + (0.2)(-0.2) + (1.0)(0.04)$$</p><p>$$= 0 - 0.04 + 0.04 = 0.0000$$</p><p>Giá trị tích vô hướng bằng 0 tuyệt đối! Điều này chứng minh cặp điểm ảnh hoàn toàn tương thích với hình học Epipolar của hệ thống camera.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Điều kiện ràng buộc Epipolar $\mathbf{x}_2^T \mathbf{E} \mathbf{x}_1 = 0$ là nền tảng hình học bất biến của Visual Odometry. Việc tính toán chuẩn xác ma trận Essential cho phép khôi phục chuyển động 6-DOF thực tế từ các cặp điểm đặc trưng ảnh.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-6-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Pipeline Visual Odometry Đơn Giản Trong C++ (OpenCV &amp; ROS 2)</h4>
+<p>Mã nguồn bắt cặp đặc trưng ORB và giải ma trận Essential ước lượng tư thế camera:</p>
+<div class="code-card">
+<div class="code-header">
+<span>visual_odometry_node.cpp (C++ / OpenCV)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>#include &lt;opencv2/opencv.hpp&gt;
+#include &lt;opencv2/features2d.hpp&gt;
+#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+void estimateMotion(const cv::Mat&amp; img1, const cv::Mat&amp; img2, const cv::Mat&amp; K, cv::Mat&amp; R, cv::Mat&amp; t) {
+    auto orb = cv::ORB::create(1000);
+    std::vector&lt;cv::KeyPoint&gt; kp1, kp2;
+    cv::Mat desc1, desc2;
+    orb-&gt;detectAndCompute(img1, cv::noArray(), kp1, desc1);
+    orb-&gt;detectAndCompute(img2, cv::noArray(), kp2, desc2);
+
+    auto matcher = cv::BFMatcher::create(cv::NORM_HAMMING);
+    std::vector&lt;cv::DMatch&gt; matches;
+    matcher-&gt;match(desc1, desc2, matches);
+
+    std::vector&lt;cv::Point2f&gt; pts1, pts2;
+    for (auto&amp; m : matches) {
+        pts1.push_back(kp1[m.queryIdx].pt);
+        pts2.push_back(kp2[m.trainIdx].pt);
+    }
+
+    // Tính ma trận Essential với RANSAC
+    cv::Mat mask;
+    cv::Mat E = cv::findEssentialMat(pts1, pts2, K, cv::RANSAC, 0.999, 1.0, mask);
+    cv::recoverPose(E, pts1, pts2, K, R, t, mask);
+    std::cout &lt;&lt; "Recovered Translation:\n" &lt;&lt; t &lt;&lt; std::endl;
+}</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-6-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Toán Ma Trận Essential Matrix &amp; Kiểm Tra Điều Kiện Epipolar</h4>
+</div>
+<div class="practice-statement">
+<p>Hai khung hình camera ghi lại cùng một điểm 3D. Vector tịnh tiến tương đối giữa 2 camera là $\mathbf{t} = [0.2, 0.0, 0.0]^T\text{ m}$ (dịch chuyển dọc trục $X$). Giả sử góc quay tương đối bằng $0$ (ma trận quay $\mathbf{R} = \mathbf{I}_3$). Tọa độ điểm chuẩn hóa trên camera 1 là $\mathbf{x}_1 = [0.5, 0.2, 1.0]^T$, trên camera 2 là $\mathbf{x}_2 = [0.3, 0.2, 1.0]^T$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thành lập ma trận phản đối xứng $[\mathbf{t}]_\times$ và tính ma trận Essential $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R}$.<br/>2) Tính đường cực (Epipolar line) $\mathbf{l}_2 = \mathbf{E} \mathbf{x}_1$ trên mặt phẳng ảnh camera 2.<br/>3) Kiểm tra điều kiện ràng buộc Epipolar $\mathbf{x}_2^T \mathbf{E} \mathbf{x}_1 = 0$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Ma trận phản đối xứng: $[\mathbf{t}]_\times = \begin{bmatrix} 0 &amp; -t_z &amp; t_y \\ t_z &amp; 0 &amp; -t_x \\ -t_y &amp; t_x &amp; 0 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$.<br/>Vì $\mathbf{R} = \mathbf{I}_3$, ma trận Essential: $\mathbf{E} = [\mathbf{t}]_\times \mathbf{R} = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Đường cực trên ảnh 2: $\mathbf{l}_2 = \mathbf{E} \mathbf{x}_1 = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.2 \\ 0 &amp; 0.2 &amp; 0 \end{bmatrix} \begin{bmatrix} 0.5 \\ 0.2 \\ 1.0 \end{bmatrix} = \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix}$.<br/>Phương trình đường thẳng cực có dạng: $0 \cdot u_2 - 0.2 \cdot v_2 + 0.04 = 0 \implies v_2 = 0.2$, đúng chuẩn đường nằm ngang do dịch chuyển thuần túy theo trục $X$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Kiểm tra ràng buộc Epipolar: $\mathbf{x}_2^T \mathbf{l}_2 = [0.3, 0.2, 1.0] \begin{bmatrix} 0 \\ -0.2 \\ 0.04 \end{bmatrix} = 0 + (0.2)(-0.2) + (1.0)(0.04) = -0.04 + 0.04 = 0$. Ràng buộc hình học thỏa mãn hoàn hảo, chứng thực cặp điểm tương ứng chính xác.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch05.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 05: Pose Graph SLAM &amp; GTSAM</span>
+</a>
+<a class="ch-nav-card next" href="ch07.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 07: Trích Xuất Ngữ Nghĩa &amp; Lọc Môi Trường Động</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

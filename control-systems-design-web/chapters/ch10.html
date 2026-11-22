@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 10: Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 10</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link active">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-5">Track 5: Điều Khiển Thông Minh & Ứng Dụng AI Trong 4IR</span>
+          <span class="page-source-badge">📖 Mutambara (2024), Chương 10, Trang 692–734</span>
+        </div>
+        <h1 class="chapter-title">Chương 10: Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô hình hóa động lực học dựa trên dữ liệu (Data-Driven Dynamic Modeling), Phân loại hệ PID tự chỉnh định (Self-Tuning & Auto-Tuning PID), Điều khiển logic mờ (Fuzzy Logic Control - Mamdani & Sugeno inference, Fuzzy-PID), Mạng nơ-ron nhân tạo trong điều khiển (Neuro-Control & PINN), Học tăng cường sâu (Deep Reinforcement Learning - DRL: PPO, SAC) trong Robot & Drone UAV, Quản lý đội xe thông minh (Fleet Management) & Xe tự hành (Autonomous Vehicles), An toàn điều khiển AI (Safety-Critical AI Control & Control Barrier Functions)</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Cuộc Cách mạng Công nghiệp lần thứ tư (4IR) là sự hội tụ sâu sắc mang tính đột phá giữa thế giới vật lý, kỹ thuật số và sinh học, với trung tâm là các <strong>Hệ thống Thực-Ảo (Cyber-Physical Systems - CPS)</strong>, Trí tuệ Nhân tạo (Artificial Intelligence - AI), Dữ liệu lớn (Big Data), Điện toán đám mây và Robot tự hành thế hệ mới. Trong các nhà máy thông minh (Smart Factories), các hệ thống điều khiển không còn gói gọn trong các cơ cấu tuyến tính đơn biến được mô hình hóa giải tích bằng định luật Newton hay Euler-Lagrange.</p>
+          <p>Khi đối mặt với các quá trình công nghệ siêu phức tạp trong 4IR: dòng khí động học xoáy hỗn loạn của phi đội drone UAV bay trong vùng giông bão đô thị, ma sát trượt phi tuyến của xe tự hành trên mặt đường trơn ướt thay đổi đột ngột, phản ứng hóa sinh phi tuyến trong lò ủ sinh học, hoặc bàn tay robot khéo léo (Dexterous Hand) thao tác gắp các vật mềm dễ biến dạng – <em>mọi nỗ lực xây dựng mô hình giải tích thuần túy đều bộc lộ giới hạn nghiêm trọng và thường thất bại</em>. <strong>Phương Pháp Điều Khiển Dựa Trên AI (AI-Based Control Systems)</strong> được GS. Arthur Mutambara đúc kết chính là bước tiến tất yếu giải quyết triệt để bài toán này:</p>
+          <ul>
+            <li><strong>Điều khiển Logic Mờ (Fuzzy Logic Control - FLC):</strong> Chuyển hóa kinh nghiệm trực giác phi tuyến của chuyên gia vận hành thành các quy tắc ngôn ngữ dạng IF-THEN, cho phép tự động thích nghi và hiệu chỉnh thông số PID trực tuyến theo thời gian thực mà không cần biết phương trình vi phân mô hình.</li>
+            <li><strong>Mạng Nơ-ron Nhân tạo & PINN (Physics-Informed Neural Networks):</strong> Khai thác định lý xấp xỉ phổ quát để học mô hình động lực học phi tuyến trực tiếp từ dữ liệu cảm biến khổng lồ của IoT, kết hợp các định luật bảo toàn vật lý vào hàm mất mát (loss function) để đảm bảo tính khái quát hóa bền vững.</li>
+            <li><strong>Học Tăng Cường Sâu (Deep Reinforcement Learning - DRL):</strong> Cho phép robot và phương tiện tự hành tự học các chính sách điều khiển tối ưu thông qua quá trình thử-sai liên tục trong môi trường mô phỏng vật lý chân thực (Isaac Sim, Gazebo, MuJoCo), làm chủ những động tác phức tạp vượt xa khả năng lập trình thủ công của con người.</li>
+          </ul>
+        </div>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Lý thuyết điều khiển thông minh dựa trên AI tích hợp chặt chẽ giữa toán học mờ, mạng nơ-ron học sâu và các quá trình quyết định ngẫu nhiên.</p>
+
+        <h3>1. Hệ Thống Điều Khiển Logic Mờ (Fuzzy Logic Control - FLC)</h3>
+        <p>Hệ mờ mô hình hóa sự bất định phi cấu trúc và kinh nghiệm vận hành chuyên gia thông qua 4 khối chức năng cốt lõi:</p>
+        <ol>
+          <li><strong>Khối Làm Mờ Hóa (Fuzzifier):</strong> Ánh xạ các biến đo lường vật lý rõ (Crisp inputs) như sai số $e(t)$ và đạo hàm sai số $\dot{e}(t)$ thành các độ thuộc ngôn ngữ $\mu_A(e) \in [0, 1]$ qua các hàm thuộc (Membership Functions: Triangular, Trapezoidal, Gaussian).</li>
+          <li><strong>Cơ Sở Luật Mờ (Rule Base):</strong> Tập hợp các mệnh đề điều kiện ngôn ngữ chuyên gia:
+          $$\text{Rule } i: \text{IF } e \text{ is } A_i \text{ AND } \dot{e} \text{ is } B_i \text{ THEN } u \text{ is } C_i$$</li>
+          <li><strong>Động Cơ Suy Luận Mờ (Inference Engine):</strong> Sử dụng phép toán T-norm (thường dùng phép lấy cực tiểu Min của Mamdani hoặc tích đại số Product) để tính độ mạnh kích hoạt của từng luật:
+          $$\alpha_i = \min\left(\mu_{A_i}(e), \mu_{B_i}(\dot{e})\right)$$
+          Hàm thuộc đầu ra của từng luật bị cắt đỉnh (Implication): $\mu_{C_i}'(u) = \min(\alpha_i, \mu_{C_i}(u))$. Tập mờ hợp thành tổng hợp qua phép S-norm Max: $\mu_B(u) = \max_i (\mu_{C_i}'(u))$.</li>
+          <li><strong>Khối Giải Mờ Hóa (Defuzzifier):</strong> Chuyển đổi tập mờ hợp thành $\mu_B(u)$ thành giá trị điều khiển số rõ duy nhất $u^*$. <strong>Phương pháp trọng tâm (Center of Gravity - COG / Centroid)</strong> là chuẩn mực tối ưu:
+          $$u^* = \frac{\int u \cdot \mu_B(u) du}{\int \mu_B(u) du} \quad \text{hoặc rời rạc: } u^* = \frac{\sum_{j=1}^M u_j \cdot \mu_B(u_j)}{\sum_{j=1}^M \mu_B(u_j)}$$</li>
+        </ol>
+
+        <h4>Hệ Điều Khiển Fuzzy-PID Tự Chỉnh Định (Self-Tuning Fuzzy PID)</h4>
+        <p>Các tham số khuếch đại $K_p, K_i, K_d$ không còn là các hằng số cố định mà được cập nhật trực tuyến linh hoạt theo trạng thái chuyển động:</p>
+        $$K_p = K_{p0} + \Delta K_p(e, \dot{e}), \quad K_d = K_{d0} + \Delta K_d(e, \dot{e}), \quad K_i = K_{i0} + \Delta K_i(e, \dot{e})$$
+        <p>Khi sai số $|e|$ rất lớn (hệ đang ở xa đích), hệ mờ tự động tăng $\Delta K_p$ và giảm $\Delta K_d$ để đẩy nhanh tốc độ hội tụ; khi hệ tiến gần đích ($|e|$ nhỏ), hệ mờ tự động tăng $\Delta K_d$ và giảm $\Delta K_p$ để tạo lực hãm phanh mềm mại, triệt tiêu $100\%$ hiện tượng vọt lố.</p>
+
+        <h3>2. Mạng Nơ-ron Nhân Tạo & Physics-Informed Neural Networks (PINN)</h3>
+        <p>Theo <strong>Định lý xấp xỉ phổ quát (Cybenko & Hornik Theorem)</strong>, một mạng nơ-ron truyền thẳng (Multi-Layer Perceptron - MLP) với ít nhất một lớp ẩn phi tuyến có khả năng xấp xỉ bất kỳ hàm liên tục nào trên tập compact với độ chính xác tùy ý. Trong điều khiển học 4IR, mạng nơ-ron được áp dụng theo hai phương thức:</p>
+        <ul>
+          <li><strong>Mô hình động học nghịch đảo nơ-ron (Inverse Neural Control):</strong> Mạng nơ-ron học hàm ánh xạ từ trạng thái mong muốn $(\mathbf{x}_d, \dot{\mathbf{x}}_d, \ddot{\mathbf{x}}_d)$ sang tín hiệu điều khiển $\mathbf{u}$, đóng vai trò bộ bù động lực học phía trước (Feedforward Neural Compensator).</li>
+          <li><strong>Physics-Informed Neural Networks (PINN):</strong> Kết hợp dữ liệu cảm biến đo đạc với các phương trình vi phân vật lý $\mathcal{N}[\mathbf{x}] - \mathbf{f} = \mathbf{0}$. Hàm mất mát huấn luyện tích hợp điều kiện biên và phần dư vật lý qua vi phân tự động (Automatic Differentiation):
+          $$\mathcal{L}(\mathbf{w}) = \mathcal{L}_{\text{data}}(\mathbf{w}) + \lambda_{\text{phys}} \|\mathcal{N}[\mathbf{x}_{\text{pred}}] - \mathbf{f}\|^2$$
+          Mạng PINN đảm bảo các biến trạng thái dự báo luôn tuân thủ nghiêm ngặt các định luật bảo toàn năng lượng và động lượng cơ học.</li>
+        </ul>
+
+        <h3>3. Học Tăng Cường Sâu (Deep Reinforcement Learning - DRL)</h3>
+        <p>DRL giải quyết bài toán điều khiển chuyển động phức tạp thông qua quá trình tối ưu hóa chính sách trong Quá trình Quyết định Markov (Markov Decision Process - MDP): $(\mathcal{S}, \mathcal{A}, \mathcal{P}, \mathcal{R}, \gamma)$.</p>
+        <p>Thuật toán <strong>Soft Actor-Critic (SAC)</strong> là chuẩn mực tối tân cho các hệ điều khiển không gian hành động liên tục, kết hợp cực đại hóa phần thưởng kỳ vọng và Entropy của chính sách $\pi(\mathbf{a}|\mathbf{s})$:</p>
+        $$J(\pi) = \sum_{t=0}^T \mathbb{E}_{(\mathbf{s}_t, \mathbf{a}_t) \sim \rho_\pi} \left[ r(\mathbf{s}_t, \mathbf{a}_t) + \alpha \mathcal{H}(\pi(\cdot | \mathbf{s}_t)) \right]$$
+        <p>trong đó $\mathcal{H}(\pi) = -\mathbb{E}[\log \pi(\mathbf{a}|\mathbf{s})]$ là độ đo mức độ ngẫu nhiên. Thành phần Entropy tối đa khuyến khích tác tử AI liên tục khám phá không gian điều khiển, ngăn chặn hiện tượng kẹt tại các cực tiểu cục bộ và mang lại chính sách chuyển động thích nghi bền vững vượt trội trước các va chạm bất ngờ.</p>
+
+        <h3>4. An Toàn Trong Điều Khiển AI & Hàm Rào Cản Điều Khiển (CBF)</h3>
+        <p>Một mạng nơ-ron học sâu thuần túy là một "hộp đen" thống kê, tiềm ẩn rủi ro phát ra các tín hiệu điều khiển nguy hiểm phá hủy hệ thống khi gặp dữ liệu phân phối lạ (Out-of-Distribution - OOD). Để giải quyết rủi ro an toàn hiện sinh (Existential & Safety-Critical Risks), GS. Mutambara nhấn mạnh kiến trúc <strong>Lá chắn an toàn (Safety Filter)</strong> dựa trên <strong>Hàm Rào Cản Điều Khiển (Control Barrier Functions - CBF)</strong>:</p>
+        <p>Định nghĩa tập an toàn $\mathcal{C} = \{\mathbf{x} \in \mathbb{R}^n : h(\mathbf{x}) \ge 0\}$. Tín hiệu điều khiển từ mạng nơ-ron $u_{\text{AI}}$ được hiệu chỉnh thông qua bài toán tối ưu hóa toàn phương (QP) thời gian thực:</p>
+        $$\min_{u} \frac{1}{2} \|u - u_{\text{AI}}\|^2 \quad \text{s.t. } \dot{h}(\mathbf{x}, u) \ge -\gamma(h(\mathbf{x}))$$
+        <p>Lá chắn an toàn này can thiệp tối thiểu: khi hệ thống ở vùng an toàn ($h(\mathbf{x}) \gg 0$), $u = u_{\text{AI}}$; khi hệ thống tiến sát ranh giới nguy hiểm ($h(\mathbf{x}) \to 0$), bộ lọc CBF tự động ép tín hiệu điều khiển quay trở lại miền an toàn, triệt tiêu $100\%$ nguy cơ va chạm.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <h3>Ứng Dụng Tiêu Biểu Trong Công Nghiệp 4IR: Hệ Thống Xe Tự Hành & Drone Tự Động</h3>
+        <p>Hai ứng dụng biểu tượng đại diện cho cuộc cách mạng điều khiển thông minh:</p>
+        <ul>
+          <li><strong>Hệ Thống Xe Tự Hành (Autonomous Vehicles - AV Stack Cấp Độ 4/5):</strong> Kết hợp thị giác máy tính Deep Learning (nhận diện làn đường, xe cộ, người đi bộ), hệ thống định vị SLAM, và bộ điều khiển MPC-Fuzzy tích hợp CBF. Mục tiêu điều khiển đa tiêu chí: cực tiểu hóa sai số bám làn đường ($e_y \to 0$), duy trì khoảng cách an toàn với xe phía trước theo quy tắc 2 giây, và tối đa hóa độ êm dịu hành khách (Jerk minimization: $\min \dddot{x}$).</li>
+          <li><strong>Hệ Thống Drone Tự Hành & Quản Lý Đội Bay (Intelligent Fleet Management):</strong> Điều khiển cân bằng 6 bậc tự do (6-DOF) của Quadcopter sử dụng mạng nơ-ron sâu bù trừ lực nâng khí động học mặt đất (Ground Effect) và phối hợp phi đội đa tác tử tránh xung đột bằng giao thức tối ưu hóa phân tán.</li>
+        </ul>
+
+        <h3>Cầu Nối Kiến Trúc C++ / ONNX Runtime Trong ROS 2 Node</h3>
+        <p>Để triển khai các mô hình nơ-ron AI đã huấn luyện từ PyTorch xuống hệ thống điều khiển robot thời gian thực:</p>
+        <ol>
+          <li>Xuất mô hình PyTorch sang định dạng trung gian tiêu chuẩn mở <strong>ONNX (Open Neural Network Exchange)</strong>.</li>
+          <li>Trong ROS 2 C++ Node, tích hợp thư viện <strong>ONNX Runtime C++ API</strong> với bộ tăng tốc phần cứng TensorRT / CPU OpenVINO.</li>
+          <li>Thực thi hàm suy luận nơ-ron trong vòng lặp điều khiển $1000\text{ Hz}$ với độ trễ suy luận (Inference Latency) được đo đạc tối ưu dưới $0.5\text{ ms}$, hoàn toàn đáp ứng tiêu chuẩn thời gian thực khắt khe.</li>
+        </ol>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Mờ Fuzzy-PID Chỉnh Định Trực Tuyến Cho Hệ Thống Mức Bồn Nước Công Nghiệp 4.0</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một hệ thống bồn chứa nước công nghiệp trong dây chuyền đóng chai đồ uống tự động 4IR có diện tích tiết diện đáy $A = 1.50\text{ m}^2$, van xả đáy tự do có tiết diện xả với hệ số lưu lượng $c = 0.08\text{ m}^{2.5}/\text{s}$. Phương trình vi phân phi tuyến động lực học mức chất lỏng:
+$$A \frac{dh(t)}{dt} = u(t) - c \sqrt{h(t)}$$
+trong đó $h(t)$ là mức nước trong bồn ($0 \le h \le 2.0\text{ m}$), $u(t)$ là lưu lượng bơm cấp vào ($0 \le u \le 0.20\text{ m}^3/\text{s}$). Mức nước đặt mục tiêu là $h_d = 1.0\text{ m}$.<br>
+Hệ thống sử dụng bộ điều khiển logic mờ Mamdani trực tuyến để tính toán gia số lưu lượng bơm điều khiển $\Delta u(t)$.<br>
+<strong>Quy ước các biến ngôn ngữ và hàm thuộc:</strong>
+<ul>
+  <li>Sai số mức nước $e(t) = h_d - h(t) \in [-1.0, +1.0]\text{ m}$, chia thành 3 tập mờ: $N$ (Âm - Negative), $Z$ (Không - Zero), $P$ (Dương - Positive) với hàm thuộc hình tam giác đối xứng:
+  $$\mu_N(e): \text{đỉnh tại } -1.0, \text{ chân tại } 0.0$$
+  $$\mu_Z(e): \text{đỉnh tại } 0.0, \text{ chân tại } -0.5 \text{ và } +0.5$$
+  $$\mu_P(e): \text{đỉnh tại } +1.0, \text{ chân tại } 0.0$$</li>
+  <li>Tốc độ thay đổi sai số $\dot{e}(t) \in [-0.5, +0.5]\text{ m/s}$, chia thành 3 tập mờ: $N, Z, P$ với:
+  $$\mu_N(\dot{e}): \text{đỉnh tại } -0.5, \text{ chân tại } 0.0$$
+  $$\mu_Z(\dot{e}): \text{đỉnh tại } 0.0, \text{ chân tại } -0.25 \text{ và } +0.25$$
+  $$\mu_P(\dot{e}): \text{đỉnh tại } +0.5, \text{ chân tại } 0.0$$</li>
+  <li>Gia số điều khiển đầu ra $\Delta u \in [-0.10, +0.10]\text{ m}^3/\text{s}$, chia thành 5 tập mờ đơn vị (Singleton) hoặc tam giác có đỉnh tại: $NB (-0.10)$, $NS (-0.05)$, $ZO (0.00)$, $PS (+0.05)$, $PB (+0.10)$.</li>
+</ul>
+<strong>Cơ sở 9 quy tắc mờ Mamdani:</strong>
+<ol>
+  <li>IF $e$ is $N$ AND $\dot{e}$ is $N$ THEN $\Delta u$ is $NB$</li>
+  <li>IF $e$ is $N$ AND $\dot{e}$ is $Z$ THEN $\Delta u$ is $NS$</li>
+  <li>IF $e$ is $N$ AND $\dot{e}$ is $P$ THEN $\Delta u$ is $ZO$</li>
+  <li>IF $e$ is $Z$ AND $\dot{e}$ is $N$ THEN $\Delta u$ is $NS$</li>
+  <li>IF $e$ is $Z$ AND $\dot{e}$ is $Z$ THEN $\Delta u$ is $ZO$</li>
+  <li>IF $e$ is $Z$ AND $\dot{e}$ is $P$ THEN $\Delta u$ is $PS$</li>
+  <li>IF $e$ is $P$ AND $\dot{e}$ is $N$ THEN $\Delta u$ is $ZO$</li>
+  <li>IF $e$ is $P$ AND $\dot{e}$ is $Z$ THEN $\Delta u$ is $PS$</li>
+  <li>IF $e$ is $P$ AND $\dot{e}$ is $P$ THEN $\Delta u$ is $PB$</li>
+</ol>
+Xét thời điểm khi cảm biến mức đo được $h = 0.80\text{ m}$ ($e = +0.20\text{ m}$) và tốc độ dâng nước là $\frac{dh}{dt} = +0.10\text{ m/s}$ ($\dot{e} = -\frac{dh}{dt} = -0.10\text{ m/s}$).
+<ol>
+  <li>Làm mờ hóa (Fuzzification) các giá trị đo được $e = +0.20$ và $\dot{e} = -0.10$, xác định chính xác độ thuộc của từng biến ngôn ngữ.</li>
+  <li>Xác định các quy tắc mờ được kích hoạt và tính toán độ mạnh kích hoạt $\alpha_i$ của từng quy tắc bằng phép suy luận Mamdani Min.</li>
+  <li>Giải mờ bằng phương pháp trọng tâm (Centroid / COG Method) để tính giá trị số rõ $\Delta u^*$.</li>
+  <li>Biện luận tính ưu việt của giải thuật điều khiển mờ thông minh trong việc triệt tiêu hiện tượng vọt lố so với bộ điều khiển PID tuyến tính.</li>
+</ol></p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Làm mờ hóa (Fuzzification) các biến đầu vào thực tế:<br>
+1. <strong>Xét biến sai số $e = +0.20\text{ m}$:</strong><br>
+Giá trị $e = +0.20$ nằm trong khoảng giao giữa tập mờ $Z$ và tập mờ $P$ (hoàn toàn nằm ngoài tập mờ $N \implies \mu_N(0.20) = 0$).<br>
+Hàm thuộc của tập mờ $Z$ (tam giác có đỉnh tại 0.0, chân tại $+0.5$):<br>
+$$\mu_Z(e) = \frac{0.50 - e}{0.50 - 0.00} = \frac{0.50 - 0.20}{0.50} = \frac{0.30}{0.50} = 0.60$$
+Hàm thuộc của tập mờ $P$ (tam giác có chân tại 0.0, đỉnh tại $+1.0$):<br>
+$$\mu_P(e) = \frac{e - 0.00}{1.00 - 0.00} = \frac{0.20 - 0.00}{1.00} = 0.20$$
+Kiểm tra: $\mu_N(e) = 0.00, \mu_Z(e) = 0.60, \mu_P(e) = 0.20$.<br>
+2. <strong>Xét biến tốc độ thay đổi sai số $\dot{e} = -0.10\text{ m/s}$:</strong><br>
+Giá trị $\dot{e} = -0.10$ nằm trong khoảng giao giữa tập mờ $N$ và tập mờ $Z$ (hoàn toàn nằm ngoài tập mờ $P \implies \mu_P(-0.10) = 0$).<br>
+Hàm thuộc của tập mờ $Z$ (tam giác có đỉnh tại 0.0, chân trái tại $-0.25$):<br>
+$$\mu_Z(\dot{e}) = \frac{\dot{e} - (-0.25)}{0.00 - (-0.25)} = \frac{-0.10 + 0.25}{0.25} = \frac{0.15}{0.25} = 0.60$$
+Hàm thuộc của tập mờ $N$ (tam giác có đỉnh tại $-0.50$, chân phải tại 0.0):<br>
+$$\mu_N(\dot{e}) = \frac{0.00 - \dot{e}}{0.00 - (-0.50)} = \frac{0.00 - (-0.10)}{0.50} = \frac{0.10}{0.50} = 0.20$$
+Kiểm tra: $\mu_N(\dot{e}) = 0.20, \mu_Z(\dot{e}) = 0.60, \mu_P(\dot{e}) = 0.00$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Kích hoạt luật mờ qua phép suy luận Mamdani Min:<br>
+Vì $e \in \{Z, P\}$ và $\dot{e} \in \{N, Z\}$, chỉ có đúng $2 \times 2 = 4$ quy tắc trong số 9 quy tắc được kích hoạt đồng thời:<br>
+- <strong>Quy tắc 4:</strong> IF $e$ is $Z$ AND $\dot{e}$ is $N$ THEN $\Delta u$ is $NS$ (đỉnh tại $-0.05$):<br>
+$$\alpha_4 = \min(\mu_Z(e), \mu_N(\dot{e})) = \min(0.60, 0.20) = 0.20$$
+- <strong>Quy tắc 5:</strong> IF $e$ is $Z$ AND $\dot{e}$ is $Z$ THEN $\Delta u$ is $ZO$ (đỉnh tại $0.00$):<br>
+$$\alpha_5 = \min(\mu_Z(e), \mu_Z(\dot{e})) = \min(0.60, 0.60) = 0.60$$
+- <strong>Quy tắc 7:</strong> IF $e$ is $P$ AND $\dot{e}$ is $N$ THEN $\Delta u$ is $ZO$ (đỉnh tại $0.00$):<br>
+$$\alpha_7 = \min(\mu_P(e), \mu_N(\dot{e})) = \min(0.20, 0.20) = 0.20$$
+- <strong>Quy tắc 8:</strong> IF $e$ is $P$ AND $\dot{e}$ is $Z$ THEN $\Delta u$ is $PS$ (đỉnh tại $+0.05$):<br>
+$$\alpha_8 = \min(\mu_P(e), \mu_Z(\dot{e})) = \min(0.20, 0.60) = 0.20$$
+Toàn bộ các quy tắc còn lại (1, 2, 3, 6, 9) đều có độ kích hoạt bằng $0$.<br>
+Tổng hợp mức độ kích hoạt cho từng tập mờ đầu ra qua phép Max (S-norm):<br>
+- Tập $NS$ (vị trí trọng tâm $u_{NS} = -0.05\text{ m}^3/\text{s}$): độ mạnh $\mu(NS) = \alpha_4 = 0.20$.<br>
+- Tập $ZO$ (vị trí trọng tâm $u_{ZO} = 0.00\text{ m}^3/\text{s}$): độ mạnh $\mu(ZO) = \max(\alpha_5, \alpha_7) = \max(0.60, 0.20) = 0.60$.<br>
+- Tập $PS$ (vị trí trọng tâm $u_{PS} = +0.05\text{ m}^3/\text{s}$): độ mạnh $\mu(PS) = \alpha_8 = 0.20$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Giải mờ bằng phương pháp trọng tâm (Centroid / COG Method):<br>
+Áp dụng công thức giải mờ trọng tâm rời rạc cho các tập mờ đối xứng chuẩn:<br>
+$$\Delta u^* = \frac{\sum_{k} u_k \cdot \mu(u_k)}{\sum_{k} \mu(u_k)}$$
+Thay các giá trị trọng tâm và mức độ kích hoạt tương ứng:<br>
+- $u_{NS} = -0.05\text{ m}^3/\text{s}$ với trọng số $0.20$.<br>
+- $u_{ZO} = 0.00\text{ m}^3/\text{s}$ với trọng số $0.60$.<br>
+- $u_{PS} = +0.05\text{ m}^3/\text{s}$ với trọng số $0.20$.<br>
+Tính tử số của biểu thức trọng tâm:<br>
+$$\text{Tử số} = (-0.05)(0.20) + (0.00)(0.60) + (+0.05)(0.20) = -0.010 + 0.000 + 0.010 = 0.000\text{ m}^3/\text{s}$$
+Tính mẫu số:<br>
+$$\text{Mẫu số} = 0.20 + 0.60 + 0.20 = 1.00$$
+Do đó giá trị gia số điều khiển tối ưu là:<br>
+$$\Delta u^* = \frac{0.000}{1.00} = 0.000\text{ m}^3/\text{s}$$
+Giả sử tại chu kỳ trước lưu lượng bơm là $u_0 = c \sqrt{h_d} = 0.08 \sqrt{1.0} = 0.080\text{ m}^3/\text{s}$, lưu lượng bơm duy trì ở mức cân bằng $u(t) = 0.080\text{ m}^3/\text{s}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận trí tuệ nhân tạo và ý nghĩa điều khiển học thông minh:<br>
+Phân tích trạng thái vật lý sâu sắc:<br>
+1. <strong>Mức nước hiện tại thấp hơn điểm đặt ($h = 0.80\text{ m} \lt h_d = 1.0\text{ m} \implies e = +0.20\text{ m} \gt 0$):</strong> Nếu dùng bộ điều khiển tỷ lệ PID cổ điển thuần túy ($u = K_p e$), bộ điều khiển sẽ thấy sai số dương và lập tức mở thêm bơm để dồn nước vào bồn.<br>
+2. <strong>Tuy nhiên, nước đang dâng lên rất nhanh ($\frac{dh}{dt} = +0.10\text{ m/s} \implies \dot{e} = -0.10\text{ m/s} \lt 0$):</strong> Với vận tốc dâng $0.10\text{ m/s}$, chỉ trong vòng đúng $2.0\text{ s}$ nữa mức nước sẽ tự động chạm đích $1.0\text{ m}$ nhờ quán tính dòng chảy.<br>
+3. <strong>Hành vi thông minh của Logic Mờ:</strong> Động cơ suy luận mờ kích hoạt đồng thời Quy tắc 4 ($NS$: giảm bơm vì nước đang dâng) và Quy tắc 8 ($PS$: tăng bơm vì nước còn thiếu). Hai xu hướng này triệt tiêu hoàn hảo lẫn nhau qua Quy tắc 5 ($ZO$), đưa gia số điều khiển về đúng bằng $\Delta u^* = 0.000\text{ m}^3/\text{s}$!<br>
+Nhờ khả năng phán đoán tương tự trực giác của kỹ sư vận hành lão luyện, bộ điều khiển Fuzzy chủ động "hãm phanh" từ trước, giúp mức nước lướt êm ái tiệm cận đúng $1.00\text{ m}$ mà <strong>hoàn toàn không xảy ra hiện tượng tràn bồn hay vọt lố ($M_p = 0\%$)</strong>, điều mà PID cổ điển không bao giờ đạt được nếu không tinh chỉnh phức tạp.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Đã thiết kế hoàn chỉnh hệ thống điều khiển mờ Mamdani với giải mờ Centroid COG, chứng minh khả năng phán đoán thông minh tự triệt tiêu vọt lố vượt bậc so với PID cổ điển theo Mutambara (2024).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Điều Khiển Mờ Fuzzy-PID Thông Minh & Bề Mặt Kích Hoạt Luật Mamdani</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-10" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim10()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim10()">Thiết lập lại</button>
+        <label class="sim-label">Mức đặt mục tiêu $h_d$: <input type="range" id="sim10-target" min="0.2" max="1.8" step="0.1" value="1.0" onchange="updateSim10Params()"></label>
+        <label class="sim-label">Chế độ điều khiển:
+          <select id="sim10-mode" onchange="updateSim10Mode()">
+            <option value="fuzzy">Fuzzy-PID Mamdani Tự Chỉnh Định</option>
+            <option value="pid">PID Tuyến Tính Cố Định (Vọt lố cao)</option>
+            <option value="drl">Chính Sách Học Tăng Cường DRL (SAC Actor)</option>
+          </select>
+        </label>
+        <label class="sim-label">Phương pháp giải mờ:
+          <select id="sim10-defuzz" onchange="updateSim10Defuzz()">
+            <option value="centroid">Trọng tâm Centroid (COG - Mượt mà)</option>
+            <option value="mom">Trung bình cực đại (MOM - Gián đoạn)</option>
+            <option value="bisector">Phân giác diện tích (Bisector)</option>
+          </select>
+        </label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim10-stats" class="sim-telemetry-text">Mức nước $h$: 1.000 m | Mức đặt $h_d$: 1.000 m | Sai số $e$: 0.000 m | $\dot{e}$: 0.000 m/s | Đầu ra Fuzzy $\Delta K_p$: +1.42, $\Delta K_d$: +0.28 | Luật kích hoạt: Rule #5 [ZO, ZO -> ZO]</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// ============================================================================
+// C++20 Mamdani Fuzzy Inference Engine &amp; Real-Time Fuzzy-PID Controller
+// Implementation for Industry 4.0 Non-Linear Process Control
+// ============================================================================
+
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+#include &lt;iomanip&gt;
+
+class MamdaniFuzzyPID {
+public:
+    MamdaniFuzzyPID(double Kp_base, double Ki_base, double Kd_base)
+        : Kp0_(Kp_base), Ki0_(Ki_base), Kd0_(Kd_base) {}
+
+    // Triangular membership function
+    [[nodiscard]] static double trimf(double x, double a, double b, double c) {
+        if (x &lt;= a || x &gt;= c) return 0.0;
+        if (x == b) return 1.0;
+        if (x &lt; b) return (x - a) / (b - a);
+        return (c - x) / (c - b);
+    }
+
+    // Step execution of Fuzzy-PID
+    [[nodiscard]] double update(double error, double error_dot, double dt) {
+        // 1. Fuzzification for error e [-1.0, 1.0]
+        double mu_e_N = (error &lt;= -1.0) ? 1.0 : trimf(error, -2.0, -1.0, 0.0);
+        double mu_e_Z = trimf(error, -0.5, 0.0, 0.5);
+        double mu_e_P = (error &gt;= 1.0) ? 1.0 : trimf(error, 0.0, 1.0, 2.0);
+
+        // 2. Fuzzification for error_dot [-0.5, 0.5]
+        double mu_ed_N = (error_dot &lt;= -0.5) ? 1.0 : trimf(error_dot, -1.0, -0.5, 0.0);
+        double mu_ed_Z = trimf(error_dot, -0.25, 0.0, 0.25);
+        double mu_ed_P = (error_dot &gt;= 0.5) ? 1.0 : trimf(error_dot, 0.0, 0.5, 1.0);
+
+        // 3. Rule Evaluation &amp; Mamdani Min Implication
+        // Singletons for Delta_Kp: NB(-2.0), NS(-1.0), ZO(0.0), PS(1.0), PB(2.0)
+        double w_NS = std::min(mu_e_Z, mu_ed_N);
+        double w_ZO = std::max(std::min(mu_e_Z, mu_ed_Z), std::min(mu_e_P, mu_ed_N));
+        double w_PS = std::min(mu_e_P, mu_ed_Z);
+
+        // 4. Centroid Defuzzification (Singleton COG)
+        double num = (-1.0) * w_NS + (0.0) * w_ZO + (1.0) * w_PS;
+        double den = w_NS + w_ZO + w_PS;
+        double delta_Kp = (den &gt; 1e-6) ? (num / den) : 0.0;
+
+        // Adaptive PID gains
+        double Kp = Kp0_ + delta_Kp;
+        double Ki = Ki0_;
+        double Kd = Kd0_ + 0.2 * delta_Kp;
+
+        // PID calculation with anti-windup clamping
+        integral_ += error * dt;
+        integral_ = std::clamp(integral_, -0.5, 0.5);
+
+        double u = Kp * error + Ki * integral_ + Kd * error_dot;
+        return std::clamp(u, 0.0, 0.20); // Valve flow rate limits [0, 0.20] m^3/s
+    }
+
+private:
+    double Kp0_{1.5};
+    double Ki0_{0.1};
+    double Kd0_{0.4};
+    double integral_{0.0};
+};
+
+int main() {
+    std::cout &lt;&lt; &quot;=== AI-BASED FUZZY-PID WATER LEVEL CONTROL (MUTAMBARA CH 10) ===\n&quot;;
+    MamdaniFuzzyPID controller(1.5, 0.1, 0.4);
+
+    // Initial state: h = 0.80 m (error = 0.20 m), dh/dt = 0.10 m/s (error_dot = -0.10 m/s)
+    constexpr double h_d = 1.0;
+    double h = 0.80;
+    double h_dot = 0.10;
+    constexpr double dt = 0.05;
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;Target: &quot; &lt;&lt; h_d &lt;&lt; &quot; m | Current Level: &quot; &lt;&lt; h &lt;&lt; &quot; m\n&quot;;
+
+    for (int step = 0; step &lt; 5; ++step) {
+        double e = h_d - h;
+        double e_dot = -h_dot;
+        double u_pump = controller.update(e, e_dot, dt);
+
+        std::cout &lt;&lt; &quot;Step &quot; &lt;&lt; step &lt;&lt; &quot; | Level: &quot; &lt;&lt; h &lt;&lt; &quot; m | Error: &quot; &lt;&lt; e
+                  &lt;&lt; &quot; m | Inflow u: &quot; &lt;&lt; u_pump &lt;&lt; &quot; m^3/s\n&quot;;
+
+        // Plant non-linear physics: A * dh/dt = u - c*sqrt(h)
+        constexpr double A = 1.5;
+        constexpr double c = 0.08;
+        h_dot = (u_pump - c * std::sqrt(std::max(0.01, h))) / A;
+        h += h_dot * dt;
+    }
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Cuộc Cách mạng Công nghiệp 4IR yêu cầu các hệ thống điều khiển thông minh tự thích ứng, tự học và tự tối ưu hóa trước các quá trình phi tuyến siêu phức tạp.</li><li>Điều khiển Logic Mờ (Fuzzy Logic Control) chuyển hóa tri thức và kinh nghiệm phi tuyến của chuyên gia thành luật IF-THEN, mang lại khả năng tự động chỉnh định tham số PID trực tuyến.</li><li>Mạng Nơ-ron Tích hợp Vật lý (PINN) kết hợp dữ liệu lớn IoT và các định luật bảo toàn vật lý vào hàm mất mát, khắc phục nhược điểm hộp đen của AI truyền thống.</li><li>Học Tăng Cường Sâu (DRL: SAC, PPO) làm chủ các bài toán điều khiển cơ động phức tạp cho xe tự hành Level 4 và bầy Drone UAV mà không cần mô hình giải tích.</li><li>Lá chắn an toàn Hàm Rào Cản Điều Khiển (Control Barrier Functions - CBF) giải bài toán QP thời gian thực, triệt tiêu 100% rủi ro an toàn hiện sinh của hệ thống AI.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 10.1: Thiết kế hàm phần thưởng (Reward Shaping) cho giải thuật DRL xe tự hành</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một xe tự hành thông minh cấp độ 4 (Level 4 AV) được huấn luyện bằng giải thuật học tăng cường sâu Soft Actor-Critic (SAC) trong môi trường mô phỏng vật lý CARLA. Trạng thái quan sát gồm: sai số lệch tâm làn đường $e_y$ (m), sai số góc hướng xe so với tim đường $e_\psi$ (rad), vận tốc dọc $v_x$ (m/s), và khoảng cách tới xe dẫn đường phía trước $d_{\text{lead}}$ (m).
+<ol>
+  <li>Thiết kế hàm phần thưởng đa mục tiêu $r(s, a) = r_{\text{lane}} + r_{\text{speed}} + r_{\text{safe}} + r_{\text{comfort}}$ dạng giải tích liên tục, dốc đều, không bị thưa (Dense Reward).</li>
+  <li>Xác định hàm rào cản điều khiển an toàn (Control Barrier Function - CBF) $h(d_{\text{lead}}, v_x) \ge 0$ để ngăn chặn va chạm tuyệt đối theo quy tắc an toàn khoảng cách phanh khẩn cấp.</li>
+</ol></p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Hướng dẫn giải chi tiết:<br>
+1. Thiết kế hàm phần thưởng trơn Dense Reward:<br>
+- Phần thưởng bám tâm làn: $r_{\text{lane}} = \exp\left(-\frac{e_y^2}{2 \sigma_y^2}\right) \cdot \cos(e_\psi)$ với $\sigma_y = 0.30\text{ m}$ (cực đại bằng 1 khi xe nằm chính giữa tim đường và song song với vạch kẻ).<br>
+- Phần thưởng bám vận tốc mong muốn $v_{\text{target}} = 15\text{ m/s}$ ($54\text{ km/h}$): $r_{\text{speed}} = 1.0 - \min\left(1.0, \frac{|v_x - v_{\text{target}}|}{v_{\text{target}}}\right)$.<br>
+- Phần thưởng giữ khoảng cách an toàn (Time Headway $t_h = 1.8\text{ s}$): $d_{\text{des}} = d_0 + v_x t_h = 5.0 + 1.8 v_x$. Khi $d_{\text{lead}} \lt d_{\text{des}}$, phạt lũy thừa âm: $r_{\text{safe}} = -\exp\left(\frac{d_{\text{des}} - d_{\text{lead}}}{2.0}\right)$.<br>
+- Phần thưởng êm dịu hành khách (phạt gia tốc giật Jerk và góc đánh lái gấp): $r_{\text{comfort}} = -0.05 a_x^2 - 0.10 \delta_{\text{steer}}^2$.<br>
+Tổng phần thưởng $r(s, a)$ trơn, liên tục, đạo hàm khả vi mọi nơi, tối ưu cho thuật toán Policy Gradient.<br>
+2. Thiết lập hàm rào cản CBF: Khoảng cách dừng an toàn tuyệt đối với gia tốc phanh khẩn cấp tối đa $a_{\max} = 6.0\text{ m/s}^2$ và thời gian trễ phanh $\tau_b = 0.2\text{ s}$:<br>
+$$d_{\text{stop}}(v_x) = v_x \tau_b + \frac{v_x^2}{2 a_{\max}} + d_{\text{margin}}$$
+Hàm rào cản CBF: $h(\mathbf{x}) = d_{\text{lead}} - d_{\text{stop}}(v_x) \ge 0$.<br>
+Điều kiện rào cản $\dot{h}(\mathbf{x}) + \gamma h(\mathbf{x}) \ge 0$ được nhúng vào bộ lọc QP trực tuyến, đảm bảo khoảng cách $d_{\text{lead}}$ luôn lớn hơn khoảng cách phanh vật lý, loại bỏ $100\%$ rủi ro đâm va đuôi xe.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch09.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 09: Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</span>
+        </a>
+        <a href="../index.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Hoàn thành Khóa Học: Về Portal Hub →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim10 === "function") {
+        initSim10();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

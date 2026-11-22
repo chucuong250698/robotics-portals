@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Động Lực Học Hệ Thống Thủy Lực & Sóng Áp Suất (Hydraulic Drives & Wave Variables) | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 04</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link active">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Động Cơ, Thủy Lực & Mô Hình Ma Sát</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 4 (Trang 141–190)</span>
+        </div>
+        <h1 class="chapter-title">Chương 04: Động Lực Học Hệ Thống Thủy Lực & Sóng Áp Suất (Hydraulic Drives & Wave Variables)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Xi-lanh thủy lực, Van servo tỷ lệ, Sóng áp suất & Biến sóng Wave Variables</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Khi robot cần nâng vác vật thể hàng tấn (Máy xúc tự hành xây dựng, Robot đào hầm, Chân robot thủy lực Boston Dynamics Atlas phiên bản đầu, Cần cẩu tàu biển), động cơ điện truyền thống không thể đáp ứng được mật độ công suất khổng lồ. <strong>Hệ truyền động thủy lực (Hydraulic Actuators)</strong> cung cấp mật độ lực/khối lượng gấp 10 lần động cơ điện! Tuy nhiên, dầu thủy lực không hoàn toàn không nén được (Bulk modulus $\beta_e$ hữu hạn), và dòng chất lưu trong đường ống dài sinh ra <em>sóng áp suất truyền sóng và hiện tượng búa nước (Water Hammer)</em> cực kỳ nguy hiểm.</p>
+        </div>
+        <p>Bằng cách sử dụng <strong>Biến sóng (Wave Variables)</strong> và mô hình phương trình vi phân đạo hàm riêng (PDE), kỹ sư có thể phân tích chính xác độ trễ pha áp suất và thiết kế bộ giảm chấn cộng hưởng Helmholtz bảo vệ hệ thống.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Quan hệ dòng chảy qua cửa van tỷ lệ (Orifice Flow Equation):</p>
+        $$\begin{equation}
+        Q = C_d A_v(x_v) \sqrt{\frac{2}{\rho} |\Delta P|} \operatorname{sgn}(\Delta P)
+        \end{equation}$$
+        <p>Phương trình liên tục nén ép chất lưu trong khoang xi-lanh thể tích $V(t)$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Vi Phân Áp Suất Khoang Xi-Lanh Thủy Lực</div>
+          $$\begin{equation}
+          \dot{P} = \frac{\beta_e}{V(t)} \left( Q_{in} - Q_{out} - \dot{V}(t) \right) = \frac{\beta_e}{V(t)} \left( Q_{net} - A_p \dot{x}_p \right)
+          \end{equation}$$
+        </div>
+        <p>Với $\beta_e$ là mô-đun đàn hồi thể tích hiệu dụng của dầu (Effective Bulk Modulus, thường từ $1.0\text{–}1.8\text{ GPa}$), $A_p$ là diện tích piston, $x_p$ là hành trình piston.</p>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Tần số tự nhiên thủy lực của cơ cấu chấp hành xi-lanh đối xứng thể tích tổng $V_t$ mang tải quán tính $M$:</p>
+        $$\begin{equation}
+        \omega_h = \sqrt{\frac{4 \beta_e A_p^2}{V_t M}}
+        \end{equation}$$
+        <p><strong>Lý thuyết biến sóng trong đường ống thủy lực dài:</strong> Đổi biến áp suất $P$ và lưu lượng $Q$ sang biến sóng tiến $u$ và sóng lùi $v$ với trở kháng đặc tính $Z_0 = \frac{\sqrt{\rho \beta_e}}{A_{pipe}}$:</p>
+        $$\begin{equation}
+        u = \frac{1}{\sqrt{2 Z_0}} (P + Z_0 Q), \qquad v = \frac{1}{\sqrt{2 Z_0}} (P - Z_0 Q)
+        \end{equation}$$
+        <p>Công suất truyền tải tức thời: $P(t) Q(t) = \frac{1}{2}(u^2 - v^2)$. Biến sóng đảm bảo tính thụ động tuyệt đối ngay cả khi đường ống có độ trễ truyền sóng thời gian lớn!</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Mô Hình Hóa Xi-Lanh Thủy Lực & Tính Tần Số Tự Nhiên Thủy Lực</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một xi-lanh thủy lực đối xứng điều khiển cánh tay cơ giới có đường kính piston $D_p = 80\text{ mm}$ (bán kính $r = 0.04\text{ m}$), tổng chiều dài hành trình $L = 0.50\text{ m}$. Dầu thủy lực có mô-đun đàn hồi thể tích $\beta_e = 1.4\text{ GPa} = 1.4 \times 10^9\text{ Pa}$, khối lượng riêng $\rho = 870\text{ kg/m}^3$. Xi-lanh đẩy khối lượng tải $M = 500\text{ kg}$.<br>Yêu cầu: (a) Tính diện tích piston $A_p$ và thể tích tổng của xi-lanh $V_t$; (b) Xác định tần số tự nhiên thủy lực $\omega_h$ (rad/s và Hz); (c) Khi van mở diện tích $A_v = 1.5 \times 10^{-5}\text{ m}^2$ với hệ số xả $C_d = 0.62$ và độ chênh áp $\Delta P = 70\text{ bar} = 7 \times 10^6\text{ Pa}$, tính lưu lượng nạp $Q$ và vận tốc chuyển động của piston $\dot{x}_p$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính diện tích piston và thể tích buồng xi-lanh:<br>• Diện tích piston: $A_p = \pi r^2 = \pi (0.04)^2 \approx 5.0265 \times 10^{-3}\text{ m}^2$.<br>• Tổng thể tích xi-lanh: $V_t = A_p \times L = 5.0265 \times 10^{-3} \times 0.50 \approx 2.5133 \times 10^{-3}\text{ m}^3$ ($2.513\text{ lít}$).</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán tần số tự nhiên thủy lực $\omega_h$:<br>Công thức: $\omega_h = \sqrt{\frac{4 \beta_e A_p^2}{V_t M}}$<br>Tử số: $4 \beta_e A_p^2 = 4 \times (1.4 \times 10^9) \times (5.0265 \times 10^{-3})^2 = 5.6 \times 10^9 \times 2.5266 \times 10^{-5} \approx 141490\text{ N}\cdot\text{m}$.<br>Mẫu số: $V_t M = 2.5133 \times 10^{-3} \times 500 = 1.2566\text{ m}^3\cdot\text{kg}$.<br>Thương số:<br>$$\omega_h = \sqrt{\frac{141490}{1.2566}} = \sqrt{112597} \approx 335.55\text{ rad/s}$$<br>Tần số Hz: $f_h = \frac{335.55}{2\pi} \approx 53.40\text{ Hz}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính lưu lượng qua van và vận tốc chuyển động piston:<br>Áp dụng phương trình dòng chảy qua cửa van Orifice:<br>$$Q = C_d A_v \sqrt{\frac{2}{\rho} \Delta P} = 0.62 \times (1.5 \times 10^{-5}) \sqrt{\frac{2 \times (7 \times 10^6)}{870}} = 9.30 \times 10^{-6} \sqrt{16091.95} = 9.30 \times 10^{-6} \times 126.85 \approx 1.180 \times 10^{-3}\text{ m}^3/\text{s}$$<br>Quy đổi lưu lượng: $Q \approx 1.180\text{ L/s} = 70.8\text{ L/phút}$.<br>Vận tốc đều của piston $\dot{x}_p = \frac{Q}{A_p}$:<br>$$\dot{x}_p = \frac{1.180 \times 10^{-3}\text{ m}^3/\text{s}}{5.0265 \times 10^{-3}\text{ m}^2} \approx 0.2347\text{ m/s} = 23.47\text{ cm/s}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Diễn giải ý nghĩa kỹ thuật: Tần số tự nhiên thủy lực $f_h \approx 53.4\text{ Hz}$ đóng vai trò là 'bức tường băng thông' cứng của hệ thống. Bộ điều khiển vị trí của cánh tay thủy lực không bao giờ được phép đặt tần số cắt (Cutoff frequency) vượt quá $1/3 f_h \\approx 17.8\\text{ Hz}$, nếu không sẽ kích hoạt dao động áp suất cộng hưởng phá hỏng phớt chắn dầu xi-lanh.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 04: Xi-Lanh Thủy Lực & Dao Động Sóng Áp Suất</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-04" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Áp suất cấp P_supply: <span id="sim04-p-val">150</span> bar</label>
+              <input type="range" id="sim04-p" min="50" max="300" step="10" value="150">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim04-stats" class="sim-telemetry-text">Quan sát buồng áp suất đổi màu xanh dương đậm khi áp suất tăng và chuyển động tịnh tiến có độ nén dầu của piston.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Hydraulic Cylinder Pressure Dynamics in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+struct HydraulicCylinder {
+    double Dp = 0.08, L = 0.50;
+    double beta_e = 1.4e9, rho = 870.0, M = 500.0;
+    double Ap = M_PI * (Dp / 2.0) * (Dp / 2.0);
+    double Vt = Ap * L;
+    
+    double computeNaturalFreq() const {
+        return std::sqrt(4.0 * beta_e * Ap * Ap / (Vt * M));
+    }
+    
+    double computeFlow(double Av, double deltaP, double Cd = 0.62) const {
+        return Cd * Av * std::sqrt(2.0 * deltaP / rho);
+    }
+};
+
+int main() {
+    HydraulicCylinder cyl;
+    double w_h = cyl.computeNaturalFreq();
+    double Q = cyl.computeFlow(1.5e-5, 7e6);
+    
+    std::cout &lt;&lt; &quot;Hydraulic Natural Frequency: &quot; &lt;&lt; w_h &lt;&lt; &quot; rad/s (&quot; 
+              &lt;&lt; w_h / (2 * M_PI) &lt;&lt; &quot; Hz)\n&quot;;
+    std::cout &lt;&lt; &quot;Flow rate Q: &quot; &lt;&lt; Q * 1e3 * 60 &lt;&lt; &quot; L/min\n&quot;;
+    std::cout &lt;&lt; &quot;Piston Velocity: &quot; &lt;&lt; (Q / cyl.Ap) * 100 &lt;&lt; &quot; cm/s\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Mật độ công suất thủy lực:</strong> Lựa chọn số 1 cho các ứng dụng cơ giới siêu nặng và robot công trường.</li><li><strong>Mô-đun đàn hồi thể tích (Bulk Modulus):</strong> Đo lường độ cứng của dầu, quyết định tần số dao động tự nhiên của xi-lanh.</li><li><strong>Biến sóng (Wave Variables):</strong> Khung toán học bảo toàn tính thụ động cho các đường ống thủy lực có độ trễ truyền sóng.</li><li><strong>Xung áp Joukowsky (Water Hammer):</strong> Hiện tượng búa nước do đóng van nhanh đòi hỏi cơ chế bảo vệ bằng bình tích áp.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 4.1: Hiện tượng búa nước khi đóng van đột ngột</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Dòng dầu đang chảy trong ống thép với vận tốc $v = 4.0\text{ m/s}$ thì van điện từ đóng lại đột ngột trong thời gian $t_{close} \lt 2L/c$. Tốc độ truyền âm trong dầu $c = \sqrt{\beta_e / \rho} = \sqrt{1.4 \times 10^9 / 870} \approx 1268\text{ m/s}$. Hãy tính xung áp suất búa nước Joukowsky $\Delta P_{shock} = \rho c v$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Xung áp Joukowsky: $\\Delta P_{shock} = 870 \\times 1268 \\times 4.0 \\approx 4.41 \\times 10^6\\text{ Pa} = 44.1\\text{ bar}$! Áp suất đường ống vọt tăng tức thời thêm $44.1\\text{ bar}$, đòi hỏi phải lắp đặt bình tích áp thủy lực (Hydraulic Accumulator) để hấp thụ xung kích.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch03.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 03: Hệ Cơ Điện & Khớp Đàn Hồi</span>
+        </a>
+        <a href="ch05.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Mô Hình Ma Sát Tĩnh & Ma Sát Động LuGre →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim04 === "function") {
+        initSim04();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

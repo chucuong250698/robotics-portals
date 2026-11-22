@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State Estimation for Robotics | Explorable Knowledge Portal</title>
+  <link rel="stylesheet" href="assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="portal-home">
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <span class="brand-icon">📐</span>
+        <span class="brand-text">State Estimation for Robotics</span>
+      </a>
+      <div class="nav-actions">
+        <a href="../index.html" class="btn btn-secondary">🏛️ Viện Tri Thức</a>
+        
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+        <span class="badge-edition">Second Edition 2026</span>
+        <a href="#curriculum-tracks" class="btn btn-secondary">Khám Phá 5 Tracks</a>
+        <a href="chapters/ch01.html" class="btn btn-primary">Bắt Đầu Học →</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="portal-hero">
+    <div class="hero-container">
+      <div class="hero-badge">🎓 Siêu Chuyên Khảo Kinh Điển Về Định Vị & SLAM Robot Học</div>
+      <h1 class="hero-title">State Estimation for Robotics</h1>
+      <p class="hero-author">Tác giả: <strong>Prof. Timothy D. Barfoot</strong> (University of Toronto / Cambridge University Press)</p>
+      <p class="hero-desc">
+        Hệ thống web chưng cất tri thức học thuật tương tác chất lượng cao chuyển hóa toàn bộ 580 trang chuyên khảo: từ không gian xác suất, chặn dưới Cramér-Rao, bộ lọc Kalman, tối ưu hóa trên đa tạp nhóm Lie ma trận $SO(3)/SE(3)$, tiền tích phân IMU trên nhóm Lie, đến Bundle Adjustment và ước lượng quỹ đạo thời gian liên tục STEAM.
+      </p>
+
+      <div class="hero-stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">14</div>
+          <div class="stat-label">Chương Học Thuật 6 Tầng</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">5</div>
+          <div class="stat-label">Master Tracks Chuyên Sâu</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">14</div>
+          <div class="stat-label">Mô Phỏng Canvas 2D 60 FPS</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">MathJax 3 Chuẩn Số Thực</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Search Toolbar -->
+  <section class="search-section" id="curriculum-tracks">
+    <div class="search-container">
+      <div class="search-bar-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="matrix-search-input" placeholder="Tìm kiếm nhanh chương, thuật toán (Kalman, Lie, ICP, STEAM, Schur, Quaternions, IMU...)..." autocomplete="off">
+        <span class="search-shortcut">Ctrl + K</span>
+      </div>
+
+      <div class="filter-pills" id="filter-pills">
+        <button class="filter-pill active" data-filter="all" data-track="all">Tất Cả (14 Chương)</button>
+        <button class="filter-pill" data-filter="track-1" data-track="track-1">Track 1: Xác Suất & Tuyến Tính Gauss (Ch 01-04)</button>
+        <button class="filter-pill" data-filter="track-2" data-track="track-2">Track 2: Phi Tuyến & Biến Phân (Ch 05-06)</button>
+        <button class="filter-pill" data-filter="track-3" data-track="track-3">Track 3: Hình Học 3D & Nhóm Lie (Ch 07-09)</button>
+        <button class="filter-pill" data-filter="track-4" data-track="track-4">Track 4: Ứng Dụng Tư Thế & IMU (Ch 10-12)</button>
+        <button class="filter-pill" data-filter="track-5" data-track="track-5">Track 5: Bundle Adjustment & STEAM (Ch 13-14)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chapter Cards Grid -->
+  <main class="portal-main">
+    <div class="chapters-grid" id="chapters-grid">
+
+      <!-- Track 1 -->
+      <article class="matrix-card chapter-card" data-filter="track-1" data-track="track-1" data-tags="probability bayes cramer-rao fisher information pdf">
+        <div class="card-header">
+          <span class="track-badge badge-track-1">Track 1</span>
+          <span class="chapter-index">Chương 01</span>
+        </div>
+        <h3 class="card-title">Cơ Sở Xác Suất, Cramér-Rao & Fisher Information</h3>
+        <p class="card-summary">Xây dựng nền móng giải tích xác suất cho robot: từ định lý Bayes, hàm hợp lý Likelihood, ma trận thông tin Fisher đến chặn dưới phương sai Cramér-Rao (CRLB).</p>
+        <div class="card-tags">
+          <span class="tag">Bayes Rule</span>
+          <span class="tag">Fisher Information</span>
+          <span class="tag">CRLB</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 25 phút</span>
+          <a href="chapters/ch01.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-1" data-track="track-1" data-tags="gaussian mahalanobis chi-squared information-form canonical gating">
+        <div class="card-header">
+          <span class="track-badge badge-track-1">Track 1</span>
+          <span class="chapter-index">Chương 02</span>
+        </div>
+        <h3 class="card-title">Biến Ngẫu Nhiên Gauss & Khoảng Cách Mahalanobis</h3>
+        <p class="card-summary">Phân phối chuẩn đa biến, dạng thông tin Information Form, biến đổi qua hàm phi tuyến và kiểm chuẩn loại trừ ngoại lai Chi-squared Mahalanobis gating.</p>
+        <div class="card-tags">
+          <span class="tag">Information Form</span>
+          <span class="tag">Mahalanobis</span>
+          <span class="tag">Chi-Squared Gating</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 28 phút</span>
+          <a href="chapters/ch02.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-1" data-track="track-1" data-tags="batch-map rts-smoother linear-estimation cholesky filtering smoothing">
+        <div class="card-header">
+          <span class="track-badge badge-track-1">Track 1</span>
+          <span class="chapter-index">Chương 03</span>
+        </div>
+        <h3 class="card-title">Ước Lượng Tuyến Tính Gauss, Batch MAP & RTS Smoother</h3>
+        <p class="card-summary">Giải bài toán ước lượng trạng thái toàn cục: ma trận thưa tam đối xứng khối, phân rã Cholesky và thuật toán làm mượt Rauch-Tung-Striebel hai chiều.</p>
+        <div class="card-tags">
+          <span class="tag">Batch MAP</span>
+          <span class="tag">RTS Smoother</span>
+          <span class="tag">Cholesky</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 30 phút</span>
+          <a href="chapters/ch03.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-1" data-track="track-1" data-tags="kalman-filter kalman-bucy riccati gaussian-process gpr">
+        <div class="card-header">
+          <span class="track-badge badge-track-1">Track 1</span>
+          <span class="chapter-index">Chương 04</span>
+        </div>
+        <h3 class="card-title">Bộ Lọc Kalman Rời Rạc/Liên Tục & Hồi Quy Gaussian Process</h3>
+        <p class="card-summary">Ba cách tiếp cận suy dẫn bộ lọc Kalman (MAP, Bayes, Gain Optimization), phương trình vi phân Riccati Kalman-Bucy và cầu nối tới Gaussian Process Regression.</p>
+        <div class="card-tags">
+          <span class="tag">Kalman Filter</span>
+          <span class="tag">Riccati SDE</span>
+          <span class="tag">Gaussian Process</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 30 phút</span>
+          <a href="chapters/ch04.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <!-- Track 2 -->
+      <article class="matrix-card chapter-card" data-filter="track-2" data-track="track-2" data-tags="ekf iekf ukf sigmapoint particle-filter monte-carlo nonlinear">
+        <div class="card-header">
+          <span class="track-badge badge-track-2">Track 2</span>
+          <span class="chapter-index">Chương 05</span>
+        </div>
+        <h3 class="card-title">Ước Lượng Phi Tuyến: EKF, IEKF, UKF & Particle Filter</h3>
+        <p class="card-summary">Đối mặt với độ cong phi tuyến: xấp xỉ Taylor bậc 1 EKF, sự tương đương MAP của IEKF, biến đổi xác định Sigmapoint UKF và lấy mẫu ngẫu nhiên Particle Filter.</p>
+        <div class="card-tags">
+          <span class="tag">EKF / IEKF</span>
+          <span class="tag">UKF Sigmapoints</span>
+          <span class="tag">Particle Filter</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 32 phút</span>
+          <a href="chapters/ch05.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-2" data-track="track-2" data-tags="outliers nees nis robust-estimation huber cauchy variational-inference elbo cavi">
+        <div class="card-header">
+          <span class="track-badge badge-track-2">Track 2</span>
+          <span class="chapter-index">Chương 06</span>
+        </div>
+        <h3 class="card-title">Xử Lý Ngoại Lai, Độ Nhất Quán NEES/NIS & Variational Inference</h3>
+        <p class="card-summary">Kiểm chuẩn độ lành mạnh bộ lọc (NEES/NIS), ước lượng vững M-estimation (Huber, Cauchy IRLS) và chương mới của tái bản 2: Suy luận biến phân tối đa hóa ELBO.</p>
+        <div class="card-tags">
+          <span class="tag">NEES / NIS</span>
+          <span class="tag">Robust M-Estimation</span>
+          <span class="tag">Variational Inference</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch06.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <!-- Track 3 -->
+      <article class="matrix-card chapter-card" data-filter="track-3" data-track="track-3" data-tags="3d-geometry so3 euler gimbal-lock quaternions se3 transform">
+        <div class="card-header">
+          <span class="track-badge badge-track-3">Track 3</span>
+          <span class="chapter-index">Chương 07</span>
+        </div>
+        <h3 class="card-title">Hình Học 3D: Ma Trận Quay, Quaternions & Biến Đổi SE(3)</h3>
+        <p class="card-summary">Đại số hình học 3 chiều: nhóm trực giao đặc biệt $SO(3)$, hiện tượng khóa góc Gimbal Lock của góc Euler, đại số Unit Quaternion và phép biến đổi thuần nhất $SE(3)$.</p>
+        <div class="card-tags">
+          <span class="tag">SO(3) / SE(3)</span>
+          <span class="tag">Gimbal Lock</span>
+          <span class="tag">Unit Quaternions</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 28 phút</span>
+          <a href="chapters/ch07.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-3" data-track="track-3" data-tags="lie-groups lie-algebra so3 se3 rodrigues exponential-map adjoint">
+        <div class="card-header">
+          <span class="track-badge badge-track-3">Track 3</span>
+          <span class="chapter-index">Chương 08</span>
+        </div>
+        <h3 class="card-title">Nhóm Lie Ma Trận: SO(3), SE(3) & Đại Số Lie Tiếp Tuyến</h3>
+        <p class="card-summary">Trái tim hình học của robot hiện đại: đa tạp trơn, đại số Lie tiếp tuyến $\mathfrak{so}(3)/\mathfrak{se}(3)$, ánh xạ mũ Rodrigues và toán tử liên hợp Adjoint.</p>
+        <div class="card-tags">
+          <span class="tag">Lie Algebra</span>
+          <span class="tag">Rodrigues Formula</span>
+          <span class="tag">Adjoint Operator</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch08.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-3" data-track="track-3" data-tags="lie-calculus bch jacobians concentrated-gaussians covariance manifold">
+        <div class="card-header">
+          <span class="track-badge badge-track-3">Track 3</span>
+          <span class="chapter-index">Chương 09</span>
+        </div>
+        <h3 class="card-title">Giải Tích Trên Nhóm Lie, BCH & Phân Phối Gauss Tập Trung</h3>
+        <p class="card-summary">Vi phân trên đa tạp: công thức Baker-Campbell-Hausdorff (BCH), Jacobian trái/phải, phân phối Gauss tập trung trên nhóm Lie và lan truyền hiệp phương sai quả chuối qua Adjoint.</p>
+        <div class="card-tags">
+          <span class="tag">BCH Formula</span>
+          <span class="tag">Lie Jacobians</span>
+          <span class="tag">Concentrated Gaussians</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch09.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <!-- Track 4 -->
+      <article class="matrix-card chapter-card" data-filter="track-4" data-track="track-4" data-tags="point-cloud icp arun svd horn registration lidar">
+        <div class="card-header">
+          <span class="track-badge badge-track-4">Track 4</span>
+          <span class="chapter-index">Chương 10</span>
+        </div>
+        <h3 class="card-title">Căn Chỉnh Đám Mây Điểm: SVD Arun, Horn & ICP</h3>
+        <p class="card-summary">Đăng ký đám mây điểm 3D: nghiệm dạng đóng giải tích của Arun/Horn bằng SVD, thuật toán lặp tìm điểm gần nhất ICP (Point-to-Point và Point-to-Plane).</p>
+        <div class="card-tags">
+          <span class="tag">Arun SVD</span>
+          <span class="tag">ICP Algorithm</span>
+          <span class="tag">Point-to-Plane</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 30 phút</span>
+          <a href="chapters/ch10.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-4" data-track="track-4" data-tags="pose-graph loop-closure gtsam g2o slam relaxation sparse">
+        <div class="card-header">
+          <span class="track-badge badge-track-4">Track 4</span>
+          <span class="chapter-index">Chương 11</span>
+        </div>
+        <h3 class="card-title">Tối Ưu Hóa Đồ Thị Tư Thế (Pose-Graph Optimization trên SE(3))</h3>
+        <p class="card-summary">Triệt tiêu sai số trôi dạt tích lũy của Odometry: mô hình sai số trên đại số Lie, phát hiện đóng vòng lặp Loop Closure và giải hệ phương trình chuẩn thưa với GTSAM/g2o.</p>
+        <div class="card-tags">
+          <span class="tag">Pose-Graph SLAM</span>
+          <span class="tag">Loop Closure</span>
+          <span class="tag">Sparse Hessian</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch11.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-4" data-track="track-4" data-tags="imu-preintegration vio visual-inertial lie-groups bias-jacobians forster">
+        <div class="card-header">
+          <span class="track-badge badge-track-4">Track 4</span>
+          <span class="chapter-index">Chương 12</span>
+        </div>
+        <h3 class="card-title">Tiền Tích Phân IMU Trên Nhóm Lie Cho Visual-Inertial Odometry</h3>
+        <p class="card-summary">Đột phá của Tái bản lần 2: gom hàng trăm mẫu IMU tần số cao thành yếu tố tương đối cục bộ độc lập với tọa độ thế giới và bù trôi Bias tức thời qua ma trận Jacobian.</p>
+        <div class="card-tags">
+          <span class="tag">IMU Pre-integration</span>
+          <span class="tag">Bias Jacobians</span>
+          <span class="tag">VIO Factor Graphs</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch12.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <!-- Track 5 -->
+      <article class="matrix-card chapter-card" data-filter="track-5" data-track="track-5" data-tags="bundle-adjustment schur-complement arrowhead pinhole reprojection-error visual-slam">
+        <div class="card-header">
+          <span class="track-badge badge-track-5">Track 5</span>
+          <span class="chapter-index">Chương 13</span>
+        </div>
+        <h3 class="card-title">Cân Bằng Bó (Bundle Adjustment) & Triệt Tiêu Schur Complement</h3>
+        <p class="card-summary">Tái tạo đồng thời tư thế Camera và mốc điểm 3D: sai số chiếu lại phối cảnh, cấu trúc ma trận hình mũi tên Arrowhead và kỹ thuật triệt tiêu Schur Complement thời gian thực.</p>
+        <div class="card-tags">
+          <span class="tag">Bundle Adjustment</span>
+          <span class="tag">Schur Complement</span>
+          <span class="tag">Arrowhead Matrix</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch13.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+      <article class="matrix-card chapter-card" data-filter="track-5" data-track="track-5" data-tags="steam continuous-time gaussian-process asynchronous sde trajectory-spline">
+        <div class="card-header">
+          <span class="track-badge badge-track-5">Track 5</span>
+          <span class="chapter-index">Chương 14</span>
+        </div>
+        <h3 class="card-title">STEAM: Ước Lượng Quỹ Đạo Liên Tục Thời Gian Với Gaussian Process</h3>
+        <p class="card-summary">Đỉnh cao lý thuyết của Timothy Barfoot: biểu diễn quỹ đạo liên tục bằng tiên nghiệm quá trình Gauss, nội suy dạng đóng giải tích và hợp nhất cảm biến bất đồng bộ tuyệt đối.</p>
+        <div class="card-tags">
+          <span class="tag">STEAM Algorithm</span>
+          <span class="tag">Continuous-Time</span>
+          <span class="tag">GP Interpolation</span>
+        </div>
+        <div class="card-footer">
+          <span class="read-time">⏱️ 35 phút</span>
+          <a href="chapters/ch14.html" class="card-link">Đọc Chương →</a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="portal-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h4>State Estimation for Robotics</h4>
+        <p>Hệ thống web tri thức tương tác chưng cất toàn bộ chuyên khảo của Giáo sư Timothy D. Barfoot (University of Toronto). Phát triển theo tiêu chuẩn <strong>Deep Reading Distiller</strong>.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Liên Kết Nhanh</h4>
+        <ul class="footer-links">
+          <li><a href="chapters/ch01.html">Bắt đầu Track 1: Cơ Sở Xác Suất</a></li>
+          <li><a href="chapters/ch08.html">Track 3: Nhóm Lie Ma Trận SO(3)/SE(3)</a></li>
+          <li><a href="chapters/ch12.html">Track 4: Tiền Tích Phân IMU Trên Lie</a></li>
+          <li><a href="chapters/ch14.html">Track 5: STEAM Liên Tục Thời Gian</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Đặc Tính Kỹ Thuật</h4>
+        <p>Giao diện 2 cột thích ứng, 100% MathJax 3 không lỗi, 14 mô phỏng Canvas 2D 60 FPS, ví dụ số 4 bước thực tế và cầu nối mã nguồn C++ / ROS 2.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Explorable Robotics Knowledge Portal. Open-source knowledge distillation for robotics engineers.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 07: Hình Học 3D: Ma Trận Quay, Quaternions &amp; SE(3) | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-3">Track 3: Hình Học 3D &amp; Nhóm Lie Ma Trận</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 07</span>
+<h3 class="sidebar-title">Hình Học 3D: Ma Trận Quay, Quaternions &amp; SE(3)</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 3 / Hình Học 3D &amp; Nhóm Lie Ma Trận / Chương 07</div>
+<h1 class="chapter-main-title">Chương 07: Hình Học 3D: Ma Trận Quay, Quaternions &amp; SE(3)</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 6.1–6.3 (Trang 181–224)</span>
+<span class="meta-item">🎯 Trọng tâm: Biểu diễn tư thế 6 bậc tự do (6-DoF) &amp; Tránh hiện tượng khóa trục Gimbal Lock</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Mọi robot di động trong không gian 3 chiều (Drone, Cánh tay máy, Robot hình người, Xe tự hành) đều cần biểu diễn hướng quay (Orientation) và vị trí (Position). Tuy nhiên, không gian góc quay 3D là một <strong>mặt cong phi Euclid</strong>: phép quay không có tính chất giao hoán ($R_1 R_2 \neq R_2 R_1$), và việc dùng 3 góc Euler (Roll-Pitch-Yaw) luôn dính bẫy <em>Gimbal Lock (Khóa góc)</em> khiến robot mất kiểm soát khi pitch tiến tới $90^\circ$! <strong>Quaternions và Nhóm biến đổi thuần nhất $SE(3)$</strong> là vũ khí hình học bắt buộc để thoát khỏi cạm bẫy này.</p>
+</div>
+<p>Unit Quaternions sử dụng 4 tham số với một ràng buộc chuẩn tắc $\|\mathbf{q}\| = 1$ để biểu diễn hướng xoay mượt mà, cho phép nội suy cầu SLERP ổn định tuyệt đối mà không có bất kỳ điểm kỳ dị toán học nào. Kết hợp với vector tịnh tiến $\mathbf{t} \in \mathbb{R}^3$, ta có nhóm biến đổi Euclid đặc biệt $SE(3)$ đại diện cho tư thế 6 bậc tự do (6-DoF Pose).</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Ma trận quay 3D thuộc <strong>Nhóm trực giao đặc biệt (Special Orthogonal Group)</strong>:</p>
+        $$\begin{equation}
+        SO(3) = \{ \mathbf{R} \in \mathbb{R}^{3 \times 3} \mid \mathbf{R} \mathbf{R}^T = \mathbf{I}, \, \det(\mathbf{R}) = +1 \}
+        \end{equation}$$
+        <p><strong>Unit Quaternion $\mathbf{q} \in \mathbb{H}_1$:</strong> Gồm một phần vô hướng $\eta$ và một phần vector $\boldsymbol{\epsilon} = [\epsilon_1, \epsilon_2, \epsilon_3]^T$:</p>
+        $$\begin{equation}
+        \mathbf{q} = \begin{bmatrix} \eta \\ \boldsymbol{\epsilon} \end{bmatrix} = \begin{bmatrix} \cos(\theta / 2) \\ \mathbf{u} \sin(\theta / 2) \end{bmatrix}, \quad \eta^2 + \boldsymbol{\epsilon}^T \boldsymbol{\epsilon} = 1
+        \end{equation}$$
+        <p>Với $\theta$ là góc quay quanh trục vector đơn vị $\mathbf{u}$.</p>
+<p>Công thức Euler-Rodrigues chuyển đổi Quaternion sang ma trận quay $\mathbf{R}(\mathbf{q}) \in SO(3)$:</p>
+        $$\begin{equation}
+        \mathbf{R}(\mathbf{q}) = (\eta^2 - \boldsymbol{\epsilon}^T \boldsymbol{\epsilon})\mathbf{I} + 2\boldsymbol{\epsilon} \boldsymbol{\epsilon}^T + 2\eta \boldsymbol{\epsilon}^\wedge
+        \end{equation}$$
+      </section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Nhóm Biến Đổi Euclid Đặc Biệt $SE(3)$</div>
+          $$\begin{equation}
+          SE(3) = \left\{ \mathbf{T} = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t} \\ \mathbf{0}^T &amp; 1 \end{bmatrix} \in \mathbb{R}^{4 \times 4} \;\middle|\; \mathbf{R} \in SO(3), \, \mathbf{t} \in \mathbb{R}^3 \right\}
+          \end{equation}$$
+        </div>
+<p>Biến đổi một điểm 3D $\mathbf{p}$ từ hệ quy chiếu robot $B$ sang hệ quy chiếu thế giới $W$ bằng tọa độ thuần nhất (Homogeneous coordinates):</p>
+        $$\begin{equation}
+        \begin{bmatrix} \mathbf{p}^W \\ 1 \end{bmatrix} = \mathbf{T}_{WB} \begin{bmatrix} \mathbf{p}^B \\ 1 \end{bmatrix} = \begin{bmatrix} \mathbf{R}_{WB} \mathbf{p}^B + \mathbf{t}_{WB} \\ 1 \end{bmatrix}
+        \end{equation}$$
+        <p>Nghịch đảo của một phép biến đổi thuần nhất được tính cực nhanh mà không cần nghịch đảo ma trận $4 \times 4$:</p>
+        $$\begin{equation}
+        \mathbf{T}^{-1} = \begin{bmatrix} \mathbf{R}^T &amp; -\mathbf{R}^T \mathbf{t} \\ \mathbf{0}^T &amp; 1 \end{bmatrix}
+        \end{equation}$$
+      </section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Chuyển Đổi Trục-Góc (Axis-Angle) Sang Quaternion &amp; Ma Trận Quay $SO(3)$</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Một cánh tay robot công nghiệp cần quay kẹp gắp một góc $\theta = 60^\circ$ ($0.5\text{ vòng} / 3$) quanh trục quay đơn vị $\mathbf{u} = \frac{1}{\sqrt{3}}[1, 1, 1]^T$. Sau đó kẹp gắp tịnh tiến theo vector $\mathbf{t} = [0.2, 0.5, 1.0]^T\text{ m}$. Yêu cầu: (a) Xác định Unit Quaternion $\mathbf{q} = [\eta, \boldsymbol{\epsilon}]^T$; (b) Tính ma trận quay $\mathbf{R} \in SO(3)$ bằng công thức Euler-Rodrigues; (c) Lập ma trận biến đổi thuần nhất $\mathbf{T} \in SE(3)$ và tính tọa độ của điểm đầu kẹp gắp $\mathbf{p}_B = [0, 0, 0.1]^T\text{ m}$ trong hệ tọa độ gốc.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định các thành phần của Quaternion từ trục $\mathbf{u}$ và góc $\theta = \pi/3\text{ rad}$:<br/>• Nửa góc: $\theta/2 = \pi/6 = 30^\circ$.<br/>• Phần vô hướng: $\eta = \cos(30^\circ) = \frac{\sqrt{3}}{2} \approx 0.8660$.<br/>• Phần vector: $\boldsymbol{\epsilon} = \mathbf{u} \sin(30^\circ) = \frac{1}{\sqrt{3}}[1, 1, 1]^T \times 0.5 = \frac{0.5}{\sqrt{3}}[1, 1, 1]^T \approx [0.2887, 0.2887, 0.2887]^T$.<br/>Kiểm tra chuẩn: $\eta^2 + \|\boldsymbol{\epsilon}\|^2 = (\sqrt{3}/2)^2 + 3 \times (0.5/\sqrt{3})^2 = 0.75 + 0.25 = 1.000$ (Chuẩn tắc).</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính ma trận quay $R$ qua công thức Euler-Rodrigues: $R = (\eta^2 - \|\boldsymbol{\epsilon}\|^2)I + 2\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T + 2\eta \boldsymbol{\epsilon}^\wedge$:<br/>• Số hạng 1: $(\eta^2 - \|\boldsymbol{\epsilon}\|^2)I = (0.75 - 0.25)I = 0.50 I$.<br/>• Số hạng 2: $2\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T = 2(0.2887^2)\begin{bmatrix} 1 &amp; 1 &amp; 1 \\ 1 &amp; 1 &amp; 1 \\ 1 &amp; 1 &amp; 1 \end{bmatrix} = 0.1667 \begin{bmatrix} 1 &amp; 1 &amp; 1 \\ 1 &amp; 1 &amp; 1 \\ 1 &amp; 1 &amp; 1 \end{bmatrix}$.<br/>• Số hạng 3: Toán tử Hat $\boldsymbol{\epsilon}^\wedge = \begin{bmatrix} 0 &amp; -0.2887 &amp; 0.2887 \\ 0.2887 &amp; 0 &amp; -0.2887 \\ -0.2887 &amp; 0.2887 &amp; 0 \end{bmatrix}$.<br/>$2\eta \boldsymbol{\epsilon}^\wedge = 2(0.8660)(0.2887)\begin{bmatrix} 0 &amp; -1 &amp; 1 \\ 1 &amp; 0 &amp; -1 \\ -1 &amp; 1 &amp; 0 \end{bmatrix} = 0.5000 \begin{bmatrix} 0 &amp; -1 &amp; 1 \\ 1 &amp; 0 &amp; -1 \\ -1 &amp; 1 &amp; 0 \end{bmatrix}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tổng hợp ma trận quay $R$ và ma trận $SE(3)$:<br/>$$R = \begin{bmatrix} 0.5 + 0.1667 &amp; 0.1667 - 0.5000 &amp; 0.1667 + 0.5000 \\ 0.1667 + 0.5000 &amp; 0.5 + 0.1667 &amp; 0.1667 - 0.5000 \\ 0.1667 - 0.5000 &amp; 0.1667 + 0.5000 &amp; 0.5 + 0.1667 \end{bmatrix} = \begin{bmatrix} 0.6667 &amp; -0.3333 &amp; 0.6667 \\ 0.6667 &amp; 0.6667 &amp; -0.3333 \\ -0.3333 &amp; 0.6667 &amp; 0.6667 \end{bmatrix}$$<br/>Kiểm tra: $\det(R) = 1.000$, trực giao $R R^T = I$.<br/>Ma trận thuần nhất $T$:<br/>$$T = \begin{bmatrix} 0.6667 &amp; -0.3333 &amp; 0.6667 &amp; 0.20 \\ 0.6667 &amp; 0.6667 &amp; -0.3333 &amp; 0.50 \\ -0.3333 &amp; 0.6667 &amp; 0.6667 &amp; 1.00 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}$$<br/>Tọa độ điểm đầu kẹp gắp $\mathbf{p}_W = R \mathbf{p}_B + \mathbf{t}$ với $\mathbf{p}_B = [0, 0, 0.1]^T$:<br/>$$\mathbf{p}_W = \begin{bmatrix} 0.6667 \times 0.1 \\ -0.3333 \times 0.1 \\ 0.6667 \times 0.1 \end{bmatrix} + \begin{bmatrix} 0.20 \\ 0.50 \\ 1.00 \end{bmatrix} = \begin{bmatrix} 0.0667 + 0.20 \\ -0.0333 + 0.50 \\ 0.0667 + 1.00 \end{bmatrix} = \begin{bmatrix} 0.2667\text{ m} \\ 0.4667\text{ m} \\ 1.0667\text{ m} \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Diễn giải ý nghĩa: Phép quay 3D đã biến đổi hướng của trục Z kẹp gắp sang cả 3 thành phần không gian. Nhờ sử dụng Quaternion và ma trận $SE(3)$, không có bất kỳ điểm gián đoạn nào xuất hiện; các thuật toán tối ưu hóa có thể nội suy quỹ đạo trơn tru mà không sợ bị nhảy góc như Roll-Pitch-Yaw.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 7.1: Nghịch đảo ma trận SE(3)</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Cho ma trận $T$ đã tính ở trên. Hãy tính ma trận nghịch đảo $T^{-1}$ biểu diễn phép biến đổi từ hệ quy chiếu thế giới $W$ về hệ quy chiếu robot $B$ mà không dùng phép khử Gauss.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Sử dụng công thức $T^{-1} = [R^T, -R^T \mathbf{t}; \mathbf{0}^T, 1]$. Ta chuyển vị ma trận $R$ thành $R^T$ và tính vector tịnh tiến mới $\mathbf{t}' = -R^T [0.2, 0.5, 1.0]^T = [-0.1333, -0.9333, -0.6333]^T$.
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 07: Con Quay 3D Động, Góc Euler &amp; Khóa Trục Gimbal Lock</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-07" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Góc Pitch $\theta$ (Thử kéo đến 90°): <span id="sim07-pitch-val">0</span>°</label>
+<input id="sim07-pitch" max="90" min="-90" step="1" type="range" value="0"/>
+</div>
+<div class="control-group">
+<label>Góc Yaw $\psi$: <span id="sim07-yaw-val">0</span>°</label>
+<input id="sim07-yaw" max="180" min="-180" step="5" type="range" value="0"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim07-stats">Kéo Pitch đến đúng 90° để quan sát trục Roll và trục Yaw trùng khít lên nhau, làm mất 1 bậc tự do (Gimbal Lock)!</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// 3D Geometry Transformation with Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+#include &lt;Eigen/Geometry&gt;
+
+int main() {
+    // Axis-Angle representation
+    Eigen::Vector3d axis(1.0 / std::sqrt(3.0), 1.0 / std::sqrt(3.0), 1.0 / std::sqrt(3.0));
+    double angle = M_PI / 3.0; // 60 degrees
+    
+    // Quaternion
+    Eigen::Quaterniond q(Eigen::AngleAxisd(angle, axis));
+    std::cout &lt;&lt; "Quaternion (w, x, y, z): " &lt;&lt; q.w() &lt;&lt; ", " 
+              &lt;&lt; q.x() &lt;&lt; ", " &lt;&lt; q.y() &lt;&lt; ", " &lt;&lt; q.z() &lt;&lt; "\n\n";
+              
+    // SO(3) Rotation Matrix
+    Eigen::Matrix3d R = q.toRotationMatrix();
+    std::cout &lt;&lt; "Rotation Matrix R:\n" &lt;&lt; R &lt;&lt; "\n\n";
+    
+    // SE(3) Transform
+    Eigen::Isometry3d T = Eigen::Isometry3d::Identity();
+    T.rotate(q);
+    T.pretranslate(Eigen::Vector3d(0.2, 0.5, 1.0));
+    
+    Eigen::Vector3d p_B(0.0, 0.0, 0.1);
+    Eigen::Vector3d p_W = T * p_B;
+    std::cout &lt;&lt; "Transformed Point p_W: " &lt;&lt; p_W.transpose() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Nhóm SO(3):</strong> Ma trận quay $3 	imes 3$ bảo toàn khoảng cách và hướng, không có điểm kỳ dị nhưng dư thừa $9 - 3 = 6$ bậc tham số.</li><li><strong>Gimbal Lock:</strong> Hiểm họa chết người của các bộ tham số tối thiểu 3 góc Euler khi hai trục quay xoay trùng hướng.</li><li><strong>Unit Quaternions:</strong> Giải pháp hoàn hảo 4 tham số: không kỳ dị, tích chập nhanh gấp đôi ma trận và nội suy SLERP lý tưởng.</li><li><strong>Nhóm SE(3):</strong> Khung toán học hoàn chỉnh kết hợp xoay $SO(3)$ và tịnh tiến $\mathbb{R}^3$, chuẩn mực trong ROS 2 TF2 và GTSAM.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch06.html">← Chương 06: Ngoại Lai &amp; Variational Inference</a>
+<a class="btn-nav btn-next" href="ch08.html">Chương tiếp theo: Nhóm Lie Ma Trận: SO(3), SE(3) &amp; Đại Số Lie →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

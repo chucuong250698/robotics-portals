@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 460" width="100%" height="100%" style="background:#ffffff; border-radius:8px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <marker id="arm-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+    </marker>
+  </defs>
+
+  <text x="370" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f172a">Động Học Cánh Tay Robot 2 Khâu Phẳng (2-DOF Planar Arm Kinematics)</text>
+  <text x="370" y="48" text-anchor="middle" font-size="12" fill="#64748b">Minh họa biến đổi thuận (FK) và 2 nghiệm động học nghịch (IK): Cấu hình Elbow-Up vs Elbow-Down</text>
+
+  <!-- Coordinate Origin Frame (X_0, Y_0) -->
+  <g transform="translate(140, 360)">
+    <line x1="0" y1="0" x2="160" y2="0" stroke="#0f172a" stroke-width="2" marker-end="url(#arm-arrow)" />
+    <line x1="0" y1="0" x2="0" y2="-180" stroke="#0f172a" stroke-width="2" marker-end="url(#arm-arrow)" />
+    <text x="165" y="5" font-size="12" font-weight="bold" fill="#0f172a">X_0</text>
+    <text x="-5" y="-185" font-size="12" font-weight="bold" fill="#0f172a">Y_0</text>
+    
+    <!-- Joint 1 Base -->
+    <rect x="-25" y="0" width="50" height="15" fill="#64748b" rx="2" />
+    <circle cx="0" cy="0" r="10" fill="#1e293b" />
+    <text x="-35" y="-8" font-size="11" font-weight="bold" fill="#1e293b">Khớp 1 (0, 0)</text>
+
+    <!-- Angle theta_1 arc -->
+    <path d="M 60 0 A 60 60 0 0 0 45 -40" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#arm-arrow)" />
+    <text x="65" y="-20" font-size="12" font-weight="bold" fill="#2563eb">θ_1</text>
+
+    <!-- Link 1 (Solid: Elbow-Down solution) -->
+    <!-- Length l_1 = 180, angle = 40 deg -> dx = 180*cos(40) = 137.9, dy = -180*sin(40) = -115.7 -->
+    <line x1="0" y1="0" x2="138" y2="-116" stroke="#2563eb" stroke-width="7" stroke-linecap="round" />
+    <text x="50" y="-75" font-size="12" font-weight="bold" fill="#1d4ed8">Khâu 1 (l_1)</text>
+
+    <!-- Joint 2 -->
+    <g transform="translate(138, -116)">
+      <circle cx="0" cy="0" r="8" fill="#1e293b" />
+      <text x="-15" y="-15" font-size="11" font-weight="bold" fill="#1e293b">Khớp 2</text>
+      
+      <!-- Extension line of link 1 -->
+      <line x1="0" y1="0" x2="80" y2="-67" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3,3" />
+      
+      <!-- Angle theta_2 arc -->
+      <!-- Link 2 angle relative: theta_2 = 35 deg -> total angle = 75 deg -> dx = 140*cos(75) = 36.2, dy = -140*sin(75) = -135.2 -->
+      <path d="M 45 -38 A 50 50 0 0 0 20 -48" fill="none" stroke="#8b5cf6" stroke-width="2" marker-end="url(#arm-arrow)" />
+      <text x="40" y="-55" font-size="12" font-weight="bold" fill="#8b5cf6">θ_2</text>
+      
+      <!-- Link 2 (Solid) -->
+      <line x1="0" y1="0" x2="36" y2="-135" stroke="#7c3aed" stroke-width="6" stroke-linecap="round" />
+      <text x="28" y="-70" font-size="12" font-weight="bold" fill="#6d28d9">Khâu 2 (l_2)</text>
+    </g>
+
+    <!-- End Effector Position P(x, y) = (138 + 36, -116 - 135) = (174, -251) -->
+    <g transform="translate(174, -251)">
+      <circle cx="0" cy="0" r="8" fill="#dc2626" />
+      <circle cx="0" cy="0" r="14" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="2,2" />
+      <text x="18" y="-5" font-size="13" font-weight="bold" fill="#dc2626">Điểm tác động cuối P(x, y)</text>
+      <text x="18" y="12" font-size="10.5" fill="#475569">x = l_1 cos θ_1 + l_2 cos(θ_1 + θ_2)</text>
+      <text x="18" y="27" font-size="10.5" fill="#475569">y = l_1 sin θ_1 + l_2 sin(θ_1 + θ_2)</text>
+    </g>
+
+    <!-- Dotted Elbow-Up Configuration to same target P(174, -251) -->
+    <!-- Joint 2' elbow up position: reflection -->
+    <line x1="0" y1="0" x2="65" y2="-175" stroke="#94a3b8" stroke-width="3" stroke-dasharray="4,4" />
+    <circle cx="65" cy="-175" r="6" fill="#94a3b8" />
+    <line x1="65" y1="-175" x2="174" y2="-251" stroke="#94a3b8" stroke-width="3" stroke-dasharray="4,4" />
+    <text x="-40" y="-170" font-size="10" font-weight="bold" fill="#64748b">Cấu hình Elbow-Up</text>
+    <text x="145" y="-95" font-size="10" font-weight="bold" fill="#2563eb">Cấu hình Elbow-Down</text>
+  </g>
+
+  <!-- Math Summary Box -->
+  <g transform="translate(460, 240)">
+    <rect width="255" height="150" rx="8" fill="#f8fafc" stroke="#cbd5e1" />
+    <text x="15" y="24" font-size="12" font-weight="bold" fill="#0f172a">Nghiệm Động Học Ngược (IK):</text>
+    <text x="15" y="48" font-size="11" fill="#334155">cos θ_2 = (x² + y² - l_1² - l_2²) / (2 l_1 l_2)</text>
+    <text x="15" y="70" font-size="11" fill="#dc2626">sin θ_2 = ± √(1 - cos² θ_2)</text>
+    <text x="15" y="92" font-size="10.5" fill="#475569">• Dấu (+) : Nghiệm Elbow-Down</text>
+    <text x="15" y="110" font-size="10.5" fill="#475569">• Dấu (-) : Nghiệm Elbow-Up</text>
+    <text x="15" y="132" font-size="10.5" fill="#b91c1c">• cos θ_2 &gt; 1 : Điểm nằm ngoài vùng làm việc!</text>
+  </g>
+</svg>

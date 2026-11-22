@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 12: Giao Diện HRI, Dạy Học Động Học &amp; Tự Chủ Chia Sẻ (Shared Autonomy) - Imitation Learning in Robotics</title>
+<meta content="Kinesthetic Teaching, Teleoperation &amp; Shared Autonomy" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 6: HRI, BENCHMARKS &amp; TRIỂN KHAI THỰC TẾ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 12</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 12</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-12-1">
+<span class="nav-text">12.1 Các Giao Diện HRI Thu Thập Biểu Diễn Mẫu</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-2">
+<span class="nav-text">12.2 Dạy Học Động Học &amp; Gravity Compensation</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-3">
+<span class="nav-text">12.3 Khung Toán Học Tự Chủ Chia Sẻ (Shared Autonomy)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-4">
+<span class="nav-text">12.4 Bộ Điều Khiển Trộn Tín Hiệu Alpha-Blending</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-sim">
+<span class="nav-text">⚡ Mô Phỏng Tự Chủ Chia Sẻ Alpha-Blending (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Trộn Tín Hiệu u = α u_h + (1-α) u_r</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-bridge">
+<span class="nav-text">🛠️ Cầu Nối C++ / ROS 2: Node Bù Trọng Lực Cho Cầm Tay Chỉ Việc</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-12-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 6: HRI, BENCHMARKS &amp; TRIỂN KHAI THỰC TẾ • CHƯƠNG 12</div>
+<h1 class="chapter-title">Giao Diện HRI, Dạy Học Động Học &amp; Tự Chủ Chia Sẻ (Shared Autonomy)</h1>
+<p class="chapter-subtitle">Kinesthetic Teaching, Teleoperation &amp; Shared Autonomy</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Boyuan Zheng et al. (UTS 2021) &amp; Carlos Celemin et al. (2022)</strong></span>
+</div>
+</div>
+<!-- 12.1 -->
+<h2 id="sec-12-1">12.1 Các Giao Diện Tương Tác Người - Robot (HRI) Trong Thu Thập Dữ Liệu</h2>
+<p>Chất lượng của dữ liệu học bắt chước phụ thuộc trực tiếp vào tính công thái học (Ergonomics) và độ trực quan của giao diện truyền lệnh từ con người sang robot. Ba phương thức chủ đạo hiện nay:</p>
+<table class="academic-table" style="width:100%; margin: 1.5rem 0; border-collapse: collapse;">
+<thead>
+<tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+<th style="padding: 0.75rem;">Phương Thức</th>
+<th style="padding: 0.75rem;">Cơ Chế Kỹ Thuật</th>
+<th style="padding: 0.75rem;">Ưu Điểm</th>
+<th style="padding: 0.75rem;">Nhược Điểm</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Kinesthetic Teaching (Cầm tay chỉ việc)</strong></td>
+<td style="padding: 0.75rem;">Người trực tiếp cầm nắm thân robot, kích hoạt chế độ bù trọng lực (Zero-gravity mode)</td>
+<td style="padding: 0.75rem;">Trực quan 100%, ghi lại chính xác góc quay mọi khớp</td>
+<td style="padding: 0.75rem;">Người che khuất tầm nhìn camera, khó thao tác tốc độ cao</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Leader-Follower Teleoperation</strong></td>
+<td style="padding: 0.75rem;">Người cầm một cánh tay dẫn động nhỏ (Puppet/Leader) truyền tín hiệu sang cánh tay chính (Follower)</td>
+<td style="padding: 0.75rem;">Không che khuất camera, thu thập dữ liệu tự nhiên, giá thành thấp</td>
+<td style="padding: 0.75rem;">Người cần luyện tập phối hợp mắt - tay để làm quen</td>
+</tr>
+<tr>
+<td style="padding: 0.75rem;"><strong>Giao Diện Không Gian VR / AR</strong></td>
+<td style="padding: 0.75rem;">Kính VR theo dõi tay trong không gian 6D và truyền lệnh qua mạng không dây</td>
+<td style="padding: 0.75rem;">Thao tác từ xa xuyên lục địa, hiển thị trực quan lớp giao diện số</td>
+<td style="padding: 0.75rem;">Độ trễ mạng gây khó khăn khi thao tác vật thể nhỏ</td>
+</tr>
+</tbody>
+</table>
+<!-- 12.2 -->
+<h2 id="sec-12-2">12.2 Khái Niệm Tự Chủ Chia Sẻ (Shared Autonomy)</h2>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 TỰ CHỦ CHIA SẺ (SHARED AUTONOMY) ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">
+            Trong nhiều tác vụ phức tạp, con người cung cấp ý định cấp cao (High-level Intent) nhưng lại dễ mắc lỗi thao tác chi tiết (run tay, phản xạ trễ). Ngược lại, robot có năng lực cảm biến laser/camera phản xạ cực nhanh nhưng lại không hiểu mục đích tổng quát. <strong>Tự Chủ Chia Sẻ (Shared Autonomy)</strong> hòa trộn hai nguồn lực: con người chỉ huy hướng đi, còn thuật toán tự động đảm bảo an toàn cơ học và bám quỹ đạo chính xác.
+          </div>
+</div>
+<!-- 12.3 -->
+<h2 id="sec-12-3">12.3 Bộ Điều Khiển Trộn Tín Hiệu Alpha-Blending</h2>
+<p>Lệnh điều khiển cuối cùng $u_t$ gửi tới động cơ robot là tổ hợp lồi giữa tín hiệu con người $u_h$ và tín hiệu can thiệp an toàn của robot $u_r$:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương Trình Trộn Tín Hiệu Tuyến Tính $\alpha$-Blending</div>
+<div class="formula-math">
+            $$u_t = \alpha_t u_{\text{human}} + (1 - \alpha_t) u_{\text{robot}}$$
+          </div>
+<div class="formula-legend">
+<strong>Cơ chế điều tiết động của trọng số $\alpha_t \in [0, 1]$:</strong>
+<br/>• Khi robot ở trong vùng không gian thoáng và an toàn: $\alpha_t \to 1.0$ (Trao toàn quyền quyết định cho con người).
+            <br/>• Khi robot tiến sát vật cản hoặc vượt quá giới hạn mô-men động cơ: $\alpha_t \to 0.0$ (Bộ điều khiển an toàn Control Barrier Function - CBF tự động can thiệp triệt để để chặn va chạm).
+          </div>
+</div>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-12-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Bộ Điều Khiển Tự Chủ Chia Sẻ $\alpha$-Blending Trong Hành Lang Hẹp</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="280" id="sim-canvas-12" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số quyền con người $\alpha$: <input id="sim12-alpha" max="1.0" min="0.0" step="0.05" type="range" value="0.6"/> <span id="sim12-a-val">Trọng số người α = 0.60</span></label>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-12-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Tính Lực Điều Khiển Trộn $\alpha$-Blending Khi Can Thiệp Nguy Cơ Va Chạm</h3>
+</div>
+<div class="exercise-statement">
+<p>Một xe tự hành AGV đang di chuyển trong hành lang có trục giữa an toàn tại $y_{\text{safe}} = 0.0$ m, hai bên tường tại $y = \pm 0.5$ m. Người lái xe do mất tập trung đang đánh lái sang phải với lệnh vận tốc $v_{y, \text{human}} = +0.6$ m/s, vị trí xe hiện tại là $y = 0.35$ m (rất sát tường nguy hiểm). Robot kích hoạt bộ điều khiển an toàn hồi vị $v_{y, \text{robot}} = -K_p (y - y_{\text{safe}})$ với $K_p = 2.0\text{ s}^{-1}$. Trọng số can thiệp an toàn được tính theo khoảng cách tới tường: $\alpha(y) = \max\left(0, \frac{0.5 - |y|}{0.5 - 0.2}\right)$. Tính trọng số $\alpha$, lệnh của robot, và vận tốc trộn thực thi $v_{y, \text{final}}$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính lệnh vận tốc an toàn của robot</span>
+</div>
+<div class="step-content">
+<p>$$v_{y, \text{robot}} = -2.0 \times (0.35 - 0.0) = -0.70\text{ m/s}$$</p><p>Robot chủ động sinh vận tốc kéo ngược vào giữa hành lang.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính trọng số quyền con người $\alpha$</span>
+</div>
+<div class="step-content">
+<p>Khoảng cách an toàn còn lại: $0.5 - 0.35 = 0.15$ m.</p><p>$$\alpha = \frac{0.15}{0.30} = 0.50$$</p><p>Tại vị trí này, quyền điều khiển được chia đều 50-50 giữa người và thuật toán.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính vận tốc trộn $\alpha$-Blending thực thi</span>
+</div>
+<div class="step-content">
+<p>$$v_{y, \text{final}} = \alpha v_{y, \text{human}} + (1 - \alpha) v_{y, \text{robot}}$$</p><p>$$v_{y, \text{final}} = 0.50 \times (+0.60) + (1 - 0.50) \times (-0.70)$$</p><p>$$v_{y, \text{final}} = +0.30 - 0.35 = -0.05\text{ m/s}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Nhận định kết quả thực thi cơ học</span>
+</div>
+<div class="step-content">
+<p>Nhờ lực hãm can thiệp của robot, vận tốc sang phải nguy hiểm của người lái $+0.60$ m/s đã bị vô hiệu hóa hoàn toàn và đảo chiều thành $-0.05$ m/s, giúp xe từ từ lùi ra xa bức tường mà người lái vẫn cảm nhận được vô lăng tự điều chỉnh mượt mà không bị khựng giật.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Giao diện chia sẻ quyền tự chủ (Shared Autonomy) kết hợp hàm rào cản an toàn Control Barrier Functions (CBF) bảo đảm con người giữ quyền dẫn dắt trong khi robot tự động ngăn chặn mọi nguy cơ va chạm nguy hiểm.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-12-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Bù Trọng Lực Thời Gian Thực (Gravity Compensation) Trong C++</h4>
+<p>Thuật toán bù trọng lực $\mathbf{\tau}_{\text{cmd}} = \mathbf{G}(\mathbf{q})$ cho phép người dùng nhấc bổng cánh tay robot bằng một ngón tay:</p>
+<div class="code-card">
+<div class="code-header">
+<span>gravity_compensation_controller.cpp (ROS 2 / C++)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;sensor_msgs/msg/joint_state.hpp&gt;
+#include &lt;std_msgs/msg/float64_multi_array.hpp&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+class GravityCompensationController : public rclcpp::Node {
+public:
+  GravityCompensationController() : Node("gravity_compensation_controller") {
+    sub_joints_ = this-&gt;create_subscription&lt;sensor_msgs::msg::JointState&gt;(
+      "/joint_states", 10, std::bind(&amp;GravityCompensationController::jointCallback, this, std::placeholders::_1));
+    pub_torques_ = this-&gt;create_publisher&lt;std_msgs::msg::Float64MultiArray&gt;("/forward_effort_controller/commands", 10);
+  }
+
+private:
+  void jointCallback(const sensor_msgs::msg::JointState::SharedPtr msg) {
+    std_msgs::msg::Float64MultiArray torque_msg;
+    // Mô hình hóa ma trận trọng lực G(q) cho khớp 2 và 3
+    double q2 = msg-&gt;position[1];
+    double q3 = msg-&gt;position[2];
+    double tau_g2 = 14.5 * std::cos(q2) + 4.2 * std::cos(q2 + q3);
+    double tau_g3 = 4.2 * std::cos(q2 + q3);
+
+    torque_msg.data = {0.0, tau_g2, tau_g3, 0.0, 0.0, 0.0};
+    pub_torques_-&gt;publish(torque_msg);
+  }
+  rclcpp::Subscription&lt;sensor_msgs::msg::JointState&gt;::SharedPtr sub_joints_;
+  rclcpp::Publisher&lt;std_msgs::msg::Float64MultiArray&gt;::SharedPtr pub_torques_;
+};</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-12-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Hòa Trộn Tín Hiệu Điều Khiển Chia Sẻ (Shared Autonomy) Với Hàm Rào Cản CBF</h4>
+</div>
+<div class="practice-statement">
+<p>Hệ thống hỗ trợ lái thông minh chia sẻ quyền tự chủ giữa người lái $u_h$ và robot tự hành $u_r$. Tín hiệu điều khiển tổng hợp là $u = \alpha u_h + (1 - \alpha) u_r$. Hàm rào cản an toàn Control Barrier Function $h(x) = d - d_{\text{safe}}$ với khoảng cách hiện tại tới vật cản $d = 0.8\text{ m}$, cự ly an toàn tối thiểu $d_{\text{safe}} = 0.5\text{ m}$. Độ trôi an toàn là $h(x) = 0.3\text{ m}$. Tỷ lệ tự chủ thích nghi xác định bởi: $\alpha = \min\left(1.0, \frac{h(x)}{\gamma}\right)$ với $\gamma = 0.6\text{ m}$. Người lái muốn tiến tới với vận tốc $u_h = 1.0\text{ m/s}$, robot đề xuất phanh $u_r = -0.2\text{ m/s}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính hệ số hòa trộn $\alpha$.<br/>2) Tính vận tốc điều khiển tổng hợp $u$ gửi tới động cơ robot.<br/>3) Phân tích hành vi hệ thống khi khoảng cách tiến sát tới $0.5\text{ m}$ ($h(x) \to 0$).</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tính hệ số hòa trộn $\alpha$:<br/>$$\alpha = \min\left(1.0, \frac{0.3}{0.6}\right) = \min(1.0, 0.5) = 0.50$$<br/>Hệ thống chia sẻ quyền điều khiển đều $50\% - 50\%$ giữa người và robot.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tính vận tốc tổng hợp:<br/>$$u = 0.50(u_h) + (1 - 0.50)(u_r) = 0.50(1.0) + 0.50(-0.2) = 0.50 - 0.10 = +0.40\text{ m/s}$$<br/>Robot tự động hãm tốc độ từ $1.0\text{ m/s}$ xuống $0.40\text{ m/s}$ để đảm bảo an toàn.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Khi khoảng cách chạm sát $d_{\text{safe}} = 0.5\text{ m} \implies h(x) = 0 \implies \alpha = 0.0$. Khi đó quyền điều khiển hoàn toàn thuộc về robot ($u = u_r = -0.2\text{ m/s}$), tự động kích hoạt phanh lùi khẩn cấp bất chấp mệnh lệnh đạp ga của người lái.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch11.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 11: Bất Đồng Hình Thái &amp; Sim-to-Real</span>
+</a>
+<a class="ch-nav-card next" href="ch13.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 13: Thước Đo Đánh Giá &amp; Benchmarks</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

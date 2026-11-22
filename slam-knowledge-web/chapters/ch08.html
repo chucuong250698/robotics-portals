@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 08: Bản Đồ Ngữ Nghĩa: Điểm, Mặt Phẳng, Dual Quadrics &amp; NeRF/3DGS - SLAM &amp; Active Perception Portal</title>
+<meta content="Object-Level SLAM, Dual Quadrics &amp; Continuous Neural Fields" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 4: SLAM NGỮ NGHĨA &amp; BIỂU DIỄN HIỆN ĐẠI</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 08</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 08</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-8-1">
+<span class="nav-text">8.1 Các Cấp Độ Biểu Diễn Bản Đồ Ngữ Nghĩa</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-2">
+<span class="nav-text">8.2 Biểu Diễn Vật Thể Dạng Dual Quadrics Q*</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-3">
+<span class="nav-text">8.3 Phép Chiếu Đối Ngẫu Conic 2D: C* ~ P Q* P^T</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-4">
+<span class="nav-text">8.4 Trường Bức Xạ Thần Kinh NeRF &amp; 3D Gaussian Splatting</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-sim">
+<span class="nav-text">⚡ Mô Phỏng Chiếu Khối Dual Quadric (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Chiếu Quadric Ra Conic 2D</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-bridge">
+<span class="nav-text">🛠️ Cầu Nối GTSAM: Định Nghĩa Quadric Factor Bằng Python</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-8-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 4: SLAM NGỮ NGHĨA &amp; BIỂU DIỄN HIỆN ĐẠI • CHƯƠNG 08</div>
+<h1 class="chapter-title">Bản Đồ Ngữ Nghĩa: Điểm, Mặt Phẳng, Dual Quadrics &amp; NeRF/3DGS</h1>
+<p class="chapter-subtitle">Object-Level SLAM, Dual Quadrics &amp; Continuous Neural Fields</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Thanh Nguyen Canh et al. (IEEE 2021) &amp; Timothy Barfoot (2024)</strong></span>
+</div>
+</div>
+<!-- 8.1 -->
+<h2 id="sec-8-1">8.1 Các Cấp Độ Biểu Diễn Bản Đồ Trong SLAM Hiện Đại</h2>
+<p>Bản đồ robot học đã trải qua cuộc cách mạng sâu sắc về hình thức biểu diễn:</p>
+<p>1. <strong>Đám mây điểm thưa (Sparse Point Cloud):</strong> ORB-SLAM chỉ lưu các điểm góc cạnh. Tiết kiệm bộ nhớ nhưng không thể dùng cho tính toán va chạm hay tương tác bàn tay robot.</p>
+<p>2. <strong>Bề mặt tam giác / Mặt lồi (Surfels / TSDF Mesh):</strong> ElasticFusion, Voxblox tái tạo mô hình 3D liên tục, cho phép lập kế hoạch tránh vật cản.</p>
+<p>3. <strong>Bản đồ Cấp độ Đối tượng (Object-Level SLAM):</strong> Thay vì lưu hàng triệu điểm, mỗi đồ vật trong phòng (bàn, ghế, tủ) được mô hình hóa thành một thực thể hình học khép kín duy nhất.</p>
+<!-- 8.2 -->
+<h2 id="sec-8-2">8.2 Biểu Diễn Hình Học Vật Thể Bằng Dual Quadrics $\mathbf{Q}^* \in \mathbb{R}^{4 \times 4}$</h2>
+<p>Một khối hình elip 3D (Ellipsoid) bất kỳ với tâm $\mathbf{t} = [t_x, t_y, t_z]^T$, bán trục bán kính $\mathbf{s} = [s_x, s_y, s_z]^T$, và góc xoay $\mathbf{R}$ được biểu diễn cô đọng bằng một ma trận đối ngẫu cấp 4 đối xứng:</p>
+<div class="formula-hero">
+<div class="formula-title">Định Nghĩa Ma Trận Dual Quadric $\mathbf{Q}^*$</div>
+<div class="formula-math">
+            $$\mathbf{Q}^* = \mathbf{Z} \begin{bmatrix} s_x^2 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; s_y^2 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; s_z^2 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; -1 \end{bmatrix} \mathbf{Z}^T, \quad \text{với } \mathbf{Z} = \begin{bmatrix} \mathbf{R} &amp; \mathbf{t} \\ \mathbf{0}^T &amp; 1 \end{bmatrix}$$
+          </div>
+<div class="formula-legend">
+<strong>Tính chất tuyệt mỹ:</strong> Khi camera có ma trận phép chiếu $\mathbf{P} = \mathbf{K} [\mathbf{R}_{cw} \mid \mathbf{t}_{cw}] \in \mathbb{R}^{3 \times 4}$ quan sát khối elip 3D này, đường viền bao hình của elip trên ảnh 2D sẽ là một đường <strong>Conic đối ngẫu $\mathbf{C}^* \in \mathbb{R}^{3 \times 3}$</strong> thỏa mãn hệ thức ma trận đóng kín:
+            $$\mathbf{C}^* \sim \mathbf{P} \mathbf{Q}^* \mathbf{P}^T$$
+          </div>
+</div>
+<!-- 8.3 -->
+<h2 id="sec-8-3">8.3 Kỷ Nguyên Trường Bức Xạ Thần Kinh &amp; 3D Gaussian Splatting (3DGS-SLAM)</h2>
+<p>Giai đoạn 2023 - 2024 mở ra thời kỳ cực thịnh của biểu diễn liên tục:</p>
+<ul>
+<li><strong>NeRF-SLAM (NICE-SLAM, iMAP):</strong> Dùng mạng nơ-ron MLP để mã hóa hàm mật độ thể tích và màu sắc $F_\theta(x, y, z, \theta, \phi) = (\sigma, r, g, b)$. Cho phép kết xuất ảnh từ góc nhìn mới sắc nét nhưng tốc độ huấn luyện chậm.</li>
+<li><strong>3D Gaussian Splatting SLAM (3DGS):</strong> Biểu diễn cảnh vật bằng hàng triệu hạt Gauss 3D có thể chiếu phối cảnh vi phân thời gian thực trên GPU (tốc độ kết xuất $\gt 100$ FPS), mở ra tiềm năng photorealistic mapping cho robot tự hành.</li>
+</ul>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-8-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Chiếu Phối Cảnh Khối Elipsoid 3D Thành Đường Bao Conic 2D</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-08" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-8-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Tính Ma Trận Conic $\mathbf{C}^* = \mathbf{P} \mathbf{Q}^* \mathbf{P}^T$ Trên Mặt Phẳng Ảnh</h3>
+</div>
+<div class="exercise-statement">
+<p>Camera chuẩn có tiêu cự $f = 1.0$, tâm $(0,0)$ đặt tại gốc tọa độ hướng theo trục $z$: $\mathbf{P} = [\mathbf{I}_{3 \times 3} \mid \mathbf{0}]$. Một vật thể Dual Quadric dạng hình cầu bán kính $r = 1.0$ đặt tại tâm $\mathbf{t} = [0, 0, 5.0]^T$:
+          $$\mathbf{Q}^* = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 5 \\ 0 &amp; 0 &amp; 5 &amp; 24 \end{bmatrix}$$
+          (với phần tử $(4,4)$ là $t_z^2 - r^2 = 25 - 1 = 24$). Tính ma trận Conic đối ngẫu 2D $\mathbf{C}^* = \mathbf{P} \mathbf{Q}^* \mathbf{P}^T$ và bán kính đường tròn chiếu trên ảnh.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập ma trận phép chiếu camera $\mathbf{P}$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{P} = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \end{bmatrix}$$</p><p>Phép nhân $\mathbf{P} \mathbf{Q}^*$ tương đương với việc trích xuất 3 hàng đầu tiên của $\mathbf{Q}^*$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thực hiện phép nhân ma trận $\mathbf{P} \mathbf{Q}^*$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{A} = \mathbf{P} \mathbf{Q}^* = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 5 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Nhân tiếp với $\mathbf{P}^T$ để tìm ma trận Conic 2D $\mathbf{C}^*$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{C}^* = \mathbf{A} \mathbf{P}^T = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \\ 0 &amp; 0 &amp; 0 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Chuyển đổi sang phương trình đường tròn Conic chuẩn</span>
+</div>
+<div class="step-content">
+<p>Phương trình Conic đường bao: $\mathbf{x}^T (\mathbf{C}^*)^{-1} \mathbf{x} = 0 \Rightarrow x^2 + y^2 - r_{\text{proj}}^2 = 0$.</p><p>Bán kính chiếu trên ảnh: $$r_{\text{proj}} = \frac{r}{\sqrt{d_z^2 - r^2}} = \frac{1}{\sqrt{25 - 1}} = \frac{1}{\sqrt{24}} \approx 0.2041$$</p><p>Đường elipsoid 3D được chiếu hoàn hảo thành đường tròn 2D bán kính $0.204$ đơn vị ảnh, khớp chính xác với bounding box của mạng nhận diện đối tượng!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Biểu diễn vật thể dạng Dual Quadric nén toàn bộ thông tin hình học 3D của đồ vật (vị trí tâm, kích thước 3 trục, góc xoay) vào một ma trận đối xứng $4 \times 4$, tạo ra bản đồ ngữ nghĩa mức đối tượng trực quan và tiết kiệm bộ nhớ.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-8-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Khai Báo Quadric Landmark Factor Trong GTSAM</h4>
+<p>Đoạn mã Python định nghĩa thừa số ràng buộc giữa Bounding Box 2D và Dual Quadric 3D:</p>
+<div class="code-card">
+<div class="code-header">
+<span>quadric_slam_factor.py (GTSAM / Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import gtsam
+import numpy as np
+
+class BoundingBoxFactor:
+    def __init__(self, pose_key, quadric_key, bbox_measured, calibration):
+        # bbox_measured: [xmin, ymin, xmax, ymax]
+        self.pose_key = pose_key
+        self.quadric_key = quadric_key
+        self.bbox = bbox_measured
+        self.K = calibration
+
+    def evaluate_error(self, pose, quadric):
+        # Tính toán ma trận chiếu Conic C* = P Q* P^T
+        P = self.K @ pose.matrix()[:3, :]
+        C_star = P @ quadric.matrix() @ P.T
+        
+        # Trích xuất bounding box dự đoán từ Conic
+        pred_xmin = (C_star[0, 2] - np.sqrt(C_star[0, 2]**2 - C_star[0, 0] * C_star[2, 2])) / C_star[2, 2]
+        pred_ymin = (C_star[1, 2] - np.sqrt(C_star[1, 2]**2 - C_star[1, 1] * C_star[2, 2])) / C_star[2, 2]
+        # Sai số giữa BBox quan sát và BBox dự đoán
+        return np.array([self.bbox[0] - pred_xmin, self.bbox[1] - pred_ymin])</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-8-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Ước Lượng Trọng Tâm &amp; Ma Trận Bầu Dục Dual Quadric Từ Hộp Bounding Box</h4>
+</div>
+<div class="practice-statement">
+<p>Một chiếc ghế văn phòng được mô hình hóa bằng vật thể ellipsoid 3D (Dual Quadric) có tâm tại $\mathbf{t} = [1.5, 0.0, 0.8]^T\text{ m}$ và bán trục chính lần lượt là $s_x = 0.3\text{ m}, s_y = 0.3\text{ m}, s_z = 0.4\text{ m}$. Góc xoay quanh trục thẳng đứng $\psi = 0^\circ$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thiết lập ma trận ellipsoid đối ngẫu chính tắc $\mathbf{Q}_{canon}^*$.<br/>2) Thiết lập ma trận biến đổi tọa độ thuần nhất $\mathbf{T}_{wo}$.<br/>3) Tính ma trận Dual Quadric $\mathbf{Q}^* = \mathbf{T}_{wo} \mathbf{Q}_{canon}^* \mathbf{T}_{wo}^T$ trong hệ tọa độ bản đồ thế giới.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Ellipsoid chính tắc đối ngẫu có dạng: $\mathbf{Q}_{canon}^* = \text{diag}(s_x^2, s_y^2, s_z^2, -1) = \text{diag}(0.09, 0.09, 0.16, -1.0)$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Ma trận biến đổi với $\mathbf{R} = \mathbf{I}_3$: $\mathbf{T}_{wo} = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 1.5 \\ 0 &amp; 1 &amp; 0 &amp; 0.0 \\ 0 &amp; 0 &amp; 1 &amp; 0.8 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Nhân ma trận: $\mathbf{Q}^* = \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 1.5 \\ 0 &amp; 1 &amp; 0 &amp; 0.0 \\ 0 &amp; 0 &amp; 1 &amp; 0.8 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 0.09 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 0.09 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0.16 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; -1 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \\ 1.5 &amp; 0 &amp; 0.8 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0.09 - (1.5)^2 &amp; 0 &amp; -1.5 \times 0.8 &amp; -1.5 \\ 0 &amp; 0.09 &amp; 0 &amp; 0 \\ -1.2 &amp; 0 &amp; 0.16 - (0.8)^2 &amp; -0.8 \\ -1.5 &amp; 0 &amp; -0.8 &amp; -1 \end{bmatrix} = \begin{bmatrix} -2.16 &amp; 0 &amp; -1.2 &amp; -1.5 \\ 0 &amp; 0.09 &amp; 0 &amp; 0 \\ -1.2 &amp; 0 &amp; -0.48 &amp; -0.8 \\ -1.5 &amp; 0 &amp; -0.8 &amp; -1.0 \end{bmatrix}$. Biểu diễn gọn gàng 9 tham số hình học của vật thể 3D.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch07.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 07: Trích Xuất Ngữ Nghĩa &amp; Dynamic Masking</span>
+</a>
+<a class="ch-nav-card next" href="ch09.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 09: Liên Kết Dữ Liệu Ngữ Nghĩa</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

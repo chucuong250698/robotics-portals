@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: Năng Lượng, Tính Thụ Động (Passivity) & Phân Tích Ổn Định Lyapunov | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 02</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link active">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Mô Hình Hóa & Phân Tích Thụ Động</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 2 (Trang 41–76)</span>
+        </div>
+        <h1 class="chapter-title">Chương 02: Năng Lượng, Tính Thụ Động (Passivity) & Phân Tích Ổn Định Lyapunov</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Hàm Hamiltonian, Định lý thụ động Passivity & Ổn định Lyapunov</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Làm thế nào để điều khiển một robot phức tạp gồm nhiều mắt xích tương tác với môi trường không chắc chắn (ví dụ robot phẫu thuật từ xa Teleoperation hoặc robot cộng tác bốc dỡ hàng) mà không bao giờ bị mất ổn định rung lắc nguy hiểm? <strong>Khái niệm Tính thụ động (Passivity)</strong> cung cấp một câu trả lời tuyệt đối: <em>Một hệ thống thụ động không thể tự sản sinh thêm năng lượng</em>. Khi ta ghép nối hai hệ thống thụ động với nhau (Robot thụ động + Bộ điều khiển thụ động), hệ thống vòng kín được đảm bảo <strong>ổn định bền vững 100%</strong> mà không phụ thuộc vào tham số mô hình!</p>
+        </div>
+        <p>Phân tích ổn định dựa trên năng lượng (Lyapunov Methods & Passivity-Based Control) biến đổi bài toán đại số trừu tượng thành trực giác vật lý: Năng lượng tổng của hệ thống $V(\mathbf{x})$ liên tục bị tiêu hao qua ma sát và điện trở ($\dot{V} \le 0$), buộc robot phải hội tụ về trạng thái năng lượng cực tiểu mong muốn.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét hệ thống điều khiển có cổng đầu vào $\mathbf{u}(t)$ và cổng đầu ra $\mathbf{y}(t)$. Hệ thống được gọi là <strong>Thụ động (Passive)</strong> nếu tồn tại một hàm lưu trữ năng lượng (Storage Function) $V(\mathbf{x}) \ge 0$ thỏa mãn bất đẳng thức tiêu tán:</p>
+        <div class="formula-card">
+          <div class="formula-header">Bất Đẳng Thức Tiêu Tán Năng Lượng (Dissipation Inequality)</div>
+          $$\begin{equation}
+          \dot{V}(\mathbf{x}) \le \mathbf{u}^T \mathbf{y} - g(\mathbf{x}) \quad \Longleftrightarrow \quad V(\mathbf{x}(T)) - V(\mathbf{x}(0)) \le \int_0^T \mathbf{u}(t)^T \mathbf{y}(t) dt
+          \end{equation}$$
+        </div>
+        <ul>
+          <li>Nếu $g(\mathbf{x}) = 0$: Hệ thống bảo toàn năng lượng (Lossless / Conservative).</li>
+          <li>Nếu $g(\mathbf{x}) \gt 0$: Hệ thống thụ động nghiêm ngặt (Strictly Passive / Dissipative).</li>
+          <li>$\mathbf{u}^T \mathbf{y}$: Công suất tức thời được cung cấp vào hệ thống qua các cổng ghép nối.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p><strong>Bổ đề Kalman-Yakubovich-Popov (KYP Lemma):</strong> Cho hệ tuyến tính $G(s) = C(sI - A)^{-1}B + D$. Hệ thống là thụ động khi và chỉ khi hàm truyền $G(s)$ là <em>Thực dương (Positive Real - PR)</em>, tương đương tồn tại ma trận $P = P^T \gt 0$ sao cho:</p>
+        $$\begin{equation}
+        A^T P + P A \le 0, \quad B^T P = C
+        \end{equation}$$
+        <p><strong>Định lý ổn định thụ động (Passivity Theorem):</strong> Vòng phản hồi âm giữa hai hệ thống thụ động luôn ổn định Lyapunov. Nếu ít nhất một hệ thụ động nghiêm ngặt và quan sát được, hệ thống đạt ổn định tiệm cận toàn cục.</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Chứng Minh Tính Thụ Động Nghiêm Ngặt Của Hệ Dao Động Khối Lượng - Lò Xo - Giảm Chấn</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Cho hệ thống cơ học Mass-Spring-Damper 1 bậc tự do chịu ngoại lực tác động $u(t) = F(t)$, vận tốc khối lượng là đầu ra $y(t) = v(t) = \dot{x}(t)$. Phương trình chuyển động: $m\ddot{x} + b\dot{x} + kx = u(t)$ với các tham số dương $m = 1.0\text{ kg}, b = 2.0\text{ N}\cdot\text{s/m}, k = 50.0\text{ N/m}$.<br>Yêu cầu: (a) Chọn hàm lưu trữ năng lượng Hamiltonian $V(x, v)$ và chứng minh hệ thống là thụ động nghiêm ngặt từ lực $u$ đến vận tốc $y$; (b) Viết hàm truyền $G(s) = Y(s)/U(s)$ và kiểm chứng tính thực dương (Positive Realness).</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Chọn hàm lưu trữ năng lượng tổng của hệ thống (Động năng + Thế năng đàn hồi):<br>$$V(x, v) = \frac{1}{2}m v^2 + \frac{1}{2}k x^2$$<br>Vì $m \gt 0, k \gt 0 \implies V(x, v) \ge 0$ với mọi $(x, v)$, và $V = 0$ khi và chỉ khi $x = 0, v = 0$ (Hàm xác định dương).</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính đạo hàm theo thời gian $\dot{V}$ dọc theo quỹ đạo chuyển động:<br>$$\dot{V} = m v \dot{v} + k x \dot{x} = v (m \dot{v} + k x)$$<br>Từ phương trình vi phân: $m\dot{v} + kx = u - b v$. Thế vào biểu thức đạo hàm:<br>$$\dot{V} = v (u - b v) = u v - b v^2 = u(t) y(t) - b y(t)^2$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Đánh giá tính tiêu tán năng lượng:<br>Vì $b = 2.0 \gt 0 \implies b y^2 \ge 0$. Do đó:<br>$$\dot{V}(x, v) \le u(t) y(t) - 2.0 y^2 \lt u(t) y(t) \quad (\text{khi } y \neq 0)$$<br>Tích phân từ $t = 0$ đến $T$:<br>$$\int_0^T u(t) y(t) dt = V(T) - V(0) + \int_0^T 2.0 y(t)^2 dt \ge -V(0)$$<br>Hệ thống thỏa mãn chính xác định nghĩa <strong>Thụ động nghiêm ngặt đầu ra (Strictly Output Passive)</strong> với tốc độ tiêu tán năng lượng $g(y) = 2.0 y^2$.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm chứng qua hàm truyền $G(s) = \frac{Y(s)}{U(s)}$:<br>Biến đổi Laplace phương trình chuyển động với $y = \dot{x} \implies X(s) = \frac{1}{s}Y(s)$:<br>$$m s Y(s) + b Y(s) + \frac{k}{s} Y(s) = U(s) \implies G(s) = \frac{s}{m s^2 + b s + k} = \frac{s}{s^2 + 2s + 50}$$<br>Kiểm tra phần thực trên trục ảo $s = j\omega$:<br>$$\text{Re}\{G(j\omega)\} = \text{Re}\left\{ \frac{j\omega}{(50 - \omega^2) + j 2\omega} \right\} = \frac{2\omega^2}{(50 - \omega^2)^2 + 4\omega^2} \ge 0 \quad \forall \omega \in \mathbb{R}$$<br>Phần thực luôn không âm với mọi tần số, khẳng định $G(s)$ là hàm thực dương (Positive Real), bảo đảm tính thụ động tuyệt đối.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 02: Quỹ Đạo Pha Hamiltonian & Tiêu Tán Năng Lượng Thụ Động</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-02" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Hệ số cản tiêu tán b: <span id="sim02-damping-val">0.20</span> N.s/m</label>
+              <input type="range" id="sim02-damping" min="0.02" max="1.0" step="0.02" value="0.20">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim02-stats" class="sim-telemetry-text">Quan sát quỹ đạo pha xoáy ốc tiệm cận chặt chẽ về gốc tọa độ [0, 0] khi năng lượng Hamiltonian H liên tục suy giảm.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Passivity &amp; Lyapunov Stability Check in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+
+struct MassSpringDamper {
+    double m = 1.0, b = 2.0, k = 50.0;
+    double x = 0.5, v = 0.0; // initial states
+    
+    double getHamiltonian() const {
+        return 0.5 * m * v * v + 0.5 * k * x * x;
+    }
+    
+    void step(double u, double dt) {
+        double acc = (u - b * v - k * x) / m;
+        v += acc * dt;
+        x += v * dt;
+    }
+};
+
+int main() {
+    MassSpringDamper sys;
+    double dt = 0.001;
+    std::cout &lt;&lt; &quot;Initial Energy H(0): &quot; &lt;&lt; sys.getHamiltonian() &lt;&lt; &quot; J\n&quot;;
+    
+    for (int step = 0; step &lt; 1000; ++step) {
+        sys.step(0.0, dt); // Zero input
+    }
+    std::cout &lt;&lt; &quot;Energy after 1 sec: &quot; &lt;&lt; sys.getHamiltonian() &lt;&lt; &quot; J (Dissipated!)\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Tính thụ động (Passivity):</strong> Thuộc tính vật lý then chốt đảm bảo hệ thống không tạo thêm năng lượng nội sinh.</li><li><strong>Bổ đề KYP:</strong> Cầu nối tương đương giữa tính thực dương trong miền tần số và ma trận Lyapunov trong miền thời gian.</li><li><strong>Ghép nối bền vững:</strong> Phản hồi âm giữa các hệ thụ động luôn ổn định, cho phép module hóa các hệ thống robot phức tạp.</li><li><strong>Điều khiển thụ động (PBC):</strong> Định hình hàm năng lượng mong muốn và bơm thêm lực cản nhân tạo để dập tắt sai số.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 2.1: Phản hồi bảo toàn thụ động</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Nếu mắc thêm bộ điều khiển phản hồi vận tốc $u(t) = -K_d y(t) + r(t)$ với $K_d = 5.0\text{ N}\cdot\text{s/m}$. Hãy tính tốc độ tiêu tán năng lượng mới của hệ thống kín từ tín hiệu tham chiếu $r(t)$ đến đầu ra $y(t)$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Đạo hàm năng lượng mới: $\\dot{V} = (r - K_d y)y - b y^2 = r y - (b + K_d)y^2 = r y - 7.0 y^2$. Tốc độ tiêu tán năng lượng tăng từ $2.0 y^2$ lên $7.0 y^2$, hệ thống phản ứng dập tắt dao động nhanh hơn 3.5 lần mà vẫn thụ động hoàn toàn!</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch01.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 01: Không Gian Trạng Thái & Tuyến Tính Hóa</span>
+        </a>
+        <a href="ch03.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Hệ Cơ Điện, Động Cơ DC & Khớp Đàn Hồi →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim02 === "function") {
+        initSim02();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

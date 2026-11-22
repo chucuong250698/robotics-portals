@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: Động Học Cánh Tay Robot & Định Hướng Không Gian 3D | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 02</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link active">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Động Học & Tĩnh Học</span>
+          <span class="page-source-badge">📖 Siciliano et al., Chương 2 (Trang 51–118)</span>
+        </div>
+        <h1 class="chapter-title">Chương 02: Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Ma trận quay SO(3), Euler/RPY, Trục-Góc & Rodrigues, Unit Quaternion, Biến đổi thuần nhất SE(3), Quy ước Denavit-Hartenberg, Động học thuận & Động học nghịch Pieper</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Mục tiêu cốt lõi của cánh tay robot là đưa dụng cụ thao tác (End-Effector: kẹp gắp, mỏ hàn, đầu hút laser) tới vị trí và định hướng chính xác tuyệt đối trong không gian 3 chiều. Bài toán <strong>Động học thuận (Forward Kinematics)</strong> trả lời câu hỏi: <em>Nếu các khớp quay những góc $q_1, \dots, q_n$, thì điểm cuối robot đang ở đâu?</em> Ngược lại, bài toán <strong>Động học nghịch (Inverse Kinematics - IK)</strong> giải quyết nhiệm vụ sinh tử: <em>Muốn điểm cuối đến tọa độ đích $(x, y, z)$ với góc kẹp vật thể xác định, động cơ các khớp phải quay góc bao nhiêu?</em></p>
+        </div>
+        <p>Bên cạnh vị trí tịnh tiến $\mathbf{p} \in \mathbb{R}^3$, việc biểu diễn định hướng không gian 3D là thách thức toán học tinh tế nhất. Các góc Euler ($ZYZ$) hay Roll-Pitch-Yaw ($ZYX$) trực quan nhưng luôn chứa các <strong>điểm kỳ dị biểu diễn (Representation Singularities / Gimbal Lock)</strong> làm mất 1 bậc tự do định hướng. Vì vậy, <strong>Unit Quaternion (Toán tử Hamilton $\mathbb{S}^3$)</strong> và ma trận biến đổi thuần nhất $SE(3)$ là chuẩn mực tuyệt đối trong toàn bộ hệ sinh thái phần mềm robot hiện đại (ROS 2 tf2, Pinocchio, MuJoCo, Isaac Sim).</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Ma trận quay $R \in SO(3)$ mô tả phép quay vật rắn thỏa mãn tính trực giao chuẩn $R^T R = I$ và $\det(R) = +1$. Công thức <strong>Rodrigues</strong> liên kết vector trục quay đơn vị $\mathbf{u} = [u_x, u_y, u_z]^T$ và góc quay $\theta$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Công Thức Quay Rodrigues & Biểu Diễn Unit Quaternion</div>
+          $$\begin{equation}
+          R(\mathbf{u}, \theta) = I + \sin\theta S(\mathbf{u}) + (1 - \cos\theta) S^2(\mathbf{u})
+          \end{equation}$$
+          <p>với $S(\mathbf{u})$ là ma trận phản đối xứng (Skew-symmetric matrix) biểu diễn tích có hướng $\mathbf{u} \times \mathbf{v} = S(\mathbf{u})\mathbf{v}$.</p>
+          <p>Định hướng theo <strong>Unit Quaternion</strong> $\mathcal{Q} = \{\eta, \boldsymbol{\epsilon}\}$ gồm phần vô hướng $\eta = \cos(\theta/2)$ và phần vector $\boldsymbol{\epsilon} = \mathbf{u}\sin(\theta/2)$, thỏa mãn ràng buộc mặt cầu 4 chiều $\eta^2 + \boldsymbol{\epsilon}^T \boldsymbol{\epsilon} = 1$. Ma trận quay tương ứng được tính toán hoàn toàn bằng các phép nhân đại số không chứa hàm lượng giác:</p>
+          $$\begin{equation}
+          R(\eta, \boldsymbol{\epsilon}) = (\eta^2 - \boldsymbol{\epsilon}^T \boldsymbol{\epsilon}) I + 2 \boldsymbol{\epsilon} \boldsymbol{\epsilon}^T + 2 \eta S(\boldsymbol{\epsilon})
+          \end{equation}$$
+        </div>
+
+        <p>Quy ước <strong>Denavit-Hartenberg (DH)</strong> chuẩn hóa việc gắn hệ trục tọa độ lên từng khâu với 4 thông số hình học $(a_i, \alpha_i, d_i, \theta_i)$. Ma trận biến đổi đồng nhất $A_i^{i-1}(q_i) \in SE(3)$ giữa hai khâu kế tiếp:</p>
+        <div class="formula-card">
+          <div class="formula-header">Ma Trận Biến Đổi Đồng Nhất Denavit-Hartenberg $A_i^{i-1}$</div>
+          $$\begin{equation}
+          A_i^{i-1}(q_i) = \begin{bmatrix}
+          \cos\theta_i & -\sin\theta_i \cos\alpha_i & \sin\theta_i \sin\alpha_i & a_i \cos\theta_i \\
+          \sin\theta_i & \cos\theta_i \cos\alpha_i & -\cos\theta_i \sin\alpha_i & a_i \sin\theta_i \\
+          0 & \sin\alpha_i & \cos\alpha_i & d_i \\
+          0 & 0 & 0 & 1
+          \end{bmatrix}
+          \end{equation}$$
+          <p>Mô hình động học thuận tổng thể của robot $n$ bậc tự do: $T_n^0(\mathbf{q}) = A_1^0(q_1) A_2^1(q_2) \cdots A_n^{n-1}(q_n)$.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Đối với bài toán Động học nghịch (Inverse Kinematics), robot 6 bậc tự do có cấu trúc cổ tay cầu (Spherical Wrist - 3 trục quay của các khớp 4, 5, 6 cắt nhau tại một điểm duy nhất $W$) cho phép áp dụng <strong>Nguyên Lý Tách Rời Pieper (Pieper's Kinematic Decoupling)</strong>:</p>
+        <ol>
+          <li><strong>Tách rời vị trí tâm cổ tay (Wrist Center Position):</strong> Tọa độ tâm cổ tay $\mathbf{p}_w = \mathbf{p}_e - d_6 \mathbf{a}$ hoàn toàn chỉ phụ thuộc vào 3 khớp đầu tiên $(q_1, q_2, q_3)$ (với $\mathbf{a}$ là vector chỉ hướng tiếp cận của khâu thao tác).</li>
+          <li><strong>Giải 3 khớp định vị $(q_1, q_2, q_3)$ bằng hình học giải tích.</strong></li>
+          <li><strong>Tách rời định hướng cổ tay (Wrist Orientation):</strong> Ma trận quay của 3 khớp cổ tay được cô lập: $R_6^3(q_4, q_5, q_6) = (R_3^0(q_1, q_2, q_3))^T R_6^0$. Giải 3 góc khớp $(q_4, q_5, q_6)$ tương đương giải các góc Euler $ZYZ$.</li>
+        </ol>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Toán Động Học Thuận & Động Học Nghịch Giải Tích Cho Cánh Tay Robot 3R Phẳng</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Cho cánh tay robot công nghiệp phẳng 3 bậc tự do (3R Planar Manipulator) làm việc trong mặt phẳng Oxy với chiều dài 3 khâu lần lượt là $l_1 = 0.50\text{ m}$, $l_2 = 0.40\text{ m}$, và $l_3 = 0.20\text{ m}$. Cấu hình góc khớp tính theo quy ước trục song song: $q_1$ là góc khâu 1 so với trục Ox, $q_2$ là góc quay tương đối của khâu 2 so với khâu 1, và $q_3$ là góc quay tương đối của khâu 3 so với khâu 2.<br>1) Thiết lập công thức động học thuận tính vị trí điểm cuối $(x_e, y_e)$ và góc hướng tiếp cận tổng cộng $\phi_e$.<br>2) Điểm cuối cần gắp linh kiện tại vị trí đích $x_d = 0.60\text{ m}$, $y_d = 0.45\text{ m}$ với góc định hướng tiếp cận mong muốn $\phi_d = 30^\circ = \pi/6\text{ rad}$. Hãy giải bài toán động học nghịch (IK) tìm bộ nghiệm góc khớp $(q_1, q_2, q_3)$ cho cấu hình khửu tay hướng lên (Elbow-up, $q_2 \lt 0$).<br>3) Kiểm tra lại bằng động học thuận và xác định sai số vị trí.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích hình học & Phân rã tọa độ tâm khớp cổ tay $W(x_w, y_w)$:<br>• Phương trình động học thuận:<br>$$x_e = l_1 \cos(q_1) + l_2 \cos(q_1 + q_2) + l_3 \cos(q_1 + q_2 + q_3)$$<br>$$y_e = l_1 \sin(q_1) + l_2 \sin(q_1 + q_2) + l_3 \sin(q_1 + q_2 + q_3)$$<br>$$\phi_e = q_1 + q_2 + q_3$$<br>• Tách rời khâu thao tác cuối để tìm tọa độ khớp 3 (tâm cổ tay $W$):<br>$$x_w = x_d - l_3 \cos\phi_d = 0.60 - 0.20 \cos(30^\circ)$$<br>$$y_w = y_d - l_3 \sin\phi_d = 0.45 - 0.20 \sin(30^\circ)$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập hệ phương trình động học nghịch 2 khâu $(q_1, q_2)$ tới điểm $W(x_w, y_w)$:<br>Khoảng cách từ gốc tọa độ $O$ tới điểm $W$: $r^2 = x_w^2 + y_w^2$. Áp dụng định lý hàm số Cosin cho tam giác tạo bởi hai khâu $l_1, l_2$ và đoạn nối $OW$:<br>$$r^2 = l_1^2 + l_2^2 + 2 l_1 l_2 \cos q_2 \implies \cos q_2 = \frac{x_w^2 + y_w^2 - l_1^2 - l_2^2}{2 l_1 l_2}$$<br>Với cấu hình khửu tay hướng lên (Elbow-up): $\sin q_2 = -\sqrt{1 - \cos^2 q_2}$ và $q_2 = \text{atan2}(\sin q_2, \cos q_2)$.<br>Góc khớp $q_1$ được xác định theo hiệu hai góc hình học:<br>$$q_1 = \text{atan2}(y_w, x_w) - \text{atan2}(l_2 \sin q_2, l_1 + l_2 \cos q_2)$$<br>Cuối cùng, góc khớp thứ ba xác định từ góc hướng yêu cầu: $q_3 = \phi_d - q_1 - q_2$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học chi tiết từng bước:<br>• <strong>Bước 3a: Tính tọa độ tâm $W$:</strong><br>$\cos(30^\circ) = \frac{\sqrt{3}}{2} \approx 0.86603$, $\sin(30^\circ) = 0.50000$.<br>$$x_w = 0.60 - 0.20(0.86603) = 0.60 - 0.17321 = 0.42679\text{ m}$$<br>$$y_w = 0.45 - 0.20(0.50000) = 0.45 - 0.10000 = 0.35000\text{ m}$$<br>• <strong>Bước 3b: Tính bán kính $r$ và $\cos q_2$:</strong><br>$$r^2 = (0.42679)^2 + (0.35000)^2 = 0.18215 + 0.12250 = 0.30465\text{ m}^2 \implies r \approx 0.55195\text{ m}$$<br>Kiểm tra điều kiện vùng với tới: $|l_1 - l_2| = 0.10 \le r \le l_1 + l_2 = 0.90\text{ m}$ (Nghiệm tồn tại chắc chắn).<br>$$l_1^2 + l_2^2 = (0.50)^2 + (0.40)^2 = 0.25 + 0.16 = 0.41000$$<br>$$2 l_1 l_2 = 2(0.50)(0.40) = 0.40000$$<br>$$\cos q_2 = \frac{0.30465 - 0.41000}{0.40000} = \frac{-0.10535}{0.40000} = -0.26338$$<br>• <strong>Bước 3c: Tính $q_2$ (Elbow-up $q_2 \lt 0$):</strong><br>$$\sin q_2 = -\sqrt{1 - (-0.26338)^2} = -\sqrt{1 - 0.06937} = -\sqrt{0.93063} \approx -0.96469$$<br>$$q_2 = \text{atan2}(-0.96469, -0.26338) \approx -1.8373\text{ rad} \approx -105.27^\circ$$<br>• <strong>Bước 3d: Tính $q_1$:</strong><br>$$\theta_{OW} = \text{atan2}(0.35000, 0.42679) \approx 0.68652\text{ rad} \approx 39.33^\circ$$<br>$$k_1 = l_1 + l_2 \cos q_2 = 0.50 + 0.40(-0.26338) = 0.50 - 0.10535 = 0.39465\text{ m}$$<br>$$k_2 = l_2 \sin q_2 = 0.40(-0.96469) = -0.38588\text{ m}$$<br>$$\psi = \text{atan2}(k_2, k_1) = \text{atan2}(-0.38588, 0.39465) \approx -0.77443\text{ rad} \approx -44.37^\circ$$<br>$$q_1 = \theta_{OW} - \psi = 0.68652 - (-0.77443) = 1.46095\text{ rad} \approx 83.71^\circ$$<br>• <strong>Bước 3e: Tính $q_3$:</strong><br>$$\phi_d = 30^\circ = 0.52360\text{ rad}$$<br>$$q_1 + q_2 = 1.46095 - 1.83730 = -0.37635\text{ rad} \approx -21.56^\circ$$<br>$$q_3 = \phi_d - (q_1 + q_2) = 0.52360 - (-0.37635) = 0.89995\text{ rad} \approx 51.56^\circ$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm chứng tính đúng đắn & Biện luận hình học:<br>Kiểm tra lại tọa độ điểm cuối thông qua Động học thuận (Forward Kinematics):<br>• $x_{calc} = 0.50\cos(1.46095) + 0.40\cos(-0.37635) + 0.20\cos(0.52360)$<br>$= 0.50(0.10952) + 0.40(0.93009) + 0.20(0.86603) = 0.05476 + 0.37204 + 0.17321 = 0.60001\text{ m} \approx 0.60\text{ m}$<br>• $y_{calc} = 0.50\sin(1.46095) + 0.40\sin(-0.37635) + 0.20\sin(0.52360)$<br>$= 0.50(0.99398) + 0.40(-0.36733) + 0.20(0.50000) = 0.49699 - 0.14693 + 0.10000 = 0.45006\text{ m} \approx 0.45\text{ m}$<br>• $\phi_{calc} = 83.71^\circ - 105.27^\circ + 51.56^\circ = 30.00^\circ = \phi_d$.<br>Sai số vị trí đạt được $\Delta \le 6 \times 10^{-5}\text{ m}$ (sai số làm tròn số học cực nhỏ). Cấu hình Elbow-up giúp cánh tay nâng cao, tránh va chạm với bề mặt bàn thao tác.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 02: Biến Đổi Hệ Tọa Độ & Ma Trận Xoay / Góc Roll-Pitch-Yaw 3D</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-02" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Góc Roll ($\phi$): <span id="sim02-roll-val">25°</span></label>
+              <input type="range" id="sim02-roll" min="-90" max="90" step="5" value="25">
+            </div>
+            <div class="control-group">
+              <label>Góc Pitch ($\theta$): <span id="sim02-pitch-val">35°</span></label>
+              <input type="range" id="sim02-pitch" min="-90" max="90" step="5" value="35">
+            </div>
+            <div class="control-group">
+              <label>Góc Yaw ($\psi$): <span id="sim02-yaw-val">45°</span></label>
+              <input type="range" id="sim02-yaw" min="-180" max="180" step="5" value="45">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim02-stats" class="sim-telemetry-text">Khung tọa độ 3D động xoay theo thứ tự Z-Y-X (Yaw-Pitch-Roll); hiển thị ma trận xoay R và vector hướng trực tuyến.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Analytical Forward and Inverse Kinematics for 3R Planar Arm in C++20 Eigen
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;vector&gt;
+#include &lt;Eigen/Dense&gt;
+
+struct Pose2D {
+    double x;
+    double y;
+    double phi; // Orientation angle in radians
+};
+
+class Planar3RManipulator {
+public:
+    Planar3RManipulator(double l1, double l2, double l3) : l1_(l1), l2_(l2), l3_(l3) {}
+
+    Pose2D forwardKinematics(const Eigen::Vector3d&amp; q) const {
+        double q1 = q(0), q2 = q(1), q3 = q(2);
+        double x = l1_ * std::cos(q1) + l2_ * std::cos(q1 + q2) + l3_ * std::cos(q1 + q2 + q3);
+        double y = l1_ * std::sin(q1) + l2_ * std::sin(q1 + q2) + l3_ * std::sin(q1 + q2 + q3);
+        double phi = q1 + q2 + q3;
+        return Pose2D{x, y, phi};
+    }
+
+    bool inverseKinematics(const Pose2D&amp; target, bool elbow_up, Eigen::Vector3d&amp; q_sol) const {
+        double xw = target.x - l3_ * std::cos(target.phi);
+        double yw = target.y - l3_ * std::sin(target.phi);
+
+        double r_sq = xw * xw + yw * yw;
+        double r = std::sqrt(r_sq);
+        if (r &lt; std::abs(l1_ - l2_) || r &gt; (l1_ + l2_)) {
+            return false; // Out of reachable workspace
+        }
+
+        double cos_q2 = (r_sq - l1_ * l1_ - l2_ * l2_) / (2.0 * l1_ * l2_);
+        cos_q2 = std::clamp(cos_q2, -1.0, 1.0);
+        double sin_q2 = (elbow_up ? -1.0 : 1.0) * std::sqrt(1.0 - cos_q2 * cos_q2);
+        double q2 = std::atan2(sin_q2, cos_q2);
+
+        double theta_w = std::atan2(yw, xw);
+        double psi = std::atan2(l2_ * sin_q2, l1_ + l2_ * cos_q2);
+        double q1 = theta_w - psi;
+        double q3 = target.phi - q1 - q2;
+
+        q_sol &lt;&lt; q1, q2, q3;
+        return true;
+    }
+
+private:
+    double l1_, l2_, l3_;
+};
+
+int main() {
+    Planar3RManipulator robot(0.50, 0.40, 0.20);
+    Pose2D target{0.60, 0.45, 30.0 * M_PI / 180.0};
+
+    Eigen::Vector3d q_up, q_down;
+    if (robot.inverseKinematics(target, true, q_up)) {
+        std::cout &lt;&lt; &quot;Elbow-Up Solution (deg):   &quot; &lt;&lt; (q_up * 180.0 / M_PI).transpose() &lt;&lt; &quot;\n&quot;;
+        Pose2D fk = robot.forwardKinematics(q_up);
+        std::cout &lt;&lt; &quot;FK Verification: x=&quot; &lt;&lt; fk.x &lt;&lt; &quot;, y=&quot; &lt;&lt; fk.y &lt;&lt; &quot;, phi=&quot; &lt;&lt; fk.phi * 180.0 / M_PI &lt;&lt; &quot; deg\n&quot;;
+    }
+    if (robot.inverseKinematics(target, false, q_down)) {
+        std::cout &lt;&lt; &quot;Elbow-Down Solution (deg): &quot; &lt;&lt; (q_down * 180.0 / M_PI).transpose() &lt;&lt; &quot;\n&quot;;
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Biểu diễn định hướng:</strong> $SO(3)$ trực giao, Unit Quaternion $\mathbb{S}^3$ không bị khóa trục (Gimbal Lock), là chuẩn mực truyền thông tf2 trong ROS 2.</li><li><strong>Quy ước Denavit-Hartenberg:</strong> Chuẩn hóa 4 tham số $(a_i, \alpha_i, d_i, 	heta_i)$ cho chuỗi khâu động học.</li><li><strong>Động học nghịch Pieper:</strong> Robot có cổ tay cầu cho phép phân rã độc lập vị trí tâm cổ tay 3-DOF và hướng cổ tay 3-DOF.</li><li><strong>Đa nghiệm động học:</strong> Hệ thống luôn tồn tại nhiều bộ nghiệm góc khớp (Elbow-up/down, Left/Right arm), cần tiêu chí tối ưu hóa quỹ đạo để lựa chọn nghiệm chuyển động mượt nhất.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 2.1: Tính nghiệm cấu hình khửu tay hạ (Elbow-down)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Với cùng bài toán robot 3R trên, hãy giải nghiệm góc khớp $(q_1, q_2, q_3)$ cho cấu hình khửu tay hướng xuống (Elbow-down, $q_2 \gt 0$) để tới cùng tọa độ đích $(0.60\text{ m}, 0.45\text{ m}, 30^\circ)$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Với cấu hình Elbow-down: $\sin q_2 = +0.96469 \implies q_2 = +1.8373\text{ rad} \approx +105.27^\circ$. Khi đó $k_2 = +0.38588\text{ m} \implies \psi = +0.77443\text{ rad} \approx +44.37^\circ$. Góc khớp $q_1 = \theta_{OW} - \psi = 0.68652 - 0.77443 = -0.08791\text{ rad} \approx -5.04^\circ$. Cuối cùng $q_3 = \phi_d - (q_1 + q_2) = 0.52360 - (-0.08791 + 1.83730) = 0.52360 - 1.74939 = -1.22579\text{ rad} \approx -70.23^\circ$. Cả hai cấu hình đều đạt chính xác cùng một pose điểm cuối.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch01.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 01: Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</span>
+        </a>
+        <a href="ch03.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 03: Động Học Vi Phân & Tĩnh Học Robot →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim02 === "function") {
+        initSim02();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

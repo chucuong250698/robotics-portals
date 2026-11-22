@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 08: Học Bắt Chước Đối Nghịch GAIL &amp; Khớp Phân Phối Chiếm Dụng - Imitation Learning in Robotics</title>
+<meta content="Generative Adversarial Imitation Learning &amp; Occupancy Matching" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 4: HỌC TĂNG CƯỜNG NGHỊCH ĐẢO &amp; ĐỐI NGHỊCH</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 08</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 08</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-8-1">
+<span class="nav-text">8.1 Nghẽn Cổ Chai Của IRL &amp; Phân Phối Chiếm Dụng</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-2">
+<span class="nav-text">8.2 Định Lý Ho &amp; Ermon (NeurIPS 2016)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-3">
+<span class="nav-text">8.3 Cấu Trúc Đối Nghịch Discriminator vs Generator</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-4">
+<span class="nav-text">8.4 Mở Rộng Sang Adversarial Inverse RL (AIRL)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-sim">
+<span class="nav-text">⚡ Mô Phỏng Khớp Phân Phối Chiếm Dụng d_pi (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Cập Nhật Discriminator</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-bridge">
+<span class="nav-text">🛠️ Cầu Nối PyTorch: Vòng Lặp Huấn Luyện GAIL + PPO</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-8-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 4: HỌC TĂNG CƯỜNG NGHỊCH ĐẢO &amp; ĐỐI NGHỊCH • CHƯƠNG 08</div>
+<h1 class="chapter-title">Học Bắt Chước Đối Nghịch GAIL &amp; Khớp Phân Phối Chiếm Dụng</h1>
+<p class="chapter-subtitle">Generative Adversarial Imitation Learning &amp; Occupancy Matching</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Carlos Celemin et al. (FnT Robotics 2022) &amp; Zare et al. (IEEE 2023)</strong></span>
+</div>
+</div>
+<!-- 8.1 -->
+<h2 id="sec-8-1">8.1 Nghẽn Cổ Chai Của IRL Truyền Thống &amp; Khái Niệm Phân Phối Chiếm Dụng (Occupancy Measure)</h2>
+<p>Thuật toán IRL cổ điển mang một gánh nặng tính toán khổng lồ: <em>Trong mỗi bước lặp cập nhật hàm thưởng $R_\theta$, hệ thống bắt buộc phải giải trọn vẹn một bài toán RL thuận (Reinforcement Learning) đến khi hội tụ để tìm chính sách tối ưu tương ứng.</em> Việc giải RL lồng bên trong IRL khiến việc ứng dụng trên các robot có không gian trạng thái liên tục nhiều bậc tự do trở nên bất khả thi.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 PHÂN PHỐI CHIẾM DỤNG (OCCUPANCY MEASURE) LÀ GÌ?</div>
+<div class="why-matters-body">
+            Định nghĩa phân phối chiếm dụng trạng thái - hành động của một chính sách $\pi$:
+            $$d_\pi(s, a) = (1 - \gamma) \sum_{t=0}^\infty \gamma^t P(s_t = s, a_t = a \mid \pi)$$
+            $d_\pi(s,a)$ đo lường mật độ xuất hiện của cặp trạng thái - hành động $(s, a)$ khi robot tương tác với môi trường theo chính sách $\pi$. 
+            <br/><strong>Định lý ánh xạ một-một:</strong> Tồn tại quan hệ tương đương song ánh giữa một chính sách $\pi$ và phân phối chiếm dụng $d_\pi$. Nói cách khác: <em>Hai chính sách là đồng nhất khi và chỉ khi phân phối chiếm dụng của chúng trùng khít nhau ($d_\pi = d_E$).</em>
+</div>
+</div>
+<!-- 8.2 -->
+<h2 id="sec-8-2">8.2 Định Lý Ho &amp; Ermon (NeurIPS 2016): Đồng Nhất Hóa Khớp Phân Phối Với GAN</h2>
+<p>Jonathan Ho và Stefano Ermon đã chứng minh một phát kiến thiên tài: Quá trình tìm kiếm chính sách có phân phối chiếm dụng trùng với chuyên gia có thể được đồng nhất hóa toán học chính xác với bài toán huấn luyện Mạng Đối Nghịch Tạo Sinh (Generative Adversarial Networks - GAN):</p>
+<div class="formula-hero">
+<div class="formula-title">Hàm Mục Tiêu Tối Thiểu Hóa Khoảng Cách Jensen-Shannon Của GAIL</div>
+<div class="formula-math">
+            $$\min_\pi \max_D \mathbb{E}_{\mathcal{D}_E} \left[ \log D(s, a) \right] + \mathbb{E}_{\pi} \left[ \log(1 - D(s, a)) \right] - \lambda H(\pi)$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách kiến trúc 2 đối thủ:</strong>
+<br/>• <strong>Discriminator $D_\psi(s,a) \in (0, 1)$:</strong> Đóng vai trò giám khảo, cố gắng phân biệt xem cặp $(s,a)$ là do chuyên gia thực hiện ($D \to 1$) hay do robot tự sinh ($D \to 0$).
+            <br/>• <strong>Policy Generator $\pi_\theta(a|s)$:</strong> Đóng vai trò kẻ làm giả, điều khiển robot hành động sao cho đánh lừa được Discriminator ($D \to 1$).
+            <br/>• $H(\pi)$: Số hạng điều hòa Entropy giúp chính sách khám phá liên tục và tránh sụp đổ mốt (Mode Collapse).
+          </div>
+</div>
+<!-- 8.3 -->
+<h2 id="sec-8-3">8.3 Cơ Chế Sinh Thưởng Đại Diện &amp; Vòng Lặp Học GAIL</h2>
+<p>Không cần bất kỳ hàm thưởng thủ công nào, chính sách $\pi_\theta$ coi Discriminator như một bộ sinh phần thưởng tự động (Surrogate Reward):</p>
+        $$r_t(s_t, a_t) = -\log\left(1 - D_\psi(s_t, a_t)\right) \quad \text{hoặc} \quad r_t(s_t, a_t) = \log D_\psi(s_t, a_t)$$
+        <p>Khi robot hành động giống hệt chuyên gia, $D_\psi(s,a) \approx 0.99 \Rightarrow r_t \approx -\log(0.01) = 4.6$ (Thưởng rất cao). Ngược lại, nếu robot đi chệch quỹ đạo, $D_\psi(s,a) \approx 0.05 \Rightarrow r_t \approx -\log(0.95) = 0.05$ (Không có thưởng). Chính sách sau đó được cập nhật bằng các thuật toán Policy Gradient tiên tiến như PPO (Proximal Policy Optimization) hoặc TRPO.</p>
+<!-- 8.4 -->
+<h2 id="sec-8-4">8.4 Mở Rộng Sang Adversarial Inverse RL (AIRL)</h2>
+<p>GAIL giải quyết triệt để vấn đề khớp phân phối nhưng bản thân Discriminator của GAIL lại không trích xuất được một hàm phần thưởng bất biến (Nó phụ thuộc chặt chẽ vào động lực học môi trường lúc huấn luyện). <strong>AIRL (Fu et al., 2018)</strong> khắc phục điều này bằng cách phân rã cấu trúc Discriminator thành:</p>
+        $$D_{\theta, \phi}(s, a, s') = \frac{\exp\left( f_{\theta, \phi}(s, a, s') \right)}{\exp\left( f_{\theta, \phi}(s, a, s') \right) + \pi(a \mid s)}$$
+        $$f_{\theta, \phi}(s, a, s') = g_\theta(s, a) + \gamma h_\phi(s') - h_\phi(s)$$
+        <p>Trong đó $g_\theta(s,a)$ đóng vai trò là hàm phần thưởng chân thực (Disentangled Reward) không đổi ngay cả khi mang sang một robot khác với động học mới.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-8-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Sự Hội Tụ Phân Phối Chiếm Dụng $d_\pi$ Về $d_E$ Theo Từng Epoch</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-08" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Số Epoch Huấn Luyện GAIL: <input id="sim08-disc" max="30" min="1" step="1" type="range" value="10"/> <span id="sim08-d-val">Vòng huấn luyện GAIL: Epoch 10</span></label>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-8-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Cập Nhật Discriminator GAIL &amp; Tính Điểm Thưởng Cho Chính Sách</h3>
+</div>
+<div class="exercise-statement">
+<p>Mạng Discriminator $D_\psi(s,a) = \sigma(z)$ với hàm kích hoạt Sigmoid $\sigma(z) = \frac{1}{1 + e^{-z}}$. Tại bước huấn luyện thứ $t$, chuyên gia thực hiện mẫu $(s_E, a_E)$ với giá trị logit dự đoán $z_E = 1.8$. Robot thực hiện bước $(s_\pi, a_\pi)$ với giá trị logit $z_\pi = -0.5$. Tính đầu ra xác suất $D(s_E, a_E)$, $D(s_\pi, a_\pi)$, hàm mất mát Binary Cross Entropy $\mathcal{L}_D$ và điểm thưởng $r(s_\pi, a_\pi)$ trả về cho chính sách robot.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính xác suất đầu ra của Discriminator</span>
+</div>
+<div class="step-content">
+<p>• Với mẫu chuyên gia: $$D(s_E, a_E) = \sigma(1.8) = \frac{1}{1 + e^{-1.8}} = \frac{1}{1 + 0.1653} \approx 0.8581$$</p><p>• Với mẫu robot: $$D(s_\pi, a_\pi) = \sigma(-0.5) = \frac{1}{1 + e^{0.5}} = \frac{1}{1 + 1.6487} \approx 0.3775$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính hàm mất mát Binary Cross Entropy của Discriminator</span>
+</div>
+<div class="step-content">
+<p>$$\mathcal{L}_D = -\left[ \ln D(s_E, a_E) + \ln(1 - D(s_\pi, a_\pi)) \right]$$</p><p>• $\ln(0.8581) \approx -0.1530$</p><p>• $1 - D(s_\pi, a_\pi) = 1 - 0.3775 = 0.6225 \Rightarrow \ln(0.6225) \approx -0.4740$</p><p>$$\mathcal{L}_D = -(-0.1530 - 0.4740) = 0.6270$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính điểm thưởng nội sinh trả về cho Policy Generator</span>
+</div>
+<div class="step-content">
+<p>Theo công thức phần thưởng GAIL chuẩn:</p><p>$$r(s_\pi, a_\pi) = -\ln(1 - D(s_\pi, a_\pi))$$</p><p>$$r(s_\pi, a_\pi) = -\ln(0.6225) \approx +0.4740$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Phân tích hướng tối ưu của vòng lặp</span>
+</div>
+<div class="step-content">
+<p>• Giá trị thưởng hiện tại là $+0.4740$. Nếu robot tiến bộ và đưa hành vi tới gần chuyên gia hơn ($D \to 0.9$), điểm thưởng sẽ tăng vọt lên $-\ln(0.1) = 2.3026$.</p><p>• Discriminator nhận tín hiệu lỗi $\mathcal{L}_D = 0.6270$ và cập nhật trọng số bằng Adam Optimizer để phân loại sắc bén hơn trong lượt tiếp theo.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Đồng nhất hóa việc học bắt chước với mạng đối nghịch GAN trong GAIL cho phép robot khớp phân phối chiếm dụng trạng thái - hành động trực tiếp với chuyên gia mà không cần giải bài toán nghịch RL phức tạp ở vòng lặp trong.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-8-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Module GAIL Discriminator &amp; Tính Thưởng Với PyTorch</h4>
+<p>Mã nguồn chuẩn triển khai mạng Discriminator và tích hợp vào thuật toán tối ưu PPO:</p>
+<div class="code-card">
+<div class="code-header">
+<span>gail_discriminator.py (PyTorch)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import torch
+import torch.nn as nn
+
+class GAILDiscriminator(nn.Module):
+    def __init__(self, state_dim, action_dim, hidden_dim=256):
+        super(GAILDiscriminator, self).__init__()
+        self.net = nn.Sequential(
+            nn.Linear(state_dim + action_dim, hidden_dim),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, 1),
+            nn.Sigmoid()
+        )
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=3e-4)
+        self.loss_fn = nn.BCELoss()
+
+    def get_reward(self, state, action):
+        with torch.no_grad():
+            x = torch.cat([state, action], dim=-1)
+            d = self.net(x)
+            # Hàm thưởng surrogate: -log(1 - D)
+            return -torch.log(torch.clamp(1.0 - d, min=1e-5))
+
+    def update(self, expert_states, expert_actions, policy_states, policy_actions):
+        exp_x = torch.cat([expert_states, expert_actions], dim=-1)
+        pol_x = torch.cat([policy_states, policy_actions], dim=-1)
+        
+        exp_labels = torch.ones((exp_x.shape[0], 1), device=exp_x.device)
+        pol_labels = torch.zeros((pol_x.shape[0], 1), device=pol_x.device)
+        
+        loss = self.loss_fn(self.net(exp_x), exp_labels) + self.loss_fn(self.net(pol_x), pol_labels)
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+        return loss.item()</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-8-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Toán Giá Trị Discriminator &amp; Phần Thưởng Trong GAIL</h4>
+</div>
+<div class="practice-statement">
+<p>Trong mạng Generative Adversarial Imitation Learning (GAIL), bộ phân biệt Discriminator $D_\psi(s, a) \in (0, 1)$ phân biệt giữa cặp $(s, a)$ từ chuyên gia và robot. Phần thưởng chuyển giao cho thuật toán RL (PPO) là $r(s, a) = -\ln(1 - D_\psi(s, a))$. Tại thời điểm hiện tại, với mẫu chuyên gia $D(s_E, a_E) = 0.85$, và với mẫu robot $D(s_\pi, a_\pi) = 0.20$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính phần thưởng $r(s, a)$ mà robot nhận được khi hành động giống chuyên gia ($D=0.85$) và khi hành động lạ ($D=0.20$).<br/>2) Phân tích hành vi khi $D \to 1$ và $D \to 0$.<br/>3) Đề xuất cách dùng phần thưởng kiểu AIRL để tránh bias kết thúc sớm.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tính phần thưởng GAIL:<br/>• Khi robot hành động rất giống chuyên gia ($D = 0.85$):<br/>$$r = -\ln(1 - 0.85) = -\ln(0.15) \approx -(-1.897) = +1.897$$<br/>• Khi robot hành động xa lạ với chuyên gia ($D = 0.20$):<br/>$$r = -\ln(1 - 0.20) = -\ln(0.80) \approx -(-0.223) = +0.223$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Khi $D \to 1$ (hoàn hảo), $1-D \to 0 \implies r \to +\infty$. Khi $D \to 0$, $r \to 0$. Phần thưởng luôn dương khuyến khích robot bắt chước hành vi chuyên gia để tối đa hóa phần thưởng tích lũy.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Trong môi trường có nguy cơ chết sớm (ví dụ robot đi bộ bị ngã), phần thưởng luôn dương có thể khiến robot chọn đứng yên một chỗ để ăn thưởng liên tục. AIRL (Adversarial Inverse RL) khắc phục bằng cách tách phần thưởng trạng thái độc lập $f_\theta(s)$ và hàm thế vị $\gamma \Phi(s') - \Phi(s)$, khôi phục hàm thưởng bất biến thực sự.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch07.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 07: Học Tăng Cường Nghịch Đảo IRL</span>
+</a>
+<a class="ch-nav-card next" href="ch09.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 09: Học Bắt Chước Từ Quan Sát</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

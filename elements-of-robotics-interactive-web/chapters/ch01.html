@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 01: Robot là gì? - Khái niệm &amp; Giải phẫu Hệ thống - Elements of Robotics</title>
+<meta content="Định nghĩa chuẩn Sense-Think-Act, lịch sử cơ cấu tự động, phân loại robot di động vs cánh tay thao tác và giải phẫu khung gầm, nguồn điện, vi điều khiển." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 1: Foundations &amp; Cảm biến</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 01</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+<span class="sidebar-badge">6 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-1-1">
+<span class="nav-text">1.1 Khái niệm &amp; Định nghĩa Sense-Think-Act</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-2">
+<span class="nav-text">1.2 Lịch sử phát triển Robot học</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-3">
+<span class="nav-text">1.3 Phân loại Robot theo Cấu trúc &amp; Quyền tự chủ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-4">
+<span class="nav-text">1.4 Giải phẫu học Cơ điện tử Robot di động</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-worked">
+<span class="nav-text">Ví dụ tính số: Công suất &amp; Mô-men xoắn vượt dốc</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (ros2_control)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-1-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 1: FOUNDATIONS &amp; CẢM BIẾN</div>
+<h1>Chương 01: Robot là gì? - Khái niệm &amp; Giải phẫu Hệ thống</h1>
+<p class="chapter-subtitle">Định nghĩa chuẩn Sense-Think-Act, lịch sử cơ cấu tự động, phân loại robot di động vs cánh tay thao tác và giải phẫu khung gầm, nguồn điện, vi điều khiển.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 1.1 -->
+<h4 id="sec-1-1">1.1 Khái niệm &amp; Định nghĩa Chuẩn quốc tế (Sense - Think - Act)</h4>
+<p>Theo định nghĩa kinh điển của Robotics học thuật quốc tế (IEEE &amp; giáo trình GS. Ben-Ari), một <strong>Robot</strong> là một hệ thống cơ điện tử có khả năng tự động thực hiện các tác vụ phức tạp bằng cách tương tác với môi trường vật lý thông qua chu trình khép kín <strong>Nhận thức - Xử lý - Hành động (Sense - Think - Act)</strong>:</p>
+<ul>
+<li><strong>Sense (Nhận thức):</strong> Thu nhận tín hiệu từ thế giới thực (khoảng cách, ánh sáng, va chạm, gia tốc, từ trường) chuyển đổi thành tín hiệu điện.</li>
+<li><strong>Think (Tư duy / Xử lý):</strong> Vi điều khiển hoặc máy tính nhúng phân tích dữ liệu cảm biến, duy trì trạng thái nội tại, tính toán quỹ đạo hoặc giải thuật điều khiển.</li>
+<li><strong>Act (Hành động):</strong> Tác động lực cơ học trở lại môi trường thông qua động cơ, bánh xe, cánh tay kẹp hoặc cơ cấu chấp hành (actuators).</li>
+</ul>
+<!-- Mục 1.2 -->
+<h4 id="sec-1-2">1.2 Lịch sử phát triển: Từ Cơ cấu tự động (Automata) đến Robot tự hành</h4>
+<p>Khái niệm robot bắt nguồn từ các cỗ máy cơ học đồng hồ (Automata) thời Phục Hưng của Leonardo da Vinci, qua vở kịch <em>R.U.R.</em> (Rossum's Universal Robots) năm 1920 của Karel Čapek (nơi từ "Robot" ra đời từ tiếng Séc <em>robota</em> nghĩa là lao động cưỡng bức), đến robot công nghiệp Unimate (1961), Shakey the Robot tại Stanford (1966 - robot di động đầu tiên kết hợp nhận thức thị giác và quy hoạch đường đi), và robot thám hiểm không gian ngày nay.</p>
+<!-- Mục 1.3 -->
+<h4 id="sec-1-3">1.3 Phân loại Robot theo Quyền Tự chủ &amp; Cấu trúc Cơ học</h4>
+<p>Trong giáo trình <em>Elements of Robotics</em>, tác giả phân loại robot theo hai chiều không gian cốt lõi:</p>
+<p><strong>1. Phân loại theo Mức độ Quyền Tự chủ (Levels of Autonomy):</strong></p>
+<ul>
+<li><strong>Robot Điều khiển Từ xa (Teleoperated Robots):</strong> Con người đóng vai trò là "bộ não" điều khiển trực tiếp từng chuyển động cơ học thông qua cáp nối hoặc sóng vô tuyến. Robot chỉ đóng vai trò cơ cấu thừa hành mở rộng giác quan và sức mạnh của con người. <em>Ứng dụng điển hình:</em> Robot phẫu thuật Da Vinci, robot lặn thám hiểm đáy biển sâu, robot rà phá bom mìn nguy hiểm.</li>
+<li><strong>Robot Tự động (Automated Robots):</strong> Hoạt động theo các kịch bản lệnh tuần tự đã được lập trình sẵn một cách cứng nhắc (deterministic scripts). Robot không có khả năng nhận biết hoặc thay đổi hành vi nếu môi trường xung quanh biến động bất thường. <em>Ứng dụng điển hình:</em> Cánh tay robot hàn điểm trên dây chuyền lắp ráp ô tô, máy gắp linh kiện điện tử SMT tốc độ cao.</li>
+<li><strong>Robot Tự hành (Autonomous Robots):</strong> Đỉnh cao của robot học hiện đại. Robot tự duy trì chu trình Sense - Think - Act độc lập, liên tục nhận thức môi trường không xác định trước, tự giải quyết xung đột, tự quy hoạch đường đi và phản ứng kịp thời trước các mối nguy hiểm cận kề mà không cần con người can thiệp. <em>Ứng dụng điển hình:</em> Xe tự hành Waymo/Tesla, Robot hút bụi trong nhà, Rover thám hiểm Sao Hỏa Curiosity/Perseverance.</li>
+</ul>
+<p><strong>2. Phân loại theo Cấu trúc Hình học Cơ cấu:</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Loại Robot</th>
+<th>Không gian Trạng thái</th>
+<th>Cơ cấu di chuyển</th>
+<th>Ví dụ Điển hình</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Robot di động (Mobile Robots)</strong></td>
+<td>Mặt phẳng $SE(2)$ hoặc 3D $SE(3)$</td>
+<td>Bánh xe (Wheeled), bánh xích (Tracked), chân bước (Legged)</td>
+<td>Robot hút bụi, AGV nhà kho, Rover sao Hỏa</td>
+</tr>
+<tr>
+<td><strong>Cánh tay Thao tác (Manipulators)</strong></td>
+<td>Không gian cấu hình $\mathbb{R}^n$ ($n$-DOF)</td>
+<td>Khớp quay (Revolute), khớp tịnh tiến (Prismatic)</td>
+<td>KUKA, Universal Robots UR5, tay máy hàn điểm</td>
+</tr>
+<tr>
+<td><strong>Robot Lai (Mobile Manipulators)</strong></td>
+<td>$SE(2) \times \mathbb{R}^n$</td>
+<td>Bánh xe kết hợp gắn cánh tay trên thân</td>
+<td>Robot phục vụ nhà hàng, robot phẫu thuật di động</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Mục 1.4 -->
+<h4 id="sec-1-4">1.4 Giải phẫu học Cơ bản của Robot Di động</h4>
+<p>Mỗi robot di động gồm 5 khối chức năng chính gắn kết chặt chẽ:</p>
+<ol>
+<li><strong>Khung gầm &amp; Cơ cấu truyền động (Chassis &amp; Drivetrain):</strong> Giữ tải trọng và chuyển hóa năng lượng quay của motor thành lực kéo mặt sàn.</li>
+<li><strong>Cơ cấu chấp hành (Actuators):</strong> Động cơ DC không chổi than (BLDC) hoặc DC chổi than có hộp giảm tốc (Gearbox), động cơ bước (Stepper) hoặc Servo.</li>
+<li><strong>Hệ thống Cảm biến (Sensors):</strong> Đo đạc nội trạng (encoders, IMU, cảm biến dòng) và ngoại trạng (LiDAR, siêu âm, camera).</li>
+<li><strong>Bộ điều khiển (Microcontroller &amp; Computer):</strong> Vi điều khiển thời gian thực (STM32, ESP32) làm việc ở tầng thấp và máy tính tính toán (Raspberry Pi, Jetson) chạy ROS 2.</li>
+<li><strong>Quản lý Năng lượng (Power Management):</strong> Pin Lithium (LiPo/LiFePO4), mạch hạ áp buck-boost ổn định điện áp, mạch bảo vệ quá dòng BMS.</li>
+</ol>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-1-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 TÍNH TOÁN CÔNG SUẤT VÀ MÔ-MEN XOẮN ĐỘNG CƠ CHO XE ROBOT</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Một robot thám hiểm có tổng khối lượng $m = 4.0\text{ kg}$, đường kính bánh xe $D = 10\text{ cm}$ ($R = 0.05\text{ m}$), sử dụng 2 động cơ dẫn động độc lập. Robot cần khả năng leo dốc nghiêng $\alpha = 15^\circ$ với vận tốc không đổi $v = 0.3\text{ m/s}$. Lấy gia tốc trọng trường $g = 9.81\text{ m/s}^2$ và hệ số cản lăn $f_r = 0.02$. Bỏ qua lực cản không khí.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Lực Kéo Cần Thiết $F_{pull}$</span>
+</div>
+<div class="step-content">
+<p>Lực cản song song mặt dốc gồm thành phần trọng lực và lực ma sát lăn:<br/>
+                  $F_g = m \cdot g \cdot \sin\alpha = 4.0 \times 9.81 \times \sin(15^\circ) = 39.24 \times 0.2588 = 10.16\text{ N}$<br/>
+                  $F_{roll} = f_r \cdot m \cdot g \cdot \cos\alpha = 0.02 \times 39.24 \times 0.9659 = 0.76\text{ N}$<br/>
+                  $\Rightarrow F_{total} = F_g + F_{roll} = 10.16 + 0.76 = 10.92\text{ N}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Phân bổ Lực lên 2 Bánh Dẫn Động</span>
+</div>
+<div class="step-content">
+<p>Do sử dụng 2 động cơ phân chia đều tải trọng:<br/>
+                  $F_{wheel} = \frac{F_{total}}{2} = \frac{10.92}{2} = 5.46\text{ N}$ trên mỗi bánh xe.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Mô-men Xoắn Đầu Trục $\tau$</span>
+</div>
+<div class="step-content">
+<p>Mô-men xoắn cần sinh ra tại trục bánh xe:<br/>
+                  $\tau = F_{wheel} \cdot R = 5.46\text{ N} \times 0.05\text{ m} = 0.273\text{ N}\cdot\text{m} = 2.78\text{ kgf}\cdot\text{cm}$<br/>
+                  Với hệ số an toàn $S = 1.5$, động cơ cần đạt mô-men định mức tối thiểu: $\tau_{req} = 0.41\text{ N}\cdot\text{m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính Tốc Độ Quay $\omega$ và Công Suất Cơ $P$</span>
+</div>
+<div class="step-content">
+<p>Tốc độ góc bánh xe:<br/>
+                  $\omega = \frac{v}{R} = \frac{0.3}{0.05} = 6.0\text{ rad/s} \approx 57.3\text{ RPM}$<br/>
+                  Công suất cơ hữu ích của mỗi động cơ:<br/>
+                  $P_{mech} = \tau \cdot \omega = 0.273 \times 6.0 = 1.64\text{ W}$ (Tổng 2 motor $\approx 3.3\text{ W}$).</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Qua 4 bước tính toán cơ học và động lực học, hệ thống xác định chính xác mô-men xoắn yêu cầu $\tau = 0.273\text{ N}\cdot\text{m}$ và công suất cơ $P = 1.64\text{ W}$ trên mỗi động cơ. Động cơ kèm hộp số đáp ứng hoàn hảo tiêu chí leo dốc $15^\circ$ an toàn.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-1-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Trong hệ sinh thái ROS 2, khối phần cứng robot được đóng gói thông qua <strong>Hardware Component</strong> của <code>ros2_control</code> (triển khai class <code>hardware_interface::SystemInterface</code>). Lệnh vận tốc được truyền qua các thanh ghi <code>command_interfaces</code> dạng <code>velocity</code> và dữ liệu phản hồi được đọc từ <code>state_interfaces</code> dạng <code>position</code> và <code>velocity</code>.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-1-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Toán Mô-men Xoắn &amp; Công Suất Động Cơ Khi Robot Leo Dốc Nghiêng</h4>
+</div>
+<div class="practice-statement">
+<p>Một robot di động có tổng khối lượng $m = 6.0\text{ kg}$, sử dụng 2 bánh chủ động bán kính $R = 0.06\text{ m}$. Robot cần leo con dốc nghiêng $\alpha = 20^\circ$ với vận tốc ổn định $v = 0.4\text{ m/s}$. Hệ số cản lăn mặt đường $f_r = 0.03$, gia tốc trọng trường $g = 9.81\text{ m/s}^2$. Hiệu suất truyền động cơ khí hộp số là $\eta = 0.80$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính tổng lực kéo cản song song mặt dốc $F_{\text{total}} = F_g + F_{\text{roll}}$.<br/>2) Phân bổ lực lên 2 bánh xe và tính mô-men xoắn yêu cầu $\tau_{\text{req}}$ tại mỗi trục động cơ.<br/>3) Tính công suất điện tối thiểu $P_{\text{elec}}$ của hệ thống 2 động cơ.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Thành phần lực cản dốc:<br/>• Trọng trường: $F_g = m g \sin\alpha = 6.0 \times 9.81 \times \sin(20^\circ) = 58.86 \times 0.3420 = 20.13\text{ N}$.<br/>• Cản lăn: $F_{\text{roll}} = f_r m g \cos\alpha = 0.03 \times 58.86 \times \cos(20^\circ) = 1.7658 \times 0.9397 = 1.66\text{ N}$.<br/>Tổng lực kéo cần thiết: $F_{\text{total}} = 20.13 + 1.66 = 21.79\text{ N}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Lực trên mỗi bánh: $F_{\text{wheel}} = \frac{21.79}{2} = 10.90\text{ N}$.<br/>Mô-men xoắn trục bánh: $\tau = F_{\text{wheel}} \times R = 10.90 \times 0.06 = 0.654\text{ N}\cdot\text{m}$.<br/>Xét hệ số dự phòng an toàn $S = 1.25$: $\tau_{\text{req}} = 0.654 \times 1.25 = 0.8175\text{ N}\cdot\text{m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Tốc độ góc bánh xe: $\omega = \frac{v}{R} = \frac{0.4}{0.06} = 6.67\text{ rad/s}$ ($63.7\text{ RPM}$).<br/>Công suất cơ của 2 động cơ: $P_{\text{mech}} = F_{\text{total}} \times v = 21.79 \times 0.4 = 8.72\text{ W}$.<br/>Công suất điện tiêu thụ thực tế (với $\eta = 0.80$): $P_{\text{elec}} = \frac{P_{\text{mech}}}{\eta} = \frac{8.72}{0.80} = 10.9\text{ W}$. Bộ nguồn pin 12V cần cấp dòng định mức khoảng $0.91\text{ A}$.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="../index.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Lộ trình Tổng quan</span>
+</a>
+<a class="page-nav-btn next" href="ch02.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 02: Hệ thống Cảm biến Thu nhận Môi t... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

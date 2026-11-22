@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 06: Điều khiển Vòng kín PID &amp; Chống Bão hòa Tích phân - Elements of Robotics</title>
+<meta content="So sánh vòng hở vs vòng kín, vai trò từng khâu P-I-D, hiện tượng bão hòa tích phân (integral windup), giải thuật kẹp anti-windup và chỉnh định Ziegler-Nichols." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 3: Động học &amp; Điều khiển Vòng kín PID</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 06</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+<span class="sidebar-badge">9 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-6-1">
+<span class="nav-text">6.1 Bản chất Vòng hở vs Vòng kín</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-2">
+<span class="nav-text">6.2 Khâu Tỉ lệ (P) &amp; Sai số Tĩnh</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-3">
+<span class="nav-text">6.3 Khâu Tích phân (I) &amp; Triệt tiêu Sai số</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-4">
+<span class="nav-text">6.4 Khâu Vi phân (D) &amp; Giảm Vọt lố</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-5">
+<span class="nav-text">6.5 Hiện tượng Integral Windup &amp; Kẹp Clamping</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-pid">
+<span class="nav-text">⚡ Mô phỏng PID &amp; Anti-Windup Clamping</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-6">
+<span class="nav-text">6.6 Chỉnh định Ziegler-Nichols</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-worked">
+<span class="nav-text">Ví dụ tính số: Rời rạc hóa PID &amp; Anti-Windup</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-6-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (control_toolbox::Pid)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-6-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 3: ĐỘNG HỌC &amp; ĐIỀU KHIỂN VÒNG KÍN PID</div>
+<h1>Chương 06: Điều khiển Vòng kín PID &amp; Chống Bão hòa Tích phân</h1>
+<p class="chapter-subtitle">So sánh vòng hở vs vòng kín, vai trò từng khâu P-I-D, hiện tượng bão hòa tích phân (integral windup), giải thuật kẹp anti-windup và chỉnh định Ziegler-Nichols.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 6.1, 6.2, 6.3, 6.4 -->
+<h4 id="sec-6-1">6.1 Bản chất Vòng hở (Open-Loop) vs Vòng kín (Closed-Loop)</h4>
+<p>Điều khiển vòng hở phát lệnh dựa trên kỳ vọng lý thuyết mà không kiểm tra kết quả thực tế. Ngược lại, điều khiển vòng kín liên tục đo đạc đại lượng ngõ ra $y(t)$, so sánh với giá trị đặt mong muốn $r(t)$ để tính sai lệch $e(t) = r(t) - y(t)$, từ đó tự động hiệu chỉnh tín hiệu điều khiển.</p>
+<div class="formula-hero">
+<div class="formula-title">PHƯƠNG TRÌNH KINH ĐIỂN BỘ ĐIỀU KHIỂN PID</div>
+<div class="formula-math">
+                $$u(t) = K_p \cdot e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}$$
+              </div>
+<div class="formula-legend">
+                Ba khâu hợp nhất: <strong>Khâu Tỉ lệ (P):</strong> Phản ứng tức thì theo hiện tại nhưng luôn để lại sai số xác lập $e_{ss} \ne 0$. <strong>Khâu Tích phân (I):</strong> Tích lũy toàn bộ quá khứ để triệt tiêu hoàn toàn sai số tĩnh. <strong>Khâu Vi phân (D):</strong> Dự đoán xu hướng tương lai, tạo lực cản dập tắt dao động và giảm vọt lố (Overshoot).
+              </div>
+</div>
+<!-- Mục 6.5 -->
+<h4 id="sec-6-5">6.5 Hiện tượng Bão hòa Tích phân (Integral Windup) &amp; Thuật toán Kẹp (Clamping)</h4>
+<p>Trong thực tế, cơ cấu chấp hành luôn có giới hạn vật lý nghiêm ngặt (như điện áp cực đại $12\text{V}$, độ rộng xung PWM cực đại $100\%$, hay dòng điện tối đa). Khi robot gặp tải lớn hoặc sai số ban đầu quá cao, tín hiệu $u(t)$ vượt ngưỡng bão hòa $u_{max}$.</p>
+<p>Nếu khâu tích phân tiếp tục cộng dồn, biến tích lũy sẽ "phình to" tới mức khổng lồ (Windup). Khi robot đã đạt mục tiêu ($e(t) = 0$), động cơ vẫn bị duy trì ở công suất tối đa trong thời gian dài do khâu tích phân cần nhiều thời gian để "xả" hết năng lượng tích lũy, gây hiện tượng <strong>Vọt lố khổng lồ (Catastrophic Overshoot)</strong> và mất ổn định hệ thống.</p>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Đồ thị so sánh đáp ứng bước PID có và không có Anti-Windup Clamping" src="../assets/images/pid_response.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 6.1:</strong> Đáp ứng bước quá độ của hệ thống điều khiển PID. Đường màu đỏ thể hiện hiện tượng vọt lố nghiêm trọng khi bị Integral Windup; đường màu xanh lá minh chứng tính ổn định vượt trội khi kích hoạt thuật toán Anti-Windup Clamping.
+              </div>
+</div>
+<p><strong>Thuật toán Kẹp Chống Bão hòa Tích phân (Anti-Windup Clamping):</strong></p>
+<p>Ta chỉ cho phép tích lũy tích phân khi và chỉ khi:</p>
+<p>$$\text{Cho phép tích phân} = \text{NOT} \Big( (u_{unsat} \ge u_{max} \text{ AND } e(t) \gt 0) \text{ OR } (u_{unsat} \le u_{min} \text{ AND } e(t) \lt 0) \Big)$$</p>
+<!-- SIMULATOR CONTAINER: PID -->
+<div class="simulator-wrapper" id="sim-pid">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 05: ĐIỀU KHIỂN VÒNG KÍN PID &amp; ANTI-WINDUP CLAMPING</span>
+</div>
+<span class="sim-badge">Dynamic Closed-Loop Physics</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="300" id="pid-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item">
+<span class="telemetry-label">ĐỘ VỌT LỐ (OVERSHOOT):</span>
+<span class="telemetry-val" id="pid-metric-overshoot">0.0%</span>
+</div>
+<div class="telemetry-item">
+<span class="telemetry-label">THỜI GIAN XÁC LẬP ($T_s$):</span>
+<span class="telemetry-val" id="pid-metric-settling">1.82 s</span>
+</div>
+<div class="telemetry-item">
+<span class="telemetry-label">TRẠNG THÁI KHÂU ĐIỀU KHIỂN:</span>
+<span class="telemetry-val" id="pid-metric-status">Ổn định (Tuyến tính)</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Hệ số $K_p$: <span id="pid-kp-val">2.5</span></label>
+<input class="control-slider" id="pid-kp" max="8.0" min="0.1" step="0.1" type="range" value="2.5"/>
+</div>
+<div class="control-group">
+<label class="control-label">Hệ số $K_i$: <span id="pid-ki-val">1.2</span></label>
+<input class="control-slider" id="pid-ki" max="4.0" min="0.0" step="0.1" type="range" value="1.2"/>
+</div>
+<div class="control-group">
+<label class="control-label">Hệ số $K_d$: <span id="pid-kd-val">0.6</span></label>
+<input class="control-slider" id="pid-kd" max="2.5" min="0.0" step="0.05" type="range" value="0.6"/>
+</div>
+<div class="control-group">
+<label class="control-label">Giới hạn bão hòa $u_{max}$: <span id="pid-umax-val">3.0</span></label>
+<input class="control-slider" id="pid-umax" max="6.0" min="1.0" step="0.2" type="range" value="3.0"/>
+</div>
+<div class="control-group" style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.75rem;">
+<label style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.35rem;">
+<input checked="" id="pid-antiwindup" type="checkbox"/> Bật Anti-Windup Clamping
+                    </label>
+<button class="control-btn secondary" id="pid-reset">Khởi động lại</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Mục 6.6 -->
+<h4 id="sec-6-6">6.6 Phương pháp Chỉnh định Thực nghiệm Ziegler-Nichols</h4>
+<p>Khi hàm truyền của động cơ robot chưa biết trước, phương pháp thực nghiệm dao động tới hạn Ziegler-Nichols cho phép tìm nhanh các tham số:</p>
+<ol>
+<li>Đặt $K_i = 0, K_d = 0$, tăng dần $K_p$ tới giá trị $K_u$ (Ultimate Gain) sao cho hệ thống bắt đầu dao động điều hòa tự kích với chu kỳ không đổi $T_u$.</li>
+<li>Tra bảng thông số tối ưu Ziegler-Nichols kinh điển:</li>
+</ol>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Loại Bộ Điều Khiển</th>
+<th>$K_p$</th>
+<th>$T_i$ ($K_i = K_p / T_i$)</th>
+<th>$T_d$ ($K_d = K_p \cdot T_d$)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bộ điều khiển P</strong></td>
+<td>$0.5 \cdot K_u$</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Bộ điều khiển PI</strong></td>
+<td>$0.45 \cdot K_u$</td>
+<td>$T_u / 1.2$</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Bộ điều khiển PID Chuẩn</strong></td>
+<td>$0.60 \cdot K_u$</td>
+<td>$T_u / 2.0$</td>
+<td>$T_u / 8.0$</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-6-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 TÍNH TOÁN RỜI RẠC PID VÀ HIỆU QUẢ CỦA ANTI-WINDUP CLAMPING</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Động cơ vị trí có giá trị đặt $r = 100\text{ rad}$. Bộ điều khiển có thông số $K_p = 2.0, K_i = 1.0\text{ s}^{-1}, K_d = 0.5\text{ s}$, chu kỳ lấy mẫu $T_s = 0.1\text{ s}$, giới hạn điện áp cực đại $u_{max} = 12\text{ V}$. Ở bước $k=0$, vị trí $y_0 = 0$, tổng tích phân $I_0 = 0$. Ở bước $k=1$, vị trí tăng lên $y_1 = 40\text{ rad}$. Hãy tính tín hiệu điều khiển $u_0$ và $u_1$ trong 2 trường hợp: (a) Không có Anti-Windup và (b) Có Anti-Windup Clamping.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Toán Tại Bước $k=0$</span>
+</div>
+<div class="step-content">
+<p>Sai số: $e_0 = 100 - 0 = 100\text{ rad}$.<br/>
+                  $u_{P0} = 2.0 \times 100 = 200\text{ V}$.<br/>
+                  Tín hiệu chưa bão hòa: $u_0 = 200\text{ V} \gt 12\text{ V} \Rightarrow$ Bộ điều khiển bão hòa tại $u_{sat} = 12\text{ V}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: So Sánh Cập Nhật Tích Phân Tại $k=0$</span>
+</div>
+<div class="step-content">
+<p><strong>Trường hợp (a) Không Anti-Windup:</strong><br/>
+                  $I_1 = I_0 + K_i \cdot e_0 \cdot T_s = 0 + 1.0 \times 100 \times 0.1 = 10.0\text{ V}$.<br/>
+<strong>Trường hợp (b) Có Anti-Windup Clamping:</strong><br/>
+                  Vì $u$ bão hòa cực đại VÀ $e_0 \gt 0$, khâu kẹp đóng khóa! $\Rightarrow I_1 = 0.0\text{ V}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Toán Tại Bước $k=1$</span>
+</div>
+<div class="step-content">
+<p>Sai số: $e_1 = 100 - 40 = 60\text{ rad}$.<br/>
+                  Khâu tỉ lệ: $u_{P1} = 2.0 \times 60 = 120\text{ V}$.<br/>
+                  Khâu vi phân: $u_{D1} = 0.5 \times \frac{60 - 100}{0.1} = 0.5 \times (-400) = -200\text{ V}$.<br/>
+                  Tổng $u_{PD} = 120 - 200 = -80\text{ V}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Đánh Giá Tác Động Lên Tín Hiệu Đầu Ra</span>
+</div>
+<div class="step-content">
+<p><strong>Trường hợp (a):</strong> $u_1 = -80 + 10 = -70\text{ V}$ (vẫn bão hòa âm do tích phân kéo sai hướng).<br/>
+<strong>Trường hợp (b):</strong> Nhờ kẹp, $I$ sạch hoàn toàn, robot kịp thời hãm tốc chính xác ngay trước đích đến mà không bị vọt lố!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Cơ chế chống bão hòa tích phân (Anti-Windup Clamping) giữ vai trò then chốt trong bộ điều khiển PID: Ngăn chặn hiện tượng tích lũy quá mức của khâu I khi tín hiệu điều khiển chạm ngưỡng bão hòa PWM, giúp hệ thống hồi phục tốc độ mượt mà.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-6-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Thư viện chuẩn <code>control_toolbox::Pid</code> trong ROS 2 cung cấp sẵn hàm <code>setGains(p, i, d, i_max, i_min, antiwindup)</code>. Khi tham số <code>antiwindup: true</code> được kích hoạt trong tệp cấu hình YAML, thuật toán tích phân kẹp tự động bảo vệ hệ thống truyền động khỏi các xung bão hòa dòng điện nguy hiểm.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-6-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Thiết Kế Bộ Điều Khiển Vòng Kín PID Bám Vận Tốc Kèm Chống Bão Hòa Anti-Windup</h4>
+</div>
+<div class="practice-statement">
+<p>Động cơ DC của bánh xe robot cần duy trì vận tốc danh định $\omega_{\text{ref}} = 10.0\text{ rad/s}$. Tín hiệu PWM điều khiển giới hạn trong $[-255, +255]$. Thông số bộ điều khiển PID: $K_p = 15.0, K_i = 8.0, K_d = 0.5$, chu kỳ lấy mẫu $\Delta t = 0.02\text{ s}$. Tại bước $k$, sai số vận tốc là $e_k = 2.0\text{ rad/s}$, tổng tích lũy tích phân từ các bước trước là $I_{k-1} = 220$. Đạo hàm sai số $\frac{\Delta e}{\Delta t} = -10.0\text{ rad/s}^2$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính thành phần tỉ lệ $P$ và vi phân $D$.<br/>2) Tính tín hiệu điều khiển chưa bão hòa $u_{\text{raw}}$ nếu tích lũy tích phân bình thường.<br/>3) Áp dụng thuật toán Anti-Windup kẹp tích phân (Clamping) để đưa ra điện áp PWM thực tế.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Các thành phần điều khiển:<br/>• Thành phần tỉ lệ: $P = K_p \cdot e_k = 15.0 \times 2.0 = 30.0$.<br/>• Thành phần vi phân: $D = K_d \cdot \frac{\Delta e}{\Delta t} = 0.5 \times (-10.0) = -5.0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tích phân nếu cập nhật thường: $I_k = I_{k-1} + K_i \cdot e_k \cdot \Delta t = 220 + 8.0 \times 2.0 \times 0.02 = 220 + 0.32 = 220.32$.<br/>Tín hiệu tổng: $u_{\text{raw}} = P + I_k + D = 30.0 + 220.32 - 5.0 = 245.32$. Tín hiệu nằm sát ngưỡng trần $255$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Nếu giả sử tải bất ngờ tăng làm $e_k = 5.0$, $u_{\text{raw}}$ sẽ vượt quá $255$. Thuật toán Clamping kiểm tra: nếu $u_{\text{raw}} \ge 255$ VÀ $e_k \gt 0$, lập tức dừng cộng dồn tích phân ($I_k = I_{k-1}$), ngăn hiện tượng tích lũy quá mức khiến hệ thống mất lái khi tải giảm đột ngột.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch05.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 05: Động học Robot Vi sai &amp; Định vị ...</span>
+</a>
+<a class="page-nav-btn next" href="ch07.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 07: Định vị Trực tiếp &amp; Phương pháp ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

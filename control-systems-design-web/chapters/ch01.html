@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 01</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link active">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Mô Hình Hóa & Phân Tích Hệ Động Lực</span>
+          <span class="page-source-badge">📖 Mutambara, Chương 1 (Trang 1–43)</span>
+        </div>
+        <h1 class="chapter-title">Chương 01: Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Khái niệm biến đặt, biến quá trình, biến điều khiển, nhiễu; Điều khiển vòng hở vs vòng kín; Phân loại hệ thống (LTI, phi tuyến, thời gian thực); Tác động của cuộc Cách mạng Công nghiệp lần thứ tư (4IR); Hệ thống Cyber-Physical (CPS) & Điều khiển thông minh (Intelligent Control).</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Mọi cỗ máy tự động hiện đại trong kỷ nguyên 4IR — từ cánh tay robot công nghiệp trong dây chuyền sản xuất xe điện, tên lửa Falcon 9 tự hạ cánh thẳng đứng xuống sà lan biển của SpaceX, cho đến robot hình người Atlas nhảy parkour của Boston Dynamics — đều bắt buộc phải có một hệ thống điều khiển tự động tinh vi làm "bộ não". Nếu không có điều khiển phản hồi, động cơ ô tô sẽ bị sụt giảm tốc độ nghiêm trọng khi leo dốc, máy bay phản lực sẽ lập tức mất ổn định trước những cơn gió giật bất thường, và cánh tay robot gia công chính xác sẽ bị lệch vị trí gây phế phẩm hàng loạt. Lý thuyết điều khiển chính là chìa khóa chuyển hóa năng lượng vật lý thô ráp thành chuyển động chính xác, mượt mà và thông minh.</p>
+        </div>
+        <p>Hệ thống điều khiển tự động hoàn chỉnh là sự phối hợp nhịp nhàng của 4 thành phần then chốt:</p>
+        <ul>
+          <li><strong>Đối tượng điều khiển (Plant / Process):</strong> Thực thể vật lý cần được kiểm soát (động cơ điện, ô tô, bồn nước, cánh tay robot, lò nhiệt công nghiệp). Đại lượng cần điều khiển được gọi là <em>biến quá trình (Process Variable - $y(t)$)</em>.</li>
+          <li><strong>Cảm biến đo lường (Sensor / Measurement Device):</strong> Đo lường liên tục biến quá trình $y(t)$ và chuyển đổi thành tín hiệu điện/số phản hồi $y_m(t)$, đưa về bộ so sánh với <em>tín hiệu đặt mong muốn (Reference / Setpoint - $r(t)$)</em>.</li>
+          <li><strong>Bộ điều khiển (Controller):</strong> "Bộ não" tính toán sai số $e(t) = r(t) - y_m(t)$ và áp dụng thuật toán điều khiển (PID, LQR, MPC, Sliding Mode) để sinh ra <em>tín hiệu điều khiển (Control Effort - $u(t)$)</em>.</li>
+          <li><strong>Cơ cấu chấp hành (Actuator):</strong> Thiết bị chuyển đổi tín hiệu điều khiển công suất nhỏ $u(t)$ thành năng lượng vật lý thực sự (mô-men xoắn, điện áp nguồn, van đóng mở khí nén/thủy lực) tác động trực tiếp lên đối tượng.</li>
+        </ul>
+        <p>Trong quá trình vận hành, hệ thống luôn phải đối mặt với <strong>Nhiễu (Disturbances - $d(t)$)</strong> tác động từ môi trường bên ngoài (gió giật, ma sát thay đổi, tải trọng biến thiên) và <strong>Nhiễu đo lường (Measurement Noise - $n(t)$)</strong> từ cảm biến.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Sự khác biệt cốt lõi giữa hai phương thức điều khiển kinh điển được mô tả định lượng như sau:</p>
+        <div class="formula-card">
+          <div class="formula-header">Mô Hình Toán Học: Điều Khiển Vòng Hở vs Điều Khiển Vòng Kín</div>
+          <p><strong>1. Điều khiển vòng hở (Open-Loop Control):</strong></p>
+          $$\begin{equation}
+          Y_{open}(s) = G_p(s) U(s) + D(s) = G_p(s) G_c(s) R(s) + D(s)
+          \end{equation}$$
+          <p>Trong cấu trúc vòng hở, bộ điều khiển $G_c(s)$ phát tín hiệu dựa trên giả định mô hình $G_p(s)$ hoàn hảo. Nếu xuất hiện nhiễu tải $D(s) \neq 0$ hoặc thông số đối tượng bị trôi dạt ($\Delta G_p$), đầu ra $Y(s)$ sẽ bị lệch hoàn toàn mà hệ thống không hề hay biết!</p>
+          <p><strong>2. Điều khiển vòng kín (Closed-Loop / Feedback Control):</strong></p>
+          $$\begin{equation}
+          Y_{closed}(s) = \frac{G_c(s) G_p(s)}{1 + G_c(s) G_p(s) H(s)} R(s) + \frac{1}{1 + G_c(s) G_p(s) H(s)} D(s) - \frac{G_c(s) G_p(s) H(s)}{1 + G_c(s) G_p(s) H(s)} N(s)
+          \end{equation}$$
+          <p>Đặt độ lợi vòng hở $L(s) = G_c(s) G_p(s) H(s)$. Hàm độ nhạy hệ thống (Sensitivity Function) được định nghĩa là:</p>
+          $$\begin{equation}
+          S(s) = \frac{1}{1 + L(s)}, \quad T(s) = \frac{L(s)}{1 + L(s)}, \quad S(s) + T(s) = 1
+          \end{equation}$$
+          <p>Khi thiết kế bộ điều khiển có độ lợi vòng lặp lớn trong dải tần làm việc ($|L(j\omega)| \gg 1$), ta đạt được hai đặc tính vượt trội:</p>
+          $$\begin{equation}
+          |S(j\omega)| \approx \frac{1}{|L(j\omega)|} \to 0 \implies Y(j\omega) \approx \frac{1}{H(j\omega)} R(j\omega) + 0 \cdot D(j\omega)
+          \end{equation}$$
+          <p>Nhiễu tải $D(s)$ bị triệt tiêu mạnh mẽ, và đầu ra bám chính xác theo tín hiệu đặt bất chấp sự bất định của đối tượng $G_p(s)$!</p>
+        </div>
+
+        <p>Hệ thống điều khiển được phân loại theo các tiêu chí khoa học chuẩn mực:</p>
+        <ul>
+          <li><strong>Tuyến tính (Linear) vs Phi tuyến (Nonlinear):</strong> Hệ tuyến tính thỏa mãn nguyên lý xếp chồng $f(\alpha x_1 + \beta x_2) = \alpha f(x_1) + \beta f(x_2)$. Hệ phi tuyến chứa các yếu tố bão hòa (Saturation), vùng chết (Deadzone), trễ từ (Hysteresis) hoặc ma sát Coulomb.</li>
+          <li><strong>Bất biến theo thời gian (LTI) vs Biến đổi theo thời gian (LTV):</strong> Hệ LTI có các thông số khối lượng, điện trở, độ cứng không đổi theo thời gian. Hệ LTV có thông số biến thiên (ví dụ: khối lượng tên lửa giảm liên tục khi đốt cháy nhiên liệu đẩy).</li>
+          <li><strong>Liên tục (Continuous-time) vs Rời rạc (Discrete-time / Digital):</strong> Hệ liên tục xử lý tín hiệu analog $x(t)$, hệ rời rạc xử lý chuỗi mẫu số $x[k]$ qua bộ chuyển đổi ADC/DAC và máy tính nhúng.</li>
+          <li><strong>Bộ điều chỉnh (Regulator) vs Bộ bám (Tracking / Servomechanism):</strong> Regulator duy trì đầu ra tại một điểm cân bằng cố định trước nhiễu ($r(t) = \text{const}$, ví dụ điều hòa nhiệt độ); Tracking điều khiển đầu ra bám sát một quỹ đạo thời gian thay đổi liên tục ($r(t) = f(t)$, ví dụ cánh tay robot cắt laser theo biên dạng phức tạp).</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <p>Cuộc Cách mạng Công nghiệp lần thứ tư (4IR) theo định nghĩa của Mutambara chứng kiến sự hợp nhất sâu sắc giữa thế giới vật lý, kỹ thuật số và sinh học. Hệ thống điều khiển hiện đại trong kỷ nguyên 4IR đã vượt ra khỏi các bộ điều khiển đơn lẻ cổ điển để trở thành <strong>Hệ Thống Không Gian Mạng - Thực Thể (Cyber-Physical Systems - CPS)</strong>:</p>
+        <ul>
+          <li><strong>Điều khiển qua mạng (Networked Control Systems - NCS):</strong> Các vòng lặp phản hồi đóng qua mạng không dây công nghiệp (Industrial 5G, TSN - Time-Sensitive Networking), đòi hỏi giải quyết các thách thức về độ trễ truyền thông ngẫu nhiên (Jitter) và mất gói tin (Packet Loss).</li>
+          <li><strong>Điều khiển thông minh (Intelligent Control):</strong> Tích hợp Trí tuệ Nhân tạo (AI), Mạng nơ-ron học sâu (Deep Neural Networks), và Điều khiển Logic mờ (Fuzzy Logic) để tự động nhận dạng tham số mô hình trong thời gian thực và tự thích nghi khi môi trường làm việc biến đổi.</li>
+          <li><strong>Tự hành hóa mức độ cao (Autonomous Systems):</strong> Thuật toán tối ưu hóa lồi G-FOLD trên tên lửa đẩy SpaceX Falcon 9 tính toán quỹ đạo hạ cánh tối ưu nhiên liệu trong vài mili-giây ở tần số 50 Hz; trong khi Boston Dynamics Atlas kết hợp Whole-Body Model Predictive Control (MPC) giải bài toán tối ưu lực tiếp xúc đa điểm chân - tay để giữ thăng bằng động học siêu phàm.</li>
+        </ul>
+        <p>Trong kiến trúc phần mềm chuẩn công nghiệp (ROS 2 Humble / Iron), vòng điều khiển cấp cao chạy trên nền Node ROS 2 giao tiếp qua DDS, trong khi vòng điều khiển cấp thấp (Joint Torque/Current Loop) chạy ở tần số $1 - 10\text{ kHz}$ trên hạt nhân thời gian thực Linux PREEMPT_RT giao tiếp với bộ truyền động qua giao thức công nghiệp EtherCAT.</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Phân Tích & So Sánh Hệ Thống Kiểm Soát Hành Trình Ô Tô (Cruise Control): Vòng Hở vs Vòng Kín Khi Leo Dốc</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một xe ô tô điện thông minh có tổng khối lượng $m = 1200\text{ kg}$ chuyển động trên đường thẳng. Lực cản chuyển động quy đổi do ma sát lăn và lực cản khí động học được mô hình hóa xấp xỉ tuyến tính theo vận tốc: $F_{drag} = b \cdot v(t)$ với hệ số cản $b = 50\text{ N}\cdot\text{s/m}$. Lực kéo phát động từ động cơ điện là $u(t)$ (đơn vị Newton). Xe đang duy trì ổn định ở vận tốc danh định $v_{ref} = 25\text{ m/s}$ ($90\text{ km/h}$) trên đường bằng phẳng. Đột ngột xe đi vào đoạn đường dốc nghiêng lên với góc dốc $\theta = 5^\circ$ so với phương ngang, làm xuất hiện lực cản trọng trường $F_{dist} = m g \sin\theta$ (lấy gia tốc trọng trường $g = 9.81\text{ m/s}^2$).<br><br><strong>Yêu cầu:</strong><br>1) Xác định lực kéo động cơ danh định $u_0$ khi xe chạy trên đường bằng phẳng.<br>2) Nếu xe sử dụng bộ điều khiển <em>vòng hở (Open-loop)</em> giữ nguyên lực kéo $u(t) = u_0$, hãy tính vận tốc xác lập mới của xe khi leo dốc $v_{open,ss}$ và sai số vận tốc tuyệt đối và tương đối.<br>3) Nếu xe được trang bị bộ điều khiển phản hồi <em>vòng kín tỉ lệ (Proportional Feedback)</em> $u(t) = u_0 + K_p(v_{ref} - v(t))$ với độ lợi $K_p = 1000\text{ N}\cdot\text{s/m}$, hãy thiết lập phương trình vi phân động học, tính vận tốc xác lập $v_{closed,ss}$ và sai số bám vận tốc.<br>4) Chứng minh rằng khi bổ sung thêm khâu tích phân (PI Controller) $u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau$, sai số xác lập của hệ thống sẽ được triệt tiêu hoàn toàn về $0$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích mô hình vật lý động lực học & Cân bằng lực khi xe chạy trên đường bằng phẳng:<br>• Áp dụng định luật II Newton cho chuyển động tịnh tiến dọc trục xe:<br>$$m \frac{dv(t)}{dt} = u(t) - F_{drag}(t) - F_{dist}(t) = u(t) - b \cdot v(t) - m g \sin\theta$$<br>• Khi xe chạy ổn định trên mặt đường bằng phẳng ($\theta = 0 \implies F_{dist} = 0$), gia tốc bằng $0$ ($\frac{dv}{dt} = 0$). Lực kéo động cơ cần thiết để duy trì vận tốc $v_{ref} = 25\text{ m/s}$ là:<br>$$u_0 = b \cdot v_{ref} = 50\text{ N}\cdot\text{s/m} \times 25\text{ m/s} = 1250\text{ N}$$<br>• Khi xe đi vào dốc nghiêng $\theta = 5^\circ$, lực cản trọng trường đóng vai trò là một nhiễu bậc thang không đổi (Step disturbance):<br>$$F_{dist} = m g \sin(5^\circ) = 1200\text{ kg} \times 9.81\text{ m/s}^2 \times \sin(5^\circ) \approx 1200 \times 9.81 \times 0.087156 = 1025.99\text{ N}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích động thái hệ thống khi sử dụng Bộ Điều Khiển Vòng Hở (Open-Loop):<br>• Bộ điều khiển vòng hở không đo lường vận tốc thực tế của xe, do đó vẫn duy trì mức lực kéo cố định $u(t) = u_0 = 1250\text{ N}$.<br>• Phương trình vi phân xác lập trên dốc ($\frac{dv}{dt} = 0$):<br>$$0 = u_0 - b \cdot v_{open,ss} - F_{dist} \implies b \cdot v_{open,ss} = u_0 - F_{dist}$$<br>$$v_{open,ss} = \frac{u_0 - F_{dist}}{b} = \frac{1250 - 1025.99}{50} = \frac{224.01}{50} = 4.4802\text{ m/s} \approx 16.13\text{ km/h}$$<br>• Sai số xác lập tuyệt đối của hệ vòng hở:<br>$$e_{open} = v_{ref} - v_{open,ss} = 25.0 - 4.4802 = 20.5198\text{ m/s} \approx 73.87\text{ km/h}$$<br>• Sai số tương đối: $\frac{20.5198}{25.0} \times 100\% \approx 82.08\%$. Vận tốc xe bị sụt giảm thảm hại hơn $82\%$, xe gần như khựng lại khi leo dốc!</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích động thái hệ thống khi sử dụng Bộ Điều Khiển Vòng Kín Phản Hồi Tỉ Lệ (P Control):<br>• Luật điều khiển vòng kín: $u(t) = u_0 + K_p [v_{ref} - v(t)]$ với $K_p = 1000\text{ N}\cdot\text{s/m}$.<br>• Thay vào phương trình vi phân chuyển động của xe:<br>$$m \frac{dv}{dt} = u_0 + K_p [v_{ref} - v(t)] - b \cdot v(t) - F_{dist}$$<br>$$m \frac{dv}{dt} + (b + K_p) v(t) = u_0 + K_p v_{ref} - F_{dist}$$<br>• Chuyển sang miền Laplace với điều kiện đầu bằng $0$:<br>$$[m s + (b + K_p)] V(s) = \frac{u_0 + K_p v_{ref}}{s} - \frac{F_{dist}}{s}$$<br>• Tại trạng thái xác lập ($t \to \infty$), áp dụng Định lý Giá trị Cuối (Final Value Theorem):<br>$$v_{closed,ss} = \lim_{s \to 0} s V(s) = \frac{u_0 + K_p v_{ref} - F_{dist}}{b + K_p}$$<br>Vì $u_0 = b \cdot v_{ref}$, tử số trở thành $(b + K_p) v_{ref} - F_{dist}$:<br>$$v_{closed,ss} = v_{ref} - \frac{F_{dist}}{b + K_p} = 25.0 - \frac{1025.99}{50 + 1000} = 25.0 - \frac{1025.99}{1050} = 25.0 - 0.9771 = 24.0229\text{ m/s} \approx 86.48\text{ km/h}$$<br>• Sai số xác lập tuyệt đối của hệ vòng kín: $e_{closed} = v_{ref} - v_{closed,ss} = 0.9771\text{ m/s} \approx 3.52\text{ km/h}$.<br>• Sai số tương đối: $\frac{0.9771}{25.0} \times 100\% \approx 3.91\%$. Sai số đã giảm tới $\frac{20.5198}{0.9771} \approx 21.0$ lần so với vòng hở!</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận khoa học & Chứng minh triệt tiêu hoàn toàn sai số với khâu Tích Phân (PI Control):<br>• Khi bổ sung khâu tích phân sai số: $u(t) = u_0 + K_p e(t) + K_i \int_0^t e(\tau) d\tau$ với $e(t) = v_{ref} - v(t)$.<br>• Phương trình động học vi phân bậc hai:<br>$$m \ddot{v}(t) + (b + K_p) \dot{v}(t) + K_i v(t) = K_i v_{ref} - \dot{F}_{dist}$$<br>• Do độ dốc là hằng số, $\dot{F}_{dist} = 0$. Tại trạng thái xác lập khi mọi đạo hàm triệt tiêu ($\ddot{v} = 0, \dot{v} = 0$):<br>$$K_i v_{PI,ss} = K_i v_{ref} \implies v_{PI,ss} = v_{ref} = 25.0000\text{ m/s} \implies e_{ss} = 0\text{ m/s}$$<br>Khâu tích phân liên tục cộng dồn sai số dẫu là nhỏ nhất theo thời gian, tự động nâng lực kéo động cơ lên đúng $u_{ss} = u_0 + F_{dist} = 1250 + 1025.99 = 2275.99\text{ N}$ để bù trừ chính xác $100\%$ lực cản leo dốc.<br>• <strong>Kết luận cốt lõi:</strong> Điều khiển phản hồi vòng kín là bắt buộc để kháng nhiễu môi trường, và thành phần tích phân $I$ là điều kiện tiên quyết để đạt sai số tĩnh bằng không.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết mô hình hóa, nhận dạng và thiết kế hệ thống điều khiển tự động trong giáo trình Design and Analysis of Control Systems (Arthur G.O. Mutambara, CRC Press). Đây là cơ sở định lượng vững chắc cho các hệ thống điều khiển công nghiệp 4IR thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 01: Hệ Thống Kiểm Soát Hành Trình Ô Tô (Cruise Control) — Vòng Hở vs Vòng Kín Khi Leo Dốc</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-01" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Chế độ điều khiển: </label>
+              <select id="sim01-mode" class="sim-select">
+                <option value="closed">Vòng Kín (Feedback Control)</option>
+                <option value="open">Vòng Hở (Open-Loop Control)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Vận tốc đặt ($v_{ref}$): <span id="sim01-vref-val">25 m/s (90 km/h)</span></label>
+              <input type="range" id="sim01-vref" min="10" max="40" step="1" value="25">
+            </div>
+            <div class="control-group">
+              <label>Độ dốc mặt đường ($\theta$): <span id="sim01-slope-val">5.0°</span></label>
+              <input type="range" id="sim01-slope" min="-10" max="10" step="0.5" value="5">
+            </div>
+            <div class="control-group">
+              <label>Độ lợi tỉ lệ ($K_p$): <span id="sim01-kp-val">1000 N·s/m</span></label>
+              <input type="range" id="sim01-kp" min="100" max="3000" step="100" value="1000">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim01-stats" class="sim-telemetry-text">Đang theo dõi vận tốc thực tế v(t), lực kéo động cơ u(t), và sai số bám vận tốc thời gian thực.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Cruise Control Simulation in C++20 (Open-Loop vs Closed-Loop)
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+
+struct VehicleParams {
+    double m = 1200.0;    // Mass (kg)
+    double b = 50.0;      // Drag coefficient (N*s/m)
+    double g = 9.81;      // Gravity (m/s^2)
+};
+
+class CruiseController {
+public:
+    enum class Mode { OPEN_LOOP, CLOSED_LOOP_P, CLOSED_LOOP_PI };
+    
+    CruiseController(double v_ref, Mode mode, double Kp = 1000.0, double Ki = 150.0)
+        : v_ref_(v_ref), mode_(mode), Kp_(Kp), Ki_(Ki), integral_e_(0.0) {}
+
+    double computeControlEffort(double v_actual, double dt, const VehicleParams&amp; vp) {
+        double u0 = vp.b * v_ref_; // Feedforward nominal thrust
+        double error = v_ref_ - v_actual;
+        
+        switch (mode_) {
+            case Mode::OPEN_LOOP:
+                return u0;
+            case Mode::CLOSED_LOOP_P:
+                return u0 + Kp_ * error;
+            case Mode::CLOSED_LOOP_PI:
+                integral_e_ += error * dt;
+                // Anti-windup clamping on integral term
+                if (integral_e_ &gt; 50.0) integral_e_ = 50.0;
+                if (integral_e_ &lt; -50.0) integral_e_ = -50.0;
+                return u0 + Kp_ * error + Ki_ * integral_e_;
+        }
+        return u0;
+    }
+
+private:
+    double v_ref_;
+    Mode mode_;
+    double Kp_;
+    double Ki_;
+    double integral_e_;
+};
+
+int main() {
+    VehicleParams vp;
+    const double v_target = 25.0; // 90 km/h
+    const double theta_deg = 5.0; // 5 degree hill climb
+    const double theta_rad = theta_deg * M_PI / 180.0;
+    const double F_dist = vp.m * vp.g * std::sin(theta_rad);
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(2);
+    std::cout &lt;&lt; &quot;=== SIMULATION: CRUISE CONTROL UNDER HILL DISTURBANCE ===\n&quot;;
+    std::cout &lt;&lt; &quot;Target Speed: &quot; &lt;&lt; v_target &lt;&lt; &quot; m/s | Hill Grade: &quot; &lt;&lt; theta_deg &lt;&lt; &quot; deg\n&quot;;
+    std::cout &lt;&lt; &quot;Gravitational Disturbance Force: &quot; &lt;&lt; F_dist &lt;&lt; &quot; N\n\n&quot;;
+
+    // Simulate 3 modes: Open-Loop, Closed-Loop P, Closed-Loop PI
+    std::vector&lt;std::pair&lt;std::string, CruiseController::Mode&gt;&gt; cases = {
+        {&quot;1. Open-Loop&quot;, CruiseController::Mode::OPEN_LOOP},
+        {&quot;2. Closed-Loop P (Kp=1000)&quot;, CruiseController::Mode::CLOSED_LOOP_P},
+        {&quot;3. Closed-Loop PI (Kp=1000, Ki=150)&quot;, CruiseController::Mode::CLOSED_LOOP_PI}
+    };
+
+    const double dt = 0.01;
+    const double t_final = 20.0;
+
+    for (const auto&amp; [name, mode] : cases) {
+        CruiseController ctrl(v_target, mode);
+        double v = v_target; // Start at target speed on flat, then hit hill at t=0
+        
+        for (double t = 0; t &lt;= t_final; t += dt) {
+            double u = ctrl.computeControlEffort(v, dt, vp);
+            // Dynamic equation: m * dv/dt = u - b*v - F_dist
+            double dv_dt = (u - vp.b * v - F_dist) / vp.m;
+            v += dv_dt * dt;
+        }
+
+        double ess = v_target - v;
+        double error_pct = (ess / v_target) * 100.0;
+        std::cout &lt;&lt; name &lt;&lt; &quot; -&gt; Steady-State Speed: &quot; &lt;&lt; v &lt;&lt; &quot; m/s (&quot; 
+                  &lt;&lt; v * 3.6 &lt;&lt; &quot; km/h) | Steady Error: &quot; &lt;&lt; ess &lt;&lt; &quot; m/s (&quot; 
+                  &lt;&lt; error_pct &lt;&lt; &quot;%)\n&quot;;
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Bản chất điều khiển:</strong> Tác động tín hiệu điều khiển $u(t)$ lên đối tượng để buộc biến quá trình $y(t)$ bám sát tín hiệu đặt $r(t)$ và triệt tiêu ảnh hưởng của nhiễu $d(t)$.</li><li><strong>Vòng hở vs Vòng kín:</strong> Vòng hở bất lực trước nhiễu và biến thiên tham số; Vòng kín với độ lợi $L(s) \gg 1$ suy giảm độ nhạy $S(s) \to 0$, bảo đảm độ chính xác cao.</li><li><strong>Vai trò khâu tích phân (I):</strong> Khâu tỉ lệ P giảm sai số nhưng luôn để lại sai số tĩnh hữu hạn; khâu tích phân I là bắt buộc để triệt tiêu hoàn toàn sai số xác lập về $0$.</li><li><strong>Xu hướng 4IR:</strong> Hội tụ hệ thống Cyber-Physical (CPS), mạng công nghiệp thời gian thực (TSN/Industrial 5G), và thuật toán điều khiển thông minh (AI, MPC, Sliding Mode).</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 1.1: Kháng nhiễu mở cửa trong lò sấy nhiệt công nghiệp</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một lò sấy nhiệt điện trở có nhiệt dung $C = 500\text{ J/}^\circ\text{C}$ và điện trở nhiệt của vách cách nhiệt $R_{th} = 0.20^\circ\text{C/W}$. Nhiệt độ môi trường bên ngoài là $T_{amb} = 25^\circ\text{C}$. Lò đang duy trì nhiệt độ đặt $T_{ref} = 150^\circ\text{C}$ bằng nguồn cấp nhiệt vòng hở công suất $Q_0$. Đột ngột công nhân mở hé cửa lò để đưa mẫu vật vào, làm phát sinh một dòng khí lạnh thất thoát nhiệt tương đương công suất nhiễu $Q_{loss} = 200\text{ W}$. Hãy: 1) Tính công suất $Q_0$ duy trì trạng thái xác lập ban đầu. 2) Tính nhiệt độ xác lập của lò $T_{open,ss}$ trong chế độ vòng hở khi cửa mở. 3) Thiết kế độ lợi tỉ lệ $K_p$ (W/$^\circ\text{C}$) của bộ điều khiển phản hồi nhiệt độ sao cho khi mở cửa lò, độ sụt nhiệt độ xác lập không vượt quá $2.0^\circ\text{C}$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>1) Phương trình truyền nhiệt: $C \frac{dT}{dt} + \frac{T - T_{amb}}{R_{th}} = Q(t)$. Tại xác lập ban đầu: $Q_0 = \frac{T_{ref} - T_{amb}}{R_{th}} = \frac{150 - 25}{0.20} = \frac{125}{0.20} = 625\text{ W}$.<br>2) Ở chế độ vòng hở khi mở cửa lò ($Q = Q_0 - Q_{loss} = 625 - 200 = 425\text{ W}$): Nhiệt độ xác lập mới $T_{open,ss} = T_{amb} + R_{th} \cdot (Q_0 - Q_{loss}) = 25 + 0.20 \times 425 = 25 + 85 = 110^\circ\text{C}$. Lò bị sụt giảm nghiêm trọng $40^\circ\text{C}$ ($26.7\%$)!<br>3) Bộ điều khiển phản hồi: $Q(t) = Q_0 + K_p (T_{ref} - T(t)) - Q_{loss}$. Tại xác lập: $\frac{T_{ss} - T_{amb}}{R_{th}} = Q_0 + K_p (T_{ref} - T_{ss}) - Q_{loss} \implies \left(\frac{1}{R_{th}} + K_p\right)(T_{ref} - T_{ss}) = Q_{loss}$.<br>Để độ sụt $\Delta T_{ss} = T_{ref} - T_{ss} \le 2.0^\circ\text{C}$, ta cần: $\frac{Q_{loss}}{\frac{1}{R_{th}} + K_p} \le 2.0 \implies \frac{1}{R_{th}} + K_p \ge \frac{200}{2.0} = 100 \implies 5.0 + K_p \ge 100 \implies K_p \ge 95.0\text{ W/}^\circ\text{C}$.<br>Vậy cần chọn độ lợi phản hồi tối thiểu $K_p = 95\text{ W/}^\circ\text{C}$ để đảm bảo độ chính xác nhiệt độ.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="../index.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Quay lại Portal Hub</span>
+        </a>
+        <a href="ch02.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 02: Mô Hình Hóa Hệ Thống Động Lực Đa Miền →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim01 === "function") {
+        initSim01();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 07: Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 07</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link active">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Robot Di Động, Thị Giác & Hoạch Định</span>
+          <span class="page-source-badge">📖 Siciliano et al. (2025), Chương 7, Trang 351–406</span>
+        </div>
+        <h1 class="chapter-title">Chương 07: Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Ràng buộc phi Holonomic, Mô hình Unicycle & Bicycle, Dạng chuỗi (Chained Form), Bằng phẳng vi phân (Differential Flatness), Điều khiển bám quỹ đạo & Định lý Brockett</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Robot di động bánh xe (Wheeled Mobile Robots - WMR) và robot tự hành công nghiệp (Autonomous Mobile Robots - AMR) là trái tim của hệ sinh thái logistics thông minh, kho bãi thương mại điện tử (Amazon Kiva, Geek+), xe tự hành đô thị và robot thám hiểm không gian. Khác với cánh tay robot cố định có không gian thao tác bị giới hạn bởi độ dài các khâu, robot di động sở hữu không gian làm việc về lý thuyết là vô hạn trên mặt phẳng $\mathbb{R}^2$. Tuy nhiên, việc điều khiển chuyển động của chúng đối mặt với một thách thức toán học kinh điển: <strong>Ràng buộc phi Holonomic (Nonholonomic Constraints)</strong> xuất phát từ việc bánh xe lăn hoàn toàn không trượt theo phương ngang.</p>
+          <p>Hệ quả sâu sắc nhất của ràng buộc phi Holonomic được khẳng định qua <strong>Định lý Brockett (Brockett's Theorem, 1983)</strong>: Một hệ phi Holonomic không trôi dạt (driftless) <em>không thể được ổn định tiệm cận tại một điểm đích tư thế $(x, y, \theta)$ bằng bất kỳ luật phản hồi trạng thái tĩnh, liên tục và độc lập với thời gian nào</em>! Do đó, các kỹ sư robot không thể áp dụng các bộ điều khiển tuyến tính thông thường như PID hay LQR trực tiếp cho bài toán đỗ xe vào chuồng (posture regulation), mà phải phát triển các giải thuật điều khiển phi tuyến đặc thù: điều khiển dựa trên tính bằng phẳng vi phân (differential flatness), điều khiển biến thiên theo thời gian (time-varying feedback), hoặc biến đổi tọa độ cực phi tuyến.</p>
+        </div>
+        <p>Phân loại cơ học bánh xe robot di động quyết định trực tiếp khả năng di chuyển:</p>
+        <ul>
+          <li><strong>Bánh xe cố định (Fixed wheel):</strong> Điểm tiếp xúc cố định với thân xe, chỉ cho phép lăn dọc theo hướng bánh và khóa hoàn toàn chuyển động ngang.</li>
+          <li><strong>Bánh xe lái định hướng (Steerable wheel):</strong> Bánh xe có thể quay quanh trục thẳng đứng đi qua tâm tiếp xúc để thay đổi hướng di chuyển.</li>
+          <li><strong>Bánh xe Castor (Castor wheel):</strong> Trục xoay thẳng đứng lệch tâm so với tâm bánh xe một khoảng offset, tự động định hướng theo lực kéo (thường dùng làm bánh tự lựa cân bằng cho robot 2 bánh vi sai).</li>
+          <li><strong>Bánh xe đa hướng (Mecanum / Omni wheels):</strong> Bề mặt chu vi bánh gắn các con lăn thụ động (rollers) nghiêng góc $45^\circ$ hoặc $90^\circ$, giải phóng hoàn toàn ràng buộc phi Holonomic, biến robot thành hệ Holonomic (Omnidirectional Robot) di chuyển tức thời theo mọi hướng.</li>
+        </ul>
+        <p>Khả năng cơ động của robot được định lượng bằng <em>Bậc di chuyển</em> $\delta_m$ (Degree of mobility) và <em>Bậc lái</em> $\delta_s$ (Degree of steerability). Tổng bậc cơ động $\delta = \delta_m + \delta_s$ xác định tính chất điều khiển học của toàn hệ thống.</p>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét robot di động di chuyển trên mặt phẳng 2D. Vector tọa độ cấu hình suy rộng là $\mathbf{q} = [x, y, \theta]^T \in \mathbb{R}^3$, trong đó $(x, y)$ là tọa độ tâm trục bánh xe và $\theta$ là góc hướng la bàn của thân xe so với trục hoành toàn cục $X$.</p>
+        
+        <h3>1. Ràng Buộc Pfaffian & Điều Kiện Khả Tích Frobenius</h3>
+        <p>Ràng buộc bánh xe lăn không trượt theo phương ngang được biểu diễn dưới dạng phương trình Pfaffian thuần nhất trên vận tốc:</p>
+        $$\mathbf{A}^T(\mathbf{q})\dot{\mathbf{q}} = [-\sin\theta \quad \cos\theta \quad 0] \begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{\theta} \end{bmatrix} = -\dot{x}\sin\theta + \dot{y}\cos\theta = 0$$
+        <p>Để kiểm tra ràng buộc này có khả tích (Holonomic) thành hàm vị trí $f(x, y, \theta) = \text{const}$ hay không, ta xây dựng không gian rỗng của $\mathbf{A}^T(\mathbf{q})$, ký hiệu là $\mathbf{S}(\mathbf{q}) = [\mathbf{g}_1(\mathbf{q}) \quad \mathbf{g}_2(\mathbf{q})]$ thỏa mãn $\mathbf{A}^T(\mathbf{q})\mathbf{S}(\mathbf{q}) = \mathbf{0}$:</p>
+        $$\mathbf{S}(\mathbf{q}) = \begin{bmatrix} \cos\theta & 0 \\ \sin\theta & 0 \\ 0 & 1 \end{bmatrix} \implies \dot{\mathbf{q}} = \mathbf{g}_1(\mathbf{q})v + \mathbf{g}_2(\mathbf{q})\omega = \begin{bmatrix} \cos\theta \\ \sin\theta \\ 0 \end{bmatrix} v + \begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \omega$$
+        <p>trong đó $v$ là vận tốc tiến thẳng dọc trục xe và $\omega = \dot{\theta}$ là vận tốc góc quay thân xe. Tính <strong>móc Lie (Lie Bracket)</strong> giữa hai trường vector điều khiển:</p>
+        $$[\mathbf{g}_1, \mathbf{g}_2] = \frac{\partial \mathbf{g}_2}{\partial \mathbf{q}}\mathbf{g}_1 - \frac{\partial \mathbf{g}_1}{\partial \mathbf{q}}\mathbf{g}_2 = \mathbf{0} - \begin{bmatrix} -\sin\theta & 0 & 0 \\ \cos\theta & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}\begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} = \begin{bmatrix} \sin\theta \\ -\cos\theta \\ 0 \end{bmatrix}$$
+        <p>Vector $[\mathbf{g}_1, \mathbf{g}_2]$ vuông góc với mặt phẳng sinh bởi $\mathbf{g}_1$ và $\mathbf{g}_2$ (chỉ phương ngang của thân xe). Vì hạng ma trận đại số Lie $[\mathbf{g}_1, \mathbf{g}_2, [\mathbf{g}_1, \mathbf{g}_2]]$ đạt giá trị cực đại bằng 3 (Lie Algebra Rank Condition - LARC), theo <strong>Định lý Chow-Rashevsky</strong>, hệ thống hoàn toàn điều khiển được: robot có thể di chuyển đến bất kỳ vị trí và góc hướng $(x, y, \theta)$ nào trong không gian 2D dù chỉ có 2 đầu vào điều khiển $(v, \omega)$!</p>
+
+        <h3>2. Biến Đổi Dạng Chuỗi (Chained Form)</h3>
+        <p>Bằng phép đổi tọa độ cục bộ và đổi đầu vào điều khiển (khi $\theta \ne \pm \frac{\pi}{2}$):</p>
+        $$z_1 = x, \quad z_2 = \tan\theta, \quad z_3 = y$$
+        $$u_1 = v\cos\theta, \quad u_2 = \frac{\omega}{\cos^2\theta}$$
+        <p>Hệ thống động học unicycle được chuyển hóa chính xác về <strong>Dạng chuỗi (Chained Form)</strong> bậc 3:</p>
+        $$\dot{z}_1 = u_1, \quad \dot{z}_2 = u_2, \quad \dot{z}_3 = z_2 u_1$$
+        <p>Dạng chuỗi là nền tảng giải tích để thiết kế các quỹ đạo điều khiển dạng đa thức hoặc hàm lượng giác (Sinusoidal steering inputs) cho bài toán đỗ xe song song tự động.</p>
+
+        <h3>3. Tính Bằng Phẳng Vi Phân (Differential Flatness)</h3>
+        <p>Hệ robot di động unicycle là một hệ bằng phẳng vi phân với vector biến ra phẳng (Flat Outputs) chính là tọa độ vị trí tâm trục bánh $\mathbf{y} = [x, y]^T$. Toàn bộ trạng thái cấu hình và tín hiệu điều khiển có thể được tái cấu trúc hoàn toàn từ $\mathbf{y}(t)$ và các đạo hàm thời gian của nó:</p>
+        $$\theta(t) = \text{atan2}(\dot{y}(t), \dot{x}(t))$$
+        $$v(t) = \pm \sqrt{\dot{x}^2(t) + \dot{y}^2(t)}$$
+        $$\omega(t) = \dot{\theta}(t) = \frac{\ddot{y}(t)\dot{x}(t) - \ddot{x}(t)\dot{y}(t)}{\dot{x}^2(t) + \dot{y}^2(t)}$$
+        <p>Đặc tính bằng phẳng vi phân cho phép hoạch định quỹ đạo tránh vật cản cực kỳ thuận tiện: chỉ cần thiết kế đường cong trơn $\mathbf{y}(t) \in \mathcal{C}^2$ trong không gian Cartesian 2D (như đường cong B-spline hoặc Clothoid), các biến trạng thái và vận tốc góc của robot sẽ tự động được xác định mà không cần tích phân số hệ phương trình vi phân phi tuyến.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <h3>Kiến Trúc Điều Khiển Robot Di Động Trong ROS 2 & Sản Xuất Thực Tế</h3>
+        <p>Trong các hệ điều hành robot hiện đại như ROS 2 Navigation Stack (Nav2), kiến trúc điều khiển robot bánh xe được phân tầng rõ rệt:</p>
+        <ul>
+          <li><strong>Global Planner (NavFn / Smac Planner):</strong> Lập kế hoạch quỹ đạo hình học $\mathbf{y}_d(t)$ không va chạm trên Costmap toàn cục dựa trên thuật toán Hybrid $A^*$ hoặc Dijkstra.</li>
+          <li><strong>Local Controller / Trajectory Tracker:</strong> Hoạt động ở tần số cao (20–100 Hz), nhận quỹ đạo tham chiếu và dữ liệu Odometry thực tế để tính toán lệnh vận tốc $(v, \omega)$ gửi qua topic <code>/cmd_vel</code> (chuẩn <code>geometry_msgs/msg/Twist</code>).</li>
+          <li><strong>Diff-Drive Hardware Driver:</strong> Chuyển đổi $(v, \omega)$ thành tốc độ quay góc độc lập của 2 bánh xe $\omega_R$ (bánh phải) và $\omega_L$ (bánh trái) theo công thức động học vi sai ngược:</li>
+        </ul>
+        $$\omega_R = \frac{v + \frac{L}{2}\omega}{R}, \quad \omega_L = \frac{v - \frac{L}{2}\omega}{R}$$
+        <p>với $R$ là bán kính bánh xe và $L$ là khoảng cách giữa 2 tâm bánh xe (wheelbase / track width).</p>
+
+        <h4>Kỹ Thuật Tuyến Tính Hóa Phản Hồi Điểm Nhìn Trước (Look-Ahead Feedback Linearization)</h4>
+        <p>Để khắc phục định lý Brockett trong bài toán bám quỹ đạo, giải pháp phổ biến nhất trong công nghiệp là chọn một điểm kiểm soát $P$ lệch tâm nằm trên trục đối xứng của xe, cách tâm trục bánh sau một khoảng nhìn trước $b \gt 0$:</p>
+        $$x_P = x + b\cos\theta, \quad y_P = y + b\sin\theta$$
+        <p>Lấy đạo hàm theo thời gian tọa độ điểm $P$:</p>
+        $$\begin{bmatrix} \dot{x}_P \\ \dot{y}_P \end{bmatrix} = \begin{bmatrix} \cos\theta & -b\sin\theta \\ \sin\theta & b\cos\theta \end{bmatrix} \begin{bmatrix} v \\ \omega \end{bmatrix} = \mathbf{J}_P(\theta) \begin{bmatrix} v \\ \omega \end{bmatrix}$$
+        <p>Định thức của ma trận Jacobi $\det(\mathbf{J}_P(\theta)) = b(\cos^2\theta + \sin^2\theta) = b \ne 0$. Do đó, với mọi $b \gt 0$, ma trận $\mathbf{J}_P$ luôn khả nghịch! Ta có thể đặt một bộ điều khiển tuyến tính ảo $\mathbf{v}_P = [\dot{x}_P, \dot{y}_P]^T = \dot{\mathbf{p}}_d + \mathbf{K}_p(\mathbf{p}_d - \mathbf{p}_P)$ và giải ngược tìm đầu vào điều khiển robot:</p>
+        $$\begin{bmatrix} v \\ \omega \end{bmatrix} = \mathbf{J}_P^{-1}(\theta) \mathbf{v}_P = \begin{bmatrix} \cos\theta & \sin\theta \\ -\frac{1}{b}\sin\theta & \frac{1}{b}\cos\theta \end{bmatrix} \begin{bmatrix} v_{Px} \\ v_{Py} \end{bmatrix}$$
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Tuyến Tính Hóa Điểm Nhìn Trước Cho Robot AMR Vi Sai Bám Quỹ Đạo Tròn</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một robot tự hành AMR vi sai công nghiệp có khoảng cách giữa 2 bánh xe $L = 0.50\text{ m}$, bán kính bánh xe $R = 0.10\text{ m}$. Điểm kiểm soát nhìn trước được chọn cách tâm trục bánh một khoảng $b = 0.15\text{ m}$ dọc theo trục dọc thân xe. Robot được giao nhiệm vụ bám theo một quỹ đạo tròn chuẩn tâm tại gốc tọa độ $O(0, 0)$, bán kính $r_d = 2.00\text{ m}$ với tốc độ góc không đổi $\omega_d = 0.20\text{ rad/s}$ (tương ứng vận tốc tiếp tuyến quỹ đạo $v_d = \omega_d r_d = 0.40\text{ m/s}$).<br><br>Tại thời điểm khảo sát $t = 0\text{ s}$, điểm mong muốn trên quỹ đạo là $\mathbf{p}_d = [2.00, 0.00]^T\text{ m}$ với vector vận tốc mong muốn $\dot{\mathbf{p}}_d = [0.00, 0.40]^T\text{ m/s}$. Robot thực tế đang ở vị trí tâm trục bánh $(x, y) = (1.90\text{ m}, 0.00\text{ m})$ với góc hướng lệch $\theta = 1.6708\text{ rad}$ (tương đương $\frac{\pi}{2} + 0.10\text{ rad}$). Bộ điều khiển tỷ lệ sai số vị trí chọn $\mathbf{K}_p = \text{diag}(3.0, 3.0)\text{ s}^{-1}$.<br><br>Hãy thực hiện: (1) Xác định tọa độ thực tế của điểm nhìn trước $P$ và vector sai số vị trí $\mathbf{e}_P = \mathbf{p}_d - \mathbf{p}_P$; (2) Tính toán vector vận tốc điều khiển ảo $\mathbf{v}_P$; (3) Tính toán vận tốc tiến $v$ và vận tốc góc quay $\omega$ điều khiển thân xe; (4) Tính tốc độ quay yêu cầu của bánh phải $\omega_R$ và bánh trái $\omega_L$ (vòng/phút và rad/s), đồng thời biện luận ý nghĩa vật lý.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định vị trí thực tế của điểm nhìn trước $P$ và vector sai số bám:<br>Tọa độ của điểm nhìn trước $P$ trên thân xe được tính theo công thức hình học:<br>$$x_P = x + b\cos\theta = 1.90 + 0.15 \cdot \cos(1.6708)\text{ m}$$<br>Vì $\cos(1.6708) = \cos(\frac{\pi}{2} + 0.10) = -\sin(0.10) \approx -0.09983$, ta có:<br>$$x_P = 1.90 + 0.15 \cdot (-0.09983) = 1.90 - 0.01497 = 1.8850\text{ m}$$<br>$$y_P = y + b\sin\theta = 0.00 + 0.15 \cdot \sin(1.6708)\text{ m}$$<br>Vì $\sin(1.6708) = \cos(0.10) \approx 0.99500$, ta có:<br>$$y_P = 0.15 \cdot 0.99500 = 0.14925\text{ m} \approx 0.1493\text{ m}$$<br>Vector sai số vị trí của điểm nhìn trước $\mathbf{e}_P = \mathbf{p}_d - \mathbf{p}_P$ là:<br>$$\mathbf{e}_P = \begin{bmatrix} 2.00 - 1.8850 \\ 0.00 - 0.1493 \end{bmatrix} = \begin{bmatrix} 0.1150 \\ -0.1493 \end{bmatrix}\text{ m}$$<br>Độ lớn sai số khoảng cách Euclidean: $\|\mathbf{e}_P\| = \sqrt{0.1150^2 + (-0.1493)^2} = \sqrt{0.013225 + 0.02229} \approx 0.1885\text{ m}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập vector vận tốc điều khiển ảo $\mathbf{v}_P$ trong không gian Cartesian:<br>Áp dụng luật điều khiển tỷ lệ tuyến tính hóa phản hồi:<br>$$\mathbf{v}_P = \dot{\mathbf{p}}_d + \mathbf{K}_p \mathbf{e}_P = \begin{bmatrix} 0.00 \\ 0.40 \end{bmatrix} + \begin{bmatrix} 3.0 & 0 \\ 0 & 3.0 \end{bmatrix} \begin{bmatrix} 0.1150 \\ -0.1493 \end{bmatrix}$$<br>Tính toán cụ thể từng thành phần vận tốc ảo theo trục tọa độ toàn cục:<br>$$v_{Px} = 0.00 + 3.0 \cdot 0.1150 = +0.3450\text{ m/s}$$<br>$$v_{Py} = 0.40 + 3.0 \cdot (-0.1493) = 0.40 - 0.4479 = -0.0479\text{ m/s}$$<br>Do đó: $\mathbf{v}_P = [0.3450, -0.0479]^T\text{ m/s}$. Vector này vừa kéo điểm $P$ về phía quỹ đạo (hướng sang phải trục $+X$), vừa điều chỉnh vận tốc dọc trục $Y$ để triệt tiêu độ lệch dương của $y_P$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Nghịch đảo ma trận Jacobi điểm nhìn trước để tìm đầu vào điều khiển $(v, \omega)$:<br>Ma trận nghịch đảo $\mathbf{J}_P^{-1}(\theta)$ với $b = 0.15\text{ m}$ và $\theta = 1.6708\text{ rad}$:<br>$$\mathbf{J}_P^{-1}(\theta) = \begin{bmatrix} \cos\theta & \sin\theta \\ -\frac{1}{b}\sin\theta & \frac{1}{b}\cos\theta \end{bmatrix} = \begin{bmatrix} -0.09983 & 0.99500 \\ -\frac{0.99500}{0.15} & \frac{-0.09983}{0.15} \end{bmatrix} = \begin{bmatrix} -0.09983 & 0.99500 \\ -6.6333 & -0.6655 \end{bmatrix}$$<br>Nhân ma trận với vector vận tốc ảo $\mathbf{v}_P$:<br>$$v = \cos\theta \cdot v_{Px} + \sin\theta \cdot v_{Py} = (-0.09983) \cdot 0.3450 + (0.99500) \cdot (-0.0479)$$<br>$$v = -0.03444 - 0.04766 = -0.0821\text{ m/s}$$<br>$$ \omega = -\frac{\sin\theta}{b} \cdot v_{Px} + \frac{\cos\theta}{b} \cdot v_{Py} = (-6.6333) \cdot 0.3450 + (-0.6655) \cdot (-0.0479)$$<br>$$\omega = -2.2885 + 0.0319 = -2.2566\text{ rad/s}$$<br>Như vậy, bộ điều khiển yêu cầu robot lùi nhẹ ($v = -0.0821\text{ m/s}$) đồng thời quay phải mạnh mẽ theo chiều kim đồng hồ ($\omega = -2.2566\text{ rad/s}$) để bẻ góc đầu xe hướng về phía điểm mong muốn.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán tốc độ quay 2 bánh xe và biện luận cơ học:<br>Với bán kính bánh $R = 0.10\text{ m}$ và khoảng cách trục $L = 0.50\text{ m}$:<br>$$\omega_R = \frac{v + \frac{L}{2}\omega}{R} = \frac{-0.0821 + 0.25 \cdot (-2.2566)}{0.10} = \frac{-0.0821 - 0.56415}{0.10} = \frac{-0.64625}{0.10} = -6.4625\text{ rad/s}$$<br>$$\omega_L = \frac{v - \frac{L}{2}\omega}{R} = \frac{-0.0821 - 0.25 \cdot (-2.2566)}{0.10} = \frac{-0.0821 + 0.56415}{0.10} = \frac{+0.48205}{0.10} = +4.8205\text{ rad/s}$$<br>Đổi sang đơn vị vòng/phút (RPM, $n = \frac{60}{2\pi}\omega \approx 9.5493 \cdot \omega$):<br>• Bánh phải: $n_R = -6.4625 \cdot 9.5493 \approx -61.71\text{ RPM}$ (quay lùi)<br>• Bánh trái: $n_L = +4.8205 \cdot 9.5493 \approx +46.03\text{ RPM}$ (quay tiến)<br><br><strong>Biện luận vật lý:</strong> Hai bánh quay ngược chiều nhau tạo ra mô-men ngẫu lực làm xe quay nhanh tại chỗ theo chiều kim đồng hồ ($\omega \lt 0$), giúp đưa góc hướng lệch ban đầu $\theta \approx 95.7^\circ$ về đúng hướng tiếp tuyến vòng tròn mong muốn.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Bám Quỹ Đạo Bằng Phẳng Vi Phân & Điểm Nhìn Trước Robot Vi Sai</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-07" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim07()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim07()">Thiết lập lại</button>
+        <label class="sim-label">Khoảng cách nhìn trước $b$: <input type="range" id="sim07-b" min="0.05" max="0.5" step="0.05" value="0.15" onchange="updateSim07Params()"></label>
+        <label class="sim-label">Quỹ đạo: 
+          <select id="sim07-traj" onchange="updateSim07Traj()">
+            <option value="circle">Đường tròn (Circle)</option>
+            <option value="eight">Đường hình số 8 (Lissajous)</option>
+            <option value="step">Chuyển làn gấp (Lane Change)</option>
+          </select>
+        </label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim07-stats" class="sim-telemetry-text">Vị trí $(x, y)$: (1.90, 0.00) m | Hướng $\theta$: 1.67 rad | $v$: -0.08 m/s | $\omega$: -2.26 rad/s | Sai số bám $e_P$: 0.188 m</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// C++20 / Eigen Implementation: Look-Ahead Feedback Linearization for Differential Drive AMR
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;Eigen/Dense&gt;
+
+class DiffDriveLookAheadController {
+public:
+    DiffDriveLookAheadController(double wheelbase, double wheel_radius, double look_ahead_b, double kp_x, double kp_y)
+        : L_(wheelbase), R_(wheel_radius), b_(look_ahead_b) {
+        Kp_ &lt;&lt; kp_x, 0.0,
+               0.0, kp_y;
+    }
+
+    struct RobotState {
+        double x;
+        double y;
+        double theta;
+    };
+
+    struct WheelSpeeds {
+        double omega_right; // rad/s
+        double omega_left;  // rad/s
+        double v;           // m/s
+        double omega;       // rad/s
+    };
+
+    WheelSpeeds computeControl(const RobotState&amp; state, 
+                               const Eigen::Vector2d&amp; p_desired, 
+                               const Eigen::Vector2d&amp; p_dot_desired) {
+        // 1. Tọa độ điểm nhìn trước P
+        double c_th = std::cos(state.theta);
+        double s_th = std::sin(state.theta);
+        Eigen::Vector2d p_actual(state.x + b_ * c_th, state.y + b_ * s_th);
+
+        // 2. Vector sai số vị trí
+        Eigen::Vector2d error = p_desired - p_actual;
+
+        // 3. Vận tốc điều khiển ảo trong hệ tọa độ toàn cục
+        Eigen::Vector2d v_p = p_dot_desired + Kp_ * error;
+
+        // 4. Nghịch đảo ma trận Jacobi điểm nhìn trước: J_P^-1
+        // J_P = [c_th, -b*s_th; s_th, b*c_th] =&gt; det = b
+        // J_P^-1 = [c_th, s_th; -s_th/b, c_th/b]
+        Eigen::Matrix2d J_P_inv;
+        J_P_inv &lt;&lt; c_th, s_th,
+                  -s_th / b_, c_th / b_;
+
+        Eigen::Vector2d cmd = J_P_inv * v_p;
+        double v = cmd(0);
+        double omega = cmd(1);
+
+        // 5. Tính vận tốc góc 2 bánh xe
+        WheelSpeeds ws;
+        ws.v = v;
+        ws.omega = omega;
+        ws.omega_right = (v + 0.5 * L_ * omega) / R_;
+        ws.omega_left  = (v - 0.5 * L_ * omega) / R_;
+
+        return ws;
+    }
+
+private:
+    double L_; // Wheelbase
+    double R_; // Wheel radius
+    double b_; // Look-ahead offset distance
+    Eigen::Matrix2d Kp_;
+};
+
+int main() {
+    DiffDriveLookAheadController controller(0.50, 0.10, 0.15, 3.0, 3.0);
+    DiffDriveLookAheadController::RobotState state{1.90, 0.00, 1.6708};
+    Eigen::Vector2d p_d(2.00, 0.00);
+    Eigen::Vector2d p_dot_d(0.00, 0.40);
+
+    auto speeds = controller.computeControl(state, p_d, p_dot_d);
+    std::cout &lt;&lt; &quot;Control Command: v = &quot; &lt;&lt; speeds.v &lt;&lt; &quot; m/s, omega = &quot; &lt;&lt; speeds.omega &lt;&lt; &quot; rad/s\n&quot;;
+    std::cout &lt;&lt; &quot;Wheel Speeds: Right = &quot; &lt;&lt; speeds.omega_right &lt;&lt; &quot; rad/s, Left = &quot; &lt;&lt; speeds.omega_left &lt;&lt; &quot; rad/s\n&quot;;
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Ràng buộc bánh xe lăn không trượt là ràng buộc phi Holonomic trên vận tốc (Pfaffian form), không thể tích phân thành phương trình tọa độ hình học.</li><li>Định lý Brockett chỉ ra rằng robot di động phi Holonomic không thể ổn định điểm tư thế (x, y, θ) bằng phản hồi trạng thái trơn độc lập thời gian.</li><li>Hệ Unicycle thỏa mãn điều kiện đại số Lie LARC và có tính chất bằng phẳng vi phân (Differential Flatness) với điểm ra phẳng là tọa độ (x, y).</li><li>Kỹ thuật tuyến tính hóa điểm nhìn trước (Look-Ahead Feedback Linearization) với b > 0 biến đổi hệ thành tuyến tính khả nghịch, đảm bảo bám quỹ đạo bền vững.</li><li>Vận tốc góc hai bánh xe được điều khiển độc lập thông qua công thức động học vi sai ngược trong ROS 2 Nav2 controller.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 7.1: Điều khiển dừng tại điểm (Posture Regulation) bằng phép biến đổi tọa độ cực</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một xe tự hành vi sai cần dừng chính xác tại gốc tọa độ với hướng $\theta = 0$ (tư thế đích $\mathbf{q}_d = [0, 0, 0]^T$). Đặt biến đổi tọa độ cực: $\rho = \sqrt{x^2 + y^2}$, $\alpha = \text{atan2}(y, x) - \theta + \pi$, $\beta = -\theta - \alpha$. Cho vị trí ban đầu của xe tại $(x, y) = (-1.0\text{ m}, -1.0\text{ m})$, $\theta = 0\text{ rad}$. Chọn bộ khuếch đại Lyapunov: $k_\rho = 1.0, k_\alpha = 3.0, k_\beta = -0.5$. Hãy xác định các giá trị ban đầu $(\rho_0, \alpha_0, \beta_0)$ và tính giá trị vận tốc điều khiển ban đầu $(v(0), \omega(0))$ theo luật điều khiển Samson-Aicardi: $v = k_\rho \rho \cos\alpha$, $\omega = k_\alpha \alpha + k_\beta \beta$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Khoảng cách ban đầu $\rho_0 = \sqrt{(-1)^2 + (-1)^2} = \sqrt{2} \approx 1.4142\text{ m}$. Góc phương vị $\text{atan2}(-1, -1) = -\frac{3\pi}{4}\text{ rad}$. Khi đó: $\alpha_0 = -\frac{3\pi}{4} - 0 + \pi = \frac{\pi}{4}\text{ rad} \approx 0.7854\text{ rad}$. Góc $\beta_0 = -0 - \alpha_0 = -\frac{\pi}{4}\text{ rad} \approx -0.7854\text{ rad}$.<br>Vận tốc tiến ban đầu: $v(0) = k_\rho \rho_0 \cos\alpha_0 = 1.0 \cdot \sqrt{2} \cdot \cos(\pi/4) = \sqrt{2} \cdot \frac{\sqrt{2}}{2} = 1.00\text{ m/s}$.<br>Vận tốc góc ban đầu: $\omega(0) = k_\alpha \alpha_0 + k_\beta \beta_0 = 3.0 \cdot (0.7854) + (-0.5) \cdot (-0.7854) = 2.3562 + 0.3927 = 2.7489\text{ rad/s}$. Xe sẽ vừa tiến vừa ôm cua về phía điểm gốc $O$ một cách trơn tru.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch06.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 06: Điều Khiển Chuyển Động Robot</span>
+        </a>
+        <a href="ch08.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing) →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim07 === "function") {
+        initSim07();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

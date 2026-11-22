@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tổng Quan Lộ Trình Tri Thức - Elements of Robotics</title>
+  <meta name="description" content="Chương trình chưng cất tri thức chuẩn học thuật Springer Open 'Elements of Robotics' (GS. M. Ben-Ari & F. Mondada).">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261122">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div style="background: var(--bg-surface); border-bottom: 1px solid var(--border-color); padding: 0.6rem 1.5rem; display: flex; align-items: center; justify-content: space-between;"><a href="../index.html" style="font-size: 0.88rem; font-weight: 700; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;"><span>🏛️</span><span>Viện Tri Thức Robotics & Hệ Thống Điều Khiển</span></a><span style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">PORTAL CHUYÊN KHẢO</span></div>
+
+  <div id="reading-progress"></div>
+  <header class="site-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-icon">🤖</span>
+        <div class="brand-text">
+          <span class="brand-title">ELEMENTS OF ROBOTICS</span>
+          <span class="brand-subtitle">EXPLORABLE KNOWLEDGE PLATFORM</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="book-badge">
+        <span class="badge-icon">📖</span> Springer Open Textbook • Ben-Ari & Mondada
+      </div>
+      <button id="theme-btn" class="theme-toggle-btn" aria-label="Toggle Theme">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout single-col">
+    <main class="main-content" style="max-width: 1240px; margin: 0 auto; width: 100%; padding: 1.5rem 1rem 4rem;">
+      
+      <!-- ====================================================================
+           CURRICULUM ROADMAP MATRIX & LIVE SEARCH/FILTER
+           ==================================================================== -->
+      <section class="curriculum-roadmap" id="curriculum-roadmap">
+        <div class="roadmap-header">
+          <div class="card-track-badge" style="margin-bottom: 0.5rem; display: inline-block;">LỘ TRÌNH TRI THỨC TOÀN DIỆN</div>
+          <h2>TỔNG QUAN CHƯƠNG TRÌNH ĐÀO TẠO ROBOT HỌC</h2>
+          <p>Khảo sát hệ thống 16 chương giáo trình chuẩn <em>Elements of Robotics</em> qua 7 Master Tracks từ phần cứng cảm biến, điều khiển động học đến trí tuệ bầy đàn và thao tác 3D. Nhấp vào bất kỳ chương nào để truy cập nội dung diễn giải chi tiết, công thức toán và mô phỏng tương tác.</p>
+          
+          <div class="roadmap-stats">
+            <span class="stat-badge"><span class="stat-num">16</span> Chương toàn diện</span>
+            <span class="stat-badge"><span class="stat-num">7</span> Master Tracks</span>
+            <span class="stat-badge"><span class="stat-num">8</span> Mô phỏng trực tiếp</span>
+            <span class="stat-badge"><span class="stat-num">8</span> Sơ đồ Vector SVG</span>
+            <span class="stat-badge"><span class="stat-num">16</span> Ví dụ tính số 4 bước</span>
+            <span class="stat-badge"><span class="stat-num">100%</span> Client-Side GitHub Pages</span>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="search-filter-wrapper">
+          <div class="search-input-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="matrix-search-input" placeholder="Tìm kiếm khái niệm, công thức hoặc chương (vd: PID, Bayes, SLAM, ToF, Odometry, Braitenberg, A*, Inverse Kinematics)...">
+          </div>
+          
+          <div class="filter-pills">
+            <button class="filter-pill active" data-filter="all">Tất cả (16 Chương)</button>
+            <button class="filter-pill" data-filter="track-1">Track 1: Foundations & Cảm biến (Ch. 1-2)</button>
+            <button class="filter-pill" data-filter="track-2">Track 2: Hành vi & FSM (Ch. 3-4)</button>
+            <button class="filter-pill" data-filter="track-3">Track 3: Động học & PID (Ch. 5-6)</button>
+            <button class="filter-pill" data-filter="track-4">Track 4: Dẫn đường & Bayes (Ch. 7-8)</button>
+            <button class="filter-pill" data-filter="track-5">Track 5: Bản đồ & Quy hoạch A* (Ch. 9-10)</button>
+            <button class="filter-pill" data-filter="track-6">Track 6: Trí tuệ & Học máy (Ch. 11-14)</button>
+            <button class="filter-pill" data-filter="track-7">Track 7: Swarm & Cánh tay 3D (Ch. 15-16)</button>
+          </div>
+        </div>
+
+        <!-- Matrix Grid Cards -->
+        <div class="curriculum-matrix-grid" id="matrix-grid">
+          
+          <!-- Card Ch 01 -->
+          <a href="chapters/ch01.html" class="matrix-card" data-track="track-1">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 1: Foundations</span>
+              <span class="card-ch-num">CHƯƠNG 01</span>
+            </div>
+            <h3 class="matrix-card-title">Robot là gì? - Khái niệm & Giải phẫu</h3>
+            <p class="matrix-card-sub">Định nghĩa chuẩn Sense-Think-Act, lịch sử cơ cấu tự động, phân loại robot di động vs cánh tay thao tác và giải phẫu khung gầm, nguồn điện, vi điều khiển.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Sense-Think-Act</span>
+              <span class="topic-tag">Anatomy</span>
+              <span class="topic-tag">Actuators</span>
+              <span class="topic-tag">Power Management</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 02 -->
+          <a href="chapters/ch02.html" class="matrix-card" data-track="track-1">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 1: Foundations</span>
+              <span class="card-ch-num">CHƯƠNG 02</span>
+            </div>
+            <h3 class="matrix-card-title">Hệ thống Cảm biến Thu nhận Môi trường</h3>
+            <p class="matrix-card-sub">Nguyên lý vật lý của đo lường, quang sai hồng ngoại PSD tam giác đạc, sóng siêu âm ToF theo nhiệt độ, 2D LiDAR và mô hình nhiễu cảm biến Gaussian.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Triangulation PSD</span>
+              <span class="topic-tag">ToF Ultrasound</span>
+              <span class="topic-tag">Optical Encoders</span>
+              <span class="topic-tag">Gaussian Noise</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng ToF</span>
+                <span class="feature-icon-badge badge-fig">📐 Vector PSD</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 03 -->
+          <a href="chapters/ch03.html" class="matrix-card" data-track="track-2">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 2: Behaviors</span>
+              <span class="card-ch-num">CHƯƠNG 03</span>
+            </div>
+            <h3 class="matrix-card-title">Hành vi Phản xạ & Xe Braitenberg</h3>
+            <p class="matrix-card-sub">Vòng lặp Perception-Action, 4 loại xe Braitenberg (Sợ hãi, Hung hăng, Yêu thương, Thám hiểm), thuật toán bám vạch quang và kiến trúc phân tầng Subsumption.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Braitenberg 2a/2b/3a/3b</span>
+              <span class="topic-tag">Line Following</span>
+              <span class="topic-tag">Subsumption</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng Braitenberg</span>
+                <span class="feature-icon-badge badge-fig">📐 Sơ đồ Xe</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 04 -->
+          <a href="chapters/ch04.html" class="matrix-card" data-track="track-2">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 2: Behaviors</span>
+              <span class="card-ch-num">CHƯƠNG 04</span>
+            </div>
+            <h3 class="matrix-card-title">Máy trạng thái hữu hạn & Vùng trễ</h3>
+            <p class="matrix-card-sub">Mô hình toán học FSM, thuật toán men tường, hiện tượng rung giật chuyển mạch (chattering) và kỹ thuật dải trễ (hysteresis deadband) triệt tiêu dao động.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">FSM Formalism</span>
+              <span class="topic-tag">Wall-Following</span>
+              <span class="topic-tag">Chattering</span>
+              <span class="topic-tag">Hysteresis Deadband</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng Trễ FSM</span>
+                <span class="feature-icon-badge badge-fig">📐 Vector FSM</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 05 -->
+          <a href="chapters/ch05.html" class="matrix-card" data-track="track-3">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 3: Kinematics</span>
+              <span class="card-ch-num">CHƯƠNG 05</span>
+            </div>
+            <h3 class="matrix-card-title">Động học Robot Vi sai & Định vị Odometry</h3>
+            <p class="matrix-card-sub">Hình học vi sai, tâm quay tức thời ICC, động học thuận/nghịch, tích lũy dead reckoning, sai số hệ thống vs ngẫu nhiên và elip lan truyền bất định.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Differential Drive</span>
+              <span class="topic-tag">ICC Geometry</span>
+              <span class="topic-tag">Odometry Drift</span>
+              <span class="topic-tag">Covariance Ellipse</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng Động học</span>
+                <span class="feature-icon-badge badge-fig">📐 2 Sơ đồ Vector</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 06 -->
+          <a href="chapters/ch06.html" class="matrix-card" data-track="track-3">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 3: Kinematics</span>
+              <span class="card-ch-num">CHƯƠNG 06</span>
+            </div>
+            <h3 class="matrix-card-title">Điều khiển Vòng kín & Bộ điều khiển PID</h3>
+            <p class="matrix-card-sub">So sánh vòng hở vs vòng kín, vai trò từng khâu P-I-D, hiện tượng bão hòa tích phân (integral windup), giải thuật kẹp anti-windup và chỉnh định Ziegler-Nichols.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">PID Controller</span>
+              <span class="topic-tag">Steady-State Error</span>
+              <span class="topic-tag">Anti-Windup Clamping</span>
+              <span class="topic-tag">Ziegler-Nichols</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng PID</span>
+                <span class="feature-icon-badge badge-fig">📐 Đồ thị Đáp ứng</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 07 -->
+          <a href="chapters/ch07.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 4: Localization</span>
+              <span class="card-ch-num">CHƯƠNG 07</span>
+            </div>
+            <h3 class="matrix-card-title">Định vị Trực tiếp & Phương pháp Hình học</h3>
+            <p class="matrix-card-sub">Bản chất bài toán định vị không gian, giải mã giới hạn tích lũy odometry, định vị khoảng cách Trilateration đa trạm và góc phương vị Triangulation.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Trilateration</span>
+              <span class="topic-tag">Triangulation</span>
+              <span class="topic-tag">Landmark Association</span>
+              <span class="topic-tag">Geometric Intersection</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 08 -->
+          <a href="chapters/ch08.html" class="matrix-card" data-track="track-4">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 4: Localization</span>
+              <span class="card-ch-num">CHƯƠNG 08</span>
+            </div>
+            <h3 class="matrix-card-title">Định vị Xác suất & Bộ lọc Bayes</h3>
+            <p class="matrix-card-sub">Lý thuyết xác suất trong robot học, biểu diễn niềm tin belief, bước dự đoán (chuyển động tản mác entropy) và bước hiệu chỉnh cảm biến (thu hẹp phương sai).</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Belief PMF</span>
+              <span class="topic-tag">Bayes' Rule</span>
+              <span class="topic-tag">Prediction Step</span>
+              <span class="topic-tag">Correction Step</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng Bayes 1D</span>
+                <span class="feature-icon-badge badge-fig">📐 Vector Bayes</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 09 -->
+          <a href="chapters/ch09.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 5: Mapping</span>
+              <span class="card-ch-num">CHƯƠNG 09</span>
+            </div>
+            <h3 class="matrix-card-title">Lập bản đồ Môi trường & Lưới Chiếm chỗ</h3>
+            <p class="matrix-card-sub">Mô hình bản đồ metric vs topo, bản đồ lưới chiếm chỗ Occupancy Grid, biến đổi Log-Odds chống tràn số, nghịch lý SLAM và kỹ thuật đóng vòng loop closure.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Occupancy Grid</span>
+              <span class="topic-tag">Log-Odds Update</span>
+              <span class="topic-tag">SLAM Paradox</span>
+              <span class="topic-tag">Loop Closure</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 10 -->
+          <a href="chapters/ch10.html" class="matrix-card" data-track="track-5">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 5: Mapping</span>
+              <span class="card-ch-num">CHƯƠNG 10</span>
+            </div>
+            <h3 class="matrix-card-title">Không gian C-Space & Thuật toán Tìm đường A*</h3>
+            <p class="matrix-card-sub">Không gian cấu hình C-Space, phép cộng Minkowski, thuật toán Dijkstra, hàm heuristic A* chấp nhận được/nhất quán và tìm kiếm trọng số Weighted A*.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">C-Space Minkowski</span>
+              <span class="topic-tag">Dijkstra</span>
+              <span class="topic-tag">A* Search</span>
+              <span class="topic-tag">Consistent Heuristic</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng A* Grid</span>
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 11 -->
+          <a href="chapters/ch11.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 6: AI & Learning</span>
+              <span class="card-ch-num">CHƯƠNG 11</span>
+            </div>
+            <h3 class="matrix-card-title">Môi trường Phức tạp & Điều khiển Logic Mờ</h3>
+            <p class="matrix-card-sub">Xử lý tính mơ hồ trong thế giới thực, biến ngôn ngữ, hàm thuộc tam giác/hình thang, hệ luật mờ Mamdani và phương pháp giải mờ tính trọng tâm Centroid.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Fuzzy Sets</span>
+              <span class="topic-tag">Membership Functions</span>
+              <span class="topic-tag">Mamdani Inference</span>
+              <span class="topic-tag">Centroid Defuzzification</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 12 -->
+          <a href="chapters/ch12.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 6: AI & Learning</span>
+              <span class="card-ch-num">CHƯƠNG 12</span>
+            </div>
+            <h3 class="matrix-card-title">Xử lý Ảnh Số & Thị giác Máy tính cho Robot</h3>
+            <p class="matrix-card-sub">Biểu diễn pixel và ma trận ảnh, nhân chập làm mịn Gauss, phát hiện biên cạnh Sobel Gradient, tiêu chuẩn góc Harris Corner và bám đuổi Color Blob.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Convolution Kernels</span>
+              <span class="topic-tag">Sobel Gradients</span>
+              <span class="topic-tag">Harris Corners</span>
+              <span class="topic-tag">HSV Color Tracking</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 13 -->
+          <a href="chapters/ch13.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 6: AI & Learning</span>
+              <span class="card-ch-num">CHƯƠNG 13</span>
+            </div>
+            <h3 class="matrix-card-title">Mạng Nơ-ron & Học máy Lấy cảm hứng Sinh học</h3>
+            <p class="matrix-card-sub">Nơ-ron sinh học, quy tắc học Hebbian, mô hình Perceptron của Rosenblatt, ranh giới phân tách tuyến tính và chứng minh hội tụ thuật toán Perceptron.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Hebbian Learning</span>
+              <span class="topic-tag">Rosenblatt Perceptron</span>
+              <span class="topic-tag">Linear Separability</span>
+              <span class="topic-tag">Convergence Proof</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 14 -->
+          <a href="chapters/ch14.html" class="matrix-card" data-track="track-6">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 6: AI & Learning</span>
+              <span class="card-ch-num">CHƯƠNG 14</span>
+            </div>
+            <h3 class="matrix-card-title">Bộ phân loại Fisher LDA & Trực giác Q-Learning</h3>
+            <p class="matrix-card-sub">Nhận dạng mẫu trong luồng cảm biến, phân tích phân biệt tuyến tính Fisher LDA tối đa hóa phân tách lớp, học tăng cường Reinforcement Learning và bảng Q-Table.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Fisher's LDA</span>
+              <span class="topic-tag">Scatter Matrices</span>
+              <span class="topic-tag">Reinforcement Learning</span>
+              <span class="topic-tag">Bellman Equation</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 15 -->
+          <a href="chapters/ch15.html" class="matrix-card" data-track="track-7">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 7: Swarm & 3D</span>
+              <span class="card-ch-num">CHƯƠNG 15</span>
+            </div>
+            <h3 class="matrix-card-title">Robot Bầy đàn & Thuật toán Tụ hội BeeClust</h3>
+            <p class="matrix-card-sub">Nguyên lý phi tập trung, hiện tượng vết pheromone Stigmergy ở kiến, thuật toán BeeClust mô phỏng ong mật tìm nguồn nhiệt và mô hình bầy đàn Reynolds Boids.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Swarm Principles</span>
+              <span class="topic-tag">Stigmergy</span>
+              <span class="topic-tag">BeeClust Algorithm</span>
+              <span class="topic-tag">Reynolds Boids</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-fig">🔢 Ví dụ số</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+          <!-- Card Ch 16 -->
+          <a href="chapters/ch16.html" class="matrix-card" data-track="track-7">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Track 7: Swarm & 3D</span>
+              <span class="card-ch-num">CHƯƠNG 16</span>
+            </div>
+            <h3 class="matrix-card-title">Cánh tay Thao tác 2-DOF & Động học 3D</h3>
+            <p class="matrix-card-sub">Khớp quay và khớp trượt, động học thuận lượng giác vs ma trận thuần nhất 4x4, động học ngược luật Cosine (Elbow-Up/Down), điểm kỳ dị và xoay 3D Euler/Quaternions.</p>
+            <div class="matrix-card-topics">
+              <span class="topic-tag">Planar 2-DOF</span>
+              <span class="topic-tag">Homogeneous Matrix</span>
+              <span class="topic-tag">Law of Cosines IK</span>
+              <span class="topic-tag">Gimbal Lock & Quaternions</span>
+            </div>
+            <div class="matrix-card-footer">
+              <div class="feature-badges">
+                <span class="feature-icon-badge badge-sim">⚡ Mô phỏng Cánh tay</span>
+                <span class="feature-icon-badge badge-fig">📐 Vector Cánh tay</span>
+              </div>
+              <span class="card-action-link">Khám phá chi tiết →</span>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+
+      <!-- Phụ Lục Cards -->
+      <section style="margin-top: 2.5rem;">
+        <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text-main);">PHỤ LỤC & TÀI LIỆU KỸ THUẬT BỔ TRỢ</h3>
+        <div class="curriculum-matrix-grid">
+          <a href="chapters/appendix-a.html" class="matrix-card" data-track="appendix">
+            <div class="matrix-card-header">
+              <span class="card-track-badge">Phụ lục A</span>
+              <span class="card-ch-num">TOÁN HỌC ROBOT</span>
+            </div>
+            <h3 class="matrix-card-title">Nền tảng Toán học cho Kỹ thuật Robot</h3>
+            <p class="matrix-card-sub">Lượng giác giải tích, Nhóm quay phẳng SO(2) và không gian 3D SO(3), Ma trận chuyển vị thuần nhất SE(2)/SE(3) và giải tích xác suất Gauss.</p>
+            <div class="matrix-card-footer">
+              <span class="feature-icon-badge badge-fig">📐 Công thức</span>
+              <span class="card-action-link">Xem chi tiết →</span>
+            </div>
+          </a>
+
+          <a href="chapters/appendix-b.html" class="matrix-card" data-track="appendix">
+            <div class="matrix-card-header">
+              <span class="card-track-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981;">Phụ lục B</span>
+              <span class="card-ch-num">ROS 2 ARCHITECTURE</span>
+            </div>
+            <h3 class="matrix-card-title">Cầu nối Kiến trúc sang ROS 2 Humble / Jazzy</h3>
+            <p class="matrix-card-sub">Bản đồ tra cứu đối chiếu package từ lý thuyết giáo trình sang ros2_control, diff_drive_controller, nav2_amcl, slam_toolbox, nav2_smac_planner và MoveIt 2.</p>
+            <div class="matrix-card-footer">
+              <span class="feature-icon-badge badge-sim">🛠️ Kiến trúc ROS 2</span>
+              <span class="card-action-link">Xem chi tiết →</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <footer class="site-footer" style="margin-top: 4rem; padding-top: 2.5rem; border-top: 1px solid var(--border-color); text-align: center;">
+        <p><strong>Elements of Robotics - Explorable Knowledge Distillation Platform</strong></p>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Dựa trên giáo trình chuẩn Springer Open của GS. Mordechai Ben-Ari và GS. Francesco Mondada.</p>
+        <p style="color: var(--text-muted); font-size: 0.85rem;">Kiến trúc 100% Client-Side Multi-Page Static Portal • Sẵn sàng triển khai GitHub Pages (<code>github.io</code>).</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

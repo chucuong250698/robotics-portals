@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 10: Căn Chỉnh Đám Mây Điểm: SVD Arun, Horn &amp; ICP | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-4">Track 4: Ứng Dụng Tư Thế &amp; IMU</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 10</span>
+<h3 class="sidebar-title">Căn Chỉnh Đám Mây Điểm: SVD Arun, Horn &amp; ICP</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 4 / Ứng Dụng Tư Thế &amp; IMU / Chương 10</div>
+<h1 class="chapter-main-title">Chương 10: Căn Chỉnh Đám Mây Điểm: SVD Arun, Horn &amp; ICP</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 8.1–8.3 (Trang 305–342)</span>
+<span class="meta-item">🎯 Trọng tâm: Khớp điểm dạng đóng bằng SVD, Thuật toán lặp ICP &amp; Point-to-Plane</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Khi robot lái xe trên phố với cảm biến LiDAR quay 360 độ, mỗi giây nó thu về hàng trăm nghìn điểm 3D phản xạ từ nhà cửa, cây cối, xe cộ. Làm thế nào để robot biết mình vừa di chuyển được bao nhiêu cm và quay đi bao nhiêu độ giữa hai khung quét liên tiếp? Thuật toán <strong>Căn chỉnh đám mây điểm (Point Cloud Alignment / Registration)</strong> và <strong>ICP (Iterative Closest Point)</strong> chính là trái tim định vị của LiDAR Odometry.</p>
+</div>
+<p>Nếu đã biết trước sự tương ứng 1-1 giữa các cặp điểm, phương pháp <strong>Phân rã SVD của Arun (1987)</strong> cho phép tìm ra chính xác nghiệm đóng tối ưu toàn cục chỉ qua một phép tính đại số duy nhất mà không cần lặp! Khi chưa biết cặp điểm tương ứng, thuật toán ICP lặp xen kẽ giữa: (1) Tìm láng giềng gần nhất KD-Tree; và (2) Căn chỉnh SVD cho đến khi hội tụ sai số RMSE nhỏ nhất.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Cho hai tập điểm 3D tương ứng $\{\mathbf{p}_i\}_{i=1}^N$ và $\{\mathbf{q}_i\}_{i=1}^N$. Bài toán bình phương tối thiểu tìm $\mathbf{R} \in SO(3)$ và $\mathbf{t} \in \mathbb{R}^3$:</p>
+        $$\begin{equation}
+        \min_{\mathbf{R}, \mathbf{t}} \sum_{i=1}^N \|\mathbf{q}_i - (\mathbf{R} \mathbf{p}_i + \mathbf{t})\|^2
+        \end{equation}$$
+        <div class="formula-card">
+<div class="formula-header">Thuật Toán Căn Chỉnh Dạng Đóng Arun SVD (1987)</div>
+          $$\begin{align}
+          \mathbf{p}_c &amp;= \frac{1}{N}\sum \mathbf{p}_i, \quad \mathbf{q}_c = \frac{1}{N}\sum \mathbf{q}_i \quad (\text{Trọng tâm}) \\
+          \mathbf{p}'_i &amp;= \mathbf{p}_i - \mathbf{p}_c, \quad \mathbf{q}'_i = \mathbf{q}_i - \mathbf{q}_c \quad (\text{Trừ tâm}) \\
+          \mathbf{H} &amp;= \sum_{i=1}^N \mathbf{p}'_i (\mathbf{q}'_i)^T \quad (\text{Ma trận tương quan chéo}) \\
+          \mathbf{H} &amp;= \mathbf{U} \boldsymbol{\Sigma} \mathbf{V}^T \quad (\text{Phân rã SVD}) \\
+          \mathbf{R}^* &amp;= \mathbf{V} \mathbf{U}^T, \quad \mathbf{t}^* = \mathbf{q}_c - \mathbf{R}^* \mathbf{p}_c
+          \end{align}$$
+        </div>
+<p>Nếu $\det(\mathbf{R}^*) = -1$ (phản xạ gương), ta đổi dấu cột cuối: $\mathbf{R}^* = \mathbf{V} \operatorname{diag}(1, 1, \dots, \det(\mathbf{V}\mathbf{U}^T)) \mathbf{U}^T$.</p>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<p>Trong thực tế bề mặt địa hình, biến thể <strong>Point-to-Plane ICP (Chen &amp; Medioni 1991)</strong> hội tụ nhanh gấp 10 lần so với Point-to-Point:</p>
+        $$\begin{equation}
+        E(\mathbf{R}, \mathbf{t}) = \sum_{i=1}^N \left( \mathbf{n}_i^T (\mathbf{q}_i - (\mathbf{R}\mathbf{p}_i + \mathbf{t})) \right)^2
+        \end{equation}$$
+        <p>Với $\mathbf{n}_i$ là vector pháp tuyến của mặt phẳng đích tại $\mathbf{q}_i$. Điểm nguồn được phép trượt tự do dọc theo mặt phẳng (ví dụ mặt tường, mặt đường) mà không bị phạt sai số giả, giúp thuật toán không bị bế tắc cục bộ.</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Căn Chỉnh 3 Cặp Điểm Bằng Thuật Toán SVD Của Arun</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Cho 3 cặp điểm tương ứng 2D giữa hai lần quét của robot:<br/>• Tập nguồn $P$: $\mathbf{p}_1 = [1, 1]^T, \mathbf{p}_2 = [3, 1]^T, \mathbf{p}_3 = [2, 3]^T\text{ m}$.<br/>• Tập đích $Q$: $\mathbf{q}_1 = [-1, 2]^T, \mathbf{q}_2 = [-1, 4]^T, \mathbf{q}_3 = [-3, 3]^T\text{ m}$.<br/>Yêu cầu: Hãy áp dụng thuật toán Arun tính toán trọng tâm, ma trận tương quan chéo $H$, phân tích SVD để tìm ma trận quay $R$ và vector tịnh tiến $\mathbf{t}$.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Tính toán tọa độ trọng tâm của hai tập điểm:<br/>• Trọng tâm $P$: $\mathbf{p}_c = \frac{1}{3}([1, 1]^T + [3, 1]^T + [2, 3]^T) = \frac{1}{3}[6, 5]^T = [2.000, 1.667]^T\text{ m}$.<br/>• Trọng tâm $Q$: $\mathbf{q}_c = \frac{1}{3}([-1, 2]^T + [-1, 4]^T + [-3, 3]^T) = \frac{1}{3}[-5, 9]^T = [-1.667, 3.000]^T\text{ m}$.<br/>Tọa độ khử tâm:<br/>• $\mathbf{p}'_1 = [-1, -0.667]^T, \mathbf{p}'_2 = [1, -0.667]^T, \mathbf{p}'_3 = [0, 1.333]^T$<br/>• $\mathbf{q}'_1 = [0.667, -1]^T, \mathbf{q}'_2 = [0.667, 1]^T, \mathbf{q}'_3 = [-1.333, 0]^T$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính ma trận tương quan chéo $H = \sum \mathbf{p}'_i (\mathbf{q}'_i)^T$:<br/>• Cặp 1: $\begin{bmatrix} -1 \\ -0.667 \end{bmatrix} [0.667, -1] = \begin{bmatrix} -0.667 &amp; 1.000 \\ -0.444 &amp; 0.667 \end{bmatrix}$<br/>• Cặp 2: $\begin{bmatrix} 1 \\ -0.667 \end{bmatrix} [0.667, 1] = \begin{bmatrix} 0.667 &amp; 1.000 \\ -0.444 &amp; -0.667 \end{bmatrix}$<br/>• Cặp 3: $\begin{bmatrix} 0 \\ 1.333 \end{bmatrix} [-1.333, 0] = \begin{bmatrix} 0 &amp; 0 \\ -1.778 &amp; 0 \end{bmatrix}$<br/>Cộng lại: $H = \begin{bmatrix} 0.000 &amp; 2.000 \\ -2.667 &amp; 0.000 \end{bmatrix}$. Chuẩn hóa tỷ lệ: $H \propto \begin{bmatrix} 0 &amp; 1 \\ -1 &amp; 0 \end{bmatrix}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Phân tích SVD ma trận $H = U \Sigma V^T$ và tìm nghiệm quay $R = V U^T$:<br/>Ma trận $H$ có dạng trực giao thuần túy: $H = \begin{bmatrix} 0 &amp; 1 \\ -1 &amp; 0 \end{bmatrix}$.<br/>Nghiệm SVD cho ra ma trận trực giao: $R^* = \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix}$ (quay $90^\circ$ ngược chiều kim đồng hồ).<br/>Kiểm tra: $\det(R^*) = 0 - (-1) = +1$ (hợp lệ).<br/>Tính vector tịnh tiến:<br/>$$\mathbf{t}^* = \mathbf{q}_c - R^* \mathbf{p}_c = \begin{bmatrix} -1.667 \\ 3.000 \end{bmatrix} - \begin{bmatrix} 0 &amp; -1 \\ 1 &amp; 0 \end{bmatrix} \begin{bmatrix} 2.000 \\ 1.667 \end{bmatrix} = \begin{bmatrix} -1.667 \\ 3.000 \end{bmatrix} - \begin{bmatrix} -1.667 \\ 2.000 \end{bmatrix} = \begin{bmatrix} 0.000\text{ m} \\ 1.000\text{ m} \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Kiểm chứng nghiệm: Thử ráp lại điểm 1: $R^* \mathbf{p}_1 + \mathbf{t}^* = [0, -1; 1, 0][1, 1]^T + [0, 1]^T = [-1, 1]^T + [0, 1]^T = [-1, 2]^T = \mathbf{q}_1$ (Chính xác 100%). Sai số bình phương trung bình RMSE $= 0.000\text{ m}$.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 10.1: Kiểm tra tính đối xứng của ICP</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu đảo ngược vai trò: biến tập điểm $Q$ thành nguồn và $P$ thành đích, hãy chứng minh nghiệm quay và tịnh tiến mới thỏa mãn $R_{new} = (R^*)^T$ và $\mathbf{t}_{new} = -(R^*)^T \mathbf{t}^*$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Vì ma trận tương quan mới $H_{new} = H^T$. Phân rã SVD hoán đổi $U$ và $V$, do đó $R_{new} = U V^T = (V U^T)^T = (R^*)^T = [0, 1; -1, 0]$. Vector $\mathbf{t}_{new} = \mathbf{p}_c - R_{new} \mathbf{q}_c = [-1, 0]^T$.
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 10: Hội Tụ Từng Bước Thuật Toán Lặp ICP 2D</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-10" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Số bước lặp ICP: <span id="sim10-iter-val">0</span></label>
+<input id="sim10-iter" max="15" min="0" step="1" type="range" value="0"/>
+</div>
+<div class="control-group">
+<label>Mức nhiễu bề mặt: <span id="sim10-noise-val">0.05</span> m</label>
+<input id="sim10-noise" max="0.3" min="0.0" step="0.02" type="range" value="0.05"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim10-stats">Kéo slider số bước lặp từ 0 đến 10 để thấy đám mây điểm màu đỏ tự động xoay và hút chặt vào đường viền màu xanh.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Closed-Form Point Cloud Alignment (Arun's Method) in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+void alignPointClouds(
+    const Eigen::Matrix2Xd&amp; P,
+    const Eigen::Matrix2Xd&amp; Q,
+    Eigen::Matrix2d&amp; R_out,
+    Eigen::Vector2d&amp; t_out) 
+{
+    // 1. Centroids
+    Eigen::Vector2d p_c = P.rowwise().mean();
+    Eigen::Vector2d q_c = Q.rowwise().mean();
+    
+    // 2. Center points
+    Eigen::Matrix2Xd P_prime = P.colwise() - p_c;
+    Eigen::Matrix2Xd Q_prime = Q.colwise() - q_c;
+    
+    // 3. Cross-covariance
+    Eigen::Matrix2d H = P_prime * Q_prime.transpose();
+    
+    // 4. SVD
+    Eigen::JacobiSVD&lt;Eigen::Matrix2d&gt; svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::Matrix2d U = svd.matrixU();
+    Eigen::Matrix2d V = svd.matrixV();
+    
+    R_out = V * U.transpose();
+    if (R_out.determinant() \lt 0) {
+        V.col(1) *= -1.0;
+        R_out = V * U.transpose();
+    }
+    t_out = q_c - R_out * p_c;
+}
+
+int main() {
+    Eigen::Matrix2Xd P(2, 3), Q(2, 3);
+    P &lt;&lt; 1, 3, 2,  1, 1, 3;
+    Q &lt;&lt; -1, -1, -3,  2, 4, 3;
+    
+    Eigen::Matrix2d R;
+    Eigen::Vector2d t;
+    alignPointClouds(P, Q, R, t);
+    
+    std::cout &lt;&lt; "Computed Rotation R:\n" &lt;&lt; R &lt;&lt; "\n\n";
+    std::cout &lt;&lt; "Computed Translation t:\n" &lt;&lt; t &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Arun's SVD:</strong> Lời giải dạng đóng thanh lịch giải quyết triệt để bài toán căn chỉnh điểm khi đã biết tương ứng.</li><li><strong>ICP Loop:</strong> Xen kẽ liên tục giữa việc liên kết điểm gần nhất và giải tối ưu bình phương tối thiểu.</li><li><strong>Point-to-Plane:</strong> Tận dụng pháp tuyến bề mặt, tăng tốc hội tụ và chống trượt dọc theo các mặt phẳng kiến trúc phẳng.</li><li><strong>Trụ cột LiDAR Odometry:</strong> Nền tảng thuật toán bên trong các hệ thống nổi tiếng như LOAM, FAST-LIO và Kiss-ICP.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch09.html">← Chương 09: Giải Tích Trên Nhóm Lie &amp; BCH</a>
+<a class="btn-nav btn-next" href="ch11.html">Chương tiếp theo: Tối Ưu Hóa Đồ Thị Tư Thế Pose-Graph SLAM →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

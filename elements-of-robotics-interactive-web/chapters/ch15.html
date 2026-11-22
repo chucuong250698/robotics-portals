@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 15: Robot Bầy Đàn &amp; Thuật Toán Tụ Hội BeeClust - Elements of Robotics</title>
+<meta content="Nguyên lý phi tập trung, hiện tượng vết pheromone Stigmergy ở kiến, thuật toán BeeClust mô phỏng ong mật tìm nguồn nhiệt và mô hình bầy đàn Reynolds Boids." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 7: Swarm Robotics &amp; Cánh tay 3D</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 15</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 15</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-15-1">
+<span class="nav-text">15.1 Ba Trụ cột của Robot Bầy đàn</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-15-2">
+<span class="nav-text">15.2 Hiện tượng Stigmergy ở Loài Kiến</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-15-3">
+<span class="nav-text">15.3 Thuật toán BeeClust (Ong Mật Tụ Hội Nguồn Nhiệt)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-15-4">
+<span class="nav-text">15.4 Mô hình Đàn Chim Reynolds Boids</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-15-5">
+<span class="nav-text">15.5 Phân chia Nhiệm vụ Đa Robot</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-15-worked">
+<span class="nav-text">Ví dụ tính số: Tính thời gian dừng BeeClust</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-15-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (Namespaces &amp; Zenoh DDS)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-15-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 7: SWARM ROBOTICS &amp; CÁNH TAY 3D</div>
+<h1>Chương 15: Robot Bầy Đàn &amp; Thuật Toán Tụ Hội BeeClust</h1>
+<p class="chapter-subtitle">Nguyên lý phi tập trung, hiện tượng vết pheromone Stigmergy ở kiến, thuật toán BeeClust mô phỏng ong mật tìm nguồn nhiệt và mô hình bầy đàn Reynolds Boids.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 15.1 & 15.2 -->
+<h4 id="sec-15-1">15.1 Ba Trụ cột của Robot Bầy đàn (Swarm Robotics)</h4>
+<p>Robot bầy đàn nghiên cứu cách hàng chục hoặc hàng ngàn robot đơn giản tự phối hợp nhịp nhàng mà không cần bất kỳ máy tính trung tâm nào điều phối. Ba trụ cột cốt lõi gồm:</p>
+<ul>
+<li><strong>Phi tập trung hoàn toàn (Decentralization):</strong> Mỗi robot chỉ đưa ra quyết định dựa trên cảm nhận cục bộ xung quanh. Không có điểm nghẽn "chỉ huy".</li>
+<li><strong>Khả năng co giãn vô hạn (Scalability):</strong> Thêm 10 hay 10,000 robot thì thuật toán điều khiển vẫn không thay đổi độ phức tạp.</li>
+<li><strong>Khả năng tự hồi phục (Fault Tolerance):</strong> Dù $30\%$ robot bị hỏng hóc hoặc hết pin, cả đàn vẫn hoàn thành nhiệm vụ tổng thể.</li>
+</ul>
+<h4 id="sec-15-2">15.2 Hiện tượng Stigmergy ở Loài Kiến</h4>
+<p>Nhà sinh học Pierre-Paul Grassé đề xuất thuật ngữ <em>Stigmergy</em>: các cá thể không cần giao tiếp vô tuyến trực tiếp với nhau, mà giao tiếp gián tiếp bằng cách để lại dấu vết thay đổi môi trường (như nồng độ chất dẫn dụ pheromone trên mặt đất). Robot học áp dụng cơ chế này qua các bản đồ nhiệt hoặc đánh dấu ảo.</p>
+<!-- Mục 15.3 -->
+<h4 id="sec-15-3">15.3 Thuật toán BeeClust (Mô phỏng Ong Mật Tụ Hội Nguồn Nhiệt)</h4>
+<p>Trong giáo trình GS. Ben-Ari &amp; Mondada (trang 260), thuật toán <strong>BeeClust</strong> mô phỏng hành vi ong non tìm kiếm vùng ấm nhất trong tổ ong để ủ ấm. Quy tắc cực kỳ đơn giản:</p>
+<ol>
+<li>Robot di chuyển ngẫu nhiên thẳng về phía trước.</li>
+<li>Khi cảm biến va chạm hoặc cảm biến quang phát hiện gặp một robot khác: <strong>Cả hai robot dừng lại!</strong></li>
+<li>Đo nhiệt độ môi trường $T$ tại điểm va chạm, và duy trì trạng thái đứng yên trong khoảng thời gian chờ $w(T)$ theo hàm sigmoid:</li>
+</ol>
+<div class="formula-hero">
+<div class="formula-title">HÀM THỜI GIAN DỪNG BEECLUST</div>
+<div class="formula-math">
+                $$w(T) = \frac{w_{\max} \cdot T^2}{T^2 + T_0^2}$$
+              </div>
+<div class="formula-legend">
+                $w_{\max}$: Thời gian dừng tối đa cho phép.<br/>
+                $T_0$: Ngưỡng nhiệt độ chuẩn hóa.<br/>
+<strong>Hệ quả nổi trội (Emergence):</strong> Ở những vùng lạnh ($T$ nhỏ), robot chỉ đứng yên vài giây rồi bỏ đi. Ở vùng ấm áp nhất ($T$ lớn), robot đứng yên rất lâu. Do robot đứng yên sẽ tạo thành chướng ngại vật cản trở những robot khác, số lượng va chạm tại vùng ấm tăng vọt theo cấp số nhân $\implies$ Toàn bộ bầy đàn tự động tụ tập đông đúc tại nguồn nhiệt tối ưu toàn cục!
+              </div>
+</div>
+<!-- Mục 15.4 -->
+<h4 id="sec-15-4">15.4 Mô hình Đàn Chim Reynolds Boids</h4>
+<p>Craig Reynolds (1987) chứng minh đàn chim bay lượn đồng bộ chỉ nhờ 3 quy tắc cục bộ:</p>
+<ul>
+<li><strong>Tách rời (Separation):</strong> Lách ra xa để tránh va chạm với bạn bay sát bên.</li>
+<li><strong>Căn chỉnh (Alignment):</strong> Bay theo hướng vận tốc trung bình của nhóm bạn xung quanh.</li>
+<li><strong>Tụ hội (Cohesion):</strong> Hướng về vị trí trọng tâm trung bình của đàn.</li>
+</ul>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-15-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 TÍNH THỜI GIAN DỪNG BEECLUST TẠI HAI VÙNG NHIỆT ĐỘ KHÁC NHAU</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Đàn robot Thymio áp dụng thuật toán BeeClust với $w_{\max} = 60\text{ s}$ và ngưỡng $T_0 = 25^\circ\text{C}$. Hai robot va chạm nhau tại vùng A có nhiệt độ $T_A = 15^\circ\text{C}$. Hai robot khác va chạm tại vùng B có nhiệt độ $T_B = 35^\circ\text{C}$. Hãy tính thời gian dừng $w(T_A)$ và $w(T_B)$, từ đó giải thích vì sao bầy đàn sẽ hội tụ về vùng B.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Mẫu Số Chuẩn Hóa $T_0^2$</span>
+</div>
+<div class="step-content">
+<p>$T_0^2 = 25^2 = 625$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Thời Gian Dừng Tại Vùng Lạnh A ($T_A=15$)</span>
+</div>
+<div class="step-content">
+<p>$T_A^2 = 15^2 = 225$<br/>
+                  $w(T_A) = 60 \times \frac{225}{225 + 625} = 60 \times \frac{225}{850} \approx 60 \times 0.2647 = 15.88\text{ s}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Thời Gian Dừng Tại Vùng Ấm B ($T_B=35$)</span>
+</div>
+<div class="step-content">
+<p>$T_B^2 = 35^2 = 1225$<br/>
+                  $w(T_B) = 60 \times \frac{1225}{1225 + 625} = 60 \times \frac{1225}{1850} \approx 60 \times 0.6622 = 39.73\text{ s}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Đánh Giá Tỉ Lệ Tụ Hội Của Bầy Đàn</span>
+</div>
+<div class="step-content">
+<p>Tỉ lệ thời gian dừng: $\frac{w(T_B)}{w(T_A)} = \frac{39.73}{15.88} \approx 2.5\text{ lần}$.<br/>
+                  Robot dừng ở vùng ấm lâu gấp 2.5 lần vùng lạnh, tạo ra "bẫy mật độ" giữ chân các robot khác, dẫn đến bầy đàn nhanh chóng kết cụm tại nguồn nhiệt B!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Thuật toán BEECLUST tái hiện trí thông minh bầy đàn tự nhiên: Chỉ thông qua các va chạm cục bộ và thời gian dừng phụ thuộc nhiệt độ, toàn bộ bầy robot tự động tụ hội về nguồn nhiệt mà không cần bản đồ hay mạng truyền thông trung tâm.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-15-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Hệ thống đa robot (Multi-Robot Swarm) trong ROS 2 được vận hành bằng cơ chế <strong>Namespaces</strong> (ví dụ: <code>/robot_01/cmd_vel</code>, <code>/robot_02/cmd_vel</code>). Để chia sẻ dữ liệu giữa hàng trăm robot qua mạng không dây Wi-Fi/mesh, router <strong>Zenoh DDS</strong> được sử dụng thay thế CycloneDDS truyền thống nhằm tối ưu băng thông và giảm thiểu mất gói tin multicast.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-15-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Mô Phỏng Thuật Toán Tụ Hội Bầy Đàn BEECLUST Dựa Trên Nhiệt Độ Môi Trường</h4>
+</div>
+<div class="practice-statement">
+<p>Một bầy robot mini thám hiểm tìm kiếm điểm ấm nhất trong phòng bằng thuật toán BEECLUST (lấy cảm hứng từ loài ong mật). Mỗi khi 2 robot va chạm vào nhau, chúng đứng yên lại và đo nhiệt độ môi trường tại điểm đó $T$ ($^\circ\text{C}$). Thời gian đứng yên (Waiting Time) tỉ lệ thuận với nhiệt độ: $w(T) = \frac{w_{\text{max}} \cdot T^2}{T^2 + T_0^2}$ với $w_{\text{max}} = 60\text{ s}, T_0 = 25^\circ\text{C}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính thời gian đứng yên $w(T_1)$ tại góc lạnh $T_1 = 15^\circ\text{C}$.<br/>2) Tính thời gian đứng yên $w(T_2)$ tại nguồn nhiệt $T_2 = 35^\circ\text{C}$.<br/>3) Giải thích cơ chế vì sao bầy robot tự động tụ hội về nguồn nhiệt mà không cần bất kỳ giao tiếp vô tuyến hay bản đồ định vị toàn cục nào.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tại vùng lạnh $T_1 = 15^\circ\text{C}$:<br/>$$w(15) = \frac{60 \times 15^2}{15^2 + 25^2} = \frac{60 \times 225}{225 + 625} = \frac{13500}{850} \approx 15.88\text{ s}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tại nguồn nhiệt $T_2 = 35^\circ\text{C}$:<br/>$$w(35) = \frac{60 \times 35^2}{35^2 + 25^2} = \frac{60 \times 1225}{1225 + 625} = \frac{73500}{1850} \approx 39.73\text{ s}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Cơ chế tụ hội ngẫu nhiên: Robot tại nguồn nhiệt đứng yên lâu hơn gấp $2.5$ lần ($39.7\text{ s}$ vs $15.9\text{ s}$). Khi đứng yên lâu, chúng biến thành vật cản tĩnh thu hút thêm các robot khác va chạm vào và cùng đứng yên theo hiệu ứng chuỗi. Sau một khoảng thời gian, mật độ robot tại nguồn nhiệt sẽ chiếm đa số tuyệt đối thông qua tương tác cục bộ thuần túy (Emergent Swarm Intelligence).</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch14.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 14: Bộ Phân Loại Fisher LDA &amp; Trực G...</span>
+</a>
+<a class="page-nav-btn next" href="ch16.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 16: Cánh Tay Thao Tác 2-DOF &amp; Động H... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

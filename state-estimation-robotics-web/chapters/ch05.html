@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 05: Ước Lượng Phi Tuyến: EKF, IEKF, UKF &amp; Particle Filter | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-2">Track 2: Ước Lượng Phi Tuyến &amp; Suy Luận Biến Phân</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 05</span>
+<h3 class="sidebar-title">Ước Lượng Phi Tuyến: EKF, IEKF, UKF &amp; Particle Filter</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 2 / Ước Lượng Phi Tuyến &amp; Suy Luận Biến Phân / Chương 05</div>
+<h1 class="chapter-main-title">Chương 05: Ước Lượng Phi Tuyến: EKF, IEKF, UKF &amp; Particle Filter</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 4.1–4.4 (Trang 103–142)</span>
+<span class="meta-item">🎯 Trọng tâm: Tuyến tính hóa Taylor, Biến đổi Unscented &amp; Phân phối đa đỉnh với Hạt</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Thế giới thực tế của robot hoàn toàn phi tuyến: camera chiếu phối cảnh qua phép chia phối cảnh $1/Z$, cảm biến LiDAR đo khoảng cách theo hàm căn bậc hai $\sqrt{x^2+y^2}$, góc quay Euler xoay vòng lượng giác $\sin, \cos$. Bộ lọc Kalman tuyến tính sẽ thất bại thảm hại! <strong>EKF, UKF và Particle Filter</strong> là 3 trụ cột kỹ thuật giúp robot thuần hóa các bài toán phi tuyến phức tạp trong thế giới thực.</p>
+</div>
+<p>Nếu EKF dùng khai triển chuỗi Taylor bậc 1 (cắt bỏ phần dư bậc cao, dễ phân kỳ khi độ phi tuyến lớn), thì UKF áp dụng phương châm: <em>'Xấp xỉ một phân phối xác suất dễ hơn nhiều so với xấp xỉ một hàm phi tuyến'</em>. Bằng cách chọn $2n+1$ điểm mẫu xác định (Sigma Points), UKF nắm bắt chính xác kỳ vọng và phương sai đến cấp độ Taylor bậc 3 mà không cần tính đạo hàm giải tích Jacobian!</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Xét hệ thống phi tuyến tổng quát:</p>
+        $$\begin{align}
+        \mathbf{x}_k &amp;= \mathbf{f}(\mathbf{x}_{k-1}, \mathbf{u}_{k-1}) + \mathbf{w}_k \\
+        \mathbf{y}_k &amp;= \mathbf{h}(\mathbf{x}_k) + \mathbf{n}_k
+        \end{align}$$
+        <p><strong>1. Extended Kalman Filter (EKF):</strong> Tuyến tính hóa Taylor bậc 1 quanh ước lượng gần nhất:</p>
+        $$\begin{equation}
+        \mathbf{F}_{k-1} = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}_{k-1}}, \qquad \mathbf{H}_k = \left. \frac{\partial \mathbf{h}}{\partial \mathbf{x}} \right|_{\check{\mathbf{x}}_k}
+        \end{equation}$$
+        <p><strong>2. Iterated EKF (IEKF):</strong> Khi hàm đo $\mathbf{h}(\mathbf{x})$ phi tuyến mạnh, IEKF chạy vòng lặp Gauss-Newton ngay tại bước Update để tìm điểm tuyến tính hóa tốt hơn $\hat{\mathbf{x}}_k^{(i+1)}$ thay vì dùng cố định $\check{\mathbf{x}}_k$.</p>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Phép Biến Đổi Unscented (Unscented Transform - UT)</div>
+          $$\begin{align}
+          \boldsymbol{\mathcal{X}}_0 &amp;= \hat{\mathbf{x}} \\
+          \boldsymbol{\mathcal{X}}_i &amp;= \hat{\mathbf{x}} + \left(\sqrt{(n + \lambda)\mathbf{P}}\right)_i, \quad i = 1, \dots, n \\
+          \boldsymbol{\mathcal{X}}_{i+n} &amp;= \hat{\mathbf{x}} - \left(\sqrt{(n + \lambda)\mathbf{P}}\right)_i, \quad i = 1, \dots, n
+          \end{align}$$
+        </div>
+<p>Với $n$ là số chiều trạng thái, UT sinh ra chính xác $2n+1$ điểm Sigma Points. Mỗi điểm được truyền qua hàm phi tuyến thực sự $\boldsymbol{\mathcal{Y}}_i = \mathbf{h}(\boldsymbol{\mathcal{X}}_i)$, sau đó tái tổng hợp lại kỳ vọng và hiệp phương sai theo trọng số $W_i^{(m)}, W_i^{(c)}$.</p>
+<p><strong>Particle Filter (Lọc hạt):</strong> Khi phân phối có nhiều đỉnh (Multi-modal) - ví dụ robot bị 'bắt cóc' không biết mình đang ở phòng nào - phân phối được biểu diễn bằng một đàn $N_p$ hạt có trọng số $\{ \mathbf{x}^{(i)}, w^{(i)} \}_{i=1}^{N_p}$. Chu trình gồm: Lấy mẫu quan trọng (Importance Sampling) $\to$ Đánh giá trọng số $\to$ Tái lấy mẫu (Resampling) để triệt tiêu các hạt suy biến.</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Ước Lượng Vị Trí Bằng EKF Với Cảm Biến Đo Góc Phương Vị Phi Tuyến</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Robot hoạt động tại tọa độ tiên nghiệm $\check{\mathbf{x}} = [p_x, p_y]^T = [2.0, 2.0]^T\text{ m}$ với hiệp phương sai $\check{P} = \begin{bmatrix} 0.25 &amp; 0.0 \\ 0.0 &amp; 0.25 \end{bmatrix}\text{ m}^2$. Robot quan sát một cột mốc đã biết vị trí tại $\mathbf{m} = [10.0, 10.0]^T\text{ m}$. Cảm biến đo góc phương vị ngắm mốc: $h(\mathbf{x}) = \arctan\left(\frac{m_y - p_y}{m_x - p_x}\right)$. Cảm biến trả về góc đo được $\theta_{meas} = 0.820\text{ rad}$. Phương sai nhiễu đo góc $R = (0.02\text{ rad})^2 = 0.0004\text{ rad}^2$. Yêu cầu: Hãy tính toán ma trận Jacobian đo $H$, hệ số Kalman Gain $K$ và ước lượng vị trí cập nhật $\hat{\mathbf{x}}$ của EKF.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định khoảng cách tương đối giữa mốc và vị trí tiên nghiệm:<br/>• $\Delta x = m_x - p_x = 10.0 - 2.0 = 8.0\text{ m}$<br/>• $\Delta y = m_y - p_y = 10.0 - 2.0 = 8.0\text{ m}$<br/>• Khoảng cách bình phương $d^2 = \Delta x^2 + \Delta y^2 = 64 + 64 = 128\text{ m}^2$.<br/>Góc dự đoán tiên nghiệm: $\check{\theta} = \arctan(8/8) = \arctan(1) = \pi/4 \approx 0.7854\text{ rad}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính ma trận Jacobian đo phi tuyến $H = \left.\frac{\partial h}{\partial \mathbf{x}}\right|_{\check{\mathbf{x}}}$:<br/>Đạo hàm của hàm $\arctan(u)$:<br/>$$\frac{\partial h}{\partial p_x} = \frac{1}{1 + (\Delta y / \Delta x)^2} \frac{\partial (\Delta y / \Delta x)}{\partial p_x} = \frac{\Delta x^2}{\Delta x^2 + \Delta y^2} \left( \frac{\Delta y}{\Delta x^2} \right) = \frac{\Delta y}{d^2} = \frac{8.0}{128} = +0.0625\text{ rad/m}$$<br/>$$\frac{\partial h}{\partial p_y} = \frac{1}{1 + (\Delta y / \Delta x)^2} \left( -\frac{1}{\Delta x} \right) = -\frac{\Delta x}{d^2} = -\frac{8.0}{128} = -0.0625\text{ rad/m}$$<br/>Do đó: $H = [0.0625, -0.0625]\text{ rad/m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tính Innovation, Kalman Gain và cập nhật trạng thái:<br/>• Phần dư đo: $\nu = \theta_{meas} - \check{\theta} = 0.8200 - 0.7854 = +0.0346\text{ rad}$.<br/>• Hiệp phương sai phần dư:<br/>$$S = H \check{P} H^T + R = [0.0625, -0.0625] \begin{bmatrix} 0.25 &amp; 0 \\ 0 &amp; 0.25 \end{bmatrix} \begin{bmatrix} 0.0625 \\ -0.0625 \end{bmatrix} + 0.0004 = 0.25(0.0625^2 + 0.0625^2) + 0.0004 = 0.001953 + 0.0004 = 0.002353\text{ rad}^2$$<br/>• Kalman Gain:<br/>$$K = \check{P} H^T S^{-1} = \begin{bmatrix} 0.25 \times 0.0625 \\ 0.25 \times (-0.0625) \end{bmatrix} \frac{1}{0.002353} = \begin{bmatrix} 0.015625 \\ -0.015625 \end{bmatrix} \times 424.99 = \begin{bmatrix} +6.640 \\ -6.640 \end{bmatrix}$$<br/>• Cập nhật trạng thái:<br/>$$\hat{\mathbf{x}} = \check{\mathbf{x}} + K \nu = \begin{bmatrix} 2.0 \\ 2.0 \end{bmatrix} + \begin{bmatrix} +6.640 \\ -6.640 \end{bmatrix} \times 0.0346 = \begin{bmatrix} 2.0 + 0.230 \\ 2.0 - 0.230 \end{bmatrix} = \begin{bmatrix} 2.230\text{ m} \\ 1.770\text{ m} \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Diễn giải hình học: Cảm biến đo được góc lớn hơn dự đoán ($0.820 \gt 0.7854\text{ rad}$). Để góc phương vị nhìn mốc tăng lên, robot phải dịch chuyển sang phải theo trục X ($+0.230\text{ m}$) và lùi xuống theo trục Y ($-0.230\text{ m}$), vuông góc với tia ngắm mốc! EKF đã tự động giải bài toán hình học phi tuyến này một cách tự nhiên.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 5.1: Thiết lập Sigma Points cho UKF</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Với $n=2$ và ma trận $\check{P} = 0.25 I_{2\times 2}$ như trên, hãy tính tọa độ của 5 điểm Sigma Points $\boldsymbol{\mathcal{X}}_0, \dots, \boldsymbol{\mathcal{X}}_4$ của thuật toán Unscented Kalman Filter khi chọn tham số mở rộng $\alpha = 1, \kappa = 0$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Hệ số tỷ lệ $\gamma = \sqrt{n + \lambda} = \sqrt{2}$. Ma trận căn: $\sqrt{\check{P}} = 0.5 I_{2\times 2}$. Các điểm Sigma: $\boldsymbol{\mathcal{X}}_0 = [2, 2]^T$; $\boldsymbol{\mathcal{X}}_1 = [2 + 0.707, 2]^T = [2.707, 2]^T$; $\boldsymbol{\mathcal{X}}_2 = [2, 2 + 0.707]^T = [2, 2.707]^T$; $\boldsymbol{\mathcal{X}}_3 = [1.293, 2]^T$; $\boldsymbol{\mathcal{X}}_4 = [2, 1.293]^T$.
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 05: Đối Đầu Trực Diện EKF vs UKF Trên Hàm Đo Phi Tuyến Mạnh</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-05" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Độ cong phi tuyến: <span id="sim05-curve-val">Trung bình</span></label>
+<input id="sim05-curve" max="5" min="1" step="1" type="range" value="3"/>
+</div>
+<div class="control-group">
+<label>Độ bất định ban đầu $\sigma$: <span id="sim05-p-val">0.5</span></label>
+<input id="sim05-p" max="1.5" min="0.1" step="0.1" type="range" value="0.5"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim05-stats">Quan sát khi độ cong tăng cao, EKF bị chệch kỳ vọng (Bias) trong khi UKF bắt trọn phân phối thực tế.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Unscented Transform Sigma Points Generator in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;Eigen/Dense&gt;
+
+struct UKFSigmaPoints {
+    std::vector&lt;Eigen::Vector2d&gt; points;
+    std::vector&lt;double&gt; Wm;
+    std::vector&lt;double&gt; Wc;
+};
+
+UKFSigmaPoints generateSigmaPoints(
+    const Eigen::Vector2d&amp; x,
+    const Eigen::Matrix2d&amp; P,
+    double alpha = 1e-3,
+    double beta = 2.0,
+    double kappa = 0.0) 
+{
+    int n = x.size();
+    double lambda = alpha * alpha * (n + kappa) - n;
+    double gamma = std::sqrt(n + lambda);
+    
+    // Matrix square root via Cholesky decomposition
+    Eigen::LLT&lt;Eigen::Matrix2d&gt; llt(P);
+    Eigen::Matrix2d L = llt.matrixL();
+    
+    UKFSigmaPoints sp;
+    sp.points.resize(2 * n + 1);
+    sp.Wm.resize(2 * n + 1);
+    sp.Wc.resize(2 * n + 1);
+    
+    // Center point
+    sp.points[0] = x;
+    sp.Wm[0] = lambda / (n + lambda);
+    sp.Wc[0] = sp.Wm[0] + (1.0 - alpha * alpha + beta);
+    
+    // 2n symmetric points
+    for (int i = 0; i &lt; n; ++i) {
+        sp.points[i + 1] = x + gamma * L.col(i);
+        sp.points[i + 1 + n] = x - gamma * L.col(i);
+        sp.Wm[i + 1] = sp.Wm[i + 1 + n] = 0.5 / (n + lambda);
+        sp.Wc[i + 1] = sp.Wc[i + 1 + n] = sp.Wm[i + 1];
+    }
+    return sp;
+}
+
+int main() {
+    Eigen::Vector2d x(2.0, 2.0);
+    Eigen::Matrix2d P = 0.25 * Eigen::Matrix2d::Identity();
+    auto sp = generateSigmaPoints(x, P);
+    std::cout &lt;&lt; "Generated " &lt;&lt; sp.points.size() &lt;&lt; " UKF Sigma Points successfully!\n";
+    std::cout &lt;&lt; "Center Point: " &lt;&lt; sp.points[0].transpose() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>EKF:</strong> Nhanh, phổ biến, nhưng dễ chệch và phân kỳ khi hệ thống có độ phi tuyến cao hoặc điểm khởi tạo ở xa.</li><li><strong>IEKF:</strong> Giải quyết bài toán phi tuyến đo đạc bằng vòng lặp Gauss-Newton ngay trong bước Update.</li><li><strong>UKF:</strong> Bắt trọn mômen bậc 3 mà không cần tính đạo hàm Jacobian, lựa chọn số 1 cho các bài toán phi tuyến phức tạp.</li><li><strong>Particle Filter:</strong> Giải pháp duy nhất giải quyết triệt để phân phối đa đỉnh và bài toán toàn cục Kidnapped Robot Problem.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch04.html">← Chương 04: Bộ Lọc Kalman Rời Rạc &amp; Liên Tục</a>
+<a class="btn-nav btn-next" href="ch06.html">Chương tiếp theo: Xử Lý Ngoại Lai, NEES/NIS &amp; Variational Inference →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

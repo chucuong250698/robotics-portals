@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 13: Thước Đo Đánh Giá &amp; Các Bộ Benchmark Tiêu Chuẩn Trong Robot Học - Imitation Learning in Robotics</title>
+<meta content="Evaluation Metrics, DTW, Jerk &amp; Standardization Benchmarks" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 6: HRI, BENCHMARKS &amp; TRIỂN KHAI THỰC TẾ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 13</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 13</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-13-1">
+<span class="nav-text">13.1 Các Chỉ Số Đánh Giá Thành Công &amp; Sai Lệch Quỹ Đạo</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-2">
+<span class="nav-text">13.2 Dynamic Time Warping (DTW) &amp; Fréchet Distance</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-3">
+<span class="nav-text">13.3 Chỉ Số An Toàn Cơ Học &amp; Rung Giật (Jerk Metric)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-4">
+<span class="nav-text">13.4 Các Bộ Benchmark Tiêu Chuẩn: RoboMimic &amp; RLBench</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-sim">
+<span class="nav-text">⚡ Mô Phỏng So Sánh DTW &amp; Jerk Metric (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Ma Trận Quy Hoạch Động DTW</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-bridge">
+<span class="nav-text">🛠️ Cầu Nối Kỹ Thuật: Script Đánh Giá Quỹ Đạo Robot Trong Python</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-13-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 6: HRI, BENCHMARKS &amp; TRIỂN KHAI THỰC TẾ • CHƯƠNG 13</div>
+<h1 class="chapter-title">Thước Đo Đánh Giá &amp; Các Bộ Benchmark Tiêu Chuẩn Trong Robot Học</h1>
+<p class="chapter-subtitle">Evaluation Metrics, DTW, Jerk &amp; Standardization Benchmarks</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Boyuan Zheng et al. (UTS 2021) &amp; Carlos Celemin et al. (2022)</strong></span>
+</div>
+</div>
+<!-- 13.1 -->
+<h2 id="sec-13-1">13.1 Tại Sao Chỉ Đo Tỷ Lệ Hoàn Thành Tác Vụ (Success Rate) Là Chưa Đủ?</h2>
+<p>Trong các bài báo khoa học về học bắt chước, chỉ số phổ biến nhất được báo cáo là <strong>Task Success Rate</strong> (Tỷ lệ gắp trúng đích / tổng số lần thử). Tuy nhiên, một chính sách đạt 95% tỷ lệ thành công vẫn có thể là một chính sách tồi tệ trong công nghiệp vì:</p>
+<ul>
+<li><strong>Rung giật cơ khí:</strong> Động cơ phát ra tiếng kêu rít, giật cục liên tục làm mòn bánh răng giảm tốc Harmonic sau vài tuần.</li>
+<li><strong>Không tự nhiên:</strong> Quỹ đạo đi vòng vèo, kỳ dị làm người đứng cạnh cảm thấy bất an.</li>
+<li><strong>Thời gian chu kỳ dài:</strong> Mất 30 giây để hoàn thành tác vụ mà con người chỉ làm trong 2 giây.</li>
+</ul>
+<!-- 13.2 -->
+<h2 id="sec-13-2">13.2 Đo Lường Sai Lệch Hình Dáng: Dynamic Time Warping (DTW)</h2>
+<p>Hai quỹ đạo thực thi và biểu diễn mẫu thường có tốc độ khác nhau. Khoảng cách Euclidean thông thường $\sum_t \|x_t - y_t\|^2$ hoàn toàn thất bại nếu một quỹ đạo chỉ đơn giản là đi chậm hơn 0.1 giây. <strong>Dynamic Time Warping (DTW)</strong> tìm kiếm đường căn chỉnh tối ưu $\mathcal{W}$ giữa hai chuỗi thời gian có độ dài khác nhau:</p>
+        $$\text{DTW}(P, Q) = \min_{W} \sqrt{\sum_{k=1}^K c(w_k)}$$
+        <p>với ma trận chi phí tích lũy được giải bằng quy hoạch động 2D $D(i, j) = \|p_i - q_j\| + \min(D(i-1, j), D(i, j-1), D(i-1, j-1))$.</p>
+<!-- 13.3 -->
+<h2 id="sec-13-3">13.3 Chỉ Số An Toàn Cơ Học: Tích Phân Giật Jerk Metric</h2>
+<p>Để đánh giá độ êm ái và bảo vệ hộp số động cơ robot, <strong>Chỉ số Jerk (Đạo hàm bậc 3 của vị trí)</strong> được sử dụng làm chuẩn mực vàng trong điều khiển robot:</p>
+<div class="formula-hero">
+<div class="formula-title">Định Nghĩa Chỉ Số Rung Giật Jerk Metric</div>
+<div class="formula-math">
+            $$\text{Jerk} = \int_0^T \| \dddot{q}(t) \|^2 dt \approx \sum_{k=1}^{N-2} \left\| \frac{\ddot{q}_{k+1} - \ddot{q}_k}{\Delta t} \right\|^2 \Delta t$$
+          </div>
+<div class="formula-legend">
+<strong>Ý nghĩa vật lý:</strong> Jerk là tốc độ biến thiên của gia tốc. Khi Jerk cao, lực tác động lên các bánh răng và liên kết cơ khí biến đổi đột ngột, gây ứng suất phá hủy cấu trúc vật liệu. Một chính sách học bắt chước xuất sắc bắt buộc phải có chỉ số Jerk xấp xỉ quỹ đạo mượt mà của con người.
+          </div>
+</div>
+<!-- 13.4 -->
+<h2 id="sec-13-4">13.4 Các Bộ Benchmark Chuẩn Mực Trong Giới Nghiên Cứu</h2>
+<p>1. <strong>RoboMimic (Mandlekar et al., CoRL 2021):</strong> Cung cấp tập dữ liệu chuẩn hóa đa dạng các cấp độ chuyên gia (Proficient-Human, Multi-Human, Ph-Better, Machine-Generated) trên các tác vụ kinh điển như Can, Square, Transport.</p>
+<p>2. <strong>RLBench (James et al., IEEE RA-L 2020):</strong> Môi trường mô phỏng trên CoppeliaSim với hơn 100 tác vụ thao tác cánh tay robot 7 bậc tự do.</p>
+<p>3. <strong>ALOHA Bimanual Benchmark:</strong> Thử nghiệm thao tác hai tay tinh xảo (xỏ chỉ luồn kim, bấm khóa kéo túi xách) trên phần cứng thật.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-13-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Căn Chỉnh Quỹ Đạo Bằng Dynamic Time Warping (DTW) &amp; Chỉ Số Jerk</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-13" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-13-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Tính Ma Trận Quy Hoạch Động DTW 3x3 Giữa Hai Quỹ Đạo 1D</h3>
+</div>
+<div class="exercise-statement">
+<p>Cho quỹ đạo mẫu chuyên gia $X = [1.0, 3.0, 4.0]$ và quỹ đạo robot $Y = [1.0, 2.0, 4.0]$. Hàm chi phí điểm là khoảng cách trị tuyệt đối $c(x_i, y_j) = |x_i - y_j|$. Tính ma trận chi phí cục bộ $\mathbf{C}$, ma trận tích lũy $\mathbf{D}$, và chi phí DTW tổng thể tối ưu.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Lập ma trận chi phí cục bộ $C(i, j) = |X_i - Y_j|$</span>
+</div>
+<div class="step-content">
+<p>• Hàng 1 ($X_1 = 1.0$): $|1-1|=0, |1-2|=1, |1-4|=3 \Rightarrow [0, 1, 3]$</p><p>• Hàng 2 ($X_2 = 3.0$): $|3-1|=2, |3-2|=1, |3-4|=1 \Rightarrow [2, 1, 1]$</p><p>• Hàng 3 ($X_3 = 4.0$): $|4-1|=3, |4-2|=2, |4-4|=0 \Rightarrow [3, 2, 0]$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Khởi tạo hàng 1 và cột 1 ma trận tích lũy $D$</span>
+</div>
+<div class="step-content">
+<p>• $D(1, 1) = C(1, 1) = 0$</p><p>• $D(1, 2) = D(1, 1) + C(1, 2) = 0 + 1 = 1$</p><p>• $D(1, 3) = D(1, 2) + C(1, 3) = 1 + 3 = 4$</p><p>• $D(2, 1) = D(1, 1) + C(2, 1) = 0 + 2 = 2$</p><p>• $D(3, 1) = D(2, 1) + C(3, 1) = 2 + 3 = 5$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Điền các ô còn lại theo công thức $D(i, j) = C(i, j) + \min(D_{i-1, j}, D_{i, j-1}, D_{i-1, j-1})$</span>
+</div>
+<div class="step-content">
+<p>• Ô $(2, 2)$: $C(2, 2) + \min(D_{1,2}, D_{2,1}, D_{1,1}) = 1 + \min(1, 2, 0) = 1 + 0 = 1$</p><p>• Ô $(2, 3)$: $C(2, 3) + \min(D_{1,3}, D_{2,2}, D_{1,2}) = 1 + \min(4, 1, 1) = 1 + 1 = 2$</p><p>• Ô $(3, 2)$: $C(3, 2) + \min(D_{2,2}, D_{3,1}, D_{2,1}) = 2 + \min(1, 5, 2) = 2 + 1 = 3$</p><p>• Ô $(3, 3)$: $C(3, 3) + \min(D_{2,3}, D_{3,2}, D_{2,2}) = 0 + \min(2, 3, 1) = 0 + 1 = 1$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kết luận khoảng cách DTW tối ưu</span>
+</div>
+<div class="step-content">
+<p>Giá trị tại ô góc phải dưới: $$D(3, 3) = 1.0$$</p><p>Khoảng cách căn chỉnh tối ưu theo thời gian giữa robot và người là $1.0$, minh chứng hai quỹ đạo có hình dạng gần như đồng nhất tuyệt đối dù có độ lệch tốc độ ở bước trung gian.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Khoảng cách Dynamic Time Warping (DTW) và chỉ số độ giật Jerk Metric cung cấp hệ quy chuẩn định lượng đa chiều: Đánh giá chính xác độ chính xác hình học và độ êm ái cơ học của quỹ đạo robot học được.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-13-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Module Đánh Giá Tự Động Chỉ Số Jerk &amp; DTW Trong Python</h4>
+<p>Mã nguồn chuẩn kiểm thử chất lượng quỹ đạo thu được từ dữ liệu thực nghiệm:</p>
+<div class="code-card">
+<div class="code-header">
+<span>trajectory_evaluator.py (Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import numpy as np
+from scipy.spatial.distance import cdist
+
+def compute_jerk(trajectory, dt=0.02):
+    # trajectory: numpy array [T, DOF]
+    vel = np.gradient(trajectory, dt, axis=0)
+    acc = np.gradient(vel, dt, axis=0)
+    jerk = np.gradient(acc, dt, axis=0)
+    # Tích phân Jerk metric: tổng bình phương chia thời gian
+    return np.mean(np.sum(jerk**2, axis=-1))
+
+def fast_dtw(traj_a, traj_b):
+    # traj_a: [N, D], traj_b: [M, D]
+    cost_matrix = cdist(traj_a, traj_b, metric='euclidean')
+    N, M = cost_matrix.shape
+    D = np.zeros((N, M))
+    D[0, 0] = cost_matrix[0, 0]
+    for i in range(1, N): D[i, 0] = D[i-1, 0] + cost_matrix[i, 0]
+    for j in range(1, M): D[0, j] = D[0, j-1] + cost_matrix[0, j]
+    for i in range(1, N):
+        for j in range(1, M):
+            D[i, j] = cost_matrix[i, j] + min(D[i-1, j], D[i, j-1], D[i-1, j-1])
+    return D[-1, -1]</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-13-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Đánh Giá Quỹ Đạo Bằng Dynamic Time Warping (DTW) &amp; Jerk Metric</h4>
+</div>
+<div class="practice-statement">
+<p>Cho hai chuỗi quỹ đạo vận tốc 1D qua 3 bước thời gian: Quỹ đạo chuyên gia $X = [1.0, 2.0, 4.0]$ và Quỹ đạo robot $Y = [1.0, 3.0, 4.0]$. Chu kỳ mẫu $\Delta t = 0.1\text{ s}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Lập bảng ma trận khoảng cách cục bộ $D(i, j) = |X_i - Y_j|$ với $i, j \in \{1, 2, 3\}$.<br/>2) Tính ma trận chi phí tích lũy DTW và xác định khoảng cách Dynamic Time Warping tối ưu.<br/>3) Tính chỉ số độ giật cơ học Jerk Metric $J = \frac{1}{T} \sum_{t} |\ddot{y}_t|^2$ của robot để đánh giá độ êm ái khi chuyển động.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Bảng khoảng cách cục bộ $D(i, j) = |X_i - Y_j|$:<br/>• Hàng 1 ($X_1=1.0$): $|1-1|=0, |1-3|=2, |1-4|=3$.<br/>• Hàng 2 ($X_2=2.0$): $|2-1|=1, |2-3|=1, |2-4|=2$.<br/>• Hàng 3 ($X_3=4.0$): $|4-1|=3, |4-3|=1, |4-4|=0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Ma trận chi phí tích lũy $\gamma(i, j) = D(i, j) + \min(\gamma(i-1, j), \gamma(i, j-1), \gamma(i-1, j-1))$:<br/>• $\gamma(1, 1) = 0$.<br/>• $\gamma(1, 2) = 0 + 2 = 2$; $\gamma(1, 3) = 2 + 3 = 5$.<br/>• $\gamma(2, 1) = 0 + 1 = 1$; $\gamma(2, 2) = 1 + \min(0, 2, 1) = 1$; $\gamma(2, 3) = 2 + \min(2, 5, 1) = 3$.<br/>• $\gamma(3, 1) = 3 + 1 = 4$; $\gamma(3, 2) = 1 + \min(1, 1, 4) = 2$; $\gamma(3, 3) = 0 + \min(1, 3, 2) = 1$.<br/>Khoảng cách tối ưu $\text{DTW}(X, Y) = 1.0\text{ đơn vị}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Gia tốc: $a_1 = \frac{3.0 - 1.0}{0.1} = 20\text{ m/s}^2$; $a_2 = \frac{4.0 - 3.0}{0.1} = 10\text{ m/s}^2$.<br/>Độ giật: $\text{Jerk} = \frac{a_2 - a_1}{0.1} = \frac{10 - 20}{0.1} = -100\text{ m/s}^3$.<br/>Jerk Metric: $J = (-100)^2 = 10000\text{ m}^2/\text{s}^6$. Chỉ số giật cao cho thấy robot tăng tốc đột ngột ở bước 2, cần làm mịn qua bộ lọc Savitzky-Golay.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch12.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 12: Giao Diện HRI &amp; Shared Autonomy</span>
+</a>
+<a class="ch-nav-card next" href="ch14.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 14: Kiến Trúc LeRobot &amp; ALOHA 50Hz</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

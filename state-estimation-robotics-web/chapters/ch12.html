@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 12: Tiền Tích Phân IMU Trên Nhóm Lie Cho Visual-Inertial Odometry | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-4">Track 4: Ứng Dụng Tư Thế &amp; IMU</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 12</span>
+<h3 class="sidebar-title">Tiền Tích Phân IMU Trên Nhóm Lie Cho Visual-Inertial Odometry</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 4 / Ứng Dụng Tư Thế &amp; IMU / Chương 12</div>
+<h1 class="chapter-main-title">Chương 12: Tiền Tích Phân IMU Trên Nhóm Lie Cho Visual-Inertial Odometry</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 9.4 &amp; 10.1–10.3 (Trang 389–432)</span>
+<span class="meta-item">🎯 Trọng tâm: Lý thuyết Forster On-Manifold Preintegration &amp; Bù trôi Bias bậc nhất</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Trong hệ thống định vị thị giác-quán tính (Visual-Inertial Odometry - VIO), camera chụp với tốc độ $30\text{ FPS}$ trong khi cảm biến IMU bắn dữ liệu với tần số cao $200\text{–}1000\text{ Hz}$. Giữa hai khung hình camera liên tiếp, có hàng chục đến hàng trăm mẫu gia tốc và con quay hồi chuyển! Nếu mỗi lần thuật toán tối ưu hóa điều chỉnh tư thế camera trong quá khứ mà ta phải tích phân lại từ đầu hàng trăm mẫu IMU này thì máy tính sẽ lập tức quá tải. <strong>Lý thuyết Tiền Tích Phân IMU (Forster et al. 2017)</strong> giải quyết triệt để xung đột tần số này!</p>
+</div>
+<p>Bằng cách chuyển phép tích phân quán tính vào <em>hệ quy chiếu cục bộ của khung hình camera $i$</em>, đại lượng tiền tích phân hoàn toàn độc lập với tư thế tuyệt đối của robot. Khi sai số trôi Bias thay đổi một lượng nhỏ $\delta \mathbf{b}$, ta chỉ cần cập nhật bù bậc nhất bằng ma trận Jacobian mà không bao giờ phải tích phân lại dữ liệu thô.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Cho khoảng thời gian giữa hai khung ảnh $t_i$ và $t_j$. Các biến đổi tiền tích phân trong hệ quy chiếu cục bộ $i$:</p>
+<div class="formula-card">
+<div class="formula-header">Công Thức Tiền Tích Phân IMU Trên Nhóm Lie (Forster 2017)</div>
+          $$\begin{align}
+          \Delta \mathbf{R}_{ij} &amp;= \prod_{k=i}^{j-1} \exp\left( (\tilde{\boldsymbol{\omega}}_k - \mathbf{b}_i^g)^\wedge \Delta t \right) \\
+          \Delta \mathbf{v}_{ij} &amp;= \sum_{k=i}^{j-1} \Delta \mathbf{R}_{ik} (\tilde{\mathbf{a}}_k - \mathbf{b}_i^a) \Delta t \\
+          \Delta \mathbf{p}_{ij} &amp;= \sum_{k=i}^{j-1} \left( \Delta \mathbf{v}_{ik} \Delta t + \frac{1}{2} \Delta \mathbf{R}_{ik} (\tilde{\mathbf{a}}_k - \mathbf{b}_i^a) \Delta t^2 \right)
+          \end{align}$$
+        </div>
+<p>Quan hệ giữa các đại lượng tiền tích phân cục bộ và trạng thái toàn cục trong hệ quy chiếu thế giới $W$:</p>
+        $$\begin{align}
+        \mathbf{R}_j &amp;= \mathbf{R}_i \Delta \mathbf{R}_{ij} \exp\left( (\mathbf{J}_{ij}^{\Delta R} \delta \mathbf{b}_i^g)^\wedge \right) \\
+        \mathbf{v}_j &amp;= \mathbf{v}_i + \mathbf{g}^W \Delta t_{ij} + \mathbf{R}_i \left( \Delta \mathbf{v}_{ij} + \mathbf{J}_{ij}^{\Delta v, g} \delta \mathbf{b}_i^g + \mathbf{J}_{ij}^{\Delta v, a} \delta \mathbf{b}_i^a \right) \\
+        \mathbf{p}_j &amp;= \mathbf{p}_i + \mathbf{v}_i \Delta t_{ij} + \frac{1}{2}\mathbf{g}^W \Delta t_{ij}^2 + \mathbf{R}_i \left( \Delta \mathbf{p}_{ij} + \mathbf{J}_{ij}^{\Delta p, g} \delta \mathbf{b}_i^g + \mathbf{J}_{ij}^{\Delta p, a} \delta \mathbf{b}_i^a \right)
+        \end{align}$$
+      </section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<p>Các ma trận Jacobian $\mathbf{J}$ biểu diễn độ nhạy của phép tiền tích phân đối với sự thay đổi của bias gia tốc kế $\mathbf{b}^a$ và con quay hồi chuyển $\mathbf{b}^g$. Chúng được tính toán đệ quy đồng thời cùng lúc với quá trình tích lũy mẫu IMU.</p>
+<p>Hiệp phương sai sai số $\boldsymbol{\Sigma}_{ij}$ được lan truyền rời rạc theo mô hình phương trình vi phân ngẫu nhiên tuyến tính hóa, tạo thành một <strong>Nhân tử IMU (IMU Factor)</strong> duy nhất ghim chặt hai tư thế camera trong đồ thị tối ưu hóa.</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Tiền Tích Phân Cục Bộ 2 Bước IMU &amp; Cập Nhật Bù Bias Bậc 1</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Robot di chuyển giữa hai khung camera với chu kỳ lấy mẫu IMU $\Delta t = 0.10\text{ s}$. Robot nhận được 2 mẫu đo quán tính liên tiếp (giả sử ban đầu bias $\mathbf{b}^g = \mathbf{0}, \mathbf{b}^a = \mathbf{0}$):<br/>• Bước 1 ($k=1$): $\tilde{\boldsymbol{\omega}}_1 = [0, 0, 0.10]^T\text{ rad/s}$, $\tilde{\mathbf{a}}_1 = [1.00, 0, 0]^T\text{ m/s}^2$.<br/>• Bước 2 ($k=2$): $\tilde{\boldsymbol{\omega}}_2 = [0, 0, 0.10]^T\text{ rad/s}$, $\tilde{\mathbf{a}}_2 = [1.00, 0, 0]^T\text{ m/s}^2$.<br/>Yêu cầu: Hãy tính toán các đại lượng tiền tích phân cục bộ $\Delta \mathbf{R}_{13}, \Delta \mathbf{v}_{13}, \Delta \mathbf{p}_{13}$ trong hệ quy chiếu cục bộ tại $k=1$.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Tích lũy nhịp 1 ($k=1 \to 2$):<br/>• Vector góc xoay bước 1: $\delta \boldsymbol{\theta}_1 = \tilde{\boldsymbol{\omega}}_1 \Delta t = [0, 0, 0.01]^T\text{ rad}$.<br/>• Ma trận quay bước 1 (xấp xỉ góc nhỏ):<br/>$$\Delta \mathbf{R}_{12} = \exp(\delta \boldsymbol{\theta}_1^\wedge) \approx \begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$$<br/>• Biến thiên vận tốc: $\Delta \mathbf{v}_{12} = \tilde{\mathbf{a}}_1 \Delta t = [1.00 \times 0.10, 0, 0]^T = [0.10, 0, 0]^T\text{ m/s}$.<br/>• Biến thiên vị trí: $\Delta \mathbf{p}_{12} = \frac{1}{2}\tilde{\mathbf{a}}_1 \Delta t^2 = \frac{1}{2}[1.00 \times 0.01, 0, 0]^T = [0.005, 0, 0]^T\text{ m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tích lũy nhịp 2 ($k=2 \to 3$):<br/>• Vector góc xoay bước 2: $\delta \boldsymbol{\theta}_2 = \tilde{\boldsymbol{\omega}}_2 \Delta t = [0, 0, 0.01]^T\text{ rad}$.<br/>• Góc quay tổng hợp: $\Delta \mathbf{R}_{13} = \Delta \mathbf{R}_{12} \exp(\delta \boldsymbol{\theta}_2^\wedge) \approx \begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}\begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; -0.02 &amp; 0 \\ 0.02 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tổng hợp biến thiên vận tốc và vị trí cục bộ:<br/>• Gia tốc nhịp 2 quy đổi về hệ quy chiếu 1: $\Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 = \begin{bmatrix} 1 &amp; -0.01 &amp; 0 \\ 0.01 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix}\begin{bmatrix} 1.00 \\ 0 \\ 0 \end{bmatrix} = \begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix}\text{ m/s}^2$.<br/>• Vận tốc tích lũy:<br/>$$\Delta \mathbf{v}_{13} = \Delta \mathbf{v}_{12} + \Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 \Delta t = \begin{bmatrix} 0.10 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix} \times 0.10 = \begin{bmatrix} 0.20\text{ m/s} \\ 0.001\text{ m/s} \\ 0.000\text{ m/s} \end{bmatrix}$$<br/>• Vị trí tích lũy:<br/>$$\Delta \mathbf{p}_{13} = \Delta \mathbf{p}_{12} + \Delta \mathbf{v}_{12} \Delta t + \frac{1}{2}\Delta \mathbf{R}_{12} \tilde{\mathbf{a}}_2 \Delta t^2 = \begin{bmatrix} 0.005 \\ 0 \\ 0 \end{bmatrix} + \begin{bmatrix} 0.10 \times 0.10 \\ 0 \\ 0 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 1.00 \\ 0.01 \\ 0.00 \end{bmatrix} \times 0.01 = \begin{bmatrix} 0.005 + 0.010 + 0.005 \\ 0 + 0 + 0.00005 \\ 0 \end{bmatrix} = \begin{bmatrix} 0.02000\text{ m} \\ 0.00005\text{ m} \\ 0.00000\text{ m} \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Diễn giải ý nghĩa: Toàn bộ quá trình tích lũy quán tính được thực hiện hoàn toàn trong hệ quy chiếu cục bộ của camera 1. Khi thuật toán tối ưu hóa dịch chuyển tư thế camera 1 hoặc camera 2 trong không gian thế giới, các đại lượng $\Delta R_{13}, \Delta v_{13}, \Delta p_{13}$ vẫn giữ nguyên giá trị! Hệ thống chỉ cần nhân ma trận quay $R_1$ ở bước cuối cùng, tiết kiệm $99.9\%$ chi phí tính toán.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 12.1: Cập nhật bù bias con quay hồi chuyển</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu sau bước tối ưu hóa, bias con quay thay đổi một lượng $\delta \mathbf{b}^g = [0, 0, 0.002]^T\text{ rad/s}$ và Jacobian $\mathbf{J}^{\Delta R} = -\Delta t I = -0.2 I$. Hãy tính góc xoay tiền tích phân hiệu chỉnh $\Delta \mathbf{R}_{13}^{corr}$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Lượng bù góc: $\delta \boldsymbol{\theta}_{bias} = \mathbf{J}^{\Delta R} \delta \mathbf{b}^g = -0.2 [0, 0, 0.002]^T = [0, 0, -0.0004]^T\text{ rad}$. Ma trận hiệu chỉnh: $\Delta \mathbf{R}_{13}^{corr} = \Delta \mathbf{R}_{13} \exp(([0, 0, -0.0004]^T)^\wedge)$.
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 12: Tiền Tích Phân IMU &amp; Cập Nhật Bù Bias Bậc 1 Thời Gian Thực</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-12" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Sai số trôi Bias gia tốc: <span id="sim12-ba-val">0.1</span> m/s²</label>
+<input id="sim12-ba" max="0.5" min="0.0" step="0.05" type="range" value="0.1"/>
+</div>
+<div class="control-group">
+<label>Bù Bias bằng Jacobian: <span id="sim12-comp-val">Bật</span></label>
+<input id="sim12-comp" max="1" min="0" step="1" type="range" value="1"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim12-stats">Quan sát quỹ đạo dự đoán IMU được nắn khớp hoàn hảo với các khung hình camera nhờ cập nhật Jacobian bậc 1.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// IMU Preintegration in GTSAM / C++
+#include &lt;iostream&gt;
+#include &lt;gtsam/navigation/ImuFactor.h&gt;
+#include &lt;gtsam/navigation/CombinedImuFactor.h&gt;
+
+int main() {
+    // IMU Preintegration parameters
+    auto p = gtsam::PreintegratedCombinedMeasurements::Params::MakeSharedU(9.81);
+    p-&gt;accelerometerCovariance = gtsam::Matrix33::Identity() * 0.01;
+    p-&gt;gyroscopeCovariance = gtsam::Matrix33::Identity() * 0.001;
+    p-&gt;integrationCovariance = gtsam::Matrix33::Identity() * 1e-4;
+    
+    gtsam::imuBias::ConstantBias priorBias;
+    gtsam::PreintegratedCombinedMeasurements pim(p, priorBias);
+    
+    // Integrate discrete samples
+    pim.integrateMeasurement(gtsam::Vector3(1.0, 0.0, 0.0), gtsam::Vector3(0.0, 0.0, 0.1), 0.1);
+    pim.integrateMeasurement(gtsam::Vector3(1.0, 0.0, 0.0), gtsam::Vector3(0.0, 0.0, 0.1), 0.1);
+    
+    std::cout &lt;&lt; "Preintegrated Delta Velocity:\n" &lt;&lt; pim.deltaVj() &lt;&lt; "\n\n";
+    std::cout &lt;&lt; "Preintegrated Delta Position:\n" &lt;&lt; pim.deltaPij() &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Xung đột tần số:</strong> IMU tốc độ cao (1000Hz) xung đột với Camera tốc độ thấp (30Hz), đòi hỏi kỹ thuật gom cụm dữ liệu.</li><li><strong>Hệ quy chiếu cục bộ:</strong> Tích phân trong hệ quy chiếu camera $i$ giúp kết quả bất biến trước các dịch chuyển toàn cục.</li><li><strong>Cập nhật bù Bias bậc 1:</strong> Khắc phục hiện tượng trôi nhiệt sensor mà không cần tích phân lại các mẫu dữ liệu thô.</li><li><strong>Chuẩn mực VIO thế giới:</strong> Nền tảng cốt tử bên trong các thuật toán VINS-Mono, OKVIS và ORB-SLAM3.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch11.html">← Chương 11: Tối Ưu Hóa Đồ Thị Pose-Graph SLAM</a>
+<a class="btn-nav btn-next" href="ch13.html">Chương tiếp theo: Bundle Adjustment &amp; Triệt Tiêu Schur Complement →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

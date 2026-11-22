@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Phụ lục A: Nền tảng Toán học cho Kỹ thuật Robot - Elements of Robotics</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Phụ lục &amp; Bổ trợ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Phụ lục A: Toán học Robot</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC PHỤ LỤC A</span>
+<span class="sidebar-badge">4 PHẦN</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item"><a href="#sec-a-1"><span class="nav-text">A.1 Lượng Giác &amp; Hệ Tọa Độ Robot</span></a></div>
+<div class="nav-item"><a href="#sec-a-2"><span class="nav-text">A.2 Đại Số Tuyến Tính &amp; Nhóm SE(2), SE(3)</span></a></div>
+<div class="nav-item"><a href="#sec-a-3"><span class="nav-text">A.3 Lý Thuyết Xác Suất &amp; Hiệp Phương Sai</span></a></div>
+<div class="nav-item"><a href="#sec-a-4"><span class="nav-text">A.4 Giải Tích Đa Biến &amp; Tối Ưu Hóa</span></a></div>
+</nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+
+<main class="main-content" style="max-width: 1000px; margin: 0 auto; width: 100%; padding: 2rem 1rem 4rem;">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">PHỤ LỤC A • MATHEMATICS FOR ROBOTICS</div>
+<h1>Nền tảng Toán học cho Kỹ thuật Robot</h1>
+<p class="chapter-subtitle">Tổng hợp các công cụ toán học tối cần thiết được sử dụng xuyên suốt toàn bộ giáo trình Elements of Robotics.</p>
+</div>
+<article class="chapter-body-standalone">
+<div class="track-header">
+<span class="track-badge">PHỤ LỤC A</span>
+<h2>NỀN TẢNG TOÁN HỌC CHO KỸ THUẬT ROBOT</h2>
+<p class="track-desc">Tổng hợp các công cụ toán học tối cần thiết được sử dụng xuyên suốt toàn bộ giáo trình Elements of Robotics.</p>
+</div>
+<article class="chapter-card">
+<div class="chapter-body">
+<h4>A.1 Lượng giác Giải tích &amp; Hệ Tọa độ</h4>
+<p>Hàm số lượng giác góc lượng giác: $\sin^2\theta + \cos^2\theta = 1$, công thức cộng góc $\cos(\alpha \pm \beta) = \cos\alpha\cos\beta \mp \sin\alpha\sin\beta$. Hàm $\text{atan2}(y, x)$ xác định góc trong khoảng $(-\pi, \pi]$ phân biệt rõ 4 góc phần tư mặt phẳng.</p>
+<h4>A.2 Đại số Tuyến tính &amp; Không gian Nhóm $SE(2), SE(3)$</h4>
+<p>Ma trận quay phẳng $SO(2)$: $R(\theta) = \begin{bmatrix} \cos\theta &amp; -\sin\theta \\ \sin\theta &amp; \cos\theta \end{bmatrix}$ với tính chất trực giao $R^{-1} = R^T$ và $\det(R) = 1$. Ma trận chuyển vị thuần nhất $4 \times 4$ trong $SE(3)$ kết hợp xoay và tịnh tiến:</p>
+<p>$$T = \begin{bmatrix} R_{3\times 3} &amp; \mathbf{p}_{3\times 1} \\ \mathbf{0}_{1\times 3} &amp; 1 \end{bmatrix}$$</p>
+<h4>A.3 Lý thuyết Xác suất &amp; Ma trận Hiệp phương sai</h4>
+<p>Tiên đề Kolmogorov, biến ngẫu nhiên liên tục, phân phối chuẩn đa chiều $\mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$. Ma trận hiệp phương sai $\boldsymbol{\Sigma} = E[(\mathbf{x} - \boldsymbol{\mu})(\mathbf{x} - \boldsymbol{\mu})^T]$ luôn đối xứng và nửa xác định dương, với các trục chính của elip bất định là các vector riêng của $\boldsymbol{\Sigma}$.</p>
+</div>
+</article>
+</article>
+<nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch16.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 16: Cánh tay Thao tác 2-DOF</span>
+</a>
+<a class="page-nav-btn next" href="appendix-b.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Phụ lục B: Kiến trúc ROS 2 →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

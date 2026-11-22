@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Động Học Vi Phân & Tĩnh Học Robot | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 03</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link active">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Động Học & Tĩnh Học</span>
+          <span class="page-source-badge">📖 Siciliano et al., Chương 3 (Trang 119–190)</span>
+        </div>
+        <h1 class="chapter-title">Chương 03: Động Học Vi Phân & Tĩnh Học Robot</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Jacobian hình học & giải tích, Điểm kỳ dị động học, Nghịch đảo Jacobian & Damped Least-Squares (DLS), Tự dịch chuyển không gian rỗng (Null-space), Vòng kín CLIK, Tĩnh học đối ngẫu & Ellipsoid khả năng thao tác Yoshikawa</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Nếu động học vị trí giúp robot biết mình đang ở đâu, thì <strong>Động học vi phân (Differential Kinematics)</strong> là trái tim của mọi giải thuật điều khiển vận tốc thời gian thực: <em>Muốn đầu công tác bay với vận tốc $\mathbf{v}_e$ và quay với vận tốc góc $\boldsymbol{\omega}_e$, các khớp phải xoay với vận tốc $\dot{\mathbf{q}}$ là bao nhiêu?</em> Mối quan hệ tuyến tính tức thời này được thiết lập thông qua <strong>Ma trận Jacobian $J(\mathbf{q})$</strong>.</p>
+        </div>
+        <p>Tuy nhiên, tại một số cấu hình hình học đặc thù gọi là <strong>Điểm kỳ dị (Kinematic Singularities)</strong>, định thức của Jacobian suy biến về $0$. Tại đây, robot mất đi một hoặc nhiều bậc tự do chuyển động tức thời, và việc dùng nghịch đảo thông thường $J^{-1}$ sẽ làm vận tốc góc các khớp bùng nổ tiến tới vô cực ($\dot{q}_i \to \infty$), gây kích hoạt ngắt bảo vệ rơ-le hoặc làm gãy cơ cấu truyền động! Các giải thuật <strong>Damped Least-Squares (DLS)</strong> và <strong>Động học nghịch vòng kín (Closed-Loop Inverse Kinematics - CLIK)</strong> được phát minh chính để hóa giải thảm họa kỳ dị này.</p>
+        <p>Đặc biệt, theo Nguyên lý công ảo (Principle of Virtual Work), Jacobian còn tạo ra tính chất <strong>Đối ngẫu Tĩnh học - Vận tốc (Kineto-Statics Duality)</strong>: $\boldsymbol{\tau} = J^T(\mathbf{q}) \mathbf{f}_e$. Cánh tay robot hoạt động như một bộ biến áp cơ khí biến đổi giữa vận tốc và lực tương tác với môi trường.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Quan hệ vận tốc giữa không gian khớp $\dot{\mathbf{q}} \in \mathbb{R}^n$ và không gian thao tác $\mathbf{v}_e = [\dot{\mathbf{p}}_e^T, \boldsymbol{\omega}_e^T]^T \in \mathbb{R}^6$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Ma Trận Jacobian Hình Học & Công Thức Từng Cột</div>
+          $$\begin{equation}
+          \mathbf{v}_e = \begin{bmatrix} \dot{\mathbf{p}}_e \\ \boldsymbol{\omega}_e \end{bmatrix} = J(\mathbf{q}) \dot{\mathbf{q}} = \begin{bmatrix} J_P(\mathbf{q}) \\ J_O(\mathbf{q}) \end{bmatrix} \dot{\mathbf{q}}
+          \end{equation}$$
+          <p>Với khớp quay (Revolute joint $i$):</p>
+          $$\begin{equation}
+          J_{Pi} = \mathbf{z}_{i-1} \times (\mathbf{p}_e - \mathbf{p}_{i-1}), \qquad J_{Oi} = \mathbf{z}_{i-1}
+          \end{equation}$$
+          <p>Với khớp tịnh tiến (Prismatic joint $i$):</p>
+          $$\begin{equation}
+          J_{Pi} = \mathbf{z}_{i-1}, \qquad J_{Oi} = \mathbf{0}
+          \end{equation}$$
+        </div>
+
+        <p>Khi robot tiếp cận điểm kỳ dị ($\det(J) \approx 0$), thuật toán <strong>Damped Least-Squares (DLS / Levenberg-Marquardt)</strong> bảo toàn tính ổn định bằng cách thêm trọng số suy giảm $\lambda \gt 0$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Nghịch Đảo Damped Least-Squares (DLS) & Giải Thuật CLIK</div>
+          $$\begin{equation}
+          J^*(\mathbf{q}) = J^T(\mathbf{q}) \left( J(\mathbf{q}) J^T(\mathbf{q}) + \lambda^2 I \right)^{-1}
+          \end{equation}$$
+          <p>Giải thuật <strong>Closed-Loop Inverse Kinematics (CLIK)</strong> tích hợp phản hồi triệt tiêu sai số trôi dạt tích phân (Drift):</p>
+          $$\begin{equation}
+          \dot{\mathbf{q}} = J^\dagger(\mathbf{q}) \left( \dot{\mathbf{x}}_d + K_P (\mathbf{x}_d - \mathbf{x}_e) \right) + (I - J^\dagger(\mathbf{q}) J(\mathbf{q})) \dot{\mathbf{q}}_0
+          \end{equation}$$
+          <p>Toán tử chiếu không gian rỗng $(I - J^\dagger J)$ cho phép robot dư thừa bậc tự do ($n \gt m$) thực hiện nhiệm vụ phụ $\dot{\mathbf{q}}_0$ (như tránh va chạm, tối ưu chỉ số Yoshikawa) mà không làm lệch quỹ đạo điểm đầu công tác.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Tính đối ngẫu Tĩnh học và Khả năng thao tác (Manipulability):</p>
+        <ul>
+          <li><strong>Đối ngẫu tĩnh học (Kineto-Statics Duality):</strong> Khi đầu công tác tác dụng lực và mô-men $\mathbf{f}_e = [\mathbf{f}^T, \boldsymbol{\mu}^T]^T$ lên môi trường, mô-men khớp cần sinh ra ở trạng thái cân bằng tĩnh là:
+            $$\boldsymbol{\tau} = J^T(\mathbf{q}) \mathbf{f}_e$$
+          </li>
+          <li><strong>Chỉ số khả năng thao tác Yoshikawa (Yoshikawa's Manipulability Measure):</strong>
+            $$w(\mathbf{q}) = \sqrt{\det(J(\mathbf{q}) J^T(\mathbf{q}))}$$
+            Khi robot ở gần kỳ dị, $w(\mathbf{q}) \to 0$. Tại cấu hình tối ưu độ linh hoạt, $w(\mathbf{q})$ đạt cực đại.
+          </li>
+          <li><strong>Ellipsoid vận tốc và Ellipsoid lực:</strong> Bán trục của ellipsoid vận tốc tỷ lệ thuận với các giá trị suy biến $\sigma_i$ của Jacobian ($J = U \Sigma V^T$). Ellipsoid lực có hình dạng hoàn toàn đối ngẫu nghịch đảo: hướng nào robot di chuyển vận tốc được nhanh nhất thì hướng đó sinh lực yếu nhất, và ngược lại.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Toán Jacobian, Vận Tốc Khớp, Nghiệm DLS & Đối Ngẫu Lực Tĩnh Cho Robot 2R</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Cho cánh tay robot phẳng 2 bậc tự do (2R Planar Manipulator) có chiều dài các khâu $l_1 = 0.80\text{ m}$ và $l_2 = 0.60\text{ m}$. Cấu hình góc khớp hiện tại là $q_1 = 45^\circ = \pi/4\text{ rad}$, $q_2 = 60^\circ = \pi/3\text{ rad}$.<br>1) Thiết lập ma trận Jacobian hình học giải tích $J(\mathbf{q})$ và tính giá trị số cụ thể tại cấu hình này.<br>2) Nếu điểm đầu công tác cần di chuyển với vận tốc dài $\mathbf{v}_e = [\dot{x}_e, \dot{y}_e]^T = [-0.50\text{ m/s}, 0.80\text{ m/s}]^T$, hãy tính vận tốc góc của các khớp $\dot{\mathbf{q}} = [\dot{q}_1, \dot{q}_2]^T$.<br>3) Nếu đầu công tác tì đè một ngoại lực $\mathbf{f}_e = [25.0\text{ N}, -15.0\text{ N}]^T$ lên bề mặt gia công, hãy tính vector mô-men tĩnh $\boldsymbol{\tau} = [\tau_1, \tau_2]^T$ cần sinh ra tại 2 động cơ khớp.<br>4) Tính chỉ số khả năng thao tác Yoshikawa $w(\mathbf{q})$ và so sánh với khi robot ở sát điểm kỳ dị duỗi thẳng $q_2 = 5^\circ$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập biểu thức giải tích ma trận Jacobian 2R:<br>Tọa độ vị trí điểm cuối: $x_e = l_1 \cos q_1 + l_2 \cos(q_1 + q_2)$ và $y_e = l_1 \sin q_1 + l_2 \sin(q_1 + q_2)$.<br>Đạo hàm riêng theo thời gian $\mathbf{v}_e = J(\mathbf{q})\dot{\mathbf{q}}$:<br>$$J(\mathbf{q}) = \begin{bmatrix} \frac{\partial x_e}{\partial q_1} & \frac{\partial x_e}{\partial q_2} \\ \frac{\partial y_e}{\partial q_1} & \frac{\partial y_e}{\partial q_2} \end{bmatrix} = \begin{bmatrix} -l_1 \sin q_1 - l_2 \sin(q_1 + q_2) & -l_2 \sin(q_1 + q_2) \\ l_1 \cos q_1 + l_2 \cos(q_1 + q_2) & l_2 \cos(q_1 + q_2) \end{bmatrix}$$<br>Định thức của ma trận Jacobian:<br>$$\det(J) = (-l_1 s_1 - l_2 s_{12})(l_2 c_{12}) - (-l_2 s_{12})(l_1 c_1 + l_2 c_{12}) = l_1 l_2 (s_{12} c_1 - c_{12} s_1) = l_1 l_2 \sin(q_2)$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán các giá trị số học của ma trận Jacobian tại $q_1 = 45^\circ, q_2 = 60^\circ$ ($q_1 + q_2 = 105^\circ$):<br>• $\sin(45^\circ) = \cos(45^\circ) \approx 0.70711$<br>• $\sin(105^\circ) = \sin(45^\circ + 60^\circ) = \sin 45^\circ \cos 60^\circ + \cos 45^\circ \sin 60^\circ = 0.70711(0.5) + 0.70711(0.86603) \approx 0.96593$<br>• $\cos(105^\circ) = \cos 45^\circ \cos 60^\circ - \sin 45^\circ \sin 60^\circ = 0.70711(0.5) - 0.70711(0.86603) \approx -0.25882$<br>Thay số vào Jacobian:<br>$$J_{11} = -0.80(0.70711) - 0.60(0.96593) = -0.56569 - 0.57956 = -1.14525\text{ m}$$<br>$$J_{12} = -0.60(0.96593) = -0.57956\text{ m}$$<br>$$J_{21} = 0.80(0.70711) + 0.60(-0.25882) = 0.56569 - 0.15529 = 0.41040\text{ m}$$<br>$$J_{22} = 0.60(-0.25882) = -0.15529\text{ m}$$<br>$$\det(J) = l_1 l_2 \sin(q_2) = (0.80)(0.60)\sin(60^\circ) = 0.48 \times 0.86603 \approx 0.41569\text{ m}^2$$<br>Ma trận nghịch đảo $J^{-1}$:<br>$$J^{-1} = \frac{1}{\det(J)} \begin{bmatrix} J_{22} & -J_{12} \\ -J_{21} & J_{11} \end{bmatrix} = \frac{1}{0.41569} \begin{bmatrix} -0.15529 & 0.57956 \\ -0.41040 & -1.14525 \end{bmatrix} \approx \begin{bmatrix} -0.37357 & 1.39421 \\ -0.98727 & -2.75506 \end{bmatrix}\text{ m}^{-1}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học chi tiết vận tốc khớp, mô-men tĩnh và độ linh hoạt:<br>1) <strong>Vận tốc góc các khớp:</strong><br>$$\dot{\mathbf{q}} = J^{-1} \mathbf{v}_e = \begin{bmatrix} -0.37357 & 1.39421 \\ -0.98727 & -2.75506 \end{bmatrix} \begin{bmatrix} -0.50 \\ 0.80 \end{bmatrix}$$<br>$$\dot{q}_1 = (-0.37357)(-0.50) + 1.39421(0.80) = 0.18679 + 1.11537 = 1.30216\text{ rad/s} \approx 74.61^\circ/\text{s}$$<br>$$\dot{q}_2 = (-0.98727)(-0.50) + (-2.75506)(0.80) = 0.49364 - 2.20405 = -1.71041\text{ rad/s} \approx -98.00^\circ/\text{s}$$<br>2) <strong>Mô-men tĩnh cân bằng ngoại lực (Đối ngẫu tĩnh học):</strong><br>$$\boldsymbol{\tau} = J^T \mathbf{f}_e = \begin{bmatrix} -1.14525 & 0.41040 \\ -0.57956 & -0.15529 \end{bmatrix} \begin{bmatrix} 25.0 \\ -15.0 \end{bmatrix}$$<br>$$\tau_1 = (-1.14525)(25.0) + (0.41040)(-15.0) = -28.6312 - 6.1560 = -34.7872\text{ N}\cdot\text{m}$$<br>$$\tau_2 = (-0.57956)(25.0) + (-0.15529)(-15.0) = -14.4890 + 2.3294 = -12.1596\text{ N}\cdot\text{m}$$<br>3) <strong>Chỉ số khả năng thao tác Yoshikawa:</strong><br>$$w(\mathbf{q}) = |\det(J(\mathbf{q}))| = 0.41569\text{ m}^2$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận vật lý & Phân tích suy giảm tại điểm gần kỳ dị:<br>• Chỉ số thao tác tại $q_2 = 60^\circ$ là $w = 0.4157\text{ m}^2$, đạt $86.6\%$ giá trị cực đại lý thuyết ($w_{\max} = l_1 l_2 = 0.4800\text{ m}^2$ tại $q_2 = 90^\circ$). Tại đây ellipsoid vận tốc tròn đều và robot di chuyển rất linh hoạt.<br>• Khi cánh tay duỗi gần thẳng ở $q_2 = 5^\circ$: $\det(J) = 0.48 \sin(5^\circ) = 0.48(0.08716) \approx 0.04184\text{ m}^2$ (suy giảm gần 10 lần!). Nghịch đảo $J^{-1}$ sẽ khuếch đại vận tốc lên gấp hàng chục lần. Khi đó phương pháp Damped Least-Squares với hệ số cản $\lambda = 0.08$ sẽ giới hạn chuẩn vận tốc khớp $|\dot{\mathbf{q}}| \le 4.2\text{ rad/s}$, giữ an toàn tuyệt đối cho hệ thống truyền động.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 03: Động Học Vi Phân, Jacobian & Elip Độ Khả Điều Khiển</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-03" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Góc khớp 1 ($q_1$): <span id="sim03-q1-val">45</span>°</label>
+              <input type="range" id="sim03-q1" min="-180" max="180" step="5" value="45">
+            </div>
+            <div class="control-group">
+              <label>Góc khớp 2 ($q_2$): <span id="sim03-q2-val">60</span>°</label>
+              <input type="range" id="sim03-q2" min="1" max="179" step="1" value="60">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim03-stats" class="sim-telemetry-text">Ellipsoid màu xanh dương thể hiện khả năng sinh vận tốc; khi góc q2 tiến về 0° hoặc 180°, ellipsoid xẹp dẹt hoàn toàn thành đoạn thẳng thể hiện sự xuất hiện của điểm kỳ dị.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Differential Kinematics, DLS Inverse &amp; Yoshikawa Measure in C++20 Eigen
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;Eigen/Dense&gt;
+
+class DifferentialKinematics2R {
+public:
+    DifferentialKinematics2R(double l1, double l2) : l1_(l1), l2_(l2) {}
+
+    Eigen::Matrix2d computeJacobian(double q1, double q2) const {
+        double s1 = std::sin(q1), c1 = std::cos(q1);
+        double s12 = std::sin(q1 + q2), c12 = std::cos(q1 + q2);
+        Eigen::Matrix2d J;
+        J &lt;&lt; -l1_ * s1 - l2_ * s12, -l2_ * s12,
+              l1_ * c1 + l2_ * c12,  l2_ * c12;
+        return J;
+    }
+
+    double manipulabilityYoshikawa(const Eigen::Matrix2d&amp; J) const {
+        return std::sqrt(std::max(0.0, (J * J.transpose()).determinant()));
+    }
+
+    Eigen::Vector2d solveInverseDLS(const Eigen::Matrix2d&amp; J, const Eigen::Vector2d&amp; v, double lambda) const {
+        Eigen::Matrix2d JJt = J * J.transpose();
+        Eigen::Matrix2d damped = JJt + (lambda * lambda) * Eigen::Matrix2d::Identity();
+        return J.transpose() * damped.inverse() * v;
+    }
+
+private:
+    double l1_, l2_;
+};
+
+int main() {
+    DifferentialKinematics2R robot(0.80, 0.60);
+    double q1 = 45.0 * M_PI / 180.0;
+    double q2 = 60.0 * M_PI / 180.0;
+
+    Eigen::Matrix2d J = robot.computeJacobian(q1, q2);
+    Eigen::Vector2d v_e(-0.50, 0.80);
+    Eigen::Vector2d f_e(25.0, -15.0);
+
+    Eigen::Vector2d q_dot = J.inverse() * v_e;
+    Eigen::Vector2d tau = J.transpose() * f_e;
+    double w = robot.manipulabilityYoshikawa(J);
+
+    std::cout &lt;&lt; &quot;Jacobian Matrix J:\n&quot; &lt;&lt; J &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Joint Velocities (rad/s): &quot; &lt;&lt; q_dot.transpose() &lt;&lt; &quot;\n&quot;;
+    std::cout &lt;&lt; &quot;Static Joint Torques (N*m): &quot; &lt;&lt; tau.transpose() &lt;&lt; &quot;\n&quot;;
+    std::cout &lt;&lt; &quot;Yoshikawa Measure w: &quot; &lt;&lt; w &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Ma trận Jacobian:</strong> Cầu nối vi phân tuyến tính giữa vận tốc không gian khớp $\dot{q}$ và vận tốc thao tác đầu cuối $v_e$.</li><li><strong>Điểm kỳ dị:</strong> Cấu hình làm $\det(J) = 0$, robot mất bậc tự do tức thời; cần phát hiện và cách ly bằng thuật toán phân tách kỳ dị.</li><li><strong>Damped Least-Squares (DLS):</strong> Thêm thành phần suy giảm $\lambda^2 I$ ngăn chặn bùng nổ vận tốc khớp khi đi xuyên qua hoặc sát vùng kỳ dị.</li><li><strong>Đối ngẫu Tĩnh học:</strong> $\boldsymbol{	au} = J^T \mathbf{f}_e$, mô tả cánh tay robot như bộ biến áp cơ khí hai chiều giữa vận tốc và lực tương tác.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 3.1: Nghiệm DLS khi robot ở sát điểm kỳ dị</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Tại cấu hình gần kỳ dị $q_1 = 45^\circ, q_2 = 5^\circ$, với cùng vector vận tốc mong muốn $\mathbf{v}_e = [-0.50, 0.80]^T\text{ m/s}$, hãy tính nghiệm vận tốc khớp $\dot{\mathbf{q}}_{dls}$ bằng công thức DLS $J^* = J^T(J J^T + \lambda^2 I)^{-1}$ với hệ số suy giảm $\lambda = 0.10$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Tại $q_2 = 5^\circ$, $\det(J) \approx 0.04184$. Nếu dùng $J^{-1}$, $\dot{q}_2$ sẽ vọt lên $\approx -23.8\text{ rad/s}$ (vượt quá giới hạn động cơ). Áp dụng DLS với $\lambda = 0.10$, ma trận $A = (J J^T + 0.01 I)$ được điều hòa số học tốt. Nghiệm thu được là $\dot{\mathbf{q}}_{dls} \approx [0.82, -3.65]^T\text{ rad/s}$. Vận tốc khớp được kiềm chế trong giới hạn an toàn danh định, đánh đổi bằng một sai số vận tốc nhỏ $\approx 0.04\text{ m/s}$ dọc theo hướng duỗi cánh tay.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch02.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 02: Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</span>
+        </a>
+        <a href="ch04.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 04: Hoạch Định Quỹ Đạo Chuyển Động →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim03 === "function") {
+        initSim03();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

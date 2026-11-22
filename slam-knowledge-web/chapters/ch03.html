@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 03: Bộ Lọc Bayes, Extended Kalman Filter (EKF) &amp; Phân Tích Hiệp Phương Sai - SLAM &amp; Active Perception Portal</title>
+<meta content="Probabilistic Bayes Filter, EKF &amp; Covariance Ellipses" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 2: ƯỚC LƯỢNG TRẠNG THÁI &amp; ĐỊNH VỊ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 03</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-3-1">
+<span class="nav-text">3.1 Khung Lọc Bayes Đệ Quy Tổng Quát</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-2">
+<span class="nav-text">3.2 Tuyến Tính Hóa Taylor &amp; Extended Kalman Filter (EKF)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-3">
+<span class="nav-text">3.3 Phân Tích Ma Trận Hiệp Phương Sai P_t &amp; Elip Tin Cậy</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-4">
+<span class="nav-text">3.4 EKF-SLAM Ước Lượng Đồng Thời Robot &amp; Mốc</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-sim">
+<span class="nav-text">⚡ Mô Phỏng Elip Tin Cậy EKF Localization (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Cập Nhật Kalman Gain K</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-3-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Tích Hợp Robot Localization EKF YAML</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-3-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 2: ƯỚC LƯỢNG TRẠNG THÁI &amp; ĐỊNH VỊ • CHƯƠNG 03</div>
+<h1 class="chapter-title">Bộ Lọc Bayes, Extended Kalman Filter (EKF) &amp; Phân Tích Hiệp Phương Sai</h1>
+<p class="chapter-subtitle">Probabilistic Bayes Filter, EKF &amp; Covariance Ellipses</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Mordechai Ben-Ari &amp; Francesco Mondada (Elements of Robotics, Springer)</strong></span>
+</div>
+</div>
+<!-- 3.1 -->
+<h2 id="sec-3-1">3.1 Khung Lọc Bayes Đệ Quy Tổng Quát Trong Định Vị Robot</h2>
+<p>Ước lượng trạng thái trong robot học được mô hình hóa qua hai phương trình phân phối xác suất:</p>
+<p>1. <strong>Mô hình chuyển động (Motion Model):</strong> $p(x_t \mid x_{t-1}, u_t)$</p>
+<p>2. <strong>Mô hình đo lường (Measurement Model):</strong> $p(z_t \mid x_t)$</p>
+<!-- 3.2 -->
+<h2 id="sec-3-2">3.2 Extended Kalman Filter (EKF) Cho Các Hệ Thống Phi Tuyến</h2>
+<p>Trong thực tế, cả chuyển động của robot vi sai và phép đo khoảng cách/góc quay tới mốc chuẩn đều là hàm phi tuyến:</p>
+        $$\mathbf{x}_t = \mathbf{f}(\mathbf{x}_{t-1}, \mathbf{u}_t) + \mathbf{w}_t, \quad \mathbf{w}_t \sim \mathcal{N}(0, \mathbf{Q}_t)$$
+        $$\mathbf{z}_t = \mathbf{h}(\mathbf{x}_t) + \mathbf{v}_t, \quad \mathbf{v}_t \sim \mathcal{N}(0, \mathbf{R}_t)$$
+        <p>Thuật toán EKF xấp xỉ tuyến tính hóa bậc nhất chuỗi Taylor quanh điểm kỳ vọng hiện tại qua hai ma trận Jacobian:</p>
+        $$\mathbf{F}_t = \left. \frac{\partial \mathbf{f}}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}_{t-1}, \mathbf{u}_t}, \quad \mathbf{H}_t = \left. \frac{\partial \mathbf{h}}{\partial \mathbf{x}} \right|_{\hat{\mathbf{x}}_t^-}$$
+
+        <div class="formula-hero">
+<div class="formula-title">Chu Trình Hai Giai Đoạn Của Bộ Lọc EKF</div>
+<div class="formula-math">
+            $$\begin{aligned}
+              \text{1. Dự báo: } &amp; \hat{\mathbf{x}}_t^- = \mathbf{f}(\hat{\mathbf{x}}_{t-1}, \mathbf{u}_t), \quad \mathbf{P}_t^- = \mathbf{F}_t \mathbf{P}_{t-1} \mathbf{F}_t^T + \mathbf{Q}_t \\
+              \text{2. Hiệu chỉnh: } &amp; \mathbf{K}_t = \mathbf{P}_t^- \mathbf{H}_t^T (\mathbf{H}_t \mathbf{P}_t^- \mathbf{H}_t^T + \mathbf{R}_t)^{-1} \\
+              &amp; \hat{\mathbf{x}}_t = \hat{\mathbf{x}}_t^- + \mathbf{K}_t (\mathbf{z}_t - \mathbf{h}(\hat{\mathbf{x}}_t^-)), \quad \mathbf{P}_t = (\mathbf{I} - \mathbf{K}_t \mathbf{H}_t) \mathbf{P}_t^-
+            \end{aligned}$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách thành phần:</strong>
+<br/>• $\mathbf{P}_t$: Ma trận hiệp phương sai sai số kích thước $n \times n$.
+            <br/>• $\mathbf{K}_t$: Ma trận độ lợi Kalman (Kalman Gain) điều tiết mức độ tin cậy giữa dự báo mô hình chuyển động và số đo cảm biến.
+            <br/>• $(\mathbf{z}_t - \mathbf{h}(\hat{\mathbf{x}}_t^-))$: Phần dư đổi mới (Innovation / Residual).
+          </div>
+</div>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-3-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Elip Tin Cậy Hiệp Phương Sai EKF Co Giãn Khi Đo Mốc Chuẩn</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-03" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-3-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Tính Toán Kalman Gain $\mathbf{K}$ &amp; Cập Nhật Tọa Độ Robot 1D</h3>
+</div>
+<div class="exercise-statement">
+<p>Xét robot chuyển động trên trục $x$. Dự báo vị trí hiện tại $\hat{x}^- = 10.0$ m với phương sai $P^- = 4.0\text{ m}^2$ (độ bất định cao). Cảm biến cự ly đo được khoảng cách tới gốc tọa độ là $z = 11.2$ m với phương sai nhiễu đo $R = 1.0\text{ m}^2$. Ma trận đo $H = 1.0$. Tính độ lợi Kalman $K$, phần dư đổi mới, vị trí hiệu chỉnh $\hat{x}$, và phương sai cập nhật $P$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính toán Kalman Gain $K$</span>
+</div>
+<div class="step-content">
+<p>$$K = \frac{P^- H^T}{H P^- H^T + R} = \frac{4.0 \times 1.0}{(1.0 \times 4.0 \times 1.0) + 1.0} = \frac{4.0}{5.0} = 0.80$$</p><p>Kalman Gain đạt $0.80$ (gần $1.0$), thể hiện hệ thống sẽ tin tưởng phần lớn vào số đo cảm biến chính xác.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính phần dư đổi mới (Innovation)</span>
+</div>
+<div class="step-content">
+<p>$$\nu = z - H \hat{x}^- = 11.2 - (1.0 \times 10.0) = +1.2\text{ m}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Hiệu chỉnh vị trí ước lượng $\hat{x}$</span>
+</div>
+<div class="step-content">
+<p>$$\hat{x} = \hat{x}^- + K \nu = 10.0 + 0.80 \times (+1.2) = 10.0 + 0.96 = 10.96\text{ m}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Cập nhật phương sai sai số $P$</span>
+</div>
+<div class="step-content">
+<p>$$P = (1 - K H) P^- = (1 - 0.80 \times 1.0) \times 4.0 = 0.20 \times 4.0 = 0.80\text{ m}^2$$</p><p>Độ lệch chuẩn sai số giảm mạnh từ $\sigma = \sqrt{4.0} = 2.0$ m xuống còn $\sigma = \sqrt{0.8} \approx 0.89$ m!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Cập nhật Kalman EKF đã chứng minh sự co cụm của ellipse bất định khi quan sát được mốc nhận dạng: Độ lợi Kalman Gain tự động cân bằng tối ưu giữa độ tin cậy của mô hình động học và độ chính xác của cảm biến đo khoảng cách.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-3-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Cấu Hình Chuẩn Robot Localization EKF Trong ROS 2</h4>
+<p>Tệp cấu hình YAML chuẩn tích hợp Odometry và IMU cho gói `robot_localization`:</p>
+<div class="code-card">
+<div class="code-header">
+<span>ekf_localization.yaml (ROS 2)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # Nguồn 1: Wheel Odometry
+    odom0: /odom
+    odom0_config: [true,  true,  false,
+                   false, false, true,
+                   true,  false, false,
+                   false, false, true,
+                   false, false, false]
+
+    # Nguồn 2: IMU
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  true,  false, false]</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-3-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Cập Nhật EKF Khi Quan Sát Mốc Nhận Dạng Được (Known Landmark)</h4>
+</div>
+<div class="practice-statement">
+<p>Robot di chuyển trong không gian 1D có vector trạng thái $\mathbf{x} = [x]^T$. Tại bước $k$, ước lượng tiên nghiệm $\hat{x}^- = 3.2\text{ m}$ với phương sai sai số $P^- = 0.4\text{ m}^2$. Robot quan sát thấy một mốc cố định tại tọa độ $x_m = 5.0\text{ m}$ bằng cảm biến cự ly có hàm đo $h(x) = x_m - x$. Giá trị khoảng cách đo được là $z = 1.6\text{ m}$, phương sai nhiễu đo $R = 0.1\text{ m}^2$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính giá trị đo kỳ vọng $\hat{z}$ và phần dư đo đạc (innovation) $y$.<br/>2) Tính ma trận độ lợi Kalman $K$.<br/>3) Tính ước lượng hậu nghiệm $\hat{x}^+$ và phương sai $P^+$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Khoảng cách kỳ vọng: $\hat{z} = h(\hat{x}^-) = 5.0 - 3.2 = 1.8\text{ m}$. Phần dư đo đạc: $y = z - \hat{z} = 1.6 - 1.8 = -0.2\text{ m}$. Jacobian của hàm đo: $H = \frac{\partial h}{\partial x} = -1.0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Phương sai của phần dư đo (Innovation Covariance): $S = H P^- H^T + R = (-1)(0.4)(-1) + 0.1 = 0.4 + 0.1 = 0.5\text{ m}^2$.<br/>Độ lợi Kalman Gain: $K = P^- H^T S^{-1} = 0.4 \times (-1) \times \frac{1}{0.5} = -0.8$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Cập nhật trạng thái hậu nghiệm: $\hat{x}^+ = \hat{x}^- + K y = 3.2 + (-0.8)(-0.2) = 3.2 + 0.16 = 3.36\text{ m}$.<br/>Phương sai hậu nghiệm: $P^+ = (1 - K H) P^- = (1 - (-0.8)(-1)) \times 0.4 = (1 - 0.8) \times 0.4 = 0.08\text{ m}^2$. Độ bất định giảm $5$ lần từ $0.4$ xuống $0.08\text{ m}^2$.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch02.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 02: Mô Hình Cảm Biến &amp; Occupancy Grid</span>
+</a>
+<a class="ch-nav-card next" href="ch04.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 04: Bộ Lọc Hạt MCL &amp; FastSLAM</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

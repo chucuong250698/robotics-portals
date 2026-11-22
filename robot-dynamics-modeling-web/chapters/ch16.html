@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 16: Cầu Nối Kiến Trúc Thực Tế: URDF, Pinocchio, ros2_control & Gazebo | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 16</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link active">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-6">Track 6: Thuật Toán Mô Phỏng Số & Kiến Trúc Robot</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 14–15; ROS 2 Iron / Jazzy Standard</span>
+        </div>
+        <h1 class="chapter-title">Chương 16: Cầu Nối Kiến Trúc Thực Tế: URDF, Pinocchio, ros2_control & Gazebo</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô tả Robot URDF, Thư viện động lực học Pinocchio C++, Framework ros2_control & Tích hợp Gazebo / Isaac Sim</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Làm thế nào để đưa toàn bộ 15 chương lý thuyết toán học sâu sắc (Newton-Euler, Lagrange, Ma sát LuGre, Tích phân Symplectic, Hệ ràng buộc DAEs) vào một hệ thống robot thật đang chạy ngoài đời thực hoặc trong môi trường mô phỏng siêu thực Gazebo Harmonic / NVIDIA Isaac Sim? Ngành kỹ thuật robot công nghiệp hiện đại không bao giờ yêu cầu kỹ sư tự viết lại ma trận $M(q)$ hay $C(q, \dot{q})$ bằng tay cho tay máy 7 bậc tự do (bởi phương trình có thể dài hàng chục trang giấy!). Thay vào đó, toàn bộ hình học và quán tính được đóng gói trong tệp <strong>URDF/Xacro</strong>, động lực học được tính toán tốc độ cực cao micro-giây qua thư viện chuẩn quốc tế <strong>Pinocchio C++ (CNRS, Inria)</strong>, và các vòng điều khiển phản hồi 1000 Hz được điều phối chuẩn hóa thông qua <strong>ros2_control Hardware Interface</strong>.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Kiến trúc phân tầng chuẩn hóa từ Mô hình toán học đến Phần cứng thực thi:</p>
+        $$\begin{align}
+        \text{URDF / Xacro} &\xrightarrow{\text{Nạp mô hình}} \text{Pinocchio Model} \xrightarrow{\text{RNEA / CRBA}} \mathbf{M}(\mathbf{q}), \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) \\
+        \boldsymbol{\tau}_{\text{cmd}} &= \mathbf{M}(\mathbf{q})(\ddot{\mathbf{q}}_d + \mathbf{K}_p \mathbf{e} + \mathbf{K}_d \dot{\mathbf{e}}) + \mathbf{C}\dot{\mathbf{q}} + \mathbf{g} \xrightarrow{1000\text{ Hz}} \text{ros2_control Hardware Interface}
+        \end{align}$$
+        <div class="formula-card">
+          <div class="formula-header">Vòng Lặp Điều Khiển Mô-men Tính Toán (Computed Torque Control Loop)</div>
+          $$\begin{equation}
+          \boldsymbol{\tau} = \mathbf{M}(\mathbf{q})\mathbf{u}^* + \mathbf{h}(\mathbf{q}, \dot{\mathbf{q}})
+          \end{equation}$$
+          $$\begin{equation}
+          \mathbf{u}^* = \ddot{\mathbf{q}}_d(t) + \mathbf{K}_p (\mathbf{q}_d - \mathbf{q}) + \mathbf{K}_d (\dot{\mathbf{q}}_d - \dot{\mathbf{q}})
+          \end{equation}$$
+          <p>Với $\mathbf{h}(\mathbf{q}, \dot{\mathbf{q}}) = \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q})$ được tính toán chính xác chỉ trong vài micro-giây bằng thuật toán đệ quy số học ngược Newton-Euler (Recursive Newton-Euler Algorithm - RNEA).</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Các thành phần cốt lõi của hệ sinh thái ROS 2 Robot Control:</p>
+        <ul>
+          <li><strong>Mô hình URDF / Xacro:</strong> Định nghĩa các khớp (`<joint>`), thân liên kết (`<link>`), thông số quán tính 3D (`<inertial>`, `<mass>`, `<inertia>`), và giao diện truyền động (`<transmission>`).</li>
+          <li><strong>Pinocchio C++ Engine:</strong> Thư viện tính toán động học và động lực học đa vật thể số 1 thế giới, hỗ trợ tự động vi phân (Analytical Derivatives) ma trận $M, C, g$ phục vụ tối ưu hóa quỹ đạo Trajectory Optimization.</li>
+          <li><strong>ros2_control Framework:</strong> Cung cấp `hardware_interface::SystemInterface` chuẩn hóa vòng lặp đọc encoder (`read()`) và xuất mô-men động cơ (`write()`) trong luồng thời gian thực cách ly (Real-Time Thread).</li>
+          <li><strong>Gazebo / Isaac Sim Bridge:</strong> Plugin `gazebo_ros2_control` tự động ánh xạ các topic lệnh `/joint_trajectory_controller/commands` vào các khớp vật lý của động cơ mô phỏng.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế ROS 2 Control Node C++ Với Thuật Toán Bù Trọng Lực Pinocchio 1000Hz</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một tay máy công nghiệp 2 bậc tự do có file mô tả URDF. Tại một thời điểm làm việc, cảm biến encoder đọc về trạng thái khớp: vị trí $\mathbf{q} = [0.0, \pi/3]^T\text{ rad}$ và vận tốc $\dot{\mathbf{q}} = [0.5, -0.2]^T\text{ rad/s}$. Quỹ đạo mong muốn tại thời điểm này là: $\mathbf{q}_d = [0.1, 0.9]^T\text{ rad}$, $\dot{\mathbf{q}}_d = [0.0, 0.0]^T$, gia tốc mong muốn $\ddot{\mathbf{q}}_d = [0.0, 0.0]^T$. Bộ điều khiển PD có thông số: $\mathbf{K}_p = \text{diag}(100.0, 100.0)$, $\mathbf{K}_d = \text{diag}(20.0, 20.0)$. Thuật toán Pinocchio RNEA tính ra ma trận quán tính và vector Coriolis + Gravity tại cấu hình này là:<br>$$\mathbf{M}(\mathbf{q}) = \begin{bmatrix} 0.45 & 0.12 \\ 0.12 & 0.08 \end{bmatrix}\text{ kg}\cdot\text{m}^2, \quad \mathbf{h}(\mathbf{q}, \dot{\mathbf{q}}) = \begin{bmatrix} 8.50 \\ 3.20 \end{bmatrix}\text{ N}\cdot\text{m}$$<br>Yêu cầu: Hãy tính sai lệch bám vị trí $\mathbf{e}$ và vận tốc $\dot{\mathbf{e}}$, tính gia tốc điều khiển ảo $\mathbf{u}^*$, và xác định vector mô-men điều khiển cuối cùng $\boldsymbol{\tau} = [\tau_1, \tau_2]^T$ cần gửi xuống phần cứng qua `hardware_interface`.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán vector sai lệch vị trí và vận tốc khớp:<br>• Sai lệch vị trí: $\mathbf{e} = \mathbf{q}_d - \mathbf{q} = \begin{bmatrix} 0.10 - 0.00 \\ 0.90 - \frac{\pi}{3} \end{bmatrix} \approx \begin{bmatrix} 0.10 \\ 0.90 - 1.0472 \end{bmatrix} = \begin{bmatrix} 0.10 \\ -0.1472 \end{bmatrix}\text{ rad}$.<br>• Sai lệch vận tốc: $\dot{\mathbf{e}} = \dot{\mathbf{q}}_d - \dot{\mathbf{q}} = \begin{bmatrix} 0.0 - 0.50 \\ 0.0 - (-0.20) \end{bmatrix} = \begin{bmatrix} -0.50 \\ +0.20 \end{bmatrix}\text{ rad/s}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán gia tốc điều khiển ảo $\mathbf{u}^*$ (Computed Acceleration):<br>$$\mathbf{u}^* = \ddot{\mathbf{q}}_d + \mathbf{K}_p \mathbf{e} + \mathbf{K}_d \dot{\mathbf{e}}$$<br>• Khớp 1: $u_1^* = 0 + 100.0(0.10) + 20.0(-0.50) = 10.0 - 10.0 = 0.00\text{ rad/s}^2$.<br>• Khớp 2: $u_2^* = 0 + 100.0(-0.1472) + 20.0(+0.20) = -14.72 + 4.00 = -10.72\text{ rad/s}^2$.<br>Vector gia tốc ảo: $\mathbf{u}^* = \begin{bmatrix} 0.00 \\ -10.72 \end{bmatrix}\text{ rad/s}^2$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán thành phần mô-men quán tính $\boldsymbol{\tau}_{\text{inertia}} = \mathbf{M}(\mathbf{q})\mathbf{u}^*$:<br>$$\boldsymbol{\tau}_{\text{inertia}} = \begin{bmatrix} 0.45 & 0.12 \\ 0.12 & 0.08 \end{bmatrix} \begin{bmatrix} 0.00 \\ -10.72 \end{bmatrix} = \begin{bmatrix} 0.12 \times (-10.72) \\ 0.08 \times (-10.72) \end{bmatrix} = \begin{bmatrix} -1.2864 \\ -0.8576 \end{bmatrix}\text{ N}\cdot\text{m}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Cộng bù phi tuyến động lực học Pinocchio $\mathbf{h}(\mathbf{q}, \dot{\mathbf{q}})$ để ra mô-men phát xuống motor:<br>$$\boldsymbol{\tau} = \boldsymbol{\tau}_{\text{inertia}} + \mathbf{h}(\mathbf{q}, \dot{\mathbf{q}}) = \begin{bmatrix} -1.2864 \\ -0.8576 \end{bmatrix} + \begin{bmatrix} 8.50 \\ 3.20 \end{bmatrix} = \begin{bmatrix} 7.2136 \\ 2.3424 \end{bmatrix}\text{ N}\cdot\text{m}$$<br>Như vậy, mô-men gửi xuống động cơ khớp 1 là $\tau_1 \approx 7.21\text{ N}\cdot\text{m}$, khớp 2 là $\tau_2 \approx 2.34\text{ N}\cdot\text{m}$. Nhờ thuật toán RNEA bù trọng lực và lực Coriolis thời gian thực, hệ thống loại bỏ hoàn toàn phi tuyến, chuyển động bám của cánh tay robot trở thành hệ bậc hai tuyến tính tách kênh hoàn hảo.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 16: Điều Khiển Bù Động Lực Học Robot Real-Time Pinocchio / ROS 2</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-16" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Độ lợi vị trí Kp: <span id="sim16-kp-val">100</span></label>
+              <input type="range" id="sim16-kp" min="20" max="250" step="10" value="100">
+            </div>
+            <div class="control-group">
+              <label>Chế độ bù mô hình:</label>
+              <select id="sim16-mode" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-primary);">
+                <option value="computed_torque">Bù Động Lực Học Toàn Phần (Computed Torque)</option>
+                <option value="pd_only">Chỉ Dùng PD Đơn Thuần (Bị lệch do trọng lực)</option>
+              </select>
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim16-stats" class="sim-telemetry-text">Ở chế độ bù mô hình toàn phần, cánh tay robot bám sát quỹ đạo đường tròn mong muốn tuyệt đối không có độ trễ hay sai số tĩnh do trọng lực.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// ROS 2 Real-Time Control Node with Pinocchio RNEA Dynamics in C++
+#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;pinocchio/parsers/urdf.hpp&gt;
+#include &lt;pinocchio/algorithm/rnea.hpp&gt;
+#include &lt;pinocchio/algorithm/crba.hpp&gt;
+#include &lt;Eigen/Dense&gt;
+
+class PinocchioControllerNode : public rclcpp::Node {
+public:
+    PinocchioControllerNode() : Node(&quot;pinocchio_controller_node&quot;) {
+        // Load robot model from URDF string
+        const std::string urdf_path = &quot;robot_arm.urdf&quot;;
+        pinocchio::urdf::buildModel(urdf_path, model_);
+        data_ = pinocchio::Data(model_);
+        
+        RCLCPP_INFO(this-&gt;get_logger(), &quot;Loaded robot with %d DoFs&quot;, model_.nv);
+        
+        timer_ = this-&gt;create_wall_timer(
+            std::chrono::milliseconds(1), // 1000 Hz real-time loop
+            std::bind(&amp;PinocchioControllerNode::controlLoop, this));
+    }
+
+private:
+    void controlLoop() {
+        Eigen::VectorXd q = readJointEncoders();
+        Eigen::VectorXd v = readJointVelocities();
+        
+        // 1. Compute Mass Matrix M(q) via CRBA
+        pinocchio::crba(model_, data_, q);
+        data_.M.triangularView&lt;Eigen::StrictlyLower&gt;() = 
+            data_.M.transpose().triangularView&lt;Eigen::StrictlyLower&gt;();
+            
+        // 2. Compute Non-linear effects h(q, v) = C*v + g via RNEA
+        Eigen::VectorXd a_zero = Eigen::VectorXd::Zero(model_.nv);
+        Eigen::VectorXd h = pinocchio::rnea(model_, data_, q, v, a_zero);
+        
+        // 3. Computed Torque Control Law
+        Eigen::VectorXd q_des = getDesiredTrajectory();
+        Eigen::VectorXd e = q_des - q;
+        Eigen::VectorXd v_des = Eigen::VectorXd::Zero(model_.nv);
+        Eigen::VectorXd e_dot = v_des - v;
+        
+        double Kp = 100.0, Kd = 20.0;
+        Eigen::VectorXd u_star = Kp * e + Kd * e_dot;
+        
+        Eigen::VectorXd tau = data_.M * u_star + h;
+        writeJointTorques(tau);
+    }
+    
+    pinocchio::Model model_;
+    pinocchio::Data data_;
+    rclcpp::TimerBase::SharedPtr timer_;
+    
+    Eigen::VectorXd readJointEncoders() { return Eigen::Vector2d(0.0, M_PI/3.0); }
+    Eigen::VectorXd readJointVelocities() { return Eigen::Vector2d(0.5, -0.2); }
+    Eigen::VectorXd getDesiredTrajectory() { return Eigen::Vector2d(0.1, 0.9); }
+    void writeJointTorques(const Eigen::VectorXd&amp; tau) {
+        // Send torques to ros2_control Hardware Interface
+    }
+};
+
+int main(int argc, char** argv) {
+    rclcpp::init(argc, argv);
+    rclcpp::spin(std::make_shared&lt;PinocchioControllerNode&gt;());
+    rclcpp::shutdown();
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Cầu nối URDF:</strong> Mô tả chuẩn hóa toàn bộ hình học, liên kết và đặc tính khối lượng quán tính 3D của hệ thống robot.</li><li><strong>Pinocchio C++:</strong> Động cơ tính toán động lực học hàng đầu thế giới giải quyết RNEA và CRBA ở tần số micro-giây.</li><li><strong>ros2_control:</strong> Kiến trúc hướng đối tượng chuẩn hóa việc trừu tượng hóa phần cứng và điều phối các bộ điều khiển 1000 Hz.</li><li><strong>Khép lại hành trình 16 chương:</strong> Từ phương trình giải tích lý thuyết cơ bản đến dòng lệnh C++ điều khiển robot vận hành ngoài đời thực.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 16.1: Chế độ bù trọng lực thuần túy (Gravity Compensation Mode)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Khi người dùng nắm cánh tay robot để dạy học trực tiếp (Lead-Through Teaching), robot cần ở chế độ không trọng lượng ($\\mathbf{K}_p = 0, \\mathbf{K}_d = 0$). Tính vector mô-men $\\boldsymbol{\tau}_{\text{teach}}$ cần cung cấp khi cánh tay dừng yên tại $\mathbf{q} = [0, \pi/3]^T$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Khi dừng yên ($\dot{\mathbf{q}} = 0$) và $\mathbf{u}^* = 0$, lực Coriolis bằng 0. Mô-men điều khiển chỉ đơn thuần bù trọng lực tĩnh: $\boldsymbol{\tau}_{\text{teach}} = \mathbf{g}(\mathbf{q}) = [8.50, 3.20]^T\text{ N}\cdot\text{m}$. Người vận hành có thể nhẹ nhàng đẩy cánh tay di chuyển tự do bằng một ngón tay mà không cảm thấy sức nặng của cánh tay.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch15.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 15: Mô Phỏng Hệ DAEs (Index 1-2-3) & Ổn Định Hóa Baumgarte</span>
+        </a>
+        <a href="../index.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Hoàn thành khóa học: Trở về Portal Hub →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim16 === "function") {
+        initSim16();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

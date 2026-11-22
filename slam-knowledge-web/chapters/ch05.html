@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 05: Đồ Thị Tư Thế &amp; Tối Ưu Hóa Phi Tuyến (Pose Graph SLAM) - SLAM &amp; Active Perception Portal</title>
+<meta content="Pose Graph Optimization, Lie Groups &amp; Factor Graphs" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 3: SLAM HÌNH HỌC CỔ ĐIỂN &amp; ĐỒ THỊ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 05</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-5-1">
+<span class="nav-text">5.1 Bước Chuyển Từ Lọc (Filter) Sang Đồ Thị (Graph)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-2">
+<span class="nav-text">5.2 Biểu Diễn Nhóm Lie SE(2) / SE(3) &amp; Hàm Sai Số</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-3">
+<span class="nav-text">5.3 Tối Ưu Hóa Gauss-Newton &amp; Levenberg-Marquardt</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-4">
+<span class="nav-text">5.4 Khung Thừa Số Factor Graphs &amp; GTSAM / g2o</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-sim">
+<span class="nav-text">⚡ Mô Phỏng Đóng Vòng Lặp Pose Graph (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Giải Hệ Chuẩn H Δx = b</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-bridge">
+<span class="nav-text">🛠️ Cầu Nối Python: Tối Ưu Hóa Factor Graph Bằng GTSAM</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-5-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 3: SLAM HÌNH HỌC CỔ ĐIỂN &amp; ĐỒ THỊ • CHƯƠNG 05</div>
+<h1 class="chapter-title">Đồ Thị Tư Thế &amp; Tối Ưu Hóa Phi Tuyến (Pose Graph SLAM)</h1>
+<p class="chapter-subtitle">Pose Graph Optimization, Lie Groups &amp; Factor Graphs</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Thanh Nguyen Canh et al. (IEEE 2021) &amp; Timothy Barfoot (2024)</strong></span>
+</div>
+</div>
+<!-- 5.1 -->
+<h2 id="sec-5-1">5.1 Bước Chuyển Mình Lịch Sử: Từ Lọc Trạng Thái Sang Tối Ưu Hóa Đồ Thị</h2>
+<p>Trong nhiều thập kỷ, SLAM bị thống trị bởi các bộ lọc xác suất (EKF-SLAM). Tuy nhiên, EKF-SLAM mang hai điểm nghẽn trí mạng:</p>
+<ul>
+<li><strong>Độ phức tạp bậc hai:</strong> Ma trận hiệp phương sai kích thước $(3 + 2M) \times (3 + 2M)$ cập nhật tốn chi phí $O(M^2)$, sụp đổ khi bản đồ có hàng vạn mốc.</li>
+<li><strong>Tuyến tính hóa sớm (Inconsistency / Early Linearization):</strong> Tuyến tính hóa Taylor tại một điểm sai lệch sẽ vĩnh viễn làm hỏng ma trận thông tin mà không thể sửa lại được.</li>
+</ul>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 GRAPH-BASED SLAM (ĐỒ THỊ YẾU TỐ) ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">
+            Graph-based SLAM (khởi xướng bởi Lu &amp; Milios, hoàn thiện bởi Dellaert, Kaess, Grisetti) mô hình hóa toàn bộ lịch sử tư thế của robot thành các đỉnh (Nodes) trong đồ thị, và các ràng buộc đo đạc (Odometry, Laser scan matching, Loop closure) thành các cạnh (Edges / Factors). 
+            <br/>Nhờ <strong>cấu trúc ma trận thưa thông tin (Sparse Information Matrix)</strong>, thuật toán có thể tối ưu hóa hàng triệu node trong vài mili-giây và có thể tái tuyến tính hóa lặp lại nhiều lần, triệt tiêu hoàn toàn sai số trôi dạt khi phát hiện vòng lặp đóng (Loop Closure)!
+          </div>
+</div>
+<!-- 5.2 -->
+<h2 id="sec-5-2">5.2 Biểu Diễn Nhóm Lie $\mathrm{SE}(2)$ / $\mathrm{SE}(3)$ &amp; Hàm Sai Số Cạnh Đồ Thị</h2>
+<p>Mỗi tư thế robot tại thời điểm $i$ là một phần tử thuộc nhóm biến đổi hình học đặc biệt $\mathbf{T}_i \in \mathrm{SE}(2)$ hoặc $\mathrm{SE}(3)$. Giữa hai tư thế $i$ và $j$, cảm biến đo được phép dời tương đối $\mathbf{z}_{ij}$. Sai số liên kết được định nghĩa trên đại số Lie:</p>
+<div class="formula-hero">
+<div class="formula-title">Hàm Mục Tiêu Tối Thiểu Hóa Sai Số Toàn Cục</div>
+<div class="formula-math">
+            $$\mathbf{x}^* = \arg\min_{\mathbf{x}} \sum_{\langle i, j \rangle \in \mathcal{E}} \| \mathbf{e}_{ij}(\mathbf{x}_i, \mathbf{x}_j) \|_{\mathbf{\Omega}_{ij}}^2$$
+          </div>
+<div class="formula-legend">
+<strong>Trong đó:</strong>
+<br/>• $\mathbf{e}_{ij} = \log\left( \mathbf{z}_{ij}^{-1} (\mathbf{T}_i^{-1} \mathbf{T}_j) \right) \in \mathfrak{se}(2)$: Vector sai số lệch giữa phép đo danh định và khoảng cách giữa 2 đỉnh đồ thị.
+            <br/>• $\mathbf{\Omega}_{ij} = \mathbf{\Sigma}_{ij}^{-1}$: Ma trận thông tin trọng số (nghịch đảo ma trận hiệp phương sai sai số đo).
+          </div>
+</div>
+<!-- 5.3 -->
+<h2 id="sec-5-3">5.3 Tối Ưu Hóa Gauss-Newton &amp; Levenberg-Marquardt</h2>
+<p>Tuyến tính hóa hàm sai số quanh điểm ước lượng hiện tại $\mathbf{e}_{ij}(\mathbf{x} + \Delta\mathbf{x}) \approx \mathbf{e}_{ij} + \mathbf{J}_{ij} \Delta\mathbf{x}$. Đạo hàm hàm mục tiêu dẫn tới <strong>Hệ Phương Trình Chuẩn (Normal Equations)</strong>:</p>
+        $$\mathbf{H} \Delta\mathbf{x} = -\mathbf{b}$$
+        $$\mathbf{H} = \sum_{\langle i, j \rangle} \mathbf{J}_{ij}^T \mathbf{\Omega}_{ij} \mathbf{J}_{ij}, \quad \mathbf{b} = \sum_{\langle i, j \rangle} \mathbf{J}_{ij}^T \mathbf{\Omega}_{ij} \mathbf{e}_{ij}$$
+        <p>Thuật toán <strong>Levenberg-Marquardt</strong> bổ sung hệ số cản $\lambda$ giúp bước nhảy luôn hội tụ an toàn: $(\mathbf{H} + \lambda \mathbf{I}) \Delta\mathbf{x} = -\mathbf{b}$.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-5-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Nắn Thẳng Đồ Thị Pose Graph Khi Đóng Vòng Lặp (Loop Closure)</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-05" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<button id="sim05-relax-btn" style="padding: 0.5rem 1rem; background: #10b981; color: #fff; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">🔄 Kích Hoạt Tối Ưu Hóa Gauss-Newton (Nắn Thẳng Đồ Thị)</button>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-5-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Thiết Lập Ma Trận Thông Tin $\mathbf{H}$ &amp; Tính Bước Nhảy $\Delta x$ Cho Đồ Thị 1D</h3>
+</div>
+<div class="exercise-statement">
+<p>Xét robot chuyển động trên trục $x$ với 3 tư thế $x_0, x_1, x_2$. Đỉnh xuất phát ghim chặt tại gốc $x_0 = 0$ (Anchor). Các phép đo odometry: $d_{01} = 2.0$ m, $d_{12} = 2.0$ m. Cảm biến phát hiện vòng lặp giữa $x_2$ và $x_0$: $d_{20} = -3.8$ m (lẽ ra phải là $-4.0$ m). Tất cả các cạnh đều có ma trận thông tin $\Omega = 1.0$. Tư thế ban đầu: $x_0 = 0, x_1 = 2.0, x_2 = 4.0$. Thiết lập hệ phương trình $\mathbf{H} \Delta\mathbf{x} = -\mathbf{b}$ cho hai biến tự do $\Delta x_1, \Delta x_2$ và giải nghiệm.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính toán sai số các cạnh $e = (x_j - x_i) - d_{ij}$</span>
+</div>
+<div class="step-content">
+<p>• Cạnh 1 ($0 \to 1$): $e_{01} = (x_1 - x_0) - 2.0 = (2.0 - 0) - 2.0 = 0.0$</p><p>• Cạnh 2 ($1 \to 2$): $e_{12} = (x_2 - x_1) - 2.0 = (4.0 - 2.0) - 2.0 = 0.0$</p><p>• Cạnh 3 (Loop $2 \to 0$): $e_{20} = (x_0 - x_2) - (-3.8) = (0 - 4.0) + 3.8 = -0.2$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Xác định ma trận Jacobian của các cạnh theo biến $[\Delta x_1, \Delta x_2]^T$</span>
+</div>
+<div class="step-content">
+<p>• $\mathbf{J}_{01} = [1, 0]$</p><p>• $\mathbf{J}_{12} = [-1, 1]$</p><p>• $\mathbf{J}_{20} = [0, -1]$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Lập ma trận thông tin $\mathbf{H}$ và vector $\mathbf{b}$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{H} = \mathbf{J}_{01}^T \mathbf{J}_{01} + \mathbf{J}_{12}^T \mathbf{J}_{12} + \mathbf{J}_{20}^T \mathbf{J}_{20} = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0 \end{bmatrix} + \begin{bmatrix} 1 &amp; -1 \\ -1 &amp; 1 \end{bmatrix} + \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 2 &amp; -1 \\ -1 &amp; 2 \end{bmatrix}$$</p><p>Vector $\mathbf{b} = \sum \mathbf{J}^T \Omega e = \begin{bmatrix} 0 \\ -1 \end{bmatrix} (1.0) (-0.2) = \begin{bmatrix} 0 \\ +0.2 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Giải hệ phương trình $\mathbf{H} \Delta\mathbf{x} = -\mathbf{b}$ &amp; Cập nhật</span>
+</div>
+<div class="step-content">
+<p>Nghịch đảo ma trận $2 \times 2$: $\det(\mathbf{H}) = 4 - 1 = 3 \Rightarrow \mathbf{H}^{-1} = \frac{1}{3} \begin{bmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{bmatrix}$</p><p>$$\begin{bmatrix} \Delta x_1 \\ \Delta x_2 \end{bmatrix} = -\frac{1}{3} \begin{bmatrix} 2 &amp; 1 \\ 1 &amp; 2 \end{bmatrix} \begin{bmatrix} 0 \\ 0.2 \end{bmatrix} = \begin{bmatrix} -0.0667 \\ -0.1333 \end{bmatrix}$$</p><p>Tư thế sau nắn chỉnh: $x_1 = 1.933$ m, $x_2 = 3.867$ m. Toàn bộ sai số vòng lặp $-0.2$ m được phân bổ phân tán đều dọc theo chuỗi cạnh!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Phương pháp Gauss-Newton giải quyết bài toán Pose Graph Optimization bằng cách phân bổ sai số khép vòng (Loop Closure) đều khắp các cạnh của đồ thị, giúp nắn thẳng toàn bộ bản đồ và triệt tiêu độ trôi tích lũy sau hành trình dài.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-5-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Tối Ưu Hóa Factor Graph Bằng Thư Viện GTSAM (Python)</h4>
+<p>Mã nguồn chuẩn sử dụng GTSAM giải bài toán Pose Graph với thừa số `BetweenFactor` và bộ tối ưu `LevenbergMarquardtOptimizer`:</p>
+<div class="code-card">
+<div class="code-header">
+<span>pose_graph_gtsam.py (GTSAM / Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import gtsam
+import numpy as np
+
+def run_pose_graph():
+    graph = gtsam.NonlinearFactorGraph()
+    initial_estimate = gtsam.Values()
+    
+    # 1. Ghim đỉnh khởi đầu x0
+    prior_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.1, 0.1, 0.05]))
+    graph.add(gtsam.PriorFactorPose2(0, gtsam.Pose2(0.0, 0.0, 0.0), prior_noise))
+    initial_estimate.insert(0, gtsam.Pose2(0.0, 0.0, 0.0))
+    
+    # 2. Thêm các cạnh Odometry
+    odom_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.2, 0.2, 0.1]))
+    graph.add(gtsam.BetweenFactorPose2(0, 1, gtsam.Pose2(2.0, 0.0, 0.0), odom_noise))
+    initial_estimate.insert(1, gtsam.Pose2(2.1, 0.05, 0.02))
+    
+    graph.add(gtsam.BetweenFactorPose2(1, 2, gtsam.Pose2(0.0, 2.0, np.pi/2), odom_noise))
+    initial_estimate.insert(2, gtsam.Pose2(2.05, 2.1, np.pi/2 + 0.03))
+    
+    # 3. Thêm cạnh đóng vòng lặp Loop Closure
+    loop_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.15, 0.15, 0.08]))
+    graph.add(gtsam.BetweenFactorPose2(2, 0, gtsam.Pose2(-2.0, -2.0, -np.pi/2), loop_noise))
+    
+    # 4. Tối ưu hóa Levenberg-Marquardt
+    params = gtsam.LevenbergMarquardtParams()
+    optimizer = gtsam.LevenbergMarquardtOptimizer(graph, initial_estimate, params)
+    result = optimizer.optimize()
+    print("Optimization converged. Pose 2:", result.atPose2(2))
+
+if __name__ == '__main__':
+    run_pose_graph()</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-5-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tối Ưu Hóa Pose Graph 1D Bằng Thuật Toán Gauss-Newton</h4>
+</div>
+<div class="practice-statement">
+<p>Một hệ thống Pose Graph 1D gồm 3 tư thế $x_1, x_2, x_3$. Tư thế $x_1$ được cố định (anchor) tại $0\text{ m}$. Đoạn odometry đo được giữa $x_1 \to x_2$ là $d_{12} = 2.0\text{ m}$ (độ chính xác $\Omega_{12} = 10$). Đoạn $x_2 \to x_3$ là $d_{23} = 2.0\text{ m}$ ($\Omega_{23} = 10$). Hệ thống phát hiện khép vòng (Loop Closure) đo trực tiếp $x_1 \to x_3$ cho $d_{13} = 3.6\text{ m}$ ($\Omega_{13} = 5$). Tư thế khởi tạo hiện tại: $x_2 = 2.1\text{ m}, x_3 = 4.1\text{ m}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thiết lập vector phần dư sai số $\mathbf{e}$ và ma trận Jacobian $\mathbf{J}$.<br/>2) Lập hệ phương trình tuyến tính chuẩn Gauss-Newton $\mathbf{H} \Delta\mathbf{x} = -\mathbf{b}$.<br/>3) Giải bước nhảy $\Delta\mathbf{x}$ và cập nhật tư thế mới.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Vector phần dư sai số: $e_1 = (x_2 - x_1) - d_{12} = 2.1 - 0 - 2.0 = 0.1\text{ m}$; $e_2 = (x_3 - x_2) - d_{23} = 4.1 - 2.1 - 2.0 = 0.0\text{ m}$; $e_3 = (x_3 - x_1) - d_{13} = 4.1 - 0 - 3.6 = 0.5\text{ m}$.<br/>Ma trận Jacobian theo biến cần tối ưu $\Delta\mathbf{x} = [\Delta x_2, \Delta x_3]^T$: $\mathbf{J} = \begin{bmatrix} 1 &amp; 0 \\ -1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Ma trận thông tin trọng số $\mathbf{\Omega} = \text{diag}(10, 10, 5)$.<br/>Hessian: $\mathbf{H} = \mathbf{J}^T \mathbf{\Omega} \mathbf{J} = \begin{bmatrix} 1 &amp; -1 &amp; 0 \\ 0 &amp; 1 &amp; 1 \end{bmatrix} \begin{bmatrix} 10 &amp; 0 &amp; 0 \\ 0 &amp; 10 &amp; 0 \\ 0 &amp; 0 &amp; 5 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 \\ -1 &amp; 1 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 20 &amp; -10 \\ -10 &amp; 15 \end{bmatrix}$.<br/>Vector gradient: $\mathbf{b} = \mathbf{J}^T \mathbf{\Omega} \mathbf{e} = \begin{bmatrix} 10(0.1) - 10(0.0) \\ 10(0.0) + 5(0.5) \end{bmatrix} = \begin{bmatrix} 1.0 \\ 2.5 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Giải hệ $\begin{bmatrix} 20 &amp; -10 \\ -10 &amp; 15 \end{bmatrix} \begin{bmatrix} \Delta x_2 \\ \Delta x_3 \end{bmatrix} = \begin{bmatrix} -1.0 \\ -2.5 \end{bmatrix}$. Định thức: $\det = 20 \times 15 - 100 = 200$.<br/>Nghịch đảo: $\mathbf{H}^{-1} = \frac{1}{200} \begin{bmatrix} 15 &amp; 10 \\ 10 &amp; 20 \end{bmatrix}$.<br/>Số gia: $\begin{bmatrix} \Delta x_2 \\ \Delta x_3 \end{bmatrix} = \frac{1}{200} \begin{bmatrix} 15(-1) + 10(-2.5) \\ 10(-1) + 20(-2.5) \end{bmatrix} = \begin{bmatrix} -0.20 \\ -0.30 \end{bmatrix}$.<br/>Tư thế tối ưu mới: $x_2 = 2.1 - 0.2 = 1.9\text{ m}$; $x_3 = 4.1 - 0.3 = 3.8\text{ m}$. Sai số vòng lặp được phân bổ đều một cách tối ưu toán học.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch04.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 04: Bộ Lọc Hạt MCL &amp; FastSLAM</span>
+</a>
+<a class="ch-nav-card next" href="ch06.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 06: Visual Odometry &amp; Hình Học Epipolar</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 08: Hệ Thống Điều Khiển Số (Digital Control Systems) | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 08</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link active">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Không Gian Trạng Thái, Điều Khiển Số & Nâng Cao</span>
+          <span class="page-source-badge">📖 Mutambara (2024), Chương 8, Trang 604–659</span>
+        </div>
+        <h1 class="chapter-title">Chương 08: Hệ Thống Điều Khiển Số (Digital Control Systems)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Hệ thống dữ liệu trích mẫu (Sampled-Data Systems), Bộ biến đổi A/D & D/A, Khâu giữ bậc không (ZOH), Biến đổi Z, Định lý lấy mẫu Shannon & Hiện tượng Aliasing, Phương pháp thiết kế số gián tiếp (Tustin / Song tuyến, Euler, Prewarping), Thiết kế số trực tiếp (Direct Digital Design, Deadbeat Control), và Mô hình không gian trạng thái rời rạc (Phi, Gamma)</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong nền sản xuất hiện đại và công nghiệp thông minh 4.0, hầu như <strong>100% các bộ điều khiển công nghiệp</strong> (từ PLC Siemens S7-1500, Rockwell ControlLogix, biến tần số, bộ điều khiển động cơ servo, cho đến các máy tính công nghiệp IPC chạy Linux thời gian thực PREEMPT_RT và ROS 2) đều là các thiết bị tính toán số (Digital Computers) hoạt động theo chu kỳ ngắt thời gian rời rạc $T_s$. Tuy nhiên, các đối tượng vật lý cần điều khiển trong thế giới thực (vị trí bàn máy CNC, nhiệt độ lò nung, tốc độ động cơ PMSM, áp suất buồng chân không quang học) lại là các quá trình vật lý liên tục theo thời gian.</p>
+          <p>Sự giao thoa giữa miền tương tự (Analog) và miền số (Digital) qua các bộ biến đổi ADC (Analog-to-Digital Converter) và DAC (Digital-to-Analog Converter) dẫn đến hàng loạt hiện tượng vật lý phi cổ điển đặc thù:</p>
+          <ul>
+            <li><strong>Độ trễ pha cố hữu do khâu giữ bậc không ZOH (Zero-Order Hold):</strong> Khâu ZOH biến đổi chuỗi xung số thành bậc thang liên tục làm trễ pha một lượng chính xác $\Delta \phi = -\omega T_s / 2$, trực tiếp làm suy giảm độ dự trữ pha $PM$ và có thể đẩy một hệ thống đang ổn định thành tự kích dao động mất kiểm soát.</li>
+            <li><strong>Hiện tượng chồng phổ (Aliasing):</strong> Nếu tần số trích mẫu không đủ nhanh so với băng thông tín hiệu cảm biến theo Định lý Nyquist-Shannon, các thành phần tần số cao sẽ bị phản xạ giả tạo về dải tần thấp, làm méo mó nghiêm trọng tín hiệu điều khiển.</li>
+            <li><strong>Sự co cụm nghiệm trên mặt phẳng $z$:</strong> Khi chu kỳ trích mẫu $T_s \to 0$, toàn bộ các cực trên mặt phẳng $z$ đều co cụm về lân cận điểm $+1$, gây ra hiện tượng mất độ chính xác số học nghiêm trọng do sai số làm tròn số học dấu phẩy tĩnh (Quantization & Roundoff Noise).</li>
+          </ul>
+          <p>Lý thuyết <strong>Điều Khiển Số (Digital Control Systems)</strong> cung cấp nền tảng toán học chuẩn xác để rời rạc hóa các bộ điều khiển liên tục hoặc thiết kế trực tiếp các bộ điều khiển số tối ưu (như Deadbeat Control) không có phiên bản tương đương trong miền liên tục.</p>
+        </div>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Lý thuyết hệ thống dữ liệu trích mẫu nghiên cứu sự tương tác giữa chuỗi thời gian rời rạc $e[k] = e(k T_s)$ và các biến liên tục $y(t)$.</p>
+
+        <h3>1. Bộ Lấy Mẫu Xung & Khâu Giữ Bậc Không (Zero-Order Hold - ZOH)</h3>
+        <p>Tín hiệu trích mẫu lý tưởng $x^*(t)$ được mô hình hóa bằng tích của tín hiệu liên tục $x(t)$ với chuỗi xung Dirac tuần hoàn chu kỳ $T_s$:</p>
+        $$x^*(t) = x(t) \sum_{k=-\infty}^\infty \delta(t - k T_s) \implies X^*(s) = \frac{1}{T_s} \sum_{n=-\infty}^\infty X\left(s - j n \omega_s\right)$$
+        <p>với $\omega_s = \frac{2\pi}{T_s}$ là tần số trích mẫu góc. <strong>Định lý lấy mẫu Nyquist-Shannon</strong> khẳng định: Để có thể khôi phục hoàn hảo tín hiệu liên tục ban đầu từ chuỗi xung lấy mẫu mà không bị méo phổ (Aliasing), tần số lấy mẫu phải thỏa mãn điều kiện ngặt:</p>
+        $$\omega_s \gt 2 \omega_{\max} \iff f_s \gt 2 f_{\max}$$
+        <p>Hàm truyền trong miền Laplace của khâu giữ bậc không ZOH dùng để tái tạo tín hiệu analog từ tín hiệu số:</p>
+        $$G_{\text{ZOH}}(s) = \frac{1 - e^{-s T_s}}{s} \implies G_{\text{ZOH}}(j\omega) = T_s \frac{\sin(\omega T_s / 2)}{\omega T_s / 2} e^{-j \omega T_s / 2}$$
+        <p>Hàm truyền xung tương đương ZOH của đối tượng liên tục $G(s)$ được định nghĩa bởi:</p>
+        $$G(z) = \mathcal{Z}\left\{ G_{\text{ZOH}}(s) G(s) \right\} = (1 - z^{-1}) \mathcal{Z}\left\{ \frac{G(s)}{s} \right\}$$
+
+        <h3>2. Ánh Xạ Giữa Mặt Phẳng $s$ Và Mặt Phẳng $z$</h3>
+        <p>Phép biến đổi cơ bản $z = e^{s T_s} = e^{(\sigma + j\omega) T_s} = e^{\sigma T_s} e^{j\omega T_s}$ thiết lập mối tương quan hình học cốt lõi:</p>
+        <ul>
+          <li><strong>Bán kính:</strong> $|z| = e^{\sigma T_s}$. Nửa trái mặt phẳng $s$ ($\sigma \lt 0$) ánh xạ vào <strong>bên trong đường tròn đơn vị</strong> ($|z| \lt 1$).</li>
+          <li><strong>Trục ảo:</strong> $s = j\omega$ ($\sigma = 0$) ánh xạ thành chính <strong>đường tròn đơn vị</strong> ($|z| = 1$).</li>
+          <li><strong>Nửa phải mặt phẳng $s$:</strong> ($\sigma \gt 0$) ánh xạ ra <strong>bên ngoài đường tròn đơn vị</strong> ($|z| \gt 1$).</li>
+          <li><strong>Tiêu chuẩn ổn định:</strong> Hệ thống rời rạc ổn định tiệm cận khi và chỉ khi <em>tất cả các nghiệm cực của hàm truyền $G(z)$ đều nằm ngặt bên trong đường tròn đơn vị</em> ($|p_i| \lt 1$).</li>
+        </ul>
+
+        <h3>3. Các Phương Pháp Rời Rạc Hóa (Discretization Methods)</h3>
+        <p>Để chuyển đổi bộ điều khiển liên tục $C(s)$ sang bộ điều khiển số $D(z)$ chạy trên vi xử lý:</p>
+        <ul>
+          <li><strong>Biến đổi song tuyến Tustin (Bilinear Transform / Trapezoidal Rule):</strong>
+          $$s \approx \frac{2}{T_s} \frac{z - 1}{z + 1}$$
+          Phương pháp Tustin có ưu điểm vượt bậc: <em>bảo toàn tính ổn định tuyệt đối</em>, ánh xạ toàn bộ nửa trái mặt phẳng $s$ vào bên trong vòng tròn đơn vị $|z| \lt 1$. Tuy nhiên, nó gây ra hiện tượng co méo tần số phi tuyến:
+          $$\omega_d = \frac{2}{T_s} \tan\left(\frac{\omega_a T_s}{2}\right)$$
+          Kỹ thuật <strong>Pre-warping</strong> khắc phục hiện tượng này bằng cách hiệu chỉnh tần số trước khi biến đổi: $s \approx \frac{\omega_0}{\tan(\omega_0 T_s / 2)} \frac{z - 1}{z + 1}$.</li>
+          <li><strong>Phương pháp Euler lùi (Backward Difference):</strong> $s \approx \frac{z - 1}{z T_s}$, luôn đảm bảo ổn định nhưng làm suy giảm dải thông.</li>
+          <li><strong>Phương pháp Euler tiến (Forward Difference):</strong> $s \approx \frac{z - 1}{T_s}$, có thể biến một hệ liên tục ổn định thành một hệ rời rạc bất ổn định khi $T_s$ không đủ nhỏ.</li>
+        </ul>
+
+        <h3>4. Mô Hình Không Gian Trạng Thái Thời Gian Rời Rạc</h3>
+        <p>Hệ phương trình trạng thái rời rạc hóa với khâu giữ bậc không ZOH:</p>
+        $$\mathbf{x}[k+1] = \mathbf{\Phi}\mathbf{x}[k] + \mathbf{\Gamma}\mathbf{u}[k], \quad \mathbf{y}[k] = \mathbf{C}\mathbf{x}[k] + \mathbf{D}\mathbf{u}[k]$$
+        <p>trong đó:</p>
+        $$\mathbf{\Phi} = e^{\mathbf{A} T_s}, \quad \mathbf{\Gamma} = \int_0^{T_s} e^{\mathbf{A}\tau} d\tau \, \mathbf{B} = \mathbf{A}^{-1}(\mathbf{\Phi} - \mathbf{I})\mathbf{B} \quad (\text{khi } \mathbf{A} \text{ khả nghịch})$$
+
+        <h3>5. Thiết Kế Bộ Điều Khiển Số Trực Tiếp Deadbeat (Deadbeat Control)</h3>
+        <p>Đây là đặc tính độc nhất vô nhị chỉ có trong miền thời gian rời rạc: đưa sai số xác lập về đúng bằng 0 trong một số hữu hạn chu kỳ lấy mẫu ($n$ chu kỳ) bằng cách gán toàn bộ các cực vòng kín về gốc tọa độ $z = 0$. Hàm truyền vòng kín mong muốn có dạng:</p>
+        $$T(z) = \frac{Y(z)}{R(z)} = z^{-d}$$
+        <p>với $d$ là bậc trễ tối thiểu của hệ thống. Bộ điều khiển Deadbeat mang lại thời gian đáp ứng nhanh kỷ lục, nhưng đòi hỏi cơ cấu chấp hành phải có dải công suất cực đại đủ lớn để tránh bị bão hòa điện áp.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <h3>Nguyên Lý Thực Thi Mã Nhúng & Thuật Toán Anti-Windup</h3>
+        <p>Khi hiện thực hóa bộ điều khiển số $D(z) = \frac{U(z)}{E(z)} = \frac{b_0 + b_1 z^{-1} + \dots + b_m z^{-m}}{1 + a_1 z^{-1} + \dots + a_n z^{-n}}$ trên vi điều khiển STM32/ESP32 hoặc bộ điều khiển thời gian thực ROS 2:</p>
+        <p>Chuyển phương trình toán học về <strong>Phương trình sai phân thời gian thực (Difference Equation)</strong>:</p>
+        $$u[k] = \sum_{i=0}^m b_i e[k-i] - \sum_{j=1}^n a_j u[k-j]$$
+
+        <h4>Hiện Tượng Bão Hòa Tích Phân Số (Digital Integral Windup) & Giải Pháp Kẹp Dải (Clamping)</h4>
+        <p>Khi động cơ hoặc van bị kịch trần công suất ($u \ge u_{\max}$), thành phần tích phân trong thuật toán số tiếp tục cộng dồn sai số qua mỗi chu kỳ trích mẫu, khiến biến tích lũy tăng vọt tới giá trị khổng lồ. Khi tín hiệu sai số đổi chiều, hệ thống phải mất một thời gian rất dài để "xả" lượng tích lũy này, gây ra vọt lố nghiêm trọng. Thuật toán chống bão hòa tích phân số chuẩn công nghiệp (Clamping Anti-Windup):</p>
+        <ul>
+          <li>Tính toán giá trị điều khiển dự kiến không bão hòa: $u_{\text{raw}}[k] = u_P[k] + u_I[k] + u_D[k]$.</li>
+          <li>Kẹp tín hiệu đầu ra thực tế: $u[k] = \text{sat}(u_{\text{raw}}[k], u_{\min}, u_{\max})$.</li>
+          <li>Khóa cập nhật khâu tích phân (Freeze Integration) khi thỏa mãn đồng thời hai điều kiện: đầu ra bị bão hòa ($u_{\text{raw}} \ne u$) và sai số $e[k]$ có cùng dấu với độ lệch bão hòa $(u_{\text{raw}} - u)$.</li>
+        </ul>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Rời Rạc Hóa Khâu ZOH & Thiết Kế Bộ Điều Khiển Số Deadbeat Cho Động Cơ Servo DC</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một động cơ servo DC điều khiển vị trí bàn trượt quang học trong thiết bị kiểm tra bản mạch bán dẫn tự động có hàm truyền liên tục:
+$$G(s) = \frac{10}{s(s + 2)}$$
+Hệ thống sử dụng bộ chuyển đổi số sang tương tự DAC với khâu giữ bậc không ZOH và chu kỳ trích mẫu được chọn là $T_s = 0.1\text{ s}$.
+<ol>
+  <li>Xác định hàm truyền xung rời rạc bảo toàn ZOH $G(z) = (1 - z^{-1})\mathcal{Z}\left\{\frac{G(s)}{s}\right\}$ bằng số học chính xác.</li>
+  <li>Xác định tọa độ cực và zero của $G(z)$ trên mặt phẳng phức $z$ và đánh giá tính ổn định của hệ hở rời rạc.</li>
+  <li>Thiết kế bộ điều khiển số trực tiếp Deadbeat $D(z)$ sao cho đáp ứng vòng kín với tín hiệu đầu vào hàm nấc đơn vị ($R(z) = \frac{z}{z-1}$) đạt giá trị xác lập không sai số sau đúng 2 chu kỳ trích mẫu ($t = 2 T_s = 0.2\text{ s}$).</li>
+  <li>Xây dựng phương trình sai phân tính toán tín hiệu điều khiển số $u[k]$ trong mã nguồn nhúng C++ thời gian thực.</li>
+</ol></p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích phân thức và tính biến đổi Z của đối tượng có ZOH:<br>
+Hàm truyền rời rạc bảo toàn ZOH được tính theo công thức giải tích:<br>
+$$G(z) = (1 - z^{-1}) \mathcal{Z}\left\{ \frac{10}{s^2(s + 2)} \right\}$$
+Khai triển hàm dưới dấu biến đổi thành tổng các phân thức đơn giản:<br>
+$$\frac{10}{s^2(s + 2)} = \frac{A}{s^2} + \frac{B}{s} + \frac{C}{s + 2}$$
+Quy đồng mẫu số: $A(s + 2) + B s(s + 2) + C s^2 = 10 \implies (B + C)s^2 + (A + 2B)s + 2A = 10$.<br>
+Đồng nhất các hệ số:<br>
+- Hằng số: $2A = 10 \implies A = 5$.<br>
+- Bậc 1: $A + 2B = 0 \implies 5 + 2B = 0 \implies B = -2.5$.<br>
+- Bậc 2: $B + C = 0 \implies C = -B = 2.5$.<br>
+Biểu diễn phân thức:<br>
+$$\frac{10}{s^2(s + 2)} = \frac{5}{s^2} - \frac{2.5}{s} + \frac{2.5}{s + 2}$$
+Tra bảng biến đổi Z cho từng thành phần cơ bản:<br>
+$$\mathcal{Z}\left\{\frac{5}{s^2}\right\} = \frac{5 T_s z}{(z - 1)^2}$$
+$$\mathcal{Z}\left\{\frac{2.5}{s}\right\} = \frac{2.5 z}{z - 1}$$
+$$\mathcal{Z}\left\{\frac{2.5}{s + 2}\right\} = \frac{2.5 z}{z - e^{-2 T_s}}$$
+Nhân với nhân tử $(1 - z^{-1}) = \frac{z - 1}{z}$:<br>
+$$G(z) = \frac{5 T_s}{z - 1} - 2.5 + \frac{2.5(z - 1)}{z - e^{-2 T_s}}$$
+Quy đồng mẫu số chung $(z - 1)(z - e^{-2 T_s})$:<br>
+$$G(z) = \frac{5 T_s (z - e^{-2 T_s}) - 2.5(z - 1)(z - e^{-2 T_s}) + 2.5(z - 1)^2}{(z - 1)(z - e^{-2 T_s})}$$
+Rút gọn tử số:<br>
+$$\text{Tử số} = 5 T_s z - 5 T_s e^{-2 T_s} - 2.5(z^2 - (1 + e^{-2 T_s})z + e^{-2 T_s}) + 2.5(z^2 - 2z + 1)$$
+Hạng tử bậc 2: $-2.5 z^2 + 2.5 z^2 = 0$.<br>
+Hạng tử bậc 1 (hệ số của $z$): $b_1 = 5 T_s + 2.5(1 + e^{-2 T_s}) - 5.0 = 5 T_s + 2.5 e^{-2 T_s} - 2.5 = 5 T_s - 2.5(1 - e^{-2 T_s})$.<br>
+Hạng tử tự do: $b_2 = -5 T_s e^{-2 T_s} - 2.5 e^{-2 T_s} + 2.5 = 2.5(1 - e^{-2 T_s}) - 5 T_s e^{-2 T_s}$.<br>
+Do đó hàm truyền xung rời rạc tổng quát có dạng chuẩn:<br>
+$$G(z) = \frac{b_1 z + b_2}{(z - 1)(z - e^{-2 T_s})}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Thay số học chu kỳ trích mẫu $T_s = 0.1\text{ s}$ và phân tích cực - zero:<br>
+Với $T_s = 0.1\text{ s}$, ta có $2 T_s = 0.2$ và hằng số mũ:<br>
+$$e^{-0.2} \approx 0.818731$$
+$$1 - e^{-0.2} = 1 - 0.818731 = 0.181269$$
+Tính toán chính xác các hệ số tử số $b_1, b_2$:<br>
+$$b_1 = 5(0.1) - 2.5(0.181269) = 0.500000 - 0.453173 = 0.046827 \approx 0.04683$$
+$$b_2 = 2.5(0.181269) - 5(0.1)(0.818731) = 0.453173 - 0.409365 = 0.043808 \approx 0.04381$$
+Hàm truyền xung rời rạc của đối tượng động cơ servo ZOH là:<br>
+$$G(z) = \frac{0.04683 z + 0.04381}{(z - 1)(z - 0.81873)}$$
+Phân tích vị trí cực và zero trên mặt phẳng phức $z$:<br>
+- <strong>Các cực (Poles):</strong> $p_1 = 1.0$ (nằm ngay trên đường tròn đơn vị $|z| = 1$, tương ứng với khâu tích phân vị trí) và $p_2 = 0.81873$ (nằm bên trong đường tròn đơn vị $|z| \lt 1$, tương ứng với hằng số thời gian cơ học).<br>
+- <strong>Điểm zero:</strong> $0.04683 z + 0.04381 = 0 \implies z_0 = -\frac{0.04381}{0.04683} \approx -0.9355$.<br>
+Nhận xét: Điểm zero $z_0 = -0.9355$ nằm bên trong đường tròn đơn vị ($|z_0| \lt 1$), chứng tỏ đây là một <strong>hệ pha cực tiểu rời rạc (Minimum-Phase System)</strong>, cho phép ta triệt tiêu zero trong thiết kế bộ điều khiển Deadbeat mà không gây mất ổn định.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết kế bộ điều khiển số Deadbeat trực tiếp $D(z)$:<br>
+Hệ thống hồi tiếp âm đơn vị có hàm truyền vòng kín: $T(z) = \frac{Y(z)}{R(z)} = \frac{D(z)G(z)}{1 + D(z)G(z)}$.<br>
+Với tín hiệu đầu vào hàm nấc đơn vị $R(z) = \frac{z}{z - 1}$, hàm sai số rời rạc là:<br>
+$$E(z) = R(z)[1 - T(z)] = \frac{z}{z - 1}[1 - T(z)]$$
+Để sai số xác lập $e[k] = 0$ sau hữu hạn 2 chu kỳ trích mẫu, ta yêu cầu $[1 - T(z)]$ phải triệt tiêu nghiệm cực tại $z = 1$ và có dạng đa thức hữu hạn theo $z^{-1}$. Chọn cấu trúc đáp ứng Deadbeat chuẩn cho hệ có zero $z_0$:<br>
+$$T(z) = \frac{b_1 z + b_2}{b_1 + b_2} z^{-2} = \frac{0.04683 z + 0.04381}{0.09064} z^{-2} = (0.51667 z^{-1} + 0.48333 z^{-2})$$
+Khi đó:<br>
+$$1 - T(z) = 1 - 0.51667 z^{-1} - 0.48333 z^{-2} = (1 - z^{-1})(1 + 0.48333 z^{-1})$$
+Biểu thức sai số chuyển thành:<br>
+$$E(z) = \frac{z}{z - 1} \frac{z - 1}{z} (1 + 0.48333 z^{-1}) = 1 + 0.48333 z^{-1}$$
+Nghĩa là sai số tại các chu kỳ: $e[0] = 1.0$, $e[1] = 0.4833$, và <strong>$e[k] = 0$ với mọi $k \ge 2$</strong>! Sai số triệt tiêu tuyệt đối sau đúng $2 T_s = 0.2\text{ s}$.<br>
+Bộ điều khiển Deadbeat $D(z)$ được xác định giải tích:<br>
+$$D(z) = \frac{1}{G(z)} \frac{T(z)}{1 - T(z)} = \frac{(z - 1)(z - 0.81873)}{0.04683 z + 0.04381} \frac{\frac{0.04683 z + 0.04381}{0.09064 z^2}}{(1 - z^{-1})(1 + 0.48333 z^{-1})}$$
+Triệt tiêu nhân tử $(0.04683 z + 0.04381)$ và $(z - 1)$ ở cả tử và mẫu:<br>
+$$D(z) = \frac{z - 0.81873}{0.09064 z (1 + 0.48333 z^{-1})} = \frac{1}{0.09064} \frac{1 - 0.81873 z^{-1}}{1 + 0.48333 z^{-1}} \approx 11.0327 \frac{1 - 0.81873 z^{-1}}{1 + 0.48333 z^{-1}}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Xây dựng phương trình sai phân và biện luận mã nhúng C++:<br>
+Từ hàm truyền bộ điều khiển $D(z) = \frac{U(z)}{E(z)} = \frac{11.0327 - 9.0327 z^{-1}}{1 + 0.48333 z^{-1}}$:<br>
+$$U(z)(1 + 0.48333 z^{-1}) = E(z)(11.0327 - 9.0327 z^{-1})$$
+Chuyển ngược sang miền thời gian rời rạc qua phép biến đổi Z ngược $\mathcal{Z}^{-1}$:<br>
+$$u[k] + 0.48333 u[k - 1] = 11.0327 e[k] - 9.0327 e[k - 1]$$
+Rút ra phương trình sai phân tính toán trực tiếp giá trị điều khiển số tại mỗi ngắt timer chu kỳ $100\text{ ms}$:<br>
+$$u[k] = -0.48333 u[k - 1] + 11.0327 e[k] - 9.0327 e[k - 1]$$
+Biện luận tính khả thi vật lý trong công nghiệp 4IR:<br>
+1. <strong>Tốc độ hội tụ tuyệt đối:</strong> Đúng sau $0.2\text{ s}$, bàn trượt quang học định vị chính xác $100\%$ tại tọa độ mục tiêu mà hoàn toàn không có sai số dư thừa hay dao động kéo dài.<br>
+2. <strong>Biên độ tín hiệu điều khiển tại bước đầu tiên ($k = 0$):</strong> Với $e[0] = 1.0$ và $u[-1] = e[-1] = 0$, tín hiệu xung đẩy là $u[0] = 11.03\text{ V}$. Đây là xung điện áp nằm trong giới hạn cho phép của driver servo công nghiệp ($\pm 24\text{ V}$), chứng tỏ thiết kế hoàn toàn khả thi và không gây bão hòa cơ cấu chấp hành.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Đã rời rạc hóa ZOH chính xác G(z) và thiết kế thành công bộ điều khiển số Deadbeat D(z), triệt tiêu sai số xác lập về 0 sau đúng 2 chu kỳ trích mẫu (0.2 s) theo chuẩn Mutambara (2024).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Trích Mẫu Dữ Liệu ZOH, Tần Số Nyquist & Hiện Tượng Chồng Phổ Aliasing</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-08" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim08()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim08()">Thiết lập lại</button>
+        <label class="sim-label">Chu kỳ lấy mẫu $T_s$: <input type="range" id="sim08-ts" min="0.01" max="0.40" step="0.01" value="0.05" onchange="updateSim08Params()"></label>
+        <label class="sim-label">Tần số tín hiệu vào $f_{\text{in}}$ (Hz): <input type="range" id="sim08-fin" min="0.5" max="25.0" step="0.5" value="2.0" onchange="updateSim08Params()"></label>
+        <label class="sim-label">Mô hình khôi phục:
+          <select id="sim08-filter" onchange="updateSim08Filter()">
+            <option value="zoh">Khâu giữ bậc không (ZOH Bậc thang)</option>
+            <option value="foh">Khâu giữ bậc một (FOH Tuyến tính)</option>
+            <option value="ideal">Bộ lọc phục hồi lý tưởng (Sinc)</option>
+          </select>
+        </label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim08-stats" class="sim-telemetry-text">Chu kỳ trích mẫu $T_s$: 0.050 s ($f_s = 20.0\text{ Hz}$) | Tần số Nyquist $f_N$: 10.0 Hz | Hiện tượng Aliasing: Không (Thỏa mãn Shannon) | Sai số trễ pha ZOH: $\approx 9.0^\circ$ tại 1 Hz</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// ============================================================================
+// C++20 High-Speed Digital Control &amp; Difference Equation Engine
+// Real-Time Implementation with ZOH &amp; Anti-Windup Clamping
+// ============================================================================
+
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;algorithm&gt;
+#include &lt;iomanip&gt;
+
+class DigitalDeadbeatController {
+public:
+    // Difference equation: u[k] = -a1*u[k-1] + b0*e[k] + b1*e[k-1]
+    DigitalDeadbeatController(double a1, double b0, double b1, double u_min, double u_max)
+        : a1_(a1), b0_(b0), b1_(b1), u_min_(u_min), u_max_(u_max) {}
+
+    // Reset controller internal state buffer
+    void reset() {
+        u_prev_ = 0.0;
+        e_prev_ = 0.0;
+    }
+
+    // Step calculation executed at each timer interrupt (Ts = 0.1s)
+    [[nodiscard]] double update(double error) {
+        // Raw difference equation output
+        double u_raw = -a1_ * u_prev_ + b0_ * error + b1_ * e_prev_;
+
+        // Actuator saturation clamping (Anti-Windup protection)
+        double u_clamped = std::clamp(u_raw, u_min_, u_max_);
+
+        // Update history states
+        u_prev_ = u_clamped;
+        e_prev_ = error;
+
+        return u_clamped;
+    }
+
+private:
+    double a1_{0.48333};
+    double b0_{11.0327};
+    double b1_{-9.0327};
+    double u_min_{-24.0};
+    double u_max_{24.0};
+    double u_prev_{0.0};
+    double e_prev_{0.0};
+};
+
+int main() {
+    std::cout &lt;&lt; &quot;=== DIGITAL DEADBEAT CONTROLLER (MUTAMBARA CH 08) ===\n&quot;;
+    // Motor parameters: G(s) = 10 / (s*(s+2)), Ts = 0.1 s
+    DigitalDeadbeatController controller(0.48333, 11.0327, -9.0327, -24.0, 24.0);
+
+    // Simulate Unit Step Response: r[k] = 1.0 for k &gt;= 0
+    double position = 0.0;
+    double velocity = 0.0;
+    constexpr double Ts = 0.1;
+    constexpr double target = 1.0;
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;Step | Target | Pos y[k] | Error e[k] | Control u[k]\n&quot;;
+    std::cout &lt;&lt; &quot;--------------------------------------------------\n&quot;;
+
+    for (int k = 0; k &lt;= 6; ++k) {
+        double error = target - position;
+        double u = controller.update(error);
+
+        std::cout &lt;&lt; std::setw(4) &lt;&lt; k &lt;&lt; &quot; | &quot;
+                  &lt;&lt; std::setw(6) &lt;&lt; target &lt;&lt; &quot; | &quot;
+                  &lt;&lt; std::setw(8) &lt;&lt; position &lt;&lt; &quot; | &quot;
+                  &lt;&lt; std::setw(10) &lt;&lt; error &lt;&lt; &quot; | &quot;
+                  &lt;&lt; std::setw(11) &lt;&lt; u &lt;&lt; &quot;\n&quot;;
+
+        // Plant discrete simulation: y[k+1] = ...
+        // Continuous acceleration: y&#x27;&#x27; = -2*y&#x27; + 10*u
+        double accel = -2.0 * velocity + 10.0 * u;
+        velocity += accel * Ts;
+        position += velocity * Ts;
+    }
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Hệ thống điều khiển số là cầu nối giữa thuật toán rời rạc trên vi xử lý và đối tượng vật lý liên tục qua hai mắt xích then chốt: bộ trích mẫu ADC và khâu giữ bậc không ZOH.</li><li>Định lý Nyquist-Shannon quy định tần số trích mẫu fs > 2*fmax để ngăn chặn triệt để hiện tượng méo phổ và chồng phổ giả tạo (Aliasing).</li><li>Mặt phẳng z là không gian đặc trưng của hệ rời rạc với z = e^(s*Ts); điều kiện ổn định tiệm cận tuyệt đối đòi hỏi mọi nghiệm cực phải nằm ngặt bên trong đường tròn đơn vị |z| < 1.</li><li>Biến đổi song tuyến Tustin s = (2/Ts)*(z-1)/(z+1) bảo toàn tính ổn định tuyệt đối; kết hợp kỹ thuật Pre-warping triệt tiêu hoàn toàn sự co méo tần số tại điểm làm việc.</li><li>Bộ điều khiển số trực tiếp Deadbeat đưa sai số xác lập về đúng bằng 0 sau hữu hạn n chu kỳ trích mẫu, mang lại tốc độ đáp ứng tối đa cho cơ cấu định vị công nghiệp.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 8.1: Rời rạc hóa bộ điều khiển PID bằng phương pháp Tustin có Anti-Windup</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một bộ điều khiển PID liên tục có thông số: $K_p = 4.0$, $T_i = 0.5\text{ s}$, $T_d = 0.05\text{ s}$ được số hóa với chu kỳ trích mẫu $T_s = 0.02\text{ s}$ ($50\text{ Hz}$) bằng phương pháp song tuyến Tustin $s \approx \frac{2}{T_s}\frac{1 - z^{-1}}{1 + z^{-1}}$.
+<ol>
+  <li>Xác định hàm truyền rời rạc $D(z) = \frac{U(z)}{E(z)}$.</li>
+  <li>Viết phương trình sai phân thuật toán số vận tốc (Velocity PID Form): $\Delta u[k] = u[k] - u[k-1] = q_0 e[k] + q_1 e[k-1] + q_2 e[k-2]$.</li>
+  <li>Giải thích vì sao thuật toán dạng vận tốc (Velocity Form) tự nhiên sở hữu khả năng chống bão hòa tích phân (Inherent Anti-Windup).</li>
+</ol></p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Hướng dẫn giải chi tiết:<br>
+1. Hàm truyền PID liên tục: $C(s) = K_p \left(1 + \frac{1}{T_i s} + T_d s\right)$.<br>
+Áp dụng phép xấp xỉ Tustin cho khâu tích phân $\frac{1}{s} \approx \frac{T_s}{2}\frac{1 + z^{-1}}{1 - z^{-1}}$ và vi phân $s \approx \frac{2}{T_s}\frac{1 - z^{-1}}{1 + z^{-1}}$:<br>
+Với $K_p = 4.0, T_i = 0.5, T_d = 0.05, T_s = 0.02$:<br>
+Khâu tỉ lệ: $P(z) = 4.0$.<br>
+Khâu tích phân: $I(z) = \frac{K_p T_s}{2 T_i} \frac{1 + z^{-1}}{1 - z^{-1}} = \frac{4.0 \cdot 0.02}{2 \cdot 0.5} \frac{1 + z^{-1}}{1 - z^{-1}} = 0.08 \frac{1 + z^{-1}}{1 - z^{-1}}$.<br>
+Khâu vi phân: $D_{\text{term}}(z) = \frac{2 K_p T_d}{T_s} \frac{1 - z^{-1}}{1 + z^{-1}} = \frac{2 \cdot 4.0 \cdot 0.05}{0.02} \frac{1 - z^{-1}}{1 + z^{-1}} = 20.0 \frac{1 - z^{-1}}{1 + z^{-1}}$.<br>
+2. Quy về dạng sai phân vận tốc chuẩn: $\Delta u[k] = q_0 e[k] + q_1 e[k-1] + q_2 e[k-2]$ với:<br>
+$$q_0 = K_p \left(1 + \frac{T_s}{2 T_i} + \frac{T_d}{T_s}\right) = 4.0(1 + 0.02 + 2.5) = 4.0(3.52) = 14.08$$<br>
+$$q_1 = -K_p \left(1 - \frac{T_s}{2 T_i} + \frac{2 T_d}{T_s}\right) = -4.0(1 - 0.02 + 5.0) = -4.0(5.98) = -23.92$$<br>
+$$q_2 = \frac{K_p T_d}{T_s} = \frac{4.0 \cdot 0.05}{0.02} = 10.00$$<br>
+Phương trình sai phân dạng vận tốc:<br>
+$$\Delta u[k] = 14.08 e[k] - 23.92 e[k-1] + 10.00 e[k-2]$$<br>
+$$u[k] = u[k-1] + \Delta u[k]$$<br>
+3. <strong>Bản chất chống bão hòa tích phân:</strong> Trong dạng vận tốc, bộ điều khiển chỉ tính gia số điều khiển $\Delta u[k]$. Khi cơ cấu chấp hành đạt bão hòa $u[k] = u_{\max}$, nếu $\Delta u[k] \gt 0$, ta chỉ việc đặt $\Delta u[k] = 0$ và giữ nguyên $u[k] = u_{\max}$. Khi sai số đổi chiều làm $\Delta u[k] \lt 0$, tín hiệu $u[k]$ lập tức giảm ngay khỏi vùng bão hòa mà không bị trễ thời gian xả tích phân.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch07.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 07: Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</span>
+        </a>
+        <a href="ch09.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode) →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim08 === "function") {
+        initSim08();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

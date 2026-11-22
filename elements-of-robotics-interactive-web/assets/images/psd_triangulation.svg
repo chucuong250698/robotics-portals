@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 420" width="100%" height="100%" style="background:#ffffff; border-radius:8px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <marker id="ray-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ef4444" />
+    </marker>
+    <marker id="refl-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#f59e0b" />
+    </marker>
+  </defs>
+
+  <text x="375" y="28" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f172a">Nguyên Lý Cảm Biến Quang Tam Giác Lượng (PSD Triangulation)</text>
+  <text x="375" y="48" text-anchor="middle" font-size="12" fill="#64748b">Đo khoảng cách vật cản độc lập hệ số phản xạ màu sắc qua quan hệ tam giác đồng dạng</text>
+
+  <!-- Sensor Module Body (Left side) -->
+  <rect x="60" y="80" width="120" height="280" rx="8" fill="#1e293b" />
+  <text x="120" y="105" text-anchor="middle" font-size="11" font-weight="bold" fill="#f8fafc">Sharp GP2Y0A21</text>
+
+  <!-- IR Emitter LED -->
+  <circle cx="150" cy="140" r="12" fill="#ef4444" />
+  <text x="150" y="165" text-anchor="middle" font-size="10" font-weight="bold" fill="#fca5a5">IR LED Phát</text>
+
+  <!-- Baseline distance b between Emitter and Lens -->
+  <line x1="150" y1="140" x2="150" y2="280" stroke="#38bdf8" stroke-width="2" stroke-dasharray="3,3" />
+  <text x="160" y="215" font-size="12" font-weight="bold" fill="#38bdf8">b (Cơ sở)</text>
+
+  <!-- Receiver Optical Lens -->
+  <ellipse cx="150" cy="280" rx="6" ry="24" fill="#38bdf8" opacity="0.8" />
+  <text x="150" y="320" text-anchor="middle" font-size="10" font-weight="bold" fill="#7dd3fc">Thấu kính (f)</text>
+
+  <!-- PSD Array inside sensor housing -->
+  <rect x="75" y="240" width="12" height="80" fill="#10b981" rx="2" />
+  <text x="81" y="232" text-anchor="middle" font-size="10" font-weight="bold" fill="#10b981">PSD Array</text>
+  <!-- Focal Length f indicator -->
+  <line x1="87" y1="280" x2="150" y2="280" stroke="#94a3b8" stroke-width="1.5" />
+  <text x="115" y="275" font-size="11" font-weight="bold" fill="#cbd5e1">f</text>
+
+  <!-- Outgoing IR Beam -->
+  <line x1="150" y1="140" x2="620" y2="140" stroke="#ef4444" stroke-width="2.5" marker-end="url(#ray-arrow)" />
+  <text x="360" y="130" font-size="11" font-weight="bold" fill="#ef4444">Chùm tia hồng ngoại vuông góc</text>
+
+  <!-- Obstacle Barrier at distance d -->
+  <rect x="620" y="100" width="16" height="240" fill="#475569" rx="4" />
+  <text x="645" y="210" font-size="13" font-weight="bold" fill="#0f172a">Vật cản (Obstacle)</text>
+  <circle cx="620" cy="140" r="5" fill="#ef4444" />
+
+  <!-- Reflected Rays for Obstacle at d (far) vs Obstacle at d' (near) -->
+  <!-- Ray 1: From far obstacle (620, 140) through Lens center (150, 280) onto PSD -->
+  <line x1="620" y1="140" x2="150" y2="280" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,2" />
+  <!-- Extension inside camera onto PSD: slope is (280-140)/(150-620) = 140 / -470 = -0.2979 -->
+  <!-- dx = -63 (from 150 to 87), dy = -63 * -0.2979 = +18.76 -> y = 298.76 -->
+  <line x1="150" y1="280" x2="87" y2="299" stroke="#f59e0b" stroke-width="2.5" />
+  <circle cx="87" cy="299" r="4" fill="#f59e0b" />
+  <text x="50" y="303" font-size="10" font-weight="bold" fill="#f59e0b">x_xa</text>
+
+  <!-- Near Obstacle Position (dotted outline) -->
+  <rect x="420" y="110" width="10" height="180" fill="none" stroke="#94a3b8" stroke-dasharray="3,3" />
+  <circle cx="420" cy="140" r="4" fill="#ef4444" />
+  <line x1="420" y1="140" x2="150" y2="280" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="2,2" />
+  <!-- Near ray onto PSD: dx = -63, slope = 140 / -270 = -0.5185 -> dy = 32.66 -> y = 312.66 -->
+  <line x1="150" y1="280" x2="87" y2="313" stroke="#8b5cf6" stroke-width="2" />
+  <circle cx="87" cy="313" r="4" fill="#8b5cf6" />
+  <text x="50" y="322" font-size="10" font-weight="bold" fill="#8b5cf6">x_gần</text>
+
+  <!-- Distance Dimension d -->
+  <line x1="150" y1="375" x2="620" y2="375" stroke="#2563eb" stroke-width="2" marker-start="url(#arrow)" marker-end="url(#arrow)" />
+  <text x="385" y="395" text-anchor="middle" font-size="13" font-weight="bold" fill="#2563eb">Khoảng cách cần đo: d = (b · f) / x</text>
+
+  <!-- Similar Triangles Callout Box -->
+  <g transform="translate(230, 265)">
+    <rect width="250" height="75" rx="6" fill="#eff6ff" stroke="#bfdbfe" />
+    <text x="12" y="22" font-size="11" font-weight="bold" fill="#1e40af">Chứng minh Hình Học:</text>
+    <text x="12" y="42" font-size="11" fill="#1e3a8a">Δ Ngoài: b / d = tan(α)</text>
+    <text x="12" y="60" font-size="11" fill="#1e3a8a">Δ Trong: x / f = tan(α) ⇒ d = (b · f) / x</text>
+  </g>
+</svg>

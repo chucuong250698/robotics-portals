@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 10: Điều Khiển Tương Tác Lực & Trở Kháng | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 10</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link active">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Tương Tác Lực, Khớp Đàn Hồi & Thao Tác Hợp Tác</span>
+          <span class="page-source-badge">📖 Siciliano et al. (2025), Chương 10, Trang 497–550</span>
+        </div>
+        <h1 class="chapter-title">Chương 10: Điều Khiển Tương Tác Lực & Trở Kháng</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Điều khiển tiếp xúc vật lý, Trở kháng (Impedance) & Dẫn nạp (Admittance), Điều khiển lai Lực/Vị trí (Hybrid Control), Ổn định thụ động (Coupled Stability)</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Khi robot thao tác trong không gian tự do không tiếp xúc (Free Motion), mục tiêu điều khiển duy nhất là bám chính xác quỹ đạo vị trí không gian. Tuy nhiên, trong phần lớn các ứng dụng công nghiệp và dịch vụ quan trọng — như mài bavia kim loại, đánh bóng bề mặt cong phức tạp, lắp ráp linh kiện vi mạch, siết bu lông ren, hoặc robot cộng tác (Cobot) tương tác trực tiếp với con người — khâu tác động cuối của robot buộc phải <strong>tiếp xúc vật lý (Physical Interaction)</strong> với môi trường bên ngoài.</p>
+          <p>Nếu trong các tác vụ này ta vẫn sử dụng bộ điều khiển vị trí thuần túy (Pure Position Control) với độ cứng khuếch đại cao, một sai lệch hình học rất nhỏ giữa mô hình danh định và môi trường thực tế (chỉ $0.5\text{ mm}$ với môi trường cứng $k_e = 10^5\text{ N/m}$) sẽ lập tức tạo ra một lực tương tác khổng lồ hàng nghìn Newton! Hậu quả là vỡ chi tiết gia công, hỏng cảm biến hoặc kích hoạt ngắt bảo vệ quá tải dòng động cơ. <strong>Điều khiển tương tác lực (Force & Impedance Control)</strong> ra đời để biến robot từ một cỗ máy cứng nhắc nguy hiểm thành một hệ thống thông minh, biết "nhún nhường" đàn hồi theo lực cản môi trường và duy trì lực ép mong muốn một cách ổn định.</p>
+        </div>
+        <p>Hai chiến lược tương tác lực nền tảng:</p>
+        <ul>
+          <li><strong>Điều khiển lực gián tiếp (Indirect Force Control):</strong> Không trực tiếp khép kín vòng phản hồi lực để điều khiển độ lớn của lực, mà định hình mối quan hệ động lực học giữa độ biến dạng vị trí và lực phản kháng môi trường. Đại diện kinh điển là <em>Điều khiển Trở kháng (Impedance Control, Neville Hogan 1985)</em> và <em>Điều khiển Dẫn nạp (Admittance Control)</em>.</li>
+          <li><strong>Điều khiển lực trực tiếp (Direct Force Control):</strong> Điều khiển chính xác giá trị lực tiếp xúc đạt tới lực đặt mong muốn $F_d$. Phương pháp nổi tiếng nhất là <em>Điều khiển lai Lực/Chuyển động (Hybrid Force/Motion Control, Raibert & Craig 1981)</em>, phân chia không gian tác vụ thành các hướng điều khiển lực và các hướng điều khiển vị trí độc lập.</li>
+        </ul>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét cánh tay robot $n$ bậc tự do có phương trình động lực học trong không gian khớp: $\mathbf{B}(\mathbf{q})\ddot{\mathbf{q}} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau} - \mathbf{J}^T(\mathbf{q})\mathbf{h}_e$, trong đó $\mathbf{h}_e \in \mathbb{R}^6$ là vector Wrench (lực và mô-men) mà môi trường tác dụng lên khâu tác động cuối.</p>
+        
+        <h3>1. Khái Niệm Trở Kháng & Dẫn Nạp Cơ Học</h3>
+        <p>Theo định nghĩa của Neville Hogan (1985), một hệ vật lý tương tác với môi trường có thể biểu diễn như một <strong>Trở kháng cơ học (Impedance)</strong> hoặc <strong>Dẫn nạp cơ học (Admittance)</strong>:</p>
+        <ul>
+          <li><strong>Impedance:</strong> Nhận đầu vào là chuyển động (độ dời, vận tốc), sinh ra đầu ra là lực tương tác: $\text{Motion} \to \text{Force}$.</li>
+          <li><strong>Admittance:</strong> Nhận đầu vào là lực tác dụng từ môi trường, sinh ra đầu ra là chuyển động thích ứng: $\text{Force} \to \text{Motion}$.</li>
+        </ul>
+        <p>Mục tiêu của bộ điều khiển trở kháng Cartesian là gán cho khâu tác động cuối một hành vi động lực học mục tiêu giống như một hệ cơ học khối lượng - lò xo - giảm chấn ảo:</p>
+        $$\mathbf{M}_d (\ddot{\mathbf{x}} - \ddot{\mathbf{x}}_d) + \mathbf{D}_d (\dot{\mathbf{x}} - \dot{\mathbf{x}}_d) + \mathbf{K}_d (\mathbf{x} - \mathbf{x}_d) = -\mathbf{h}_e$$
+        <p>trong đó $\mathbf{x}_d$ là quỹ đạo vị trí danh định trong không gian tự do, $\mathbf{M}_d \gt \mathbf{0}$ là ma trận khối lượng biểu kiến (apparent inertia), $\mathbf{D}_d \gt \mathbf{0}$ là ma trận cản nhớt (damping), và $\mathbf{K}_d \gt \mathbf{0}$ là ma trận độ cứng ảo (stiffness).</p>
+
+        <h3>2. Luật Điều Khiển Trở Kháng Trong Không Gian Khớp</h3>
+        <p>Dựa trên phương pháp động lực học nghịch đảo (Inverse Dynamics) và ma trận Jacobian $\mathbf{J}(\mathbf{q})$ liên hệ $\dot{\mathbf{x}} = \mathbf{J}(\mathbf{q})\dot{\mathbf{q}}$ và $\ddot{\mathbf{x}} = \mathbf{J}(\mathbf{q})\ddot{\mathbf{q}} + \dot{\mathbf{J}}(\mathbf{q})\dot{\mathbf{q}}$:</p>
+        $$\boldsymbol{\tau} = \mathbf{B}(\mathbf{q})\mathbf{y} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) + \mathbf{J}^T(\mathbf{q})\mathbf{h}_e$$
+        <p>với vector gia tốc khớp ảo $\mathbf{y}$ được thiết kế triệt tiêu phi tuyến và gán trở kháng mục tiêu:</p>
+        $$\mathbf{y} = \mathbf{J}^{-1}(\mathbf{q})\mathbf{M}_d^{-1}\left( \mathbf{M}_d \ddot{\mathbf{x}}_d + \mathbf{D}_d(\dot{\mathbf{x}}_d - \dot{\mathbf{x}}) + \mathbf{K}_d(\mathbf{x}_d - \mathbf{x}) - \mathbf{h}_e \right) - \mathbf{J}^{-1}(\mathbf{q})\dot{\mathbf{J}}(\mathbf{q})\dot{\mathbf{q}}$$
+        <p>Thay $\boldsymbol{\tau}$ vào phương trình động lực học của robot, ta thu được chính xác quan hệ trở kháng mong muốn ở khâu tác động cuối.</p>
+
+        <h3>3. Điều Khiển Lai Lực/Chuyển Động (Hybrid Force/Motion Control)</h3>
+        <p>Theo nguyên lý Mason (Mason's Constraint Frame), tại mọi điểm tiếp xúc, không gian 6 chiều luôn phân rã thành hai không gian con trực giao:</p>
+        <ul>
+          <li><strong>Ràng buộc tự nhiên (Natural Constraints):</strong> Do hình học môi trường áp đặt (ví dụ: trên bề mặt bàn cứng không ma sát, vận tốc theo phương pháp tuyến $v_n = 0$ và lực tiếp tuyến $f_t = 0$).</li>
+          <li><strong>Ràng buộc nhân tạo (Artificial Constraints):</strong> Là các biến điều khiển mà robot được phép kiểm soát (ví dụ: điều khiển lực ép pháp tuyến $f_n = f_d$ và vận tốc di chuyển tiếp tuyến $v_t = v_d$).</li>
+        </ul>
+        <p>Sử dụng ma trận chiếu lựa chọn đường chéo $\mathbf{S} = \text{diag}(s_1, \dots, s_6)$ với $s_i \in \{0, 1\}$. Thành phần điều khiển chuyển động được chiếu qua ma trận $\mathbf{S}$, trong khi thành phần điều khiển lực được chiếu qua ma trận bù trực giao $\mathbf{I} - \mathbf{S}$:</p>
+        $$\boldsymbol{\tau} = \mathbf{J}^T(\mathbf{q}) \left( \mathbf{S} \mathbf{F}_{motion} + (\mathbf{I} - \mathbf{S}) \mathbf{F}_{force} \right)$$
+        <p>Cấu trúc này đảm bảo hai vòng lặp điều khiển lực và vị trí hoàn toàn không xung đột (decoupled), triệt tiêu hiện tượng giằng co gây mất ổn định.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <h3>Tính Thụ Động & Ổn Định Ghép Nối (Coupled Stability) Trong Thực Tế</h3>
+        <p>Một hiện tượng nguy hiểm thường gặp khi triển khai điều khiển lực là <strong>Mất ổn định tiếp xúc (Contact Instability)</strong>: robot dao động đập liên hồi vào bề mặt tiếp xúc (chattering / limit cycle). Theo định lý Colgate & Hogan (1988), để đảm bảo hệ thống luôn ổn định khi tiếp xúc với bất kỳ môi trường thụ động tùy ý nào, bộ điều khiển của robot bắt buộc phải là một <em>Hệ Thụ Động (Passive System)</em>.</p>
+        <p>Để đạt được tính thụ động trong môi trường số rời rạc (Discrete-time implementation):</p>
+        <ul>
+          <li><strong>Chu kỳ trích mẫu cao:</strong> Tần số vòng lặp điều khiển lực phải đạt tối thiểu 1 kHz (chu kỳ $T_s = 1\text{ ms}$) qua mạng truyền thông công nghiệp thời gian thực EtherCAT.</li>
+          <li><strong>Bộ lọc thông thấp lực đo:</strong> Cảm biến lực/mô-men 6 trục (ATI Nano/Axia) chịu nhiễu rung cơ học cao tần, cần lọc qua bộ lọc Butterworth bậc 2 hoặc Kalman Filter.</li>
+          <li><strong>Cơ chế quan sát năng lượng thụ động (Passivity Observers / Passivity Controllers - PO/PC):</strong> Liên tục theo dõi dòng năng lượng ảo sinh ra do lượng tử hóa và trễ pha, tự động bơm thêm cản ảo $D_{virt}$ khi phát hiện năng lượng hệ vượt ngưỡng an toàn.</li>
+        </ul>
+
+        <h4>Triển Khai Trong ROS 2 Control (Hardware Effort Interfaces)</h4>
+        <p>Trong hệ thống ROS 2 Humble/Jazzy, kiến trúc điều khiển lực sử dụng <code>controller_manager</code> với giao diện lực <code>hardware_interface::EffortJointInterface</code>. Bộ điều khiển <code>cartesian_impedance_controller</code> chạy ở tầng Real-Time Loop (PREEMPT_RT Kernel), đăng ký nhận topic wrench từ <code>geometry_msgs/msg/WrenchStamped</code> và xuất lệnh mô-men trực tiếp tới driver servo Elmo Gold hoặc Beckhoff EtherCAT.</p>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Bộ Điều Khiển Trở Kháng (Impedance Control) 1 Bậc Tự Do Tiếp Xúc Môi Trường Đàn Hồi</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khâu tác động cuối của robot chuyển động tịnh tiến theo phương ngang $x$ tiếp xúc với một bức tường đàn hồi cố định. Bề mặt bức tường nằm tại vị trí $x_e = 0.500\text{ m}$ với độ cứng đàn hồi của tường $k_e = 5000\text{ N/m}$. Robot có khối lượng quán tính tương đương $m = 4.0\text{ kg}$.<br><br>Bộ điều khiển trở kháng Cartesian được thiết kế với các thông số mong muốn: khối lượng biểu kiến $m_d = 2.0\text{ kg}$, hệ số cản $d_d = 80.0\text{ N}\cdot\text{s/m}$, hệ số độ cứng ảo $k_d = 200.0\text{ N/m}$. Quỹ đạo danh định không tải đưa ra là vị trí lấn sâu ảo vào bên trong tường $x_d = 0.525\text{ m}$ (nghĩa là điểm mong muốn nằm sau mặt tường $25\text{ mm}$). Môi trường không có lực cản nhớt ($d_e = 0$).<br><br>Hãy thực hiện: (1) Thiết lập phương trình cân bằng lực ở trạng thái xác lập (steady-state); (2) Tính toán vị trí dừng thực tế xác lập $x_{ss}$ của khâu tác động cuối; (3) Tính toán độ lớn lực tiếp xúc xác lập $F_{ss}$ tác dụng lên tường; (4) Tính tần số dao động riêng $\omega_n$ và hệ số tắt dần $\zeta$ của hệ ghép nối (coupled system) để chứng minh hệ thống không bị dao động rung lắc nguy hiểm.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập phương trình cân bằng trạng thái xác lập (Steady-State):<br>Khi robot tiếp xúc và dừng ổn định tại vị trí xác lập $x_{ss}$ (vận tốc $\dot{x} = 0$, gia tốc $\ddot{x} = 0$), phương trình động lực học trở kháng rút gọn thành:<br>$$k_d (x_d - x_{ss}) = F_{ss}$$<br>Mặt khác, lực phản kháng đàn hồi từ bức tường tác dụng ngược lại robot theo định luật Hooke là:<br>$$F_e = k_e (x_{ss} - x_e)$$<br>Ở trạng thái cân bằng xác lập, ngoại lực từ môi trường bằng lực tác dụng từ trở kháng: $F_{ss} = F_e$. Do đó ta có phương trình cân bằng lực:<br>$$k_d (x_d - x_{ss}) = k_e (x_{ss} - x_e)$$<br>Phương trình này cho thấy vị trí cân bằng cuối cùng là sự thỏa hiệp giữa độ cứng điều khiển $k_d$ và độ cứng môi trường $k_e$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán vị trí dừng thực tế xác lập $x_{ss}$:<br>Biến đổi phương trình đại số bậc nhất từ Bước 1:<br>$$(k_d + k_e) x_{ss} = k_d x_d + k_e x_e \implies x_{ss} = \frac{k_d x_d + k_e x_e}{k_d + k_e}$$<br>Thay các giá trị số cụ thể: $k_d = 200.0\text{ N/m}$, $k_e = 5000.0\text{ N/m}$, $x_d = 0.525\text{ m}$, $x_e = 0.500\text{ m}$:<br>$$k_d + k_e = 200 + 5000 = 5200\text{ N/m}$$<br>$$k_d x_d = 200 \cdot 0.525 = 105.0\text{ N}\cdot\text{m}$$<br>$$k_e x_e = 5000 \cdot 0.500 = 2500.0\text{ N}\cdot\text{m}$$<br>$$k_d x_d + k_e x_e = 105.0 + 2500.0 = 2605.0\text{ N}\cdot\text{m}$$<br>Vị trí dừng xác lập là:<br>$$x_{ss} = \frac{2605.0}{5200} \approx 0.50096\text{ m}$$<br>Độ lún thực tế vào tường: $\Delta x = x_{ss} - x_e = 0.50096 - 0.50000 = 0.00096\text{ m} = 0.96\text{ mm}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán lực tiếp xúc xác lập $F_{ss}$:<br>Có thể tính lực tiếp xúc theo một trong hai cách tương đương:<br>• Cách 1 (qua độ biến dạng của tường):<br>$$F_{ss} = k_e (x_{ss} - x_e) = 5000 \cdot 0.0009615 = 4.8077\text{ N} \approx 4.81\text{ N}$$<br>• Cách 2 (qua độ lệch vị trí danh định của trở kháng):<br>$$\Delta x_d = x_d - x_{ss} = 0.525 - 0.5009615 = 0.0240385\text{ m}$$<br>$$F_{ss} = k_d \Delta x_d = 200 \cdot 0.0240385 = 4.8077\text{ N} \approx 4.81\text{ N}$$<br>Cả hai cách đều cho kết quả chính xác $F_{ss} = 4.81\text{ N}$. Lực ép này hoàn toàn nằm trong tầm an toàn của cánh tay robot.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích động thái hệ ghép nối (Coupled Dynamic Stability):<br>Phương trình vi phân tổng quát của hệ kín khi tiếp xúc với bức tường đàn hồi ($F_e = k_e(x - x_e)$):<br>$$m_d \ddot{x} + d_d \dot{x} + k_d (x - x_d) = -k_e (x - x_e)$$<br>$$m_d \ddot{x} + d_d \dot{x} + (k_d + k_e) x = k_d x_d + k_e x_e$$<br>Phương trình đặc trưng vi phân bậc hai có dạng: $s^2 + 2\zeta \omega_n s + \omega_n^2 = 0$.<br>Độ cứng tương đương tổng cộng: $k_{eq} = k_d + k_e = 200 + 5000 = 5200\text{ N/m}$.<br>Tần số dao động tự nhiên của hệ ghép nối:<br>$$\omega_n = \sqrt{\frac{k_{eq}}{m_d}} = \sqrt{\frac{5200}{2.0}} = \sqrt{2600} \approx 50.99\text{ rad/s} \quad (\approx 8.12\text{ Hz})$$<br>Hệ số tắt dần $\zeta$ (Damping Ratio):<br>$$2\zeta \omega_n = \frac{d_d}{m_d} = \frac{80.0}{2.0} = 40.0\text{ s}^{-1} \implies \zeta = \frac{40.0}{2 \cdot 50.99} = \frac{40.0}{101.98} \approx 0.392$$<br><strong>Biện luận vật lý & Ứng dụng điều khiển:</strong> Khi tiếp xúc với tường cứng, tần số riêng tăng vọt từ $\omega_{n0} = \sqrt{200/2} = 10\text{ rad/s}$ lên $51\text{ rad/s}$, làm hệ số cản giảm từ $\zeta_0 = \frac{80}{2 \cdot 2 \cdot 10} = 2.0$ (tắt dần quá mức) xuống $\zeta = 0.392$ (dưới cản nhẹ). Mặc dù có độ vọt lố nhỏ trong thời gian quá độ ngắn, hệ thống hoàn toàn ổn định tiệm cận (vì $\zeta \gt 0$ và $\omega_n \gt 0$), không xảy ra va đập hay tự kích dao động chattering phá hủy tiếp xúc.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Tương Tác Lực & Điều Khiển Trở Kháng Cartesian</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-10" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim10()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim10()">Thiết lập lại</button>
+        <label class="sim-label">Độ cứng ảo $K_d$: <input type="range" id="sim10-kd" min="50" max="500" step="50" value="200" onchange="updateSim10Params()"></label>
+        <label class="sim-label">Độ cứng tường $K_e$: <input type="range" id="sim10-ke" min="1000" max="10000" step="1000" value="5000" onchange="updateSim10Params()"></label>
+        <label class="sim-label">Vị trí đích $x_d$: <input type="range" id="sim10-xd" min="0.48" max="0.55" step="0.005" value="0.525" onchange="updateSim10Params()"></label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim10-stats" class="sim-telemetry-text">Vị trí thực $x$: 0.501 m | Lực tiếp xúc $F_e$: 4.81 N | Độ lún $\Delta x$: 0.96 mm | Hệ số cản $\zeta$: 0.392 | Trạng thái: Ổn định</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// C++20 / Eigen Implementation: Cartesian Impedance Controller with Contact Force Feedback
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+class CartesianImpedanceController1D {
+public:
+    CartesianImpedanceController1D(double m_d, double d_d, double k_d)
+        : m_d_(m_d), d_d_(d_d), k_d_(k_d) {}
+
+    // Tính gia tốc chuyển động mục tiêu của trở kháng:
+    // m_d * (x_ddot - x_ddot_d) + d_d * (x_dot - x_dot_d) + k_d * (x - x_d) = -F_ext
+    double computeTargetAcceleration(double x, double x_dot, 
+                                     double x_d, double x_dot_d, double x_ddot_d, 
+                                     double F_ext) {
+        double pos_error = x - x_d;
+        double vel_error = x_dot - x_dot_d;
+
+        double x_ddot_target = x_ddot_d - (1.0 / m_d_) * (d_d_ * vel_error + k_d_ * pos_error + F_ext);
+        return x_ddot_target;
+    }
+
+    // Mô phỏng tích phân số Euler của hệ tương tác với tường đàn hồi
+    struct SimulationState {
+        double x = 0.45;     // Vị trí ban đầu ngoài không gian tự do
+        double x_dot = 0.0;
+        double F_contact = 0.0;
+    };
+
+    void simulateStep(SimulationState&amp; state, double x_d, double wall_pos, double wall_stiffness, double dt) {
+        // 1. Đo lực phản kháng từ môi trường đàn hồi
+        if (state.x &gt; wall_pos) {
+            state.F_contact = wall_stiffness * (state.x - wall_pos);
+        } else {
+            state.F_contact = 0.0;
+        }
+
+        // 2. Tính gia tốc điều khiển trở kháng
+        double x_ddot = computeTargetAcceleration(state.x, state.x_dot, x_d, 0.0, 0.0, state.F_contact);
+
+        // 3. Tích phân số
+        state.x_dot += x_ddot * dt;
+        state.x += state.x_dot * dt;
+    }
+
+private:
+    double m_d_; // Khối lượng biểu kiến
+    double d_d_; // Hệ số cản mong muốn
+    double k_d_; // Độ cứng mong muốn
+};
+
+int main() {
+    CartesianImpedanceController1D controller(2.0, 80.0, 200.0);
+    CartesianImpedanceController1D::SimulationState state;
+    double x_d = 0.525;
+    double wall_pos = 0.500;
+    double k_e = 5000.0;
+    double dt = 0.001; // 1 kHz real-time loop
+
+    for (int step = 0; step &lt; 2000; ++step) {
+        controller.simulateStep(state, x_d, wall_pos, k_e, dt);
+    }
+
+    std::cout &lt;&lt; &quot;Steady-state results after 2.0s:\n&quot;;
+    std::cout &lt;&lt; &quot;  Position x_ss: &quot; &lt;&lt; state.x &lt;&lt; &quot; m (expected: ~0.501 m)\n&quot;;
+    std::cout &lt;&lt; &quot;  Contact Force F_ss: &quot; &lt;&lt; state.F_contact &lt;&lt; &quot; N (expected: ~4.81 N)\n&quot;;
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Điều khiển tương tác lực là bắt buộc khi robot tiếp xúc với môi trường để tránh phá hủy cấu trúc cơ khí do sai lệch hình học.</li><li>Điều khiển trở kháng (Impedance) định hình quan hệ động thái tựa lò xo - giảm chấn - khối lượng giữa lực tiếp xúc và độ lệch vị trí.</li><li>Điều khiển dẫn nạp (Admittance) đo lực ngoại vi để sinh ra quỹ đạo dịch chuyển vị trí thích ứng, tối ưu cho cánh tay robot công nghiệp cứng.</li><li>Điều khiển lai Lực/Vị trí (Hybrid Control) phân tách không gian tác vụ qua ma trận lựa chọn trực giao S và (I - S) theo nguyên lý ràng buộc Mason.</li><li>Định lý Colgate & Hogan đòi hỏi bộ điều khiển phải có tính thụ động (Passivity) và tần số trích mẫu tối thiểu 1 kHz để triệt tiêu dao động va đập tiếp xúc.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 10.1: Điều khiển trở kháng thích nghi (Adaptive Impedance) khi độ cứng môi trường thay đổi đột ngột</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Khi robot di chuyển từ bề mặt gỗ ($k_{e1} = 2000\text{ N/m}$) sang bề mặt kim loại thép rất cứng ($k_{e2} = 20000\text{ N/m}$), để giữ nguyên hệ số tắt dần lý tưởng $\zeta = 0.707$ với khối lượng $m_d = 2.0\text{ kg}$ và độ cứng ảo $k_d = 200\text{ N/m}$, hãy tính giá trị hệ số cản $d_d$ mới cần được bộ điều khiển cập nhật thích nghi trong trường hợp tiếp xúc với bề mặt thép.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Độ cứng tương đương mới: $k_{eq} = k_d + k_{e2} = 200 + 20000 = 20200\text{ N/m}$.<br>Tần số riêng mới: $\omega_n = \sqrt{k_{eq} / m_d} = \sqrt{20200 / 2.0} = \sqrt{10100} \approx 100.499\text{ rad/s}$.<br>Để đạt hệ số tắt dần $\zeta = 0.707$:<br>$$d_d = 2 \zeta m_d \omega_n = 2 \cdot 0.707 \cdot 2.0 \cdot 100.499 \approx 284.2\text{ N}\cdot\text{s/m}$$.<br>Bộ điều khiển cần tăng hệ số cản từ $80\text{ N}\cdot\text{s/m}$ lên $284.2\text{ N}\cdot\text{s/m}$ để triệt tiêu hoàn toàn rung lắc va chạm khi tiếp xúc với môi trường kim loại siêu cứng.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch09.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 09: Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</span>
+        </a>
+        <a href="ch11.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim10 === "function") {
+        initSim10();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 11: Bất Đồng Hình Thái &amp; Chuyển Đổi Sim-to-Real - Imitation Learning in Robotics</title>
+<meta content="The Correspondence Problem, Domain Adaptation &amp; Cross-Embodiment" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 5: QUAN SÁT &amp; CHÊNH LỆCH MIỀN</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 11</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 11</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-11-1">
+<span class="nav-text">11.1 Bài Toán Bất Đồng Hình Thái (Correspondence Problem)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-2">
+<span class="nav-text">11.2 Kinematic vs Dynamic Correspondence</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-3">
+<span class="nav-text">11.3 Chuyển Đổi Miền Sim-to-Real &amp; Domain Randomization</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-4">
+<span class="nav-text">11.4 Cross-Embodiment Learning (Open X-Embodiment)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-sim">
+<span class="nav-text">⚡ Mô Phỏng Đồng Bộ Cặp Điểm Bàn Tay - Tay Kẹp (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Nghịch Đảo Jacobian Chuyển Tọa Độ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-11-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Node Retargeting Từ MediaPipe Sang Robot</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-11-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 5: QUAN SÁT &amp; CHÊNH LỆCH MIỀN • CHƯƠNG 11</div>
+<h1 class="chapter-title">Bất Đồng Hình Thái &amp; Chuyển Đổi Sim-to-Real</h1>
+<p class="chapter-subtitle">The Correspondence Problem, Domain Adaptation &amp; Cross-Embodiment</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Boyuan Zheng et al. (UTS 2021) &amp; Carlos Celemin et al. (2022)</strong></span>
+</div>
+</div>
+<!-- 11.1 -->
+<h2 id="sec-11-1">11.1 Bài Toán Bất Đồng Hình Thái (The Correspondence Problem) Là Gì?</h2>
+<p>Khi con người làm mẫu cho robot, một rào cản vật lý tự nhiên xuất hiện: <strong>Cơ thể người và robot hoàn toàn khác nhau về mặt cơ sinh học.</strong></p>
+<ul>
+<li>Bàn tay người có 27 bậc tự do (DOF) với các khớp linh hoạt và đầu ngón tay mềm có độ bám dính cao.</li>
+<li>Tay kẹp robot công nghiệp phổ biến chỉ có 1 bậc tự do đóng mở song song (Parallel-jaw Gripper) hoặc 3 ngón cứng.</li>
+<li>Chiều dài cánh tay, giới hạn góc quay khớp, và giới hạn gia tốc mô-men động cơ hoàn toàn không tương thích.</li>
+</ul>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 GIẢI PHÁP CHO BÀI TOÁN TƯƠNG ỨNG HÌNH THÁI</div>
+<div class="why-matters-body">
+            Bài toán ánh xạ từ không gian hành động chuyên gia $\mathcal{A}_E$ sang không gian robot $\mathcal{A}_R$ được chia thành:
+            <br/>1. <strong>Kinematic Correspondence (Ánh xạ Động học):</strong> Bỏ qua hình dáng khớp bên trong, chỉ đồng bộ hóa vị trí và hướng của điểm tiếp xúc công tác (End-Effector Pose Tracking).
+            <br/>2. <strong>Contact-Point Correspondence (Tương ứng Điểm Tiếp Xúc):</strong> Thay vì bắt chước cả bàn tay, chỉ đồng bộ hóa lực ép và khoảng cách giữa hai đầu ngón tay cái và trỏ với hai má kẹp của robot.
+          </div>
+</div>
+<!-- 11.2 -->
+<h2 id="sec-11-2">11.2 Chuyển Đổi Miền Thực - Ảo (Sim-to-Real Transfer) &amp; Domain Randomization</h2>
+<p>Thu thập hàng vạn giờ biểu diễn trên robot thật là cực kỳ tốn kém và mòn hỏng cơ khí. Do đó, phần lớn dữ liệu thị phạm được tạo trong môi trường mô phỏng vật lý (Isaac Gym, MuJoCo, PyBullet). Tuy nhiên, khi đưa chính sách đã học sang robot thật, hiện tượng <strong>Reality Gap (Khoảng cách Thực tế)</strong> làm chính sách thất bại vì khác biệt ánh sáng, độ ma sát bề mặt, và độ trễ động cơ.</p>
+<p>Kỹ thuật <strong>Domain Randomization (DR)</strong> giải quyết bài toán này bằng cách biến đổi ngẫu nhiên toàn bộ các tham số vật lý trong mỗi màn mô phỏng:</p>
+        $$m \sim \mathcal{U}(0.8 m_0, 1.2 m_0), \quad \mu_{\text{friction}} \sim \mathcal{U}(0.2, 0.9), \quad \tau_{\text{delay}} \sim \mathcal{U}(0\text{ ms}, 40\text{ ms})$$
+        <p>Chính sách học được sẽ buộc phải hội tụ về một chiến lược điều khiển bền vững, thích nghi ngay lập tức khi thả vào thế giới thực mà không cần tinh chỉnh lại (Zero-shot Sim-to-Real).</p>
+<!-- 11.3 -->
+<h2 id="sec-11-3">11.3 Kỷ Nguyên Cross-Embodiment Learning (Open X-Embodiment / RT-X)</h2>
+<p>Năm 2023 - 2024 đánh dấu bước nhảy vọt với sáng kiến <strong>Open X-Embodiment</strong> (Google DeepMind hợp tác với 33 phòng lab toàn cầu): Tập hợp hơn 1 triệu quỹ đạo biểu diễn từ 22 dòng robot hoàn toàn khác nhau (từ Franka Emika, UR5, ALOHA đến Google Robot). Bằng cách chuẩn hóa không gian hành động thành vận tốc di chuyển 6D của bàn kẹp $\Delta x, \Delta y, \Delta z, \Delta \text{roll}, \Delta \text{pitch}, \Delta \text{yaw}$ cộng với trạng thái kẹp, một mô hình thị giác - ngôn ngữ - hành động duy nhất (VLA Model) có thể điều khiển đa dạng các loại robot khác nhau một cách linh hoạt.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-11-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Ánh Xạ Điểm Tiếp Xúc Bàn Tay Người Sang Tay Kẹp Song Song</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="280" id="sim-canvas-11" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-11-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Tính Vận Tốc Khớp $\dot{q}$ Bằng Nghịch Đảo Ma Trận Jacobian $\mathbf{J}^{-1}$ Khi Theo Dõi Bàn Tay Người</h3>
+</div>
+<div class="exercise-statement">
+<p>Camera theo dõi bàn tay con người ghi nhận vận tốc điểm đầu ngón tay trong không gian Descartes 2D là $\mathbf{v}_{\text{human}} = [0.08, -0.04]^T$ m/s. Robot 2 khớp có chiều dài các khâu $l_1 = 0.4$ m, $l_2 = 0.3$ m, đang ở cấu hình góc khớp $q_1 = 30^\circ$ ($0.5236$ rad), $q_2 = 45^\circ$ ($0.7854$ rad). Ma trận Jacobian tính được tại điểm này là:
+          $$\mathbf{J} = \begin{bmatrix} -0.412 &amp; -0.212 \\ 0.559 &amp; 0.212 \end{bmatrix}$$
+          Tính định thức $\det(\mathbf{J})$, nghịch đảo $\mathbf{J}^{-1}$, và vector vận tốc góc đặt cho các khớp robot $\dot{\mathbf{q}}$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính định thức của ma trận Jacobian 2x2</span>
+</div>
+<div class="step-content">
+<p>$$\det(\mathbf{J}) = (-0.412)(0.212) - (-0.212)(0.559)$$</p><p>• $(-0.412) \times 0.212 = -0.087344$</p><p>• $(-0.212) \times 0.559 = -0.118508$</p><p>$$\det(\mathbf{J}) = -0.087344 - (-0.118508) = +0.031164 \neq 0$$</p><p>Hệ thống không nằm ở điểm kỳ dị (Singularity), có thể nghịch đảo an toàn.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tìm ma trận nghịch đảo $\mathbf{J}^{-1}$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{J}^{-1} = \frac{1}{\det(\mathbf{J})} \begin{bmatrix} J_{22} &amp; -J_{12} \\ -J_{21} &amp; J_{11} \end{bmatrix} = \frac{1}{0.031164} \begin{bmatrix} 0.212 &amp; 0.212 \\ -0.559 &amp; -0.412 \end{bmatrix}$$</p><p>$$\mathbf{J}^{-1} \approx \begin{bmatrix} 6.803 &amp; 6.803 \\ -17.937 &amp; -13.220 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Thực hiện phép nhân ma trận để tìm vận tốc khớp $\dot{\mathbf{q}}$</span>
+</div>
+<div class="step-content">
+<p>$$\dot{\mathbf{q}} = \mathbf{J}^{-1} \mathbf{v}_{\text{human}} = \begin{bmatrix} 6.803 &amp; 6.803 \\ -17.937 &amp; -13.220 \end{bmatrix} \begin{bmatrix} 0.08 \\ -0.04 \end{bmatrix}$$</p><p>• $\dot{q}_1 = 6.803(0.08) + 6.803(-0.04) = 6.803 \times 0.04 = +0.2721\text{ rad/s}$</p><p>• $\dot{q}_2 = -17.937(0.08) - 13.220(-0.04) = -1.4350 + 0.5288 = -0.9062\text{ rad/s}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kiểm tra giới hạn vận tốc và đóng gói lệnh điều khiển</span>
+</div>
+<div class="step-content">
+<p>Vận tốc tính toán: $\dot{q}_1 \approx 0.27$ rad/s, $\dot{q}_2 \approx -0.91$ rad/s đều nằm an toàn trong giới hạn động cơ servo ($|\dot{q}| \le 2.5$ rad/s). Lệnh này được gửi tới bộ điều khiển vị trí vòng kín với tần số cao.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Giải quyết bài toán Correspondence Problem bằng ánh xạ hình thái học và chuyển giao Sim-to-Real là nền tảng để triển khai các mô hình học máy từ môi trường mô phỏng sang cánh tay robot vật lý.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-11-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Retargeting Node Từ Cảm Biến Không Gian Sang Khớp ROS 2</h4>
+<p>Mã nguồn chuyển đổi tọa độ từ camera thị giác bám tay sang lệnh dịch chuyển tay máy:</p>
+<div class="code-card">
+<div class="code-header">
+<span>hand_retargeting_node.py (ROS 2 / Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Point
+from std_msgs.msg import Float32MultiArray
+import numpy as np
+
+class HandRetargetingNode(Node):
+    def __init__(self):
+        super().__init__('hand_retargeting_node')
+        self.sub_hand = self.create_subscription(Point, '/camera/hand_position', self.hand_cb, 10)
+        self.pub_joints = self.create_publisher(Float32MultiArray, '/robot/target_joint_angles', 10)
+        self.scale_factor = np.array([1.2, 1.2, 0.8]) # Co dãn không gian thao tác
+
+    def hand_cb(self, msg):
+        human_pos = np.array([msg.x, msg.y, msg.z])
+        # Ánh xạ tỉ lệ không gian làm việc
+        robot_target_cartesian = human_pos * self.scale_factor
+        # Giải động học nghịch (IK)
+        target_joints = self.solve_ik(robot_target_cartesian)
+        
+        out_msg = Float32MultiArray()
+        out_msg.data = target_joints.tolist()
+        self.pub_joints.publish(out_msg)
+
+    def solve_ik(self, pos):
+        # Bộ giải IK xấp xỉ
+        return np.clip(pos * 1.5, -2.8, 2.8)</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-11-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Ánh Xạ Động Học Khớp Tay Người Sang Robot Trong Bài Toán Correspondence Problem</h4>
+</div>
+<div class="practice-statement">
+<p>Một hệ thống teleoperation ghi nhận góc xoay cổ tay người có 3 bậc tự do $\mathbf{q}_{\text{human}} \in \mathbb{R}^3$. Robot thao tác chỉ có 2 bậc tự do ở cổ tay $\mathbf{q}_{\text{robot}} \in \mathbb{R}^2$. Ma trận ánh xạ hình thái học (Morphological Mapping) là $\mathbf{M} \in \mathbb{R}^{2 \times 3}$ với $\mathbf{M} = \begin{bmatrix} 1.0 &amp; 0.2 &amp; 0.0 \\ 0.0 &amp; 0.8 &amp; 0.5 \end{bmatrix}$. Góc quay của người đo được là $\mathbf{q}_{\text{human}} = [0.5, -0.2, 0.4]^T\text{ rad}$. Giới hạn khớp của robot là $|q_{\text{robot}, i}| \le 0.6\text{ rad}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính góc khớp mục tiêu mong muốn của robot $\mathbf{q}_{\text{desired}} = \mathbf{M} \mathbf{q}_{\text{human}}$.<br/>2) Kiểm tra giới hạn hành trình khớp và thực hiện bão hòa (Clamping) nếu cần.<br/>3) Đánh giá sai số tái lập tư thế trong không gian thao tác.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tính toán góc khớp mong muốn qua ma trận ánh xạ:<br/>$$\mathbf{q}_{\text{desired}} = \begin{bmatrix} 1.0 &amp; 0.2 &amp; 0.0 \\ 0.0 &amp; 0.8 &amp; 0.5 \end{bmatrix} \begin{bmatrix} 0.5 \\ -0.2 \\ 0.4 \end{bmatrix} = \begin{bmatrix} 1.0(0.5) + 0.2(-0.2) + 0 \\ 0 + 0.8(-0.2) + 0.5(0.4) \end{bmatrix} = \begin{bmatrix} 0.5 - 0.04 \\ -0.16 + 0.20 \end{bmatrix} = \begin{bmatrix} 0.46 \\ 0.04 \end{bmatrix}\text{ rad}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Kiểm tra giới hạn khớp: Khớp 1: $|0.46| \le 0.6$ (thỏa mãn); Khớp 2: $|0.04| \le 0.6$ (thỏa mãn). Cả hai góc đều nằm trong vùng làm việc an toàn của robot, không cần kích hoạt clamping.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Do bậc tự do bị tiêu giảm ($3 \to 2$), một thành phần chuyển động vuông góc với không gian hạch của $\mathbf{M}$ bị triệt tiêu, gây mất mát độ linh hoạt nhẹ nhưng bảo toàn hướng tác động chính của công cụ thao tác.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch10.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 10: Chuyên Gia Lỗi &amp; T-REX</span>
+</a>
+<a class="ch-nav-card next" href="ch12.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 12: Giao Diện HRI &amp; Shared Autonomy</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

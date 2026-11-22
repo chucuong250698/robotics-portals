@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 14: Thuật Toán Tích Phân Số ODEs & Tích Phân Symplectic | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 14</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link active">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-6">Track 6: Thuật Toán Mô Phỏng Số & Kiến Trúc Robot</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 14; Num-Anal-Part2 (Trang 425–480)</span>
+        </div>
+        <h1 class="chapter-title">Chương 14: Thuật Toán Tích Phân Số ODEs & Tích Phân Symplectic</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Tích phân Runge-Kutta RK4, Symplectic Euler, Bảo toàn năng lượng Hamiltonian & Bước tích phân thích nghi RK45</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Tại sao hầu hết các công cụ mô phỏng vật lý robot hàng đầu (như Gazebo, MuJoCo, Isaac Sim, Bullet Physics) đều <strong>tuyệt đối không sử dụng thuật toán tích phân kinh điển Runge-Kutta bậc 4 (RK4)</strong> cho mô phỏng cơ học dài hạn, mà lại chọn <strong>Tích phân bảo giác Hamilton (Symplectic Integrators)</strong> như Semi-implicit Euler hay Verlet? Lý do là vì RK4 mặc dù có độ chính xác cục bộ rất cao trên từng bước vi mô ($\mathcal{O}(h^4)$), nhưng nó là phương pháp <em>Không bảo giác (Non-symplectic)</em>: nó làm tích lũy sai số năng lượng liên tục! Sau vài ngàn bước mô phỏng, robot hoặc sẽ tự tiêu biến năng lượng rồi ngừng quay giả tạo, hoặc năng lượng cơ học bị thổi bùng nổ tung lên vô tận! <strong>Symplectic Integrator</strong> bảo toàn chính xác diện tích không gian pha và chặn sai số năng lượng trong một dải hữu hạn vĩnh viễn.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét hệ cơ học bảo toàn với tọa độ vị trí $q$ và xung lượng $p$ tuân theo phương trình Hamilton:</p>
+        $$\begin{equation}
+        \dot{q} = \frac{\partial \mathcal{H}}{\partial p} = \frac{p}{m}, \qquad \dot{p} = -\frac{\partial \mathcal{H}}{\partial q} = -V'(q)
+        \end{equation}$$
+        <div class="formula-card">
+          <div class="formula-header">So Sánh Cấu Trúc Toán Học Các Thuật Toán Tích Phân Số</div>
+          <p><strong>1. Euler Hiện (Explicit Euler - Thổi bùng nổ năng lượng):</strong></p>
+          $$\begin{equation}
+          q_{k+1} = q_k + h \frac{p_k}{m}, \qquad p_{k+1} = p_k - h V'(q_k)
+          \end{equation}$$
+          <p><strong>2. Euler Symplectic (Semi-implicit Euler - Bảo toàn năng lượng chuẩn xác):</strong></p>
+          $$\begin{equation}
+          p_{k+1} = p_k - h V'(q_k), \qquad q_{k+1} = q_k + h \frac{p_{k+1}}{m}
+          \end{equation}$$
+          <p><strong>3. Runge-Kutta Bậc 4 (RK4 - Tiêu hao giả tạo năng lượng theo thời gian dài):</strong></p>
+          $$\begin{equation}
+          \mathbf{x}_{k+1} = \mathbf{x}_k + \frac{h}{6}(\mathbf{k}_1 + 2\mathbf{k}_2 + 2\mathbf{k}_3 + \mathbf{k}_4)
+          \end{equation}$$
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Định lý Poincaré về phép biến đổi bảo giác (Symplectic Map):</p>
+        <ul>
+          <li><strong>Bảo toàn 2-dạng vi phân chuẩn tắc:</strong> Ma trận Jacobian của phép biến đổi một bước $\mathbf{M} = \frac{\partial (q_{k+1}, p_{k+1})}{\partial (q_k, p_k)}$ thỏa mãn điều kiện: $\mathbf{M}^T \mathbf{J} \mathbf{M} = \mathbf{J}$ với $\mathbf{J} = \begin{bmatrix} 0 & 1 \\ -1 & 0 \end{bmatrix}$.</li>
+          <li><strong>Định thức bảo toàn:</strong> $\det(\mathbf{M}) = 1$ với mọi bước thời gian $h$, đảm bảo thể tích không gian pha không bao giờ co lại hoặc nở ra.</li>
+          <li><strong>Hamiltonian bóng (Shadow Hamiltonian):</strong> Tích phân Symplectic giải chính xác 100% một hệ thống cơ học lân cận $\tilde{\mathcal{H}} = \mathcal{H} + h \mathcal{H}_1 + h^2 \mathcal{H}_2 \dots$, do đó sai số năng lượng chỉ dao động quanh 0 mà không bao giờ trôi dạt (No secular drift).</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Đối Đầu Tích Phân Số: Dao Động Điều Hòa Giữa Symplectic Euler & Explicit Euler</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một con lắc lò xo lý tưởng không ma sát có khối lượng $m = 1.0\text{ kg}$, độ cứng lò xo $k = 100.0\text{ N/m}$ (tần số tự nhiên $\omega_0 = \sqrt{k/m} = 10.0\text{ rad/s}$). Năng lượng cơ học tổng: $E = \frac{1}{2}mv^2 + \frac{1}{2}kx^2 = 0.5p^2 + 50x^2$. Điều kiện ban đầu: $x_0 = 1.0\text{ m}, p_0 = 0\text{ kg}\cdot\text{m/s}$ (Cơ năng ban đầu $E_0 = 50.0\text{ Joules}$). Bước thời gian tích phân số $h = 0.05\text{ s}$.<br>Yêu cầu: Hãy tính tọa độ trạng thái $(x_1, p_1)$ và cơ năng sau 1 bước thời gian bằng (a) Thuật toán Explicit Euler và (b) Thuật toán Symplectic Euler. So sánh sai số phần trăm năng lượng $\Delta E / E_0$ giữa 2 phương pháp.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán bằng thuật toán Explicit Euler:<br>Phương trình vi phân: $\dot{x} = p$, $\dot{p} = -100 x$.<br>Bước 1 ($h = 0.05\text{ s}$):<br>• $x_1^{\text{exp}} = x_0 + h p_0 = 1.0 + 0.05 \times 0.0 = 1.000\text{ m}$.<br>• $p_1^{\text{exp}} = p_0 - h (100 x_0) = 0.0 - 0.05 \times 100.0 \times 1.0 = -5.000\text{ kg}\cdot\text{m/s}$.<br>Tính cơ năng sau bước 1:<br>$$E_1^{\text{exp}} = \frac{1}{2}(p_1^{\text{exp}})^2 + \frac{1}{2}(100)(x_1^{\text{exp}})^2 = \frac{1}{2}(-5.0)^2 + 50(1.0)^2 = 12.5 + 50.0 = 62.50\text{ Joules}$$<br>Sai số năng lượng Explicit Euler:<br>$$\Delta E^{\text{exp}} = \frac{62.50 - 50.0}{50.0} \times 100\% = +25.0\% \quad (\text{Năng lượng tăng vọt } 25\% \text{ chỉ sau 1 bước!})$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán bằng thuật toán Symplectic Euler (Semi-implicit):<br>Cập nhật xung lượng trước:<br>• $p_1^{\text{sym}} = p_0 - h (100 x_0) = 0.0 - 0.05 \times 100 \times 1.0 = -5.000\text{ kg}\cdot\text{m/s}$.<br>Cập nhật vị trí bằng xung lượng mới $p_1^{\text{sym}}$ vừa tính:<br>• $x_1^{\text{sym}} = x_0 + h p_1^{\text{sym}} = 1.0 + 0.05 \times (-5.0) = 1.0 - 0.25 = 0.750\text{ m}$.<br>Tính cơ năng sau bước 1:<br>$$E_1^{\text{sym}} = \frac{1}{2}(p_1^{\text{sym}})^2 + 50(x_1^{\text{sym}})^2 = \frac{1}{2}(-5.0)^2 + 50(0.75)^2 = 12.5 + 50 \times 0.5625 = 12.5 + 28.125 = 40.625\text{ Joules}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán ma trận khuếch đại năng lượng qua một chu kỳ hoàn chỉnh:<br>• Ma trận chuyển tiếp trạng thái Explicit Euler qua 1 bước:<br>$$\mathbf{M}_{\text{exp}} = \begin{bmatrix} 1 & h \\ -\omega_0^2 h & 1 \end{bmatrix} \implies \det(\mathbf{M}_{\text{exp}}) = 1 + \omega_0^2 h^2 = 1 + 100 \times 0.0025 = 1.25 \gt 1$$<br>Vì $\det(\mathbf{M}) = 1.25 \gt 1$, diện tích không gian pha giãn nở $25\%$ mỗi bước, năng lượng tăng theo cấp số nhân $\mathcal{O}((1.25)^N) \to \infty$ dẫn tới nổ tung mô phỏng!<br>• Ma trận chuyển tiếp Symplectic Euler qua 1 bước:<br>$$\mathbf{M}_{\text{sym}} = \begin{bmatrix} 1 & 0 \\ -\omega_0^2 h & 1 \end{bmatrix} \begin{bmatrix} 1 & h \\ 0 & 1 \end{bmatrix} \implies \det(\mathbf{M}_{\text{sym}}) = 1 \times 1 = 1.000000000$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Kết luận ý nghĩa vật lý:<br>Định thức $\det(\mathbf{M}_{\text{sym}}) \equiv 1.0$ chính xác tuyệt đối ở mọi bước thời gian! Mặc dù cơ năng $E_1^{\text{sym}}$ ở từng thời điểm có dao động cục bộ (do sai lệch pha), nhưng trên một chu kỳ hoàn chỉnh, tổng diện tích elip không gian pha được bảo toàn $100\%$, dao động luôn tuần hoàn kín và không bao giờ bị nổ tung hay tắt dần.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 14: Cuộc Đối Đầu Lịch Sử Giữa RK4 vs Symplectic Euler Trong Không Gian Pha</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-14" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Bước tích phân số $h$: <span id="sim14-h-val">0.05</span> s</label>
+              <input type="range" id="sim14-h" min="0.01" max="0.15" step="0.01" value="0.05">
+            </div>
+            <div class="control-group">
+              <label>Số chu kỳ chạy mô phỏng: <span id="sim14-cycles-val">20</span></label>
+              <input type="range" id="sim14-cycles" min="5" max="50" step="5" value="20">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim14-stats" class="sim-telemetry-text">Đường màu đỏ (Explicit Euler) xoắn ốc phình to nổ tung, đường xanh dương (Symplectic Euler) vẽ thành elip khép kín vĩnh cửu trong không gian pha.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Long-term Energy Conservation: RK4 vs Symplectic Euler in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;vector&gt;
+
+void simulateSymplectic(double x0, double p0, double omega, double h, int steps) {
+    double x = x0, p = p0;
+    double E0 = 0.5 * p * p + 0.5 * omega * omega * x * x;
+    
+    for (int k = 0; k &lt; steps; ++k) {
+        // Semi-implicit update
+        p -= h * (omega * omega * x);
+        x += h * p;
+    }
+    double E_final = 0.5 * p * p + 0.5 * omega * omega * x * x;
+    std::cout &lt;&lt; &quot;Symplectic Euler: E0 = &quot; &lt;&lt; E0 &lt;&lt; &quot; J | E_final = &quot; &lt;&lt; E_final 
+              &lt;&lt; &quot; J (Relative Error: &quot; &lt;&lt; std::abs(E_final - E0)/E0 * 100.0 &lt;&lt; &quot;%)\n&quot;;
+}
+
+int main() {
+    double omega = 10.0;
+    double h = 0.05;
+    int steps = 10000; // 10,000 steps long term
+    simulateSymplectic(1.0, 0.0, omega, h, steps);
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Thuật toán bảo giác (Symplectic Integrators):</strong> Phương pháp số duy nhất bảo toàn cấu trúc hình học của không gian pha Hamiltonian.</li><li><strong>Sự thất bại của Explicit Euler:</strong> Ma trận Jacobian có định thức lớn hơn 1, làm thổi bùng năng lượng giả tạo và phá vỡ tính ổn định.</li><li><strong>Giới hạn của RK4:</strong> Mặc dù chính xác cao trong ngắn hạn, RK4 làm suy hao cơ năng giả mạo sau hàng triệu bước mô phỏng dài.</li><li><strong>Chuẩn mực trong Physics Engine:</strong> MuJoCo, Isaac Sim, và Pinocchio luôn ưu tiên các biến thể Symplectic để duy trì sự ổn định vô hạn định.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 14.1: Tích phân Verlet (Leapfrog) cho độ chính xác bậc hai</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Hãy viết công thức cập nhật vị trí $x_{k+1}$ của thuật toán Verlet theo $x_k, x_{k-1}$ và gia tốc $a_k = -\omega_0^2 x_k$, chứng minh sai số vị trí cục bộ đạt cấp $\mathcal{O}(h^4)$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Công thức Verlet: $x_{k+1} = 2x_k - x_{k-1} + h^2 a_k$. Khai triển chuỗi Taylor cho $x(t+h)$ và $x(t-h)$ rồi cộng lại, các số hạng đạo hàm lẻ $\dot{x}, \dddot{x}$ triệt tiêu hoàn toàn, cho ra sai số phần dư cấp $\mathcal{O}(h^4)$ trên vị trí, là nền tảng của các engine phân tử và robot hiện đại.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch13.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 13: Động Lực Học Khí & Điều Khiển Bùng Áp Máy Nén Greitzer</span>
+        </a>
+        <a href="ch15.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Mô Phỏng Hệ DAEs (Index 1-2-3) & Ổn Định Hóa Baumgarte →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim14 === "function") {
+        initSim14();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

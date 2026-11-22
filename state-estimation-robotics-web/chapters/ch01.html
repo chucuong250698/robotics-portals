@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 01: Cơ Sở Xác Suất, Cramér-Rao &amp; Fisher Information | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-1">Track 1: Cơ Sở Xác Suất &amp; Tuyến Tính Gauss</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 01</span>
+<h3 class="sidebar-title">Cơ Sở Xác Suất, Cramér-Rao &amp; Fisher Information</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 1 / Cơ Sở Xác Suất &amp; Tuyến Tính Gauss / Chương 01</div>
+<h1 class="chapter-main-title">Chương 01: Cơ Sở Xác Suất, Cramér-Rao &amp; Fisher Information</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 2.1 (Trang 9–17)</span>
+<span class="meta-item">🎯 Trọng tâm: Đánh giá độ chụm tối đa của bộ ước lượng không chệch</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Trong thực tế, không có một cảm biến nào đo lường hoàn hảo (nhiễu nhiệt IMU, tán xạ LiDAR, ánh sáng đổi camera). Đồng thời mô hình động học robot luôn có sai số (trượt bánh, gió cản). Do đó, robot không bao giờ biết chính xác 100% tọa độ thực tế $\mathbf{x}$. Thay vì biểu diễn trạng thái bằng một điểm cố định (deterministic), ta mô hình hóa niềm tin của robot dưới dạng <strong>Hàm mật độ xác suất (PDF)</strong> $p(\mathbf{x})$.</p>
+</div>
+<p>Ước lượng trạng thái (State Estimation) là quá trình suy luận trạng thái ẩn $\mathbf{x}$ dựa trên chuỗi lệnh điều khiển $\mathbf{u}_{1:k}$ và chuỗi phép đo cảm biến $\mathbf{y}_{1:k}$. Câu hỏi tối thượng đặt ra cho kỹ sư là: <em>"Bộ lọc của chúng ta có thể đạt độ chính xác tối đa đến mức nào? Sai số nhỏ nhất về mặt lý thuyết là bao nhiêu?"</em> Định lý Cramér-Rao và Ma trận thông tin Fisher chính là chìa khóa định lượng giới hạn vật lý này.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Cho biến ngẫu nhiên liên tục $\mathbf{x} \in \mathbb{R}^n$ và phép đo $\mathbf{y} \in \mathbb{R}^m$. Phân phối xác suất đồng thời được phân rã thông qua quy tắc xác suất có điều kiện:</p>
+        $$\begin{equation}
+        p(\mathbf{x}, \mathbf{y}) = p(\mathbf{y} | \mathbf{x}) p(\mathbf{x}) = p(\mathbf{x} | \mathbf{y}) p(\mathbf{y})
+        \end{equation}$$
+        <p>Từ đó, ta có công thức Bayes kinh điển cho bài toán ước lượng trạng thái:</p>
+        $$\begin{equation}
+        p(\mathbf{x} | \mathbf{y}) = \frac{p(\mathbf{y} | \mathbf{x}) p(\mathbf{x})}{p(\mathbf{y})} = \frac{p(\mathbf{y} | \mathbf{x}) p(\mathbf{x})}{\int p(\mathbf{y} | \mathbf{x}') p(\mathbf{x}') d\mathbf{x}'}
+        \end{equation}$$
+        <ul>
+<li>$p(\mathbf{x})$: Phân phối tiên nghiệm (Prior) trước khi có phép đo mới.</li>
+<li>$p(\mathbf{y} | \mathbf{x})$: Hàm hợp lý (Likelihood) - xác suất thu được dữ liệu đo $\mathbf{y}$ nếu trạng thái thực là $\mathbf{x}$.</li>
+<li>$p(\mathbf{y})$: Bằng chứng (Evidence / Marginal Likelihood) đóng vai trò hệ số chuẩn hóa.</li>
+<li>$p(\mathbf{x} | \mathbf{y})$: Phân phối hậu nghiệm (Posterior) - niềm tin cập nhật về trạng thái sau khi tích hợp đo đạc.</li>
+</ul>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<p>Giả sử $\hat{\mathbf{x}}(\mathbf{y})$ là một bộ ước lượng không chệch (unbiased estimator) của trạng thái $\mathbf{x}$, nghĩa là $\mathbb{E}[\hat{\mathbf{x}}] = \mathbf{x}$. Hiệp phương sai của bộ ước lượng là:</p>
+        $$\begin{equation}
+        \boldsymbol{\Sigma} = \mathbb{E}\left[ (\hat{\mathbf{x}} - \mathbf{x})(\hat{\mathbf{x}} - \mathbf{x})^T \right]
+        \end{equation}$$
+        <div class="formula-card">
+<div class="formula-header">Ma Trận Thông Tin Fisher (Fisher Information Matrix - FIM)</div>
+          $$\begin{equation}
+          \mathcal{I}(\mathbf{x}) = \mathbb{E}\left[ \left( \frac{\partial \ln p(\mathbf{y}|\mathbf{x})}{\partial \mathbf{x}} \right)^T \left( \frac{\partial \ln p(\mathbf{y}|\mathbf{x})}{\partial \mathbf{x}} \right) \right] = -\mathbb{E}\left[ \frac{\partial^2 \ln p(\mathbf{y}|\mathbf{x})}{\partial \mathbf{x} \partial \mathbf{x}^T} \right]
+          \end{equation}$$
+        </div>
+<p><strong>Bất đẳng thức Cramér-Rao (CRLB):</strong> Hiệp phương sai của bất kỳ bộ ước lượng không chệch nào luôn bị chặn dưới bởi nghịch đảo của ma trận thông tin Fisher:</p>
+        $$\begin{equation}
+        \boldsymbol{\Sigma} - \mathcal{I}(\mathbf{x})^{-1} \ge 0 \quad \Longleftrightarrow \quad \boldsymbol{\Sigma} \succeq \mathcal{I}(\mathbf{x})^{-1}
+        \end{equation}$$
+        <p>Nghĩa là hiệu $\boldsymbol{\Sigma} - \mathcal{I}(\mathbf{x})^{-1}$ là một ma trận nửa xác định dương. Nếu bộ lọc đạt được dấu bằng ($\boldsymbol{\Sigma} = \mathcal{I}^{-1}$), bộ lọc đó được gọi là <em>bộ ước lượng hiệu quả tối ưu (efficient estimator)</em>.</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Ước Lượng Vị Trí Robot 2D Từ 3 Trạm Phát Sóng Độc Lập (Beacon Trilateration)</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Một robot di động hoạt động tại tọa độ danh định $\mathbf{x} = [5.0, 2.0]^T\text{ m}$. Robot thu tín hiệu đo khoảng cách từ 3 trạm phát beacon cố định: $\mathbf{p}_1 = [0, 0]^T\text{ m}$, $\mathbf{p}_2 = [10, 0]^T\text{ m}$, $\mathbf{p}_3 = [5, 10]^T\text{ m}$. Mô hình đo $y_i = \|\mathbf{x} - \mathbf{p}_i\| + v_i$ với nhiễu Gauss độc lập $v_i \sim \mathcal{N}(0, \sigma_i^2)$ có độ lệch chuẩn lần lượt là $\sigma_1 = 0.2\text{ m}, \sigma_2 = 0.3\text{ m}, \sigma_3 = 0.5\text{ m}$. Yêu cầu: Hãy tính ma trận thông tin Fisher $\mathcal{I}(\mathbf{x})$ và xác định chặn dưới phương sai Cramér-Rao (CRLB) đối với sai số định vị robot.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Mô hình hóa hàm cự ly danh định $r_i(\mathbf{x}) = \sqrt{(x - p_{i,x})^2 + (y - p_{i,y})^2}$:<br/>• $r_1 = \sqrt{5^2 + 2^2} = \sqrt{29} \approx 5.385\text{ m}$<br/>• $r_2 = \sqrt{(5 - 10)^2 + 2^2} = \sqrt{29} \approx 5.385\text{ m}$<br/>• $r_3 = \sqrt{(5 - 5)^2 + (2 - 10)^2} = 8.000\text{ m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính các ma trận Jacobian đo đạc $H_i = \frac{\partial r_i}{\partial \mathbf{x}} = \frac{(\mathbf{x} - \mathbf{p}_i)^T}{r_i}$:<br/>• $H_1 = [5/5.385, 2/5.385] = [0.9285, 0.3714]$<br/>• $H_2 = [-5/5.385, 2/5.385] = [-0.9285, 0.3714]$<br/>• $H_3 = [0/8, -8/8] = [0.0000, -1.0000]$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tính ma trận Fisher tổng hợp $\mathcal{I}(\mathbf{x}) = \sum_{i=1}^3 \frac{1}{\sigma_i^2} H_i^T H_i$:<br/>• $\mathcal{I}_1 = \frac{1}{0.04}\begin{bmatrix} 0.8621 &amp; 0.3449 \\ 0.3449 &amp; 0.1379 \end{bmatrix} = \begin{bmatrix} 21.553 &amp; 8.623 \\ 8.623 &amp; 3.448 \end{bmatrix}$<br/>• $\mathcal{I}_2 = \frac{1}{0.09}\begin{bmatrix} 0.8621 &amp; -0.3449 \\ -0.3449 &amp; 0.1379 \end{bmatrix} = \begin{bmatrix} 9.579 &amp; -3.832 \\ -3.832 &amp; 1.532 \end{bmatrix}$<br/>• $\mathcal{I}_3 = \frac{1}{0.25}\begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 4.000 \end{bmatrix}$<br/>Tổng Fisher Matrix: $\mathcal{I}(\mathbf{x}) = \begin{bmatrix} 31.132 &amp; 4.791 \\ 4.791 &amp; 8.980 \end{bmatrix}\text{ m}^{-2}$.<br/>Nghịch đảo để tìm CRLB: $\det(\mathcal{I}) = 31.132 \times 8.980 - 4.791^2 = 256.611$.<br/>$$\boldsymbol{\Sigma}_{CRLB} = \mathcal{I}^{-1} = \frac{1}{256.611}\begin{bmatrix} 8.980 &amp; -4.791 \\ -4.791 &amp; 31.132 \end{bmatrix} = \begin{bmatrix} 0.0350 &amp; -0.0187 \\ -0.0187 &amp; 0.1213 \end{bmatrix}\text{ m}^2$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Phương sai nhỏ nhất của sai số định vị: $\sigma_{x,min} = \sqrt{0.0350} \approx 0.187\text{ m}$; $\sigma_{y,min} = \sqrt{0.1213} \approx 0.348\text{ m}$. Sai số dọc trục Y lớn hơn gấp 1.86 lần trục X do trạm số 3 ở xa và có phương sai nhiễu lớn ($0.5\text{ m}$), phản ánh hiện tượng pha loãng hình học độ chính xác (GDOP).</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 1.1: Tối ưu hóa bố trí trạm phát</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu kỹ sư lắp đặt thêm trạm phát thứ tư tại $\mathbf{p}_4 = [5, -6]^T\text{ m}$ với độ chính xác cao $\sigma_4 = 0.15\text{ m}$. Hãy tính lượng thông tin Fisher bổ sung $\Delta \mathcal{I}_4$ và xác định độ lệch chuẩn $\sigma_{y,min}$ mới của robot.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Khoảng cách $r_4 = 8.0\text{ m} \implies H_4 = [0, 1]$. Lượng thông tin bổ sung $\Delta \mathcal{I}_4 = \frac{1}{0.0225}[0, 0; 0, 1] = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 44.44 \end{bmatrix}$. Phần tử $\mathcal{I}_{22}$ mới $= 8.98 + 44.44 = 53.42\text{ m}^{-2}$. Kết quả: $\sigma_{y,min}$ giảm mạnh từ $0.348\text{ m}$ xuống còn xấp xỉ $0.137\text{ m}$!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 01: Hội Tụ Chặn Dưới Phương Sai CRLB Khi Số Lượng Đo N Tăng</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-01" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Số lượng phép đo N: <span id="sim01-n-val">10</span></label>
+<input id="sim01-n" max="50" min="2" step="1" type="range" value="10"/>
+</div>
+<div class="control-group">
+<label>Độ lệch chuẩn nhiễu $\sigma$: <span id="sim01-sigma-val">0.5</span> m</label>
+<input id="sim01-sigma" max="2.0" min="0.1" step="0.1" type="range" value="0.5"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim01-stats">Kéo slider N và σ để kiểm chứng đường cong phương sai tối thiểu giảm theo tỷ lệ 1/N.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Fisher Information Matrix &amp; CRLB Calculation for 2D Range-Bearing Sensor
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+Eigen::Matrix2d computeRangeBearingFIM(
+    const Eigen::Vector2d&amp; robot_pos,
+    const Eigen::Vector2d&amp; landmark_pos,
+    double sigma_range,
+    double sigma_bearing) 
+{
+    Eigen::Vector2d delta = landmark_pos - robot_pos;
+    double r2 = delta.squaredNorm();
+    double r = std::sqrt(r2);
+    
+    // Measurement Jacobian H = [dr/dx, dr/dy; dtheta/dx, dtheta/dy]
+    Eigen::Matrix2d H;
+    H(0, 0) = -delta.x() / r;
+    H(0, 1) = -delta.y() / r;
+    H(1, 0) = delta.y() / r2;
+    H(1, 1) = -delta.x() / r2;
+
+    // Measurement noise covariance inverse
+    Eigen::Matrix2d R_inv;
+    R_inv &lt;&lt; 1.0 / (sigma_range * sigma_range), 0.0,
+             0.0, 1.0 / (sigma_bearing * sigma_bearing);
+
+    // FIM = H^T * R_inv * H
+    return H.transpose() * R_inv * H;
+}
+
+int main() {
+    Eigen::Vector2d robot(0.0, 0.0);
+    Eigen::Vector2d landmark(5.0, 5.0);
+    Eigen::Matrix2d FIM = computeRangeBearingFIM(robot, landmark, 0.1, 0.02);
+    Eigen::Matrix2d CRLB = FIM.inverse();
+
+    std::cout &lt;&lt; "Fisher Information Matrix:\n" &lt;&lt; FIM &lt;&lt; "\n\n";
+    std::cout &lt;&lt; "CRLB Minimal Covariance:\n" &lt;&lt; CRLB &lt;&lt; "\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Hàm mật độ (PDF):</strong> Cho phép định lượng mức độ chắc chắn thay vì chỉ một giá trị ước lượng điểm đơn độc.</li><li><strong>Quy tắc Bayes:</strong> Cầu nối biến đổi kiến thức tiên nghiệm thành hậu nghiệm thông qua hàm hợp lý của cảm biến.</li><li><strong>Fisher Information (FIM):</strong> Đo lường lượng thông tin mà dữ liệu cảm biến cung cấp về trạng thái cần ước lượng.</li><li><strong>Chặn dưới Cramér-Rao (CRLB):</strong> Giới hạn vật lý của độ chính xác: không có bất kỳ thuật toán ước lượng không chệch nào có thể vượt qua phương sai $\mathcal{I}^{-1}$.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="../index.html">← Quay lại Portal Hub</a>
+<a class="btn-nav btn-next" href="ch02.html">Chương tiếp theo: Biến Ngẫu Nhiên Gauss &amp; Khoảng Cách Mahalanobis →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 01</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link active">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-1">Track 1: Cơ Sở Động Học & Tĩnh Học</span>
+          <span class="page-source-badge">📖 Siciliano et al., Chương 1 (Trang 1–50)</span>
+        </div>
+        <h1 class="chapter-title">Chương 01: Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Phân loại Manipulator & Mobile Robot, Cơ cấu chấp hành Servomotor, Harmonic Drive, Cảm biến nội/ngoại quan, Kiến trúc điều khiển phân tầng</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Mọi cánh tay robot công nghiệp (như KUKA, ABB, Fanuc, Universal Robots) hay robot di động tự hành (AGV/AMR) đều là hệ thống cơ điện tử phức hợp liên ngành đỉnh cao. Một kỹ sư robot không thể chỉ biết viết code thuật toán mà không thấu hiểu giới hạn vật lý của cơ cấu cơ khí, độ rơ của hộp giảm tốc, hay độ trễ của mạng truyền thông điều khiển. Nếu chọn sai tỉ số truyền hộp giảm tốc hoặc không tính toán ghép nối quán tính động cơ, hệ thống sẽ bị rung lắc dữ dội, động cơ bị quá nhiệt cháy cuộn dây, hoặc không thể đạt được độ chính xác định vị milimet!</p>
+        </div>
+        <p>Hệ thống robot hoàn chỉnh bao gồm 4 phân hệ nền tảng tương hỗ chặt chẽ:</p>
+        <ul>
+          <li><strong>Cấu trúc cơ khí (Mechanical Structure):</strong> Chuỗi động học hở (Serial Manipulator: Khớp quay Revolute $R$, khớp tịnh tiến Prismatic $P$) định hình không gian làm việc (Workspace); hoặc chuỗi động học kín (Parallel/Delta Robot) tối ưu hóa độ cứng vững và gia tốc thao tác siêu cao.</li>
+          <li><strong>Hệ thống chấp hành (Actuation System):</strong> Động cơ điện một chiều không chổi than (BLDC) hoặc đồng bộ nam châm vĩnh cửu (PMSM) kết hợp cùng hộp giảm tốc không khe hở (Zero-backlash Harmonic Drive, RV Reducer).</li>
+          <li><strong>Hệ thống cảm biến (Sensing System):</strong> Cảm biến nội quan (Proprioceptive: Optical Encoder, Resolver, IMU) đo lường trạng thái bên trong robot, và cảm biến ngoại quan (Exteroceptive: Cảm biến lực/mô-men 6 trục cổ tay, Máy quét LiDAR 3D, Camera RGB-D) thu thập thông tin môi trường.</li>
+          <li><strong>Kiến trúc điều khiển (Control Architecture):</strong> Hệ thống nhúng thời gian thực (Real-time Linux PREEMPT_RT, Bus EtherCAT/CANopen) phân tầng từ hoạch định nhiệm vụ cấp cao (Task Planning) đến vòng khóa servo dòng điện/mô-men 10 kHz.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Bậc tự do (Degrees of Freedom - DOF) của một cơ cấu chuyển động được xác định bởi công thức kinh điển <strong>Chebyshev - Grübler - Kutzbach</strong>:</p>
+        <div class="formula-card">
+          <div class="formula-header">Công Thức Bậc Tự Do Chebyshev - Grübler - Kutzbach</div>
+          $$\begin{equation}
+          M = \lambda (N - 1 - j) + \sum_{i=1}^j f_i
+          \end{equation}$$
+          <p>Trong đó $\lambda = 6$ cho không gian 3D tổng quát ($\lambda = 3$ cho chuyển động phẳng 2D), $N$ là tổng số khâu liên kết (bao gồm cả khâu đế cố định $N_0 = 1$), $j$ là tổng số khớp nối, và $f_i$ là số bậc tự do tương đối cho phép bởi khớp thứ $i$. Với khớp quay $R$ hoặc khớp tịnh tiến $P$ tiêu chuẩn, $f_i = 1$.</p>
+        </div>
+
+        <p>Trong phân hệ truyền động khớp, động cơ điện quay với vận tốc góc $\omega_m$ và sinh mô-men $\tau_m$, dẫn động tải quay với vận tốc $\omega_l$ thông qua hộp giảm tốc tỉ số truyền $k_r = \omega_m / \omega_l \gt 1$ và hiệu suất cơ khí $\eta \in (0, 1]$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Mô Hình Ghép Nối Quán Tính & Động Học Truyền Động Khớp</div>
+          $$\begin{align}
+          J_{eq} &= J_m + \frac{J_l}{k_r^2 \eta} \\
+          B_{eq} &= B_m + \frac{B_l}{k_r^2 \eta} \\
+          \tau_l &= k_r \eta \tau_m
+          \end{align}$$
+          <p>Mô-men quán tính tải $J_l$ khi phản xạ về trục động cơ bị suy giảm theo bình phương tỉ số truyền $k_r^2$. Để tối ưu hóa băng thông điều khiển và khả năng tăng tốc của khớp, quy tắc phối hợp quán tính (Inertia Matching) khuyến nghị tỉ lệ quán tính quy đổi $J_l' / J_m = J_l / (k_r^2 \eta J_m) \approx 1.0$ (hoặc trong khoảng an toàn $0.5 \le J_l'/J_m \le 2.0$).</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Kiến trúc điều khiển hệ thống robot hiện đại tuân theo mô hình <strong>Phân Tầng Thời Gian Thực (Hierarchical Real-Time Architecture)</strong>:</p>
+        <ul>
+          <li><strong>Tầng 1 - Hoạch định nhiệm vụ (Mission & Task Planner):</strong> Chạy trên ROS 2 / BehaviorTree.CPP ở tần số $10 - 50\text{ Hz}$. Xử lý nhận dạng đối tượng AI, điều hướng bản đồ SLAM, và phân rã hành động cấp cao (Pick-and-Place, Wiping, Assembly).</li>
+          <li><strong>Tầng 2 - Hoạch định quỹ đạo & Giải động học (Trajectory Generation & Kinematics):</strong> Tần số $100 - 500\text{ Hz}$. Sử dụng MoveIt 2, Pinocchio, giải thuật nội suy đa thức bậc 5 / LSPB và giải động học nghịch (IK) tạo ra dòng điểm tham chiếu $(q_d, \dot{q}_d, \ddot{q}_d)$.</li>
+          <li><strong>Tầng 3 - Điều khiển vị trí & Vận tốc khớp (Joint Position/Velocity Control):</strong> Tần số $1000\text{ Hz}$ ($1\text{ ms}$). Vòng lặp PID có feedforward thực thi trên Kernel Linux thời gian thực (Xenomai / PREEMPT_RT).</li>
+          <li><strong>Tầng 4 - Điều khiển vòng dòng điện/Mô-men (Current/Torque Loop):</strong> Tần số $10 - 20\text{ kHz}$ trên DSP / FPGA của bộ điều khiển động cơ (Servo Drive), giao tiếp qua bus công nghiệp EtherCAT hoặc CANopen.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Toán Ghép Nối Quán Tính & Lựa Chọn Servomotor Cho Khớp Nâng Tải Robot</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khớp quay thứ 2 của cánh tay robot công nghiệp nâng tải trọng làm việc có mô-men quán tính tải cực đại $J_l = 1.20\text{ kg}\cdot\text{m}^2$. Trọng lực tác dụng lên khâu tạo ra mô-men cản tải tĩnh cực đại $\tau_{l,grav} = 45.0\text{ N}\cdot\text{m}$. Yêu cầu kỹ thuật đòi hỏi khớp phải đạt vận tốc góc tối đa $\dot{q}_{\max} = 3.0\text{ rad/s}$ và gia tốc góc lớn nhất $\ddot{q}_{\max} = 15.0\text{ rad/s}^2$. Sử dụng hộp giảm tốc Harmonic Drive có tỉ số truyền $k_r = 100$ và hiệu suất cơ khí $\eta = 0.85$. Động cơ điện AC Servomotor dự kiến lựa chọn có mô-men quán tính rotor $J_m = 2.0 \times 10^{-4}\text{ kg}\cdot\text{m}^2$, mô-men định mức liên tục $\tau_{cont} = 0.70\text{ N}\cdot\text{m}$, mô-men đỉnh cho phép $\tau_{peak} = 2.10\text{ N}\cdot\text{m}$, và tốc độ quay tối đa $\omega_{m,\max} = 4000\text{ rpm}$. Chu kỳ chuyển động $T = 2.0\text{ s}$ gồm: tăng tốc với $\ddot{q}_{\max}$ trong $t_a = 0.2\text{ s}$, quay đều với $\dot{q}_{\max}$ trong $t_v = 0.8\text{ s}$, giảm tốc $-\ddot{q}_{\max}$ trong $t_d = 0.2\text{ s}$, và dừng giữ vị trí trong $t_r = 0.8\text{ s}$.<br>Yêu cầu: Hãy tính toán kiểm tra xem động cơ có thỏa mãn về mô-men đỉnh, tốc độ quay tối đa, mô-men hiệu dụng RMS, và đánh giá tỉ số phối hợp quán tính ghép nối.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích mô hình truyền động & Quy đổi các đại lượng về trục động cơ:<br>• Quán tính tải quy đổi về trục động cơ:<br>$$J_l' = \frac{J_l}{k_r^2 \eta} = \frac{1.20}{100^2 \times 0.85} = \frac{1.20}{8500} \approx 1.4118 \times 10^{-4}\text{ kg}\cdot\text{m}^2$$<br>• Tổng mô-men quán tính tương đương quy đổi về trục rotor động cơ:<br>$$J_{eq} = J_m + J_l' = 2.0000 \times 10^{-4} + 1.4118 \times 10^{-4} = 3.4118 \times 10^{-4}\text{ kg}\cdot\text{m}^2$$<br>• Vận tốc góc và gia tốc góc tương ứng tại trục động cơ:<br>$$\omega_{m,req} = k_r \dot{q}_{\max} = 100 \times 3.0 = 300.0\text{ rad/s}$$<br>$$\alpha_{m,req} = k_r \ddot{q}_{\max} = 100 \times 15.0 = 1500.0\text{ rad/s}^2$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập phương trình cân bằng mô-men động cơ cho từng pha vận hành:<br>Mô-men cản tải do trọng lực quy đổi về trục động cơ:<br>$$\tau_{m,grav} = \frac{\tau_{l,grav}}{k_r \eta} = \frac{45.0}{100 \times 0.85} = \frac{45.0}{85.0} \approx 0.5294\text{ N}\cdot\text{m}$$<br>Mô-men động học yêu cầu tại trục động cơ trong 4 pha của chu kỳ $T = 2.0\text{ s}$:<br>• <strong>Pha 1 (Tăng tốc, $0 \le t \le 0.2\text{ s}$):</strong><br>$$\tau_{m1} = J_{eq} \alpha_{m,req} + \tau_{m,grav} = (3.4118 \times 10^{-4} \times 1500.0) + 0.5294 = 0.5118 + 0.5294 = 1.0412\text{ N}\cdot\text{m}$$<br>• <strong>Pha 2 (Quay đều, $0.2 \lt t \le 1.0\text{ s}$):</strong> $\alpha_m = 0 \implies \tau_{m2} = \tau_{m,grav} = 0.5294\text{ N}\cdot\text{m}$<br>• <strong>Pha 3 (Giảm tốc, $1.0 \lt t \le 1.2\text{ s}$):</strong> $\alpha_m = -1500\text{ rad/s}^2 \implies \tau_{m3} = -0.5118 + 0.5294 = 0.0176\text{ N}\cdot\text{m}$<br>• <strong>Pha 4 (Dừng giữ tải, $1.2 \lt t \le 2.0\text{ s}$):</strong> $\tau_{m4} = \tau_{m,grav} = 0.5294\text{ N}\cdot\text{m}$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học chi tiết các chỉ tiêu kiểm định công suất và nhiệt:<br>1) <strong>Kiểm tra mô-men đỉnh (Peak Torque):</strong><br>$$\tau_{req,\max} = \tau_{m1} = 1.0412\text{ N}\cdot\text{m} \le \tau_{peak} = 2.10\text{ N}\cdot\text{m} \quad \text{(Thỏa mãn, hệ số an toàn } \frac{2.10}{1.0412} \approx 2.02\text{)}$$<br>2) <strong>Kiểm tra tốc độ quay cực đại:</strong><br>$$N_m = \frac{\omega_{m,req} \times 60}{2\pi} = \frac{300.0 \times 60}{6.28318} \approx 2864.8\text{ rpm} \le \omega_{m,\max} = 4000\text{ rpm} \quad \text{(Thỏa mãn)}$$<br>3) <strong>Tính toán mô-men hiệu dụng RMS (Root Mean Square Torque):</strong><br>$$\tau_{rms} = \sqrt{\frac{1}{T} \sum_{k=1}^4 \tau_{mk}^2 t_k} = \sqrt{\frac{1}{2.0} \left[ (1.0412)^2(0.2) + (0.5294)^2(0.8) + (0.0176)^2(0.2) + (0.5294)^2(0.8) \right]}$$<br>$$\tau_{rms} = \sqrt{\frac{1}{2.0} \left[ 1.0841(0.2) + 0.2803(0.8) + 0.0003(0.2) + 0.2803(0.8) \right]}$$<br>$$\tau_{rms} = \sqrt{\frac{1}{2.0} [ 0.2168 + 0.2242 + 0.0001 + 0.2242 ]} = \sqrt{\frac{0.6653}{2.0}} = \sqrt{0.3327} \approx 0.5768\text{ N}\cdot\text{m}$$<br>So sánh với mô-men liên tục định mức: $\tau_{rms} = 0.5768\text{ N}\cdot\text{m} \le \tau_{cont} = 0.70\text{ N}\cdot\text{m}$ (Thỏa mãn, đạt $82.4\%$ công suất nhiệt định mức).</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận ý nghĩa vật lý & Đánh giá phối hợp quán tính:<br>• <strong>Tỉ số ghép nối quán tính (Inertia Ratio):</strong><br>$$\frac{J_l'}{J_m} = \frac{1.4118 \times 10^{-4}}{2.0000 \times 10^{-4}} \approx 0.7059$$<br>Giá trị này nằm hoàn hảo trong vùng tối ưu $0.5 \le J_l'/J_m \le 1.5$. Nhờ tỉ số truyền lớn $k_r = 100$, quán tính tải khổng lồ $1.20\text{ kg}\cdot\text{m}^2$ được giảm đi $10\,000$ lần, giúp động cơ làm chủ hoàn toàn chuyển động của khâu thao tác mà không gặp hiện tượng rung lắc cộng hưởng.<br>• <strong>Kết luận:</strong> Động cơ AC Servomotor đã chọn hoàn toàn đáp ứng đầy đủ và an toàn mọi yêu cầu động học, động lực học và tản nhiệt của khớp robot.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 01: Kiến Trúc DoF & Khảo Sát Không Gian Làm Việc Cánh Tay Robot</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-01" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Chiều dài khâu 1 ($l_1$): <span id="sim01-l1-val">100 px</span></label>
+              <input type="range" id="sim01-l1" min="50" max="150" step="5" value="100">
+            </div>
+            <div class="control-group">
+              <label>Chiều dài khâu 2 ($l_2$): <span id="sim01-l2-val">75 px</span></label>
+              <input type="range" id="sim01-l2" min="40" max="120" step="5" value="75">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim01-stats" class="sim-telemetry-text">Vùng bao xuyến thể hiện không gian với tới được (Reachable Workspace: rMin = |l1 - l2|, rMax = l1 + l2).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Robot Joint Actuator Dimensioning &amp; Inertia Matching in C++20
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+
+struct MotorSpecs {
+    double Jm;        // Rotor inertia (kg*m^2)
+    double tau_cont;  // Continuous rated torque (N*m)
+    double tau_peak;  // Peak torque limit (N*m)
+    double omega_max; // Max angular velocity (rad/s)
+};
+
+struct GearboxSpecs {
+    double kr;        // Gear reduction ratio
+    double eta;       // Efficiency (0 to 1)
+};
+
+struct MotionProfile {
+    double Jl;        // Load inertia (kg*m^2)
+    double tau_grav;  // Max gravity load torque (N*m)
+    double q_dot_max; // Max joint velocity (rad/s)
+    double q_ddot_max;// Max joint acceleration (rad/s^2)
+    double ta, tv, td, tr; // Time intervals (s)
+};
+
+bool verifyMotorSelection(const MotorSpecs&amp; m, const GearboxSpecs&amp; g, const MotionProfile&amp; p) {
+    double Jl_reflected = p.Jl / (g.kr * g.kr * g.eta);
+    double J_eq = m.Jm + Jl_reflected;
+    double inertia_ratio = Jl_reflected / m.Jm;
+    
+    double omega_m_req = g.kr * p.q_dot_max;
+    double alpha_m_req = g.kr * p.q_ddot_max;
+    double tau_m_grav = p.tau_grav / (g.kr * g.eta);
+    
+    double tau_acc = J_eq * alpha_m_req + tau_m_grav;
+    double tau_flat = tau_m_grav;
+    double tau_dec = -J_eq * alpha_m_req + tau_m_grav;
+    double tau_rest = tau_m_grav;
+    
+    double T_total = p.ta + p.tv + p.td + p.tr;
+    double tau_rms_sq = (std::pow(tau_acc, 2) * p.ta + 
+                         std::pow(tau_flat, 2) * p.tv + 
+                         std::pow(tau_dec, 2) * p.td + 
+                         std::pow(tau_rest, 2) * p.tr) / T_total;
+    double tau_rms = std::sqrt(tau_rms_sq);
+    
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;--- ACTUATOR VERIFICATION REPORT ---\n&quot;;
+    std::cout &lt;&lt; &quot;Reflected Load Inertia: &quot; &lt;&lt; Jl_reflected &lt;&lt; &quot; kg*m^2\n&quot;;
+    std::cout &lt;&lt; &quot;Inertia Matching Ratio: &quot; &lt;&lt; inertia_ratio &lt;&lt; &quot; (Ideal: 0.5 - 2.0)\n&quot;;
+    std::cout &lt;&lt; &quot;Peak Torque Required:  &quot; &lt;&lt; tau_acc &lt;&lt; &quot; N*m (Limit: &quot; &lt;&lt; m.tau_peak &lt;&lt; &quot;)\n&quot;;
+    std::cout &lt;&lt; &quot;RMS Torque Required:   &quot; &lt;&lt; tau_rms &lt;&lt; &quot; N*m (Limit: &quot; &lt;&lt; m.tau_cont &lt;&lt; &quot;)\n&quot;;
+    std::cout &lt;&lt; &quot;Max Motor Speed Req:   &quot; &lt;&lt; omega_m_req * 60.0 / (2.0 * M_PI) &lt;&lt; &quot; rpm\n&quot;;
+    
+    return (tau_acc &lt;= m.tau_peak) &amp;&amp; (tau_rms &lt;= m.tau_cont) &amp;&amp; (omega_m_req &lt;= m.omega_max);
+}
+
+int main() {
+    MotorSpecs motor{2.0e-4, 0.70, 2.10, 4000.0 * 2.0 * M_PI / 60.0};
+    GearboxSpecs gear{100.0, 0.85};
+    MotionProfile profile{1.20, 45.0, 3.0, 15.0, 0.2, 0.8, 0.2, 0.8};
+    
+    bool passed = verifyMotorSelection(motor, gear, profile);
+    std::cout &lt;&lt; &quot;Overall Motor Suitability: &quot; &lt;&lt; (passed ? &quot;ACCEPTED [PASS]&quot; : &quot;REJECTED [FAIL]&quot;) &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Cấu trúc hệ thống:</strong> Tích hợp chặt chẽ giữa cơ cấu chuỗi động học hở/kín, hệ chấp hành servomotor, cảm biến nội/ngoại quan và máy tính điều khiển thời gian thực.</li><li><strong>Bậc tự do (DOF):</strong> Xác định bằng công thức Chebyshev-Grübler-Kutzbach $M = \lambda(N - 1 - j) + \sum f_i$, nền tảng thiết kế cơ cấu robot.</li><li><strong>Phối hợp quán tính:</strong> Quán tính tải quy đổi suy giảm theo bình phương tỉ số truyền $k_r^2$; tỉ lệ $J_l'/J_m \approx 1$ giúp tối ưu hóa gia tốc và triệt tiêu rung động.</li><li><strong>Kiến trúc phân tầng:</strong> Vòng lặp điều khiển phân tầng từ Action Planner (10 Hz), Trajectory Generator (200 Hz), Joint Servo (1 kHz) đến Current Loop (10 kHz).</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 1.1: Tính độ phân giải góc khớp của bộ mã hóa quang học</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Khớp quay của robot trên sử dụng một bộ mã hóa quang gia số (Quadrature Incremental Optical Encoder) có $N = 2048$ xung trên mỗi vòng quay (PPR) gắn trực tiếp trên trục động cơ trước hộp số $k_r = 100$. Tín hiệu được mạch phần cứng giải mã vuông pha 4x (Quadrature 4x decoding). Hãy tính: 1) Số đếm xung trên mỗi vòng quay của trục đầu ra sau hộp số. 2) Độ phân giải góc nhỏ nhất $\Delta q$ của khớp robot tính bằng radian và độ.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>1) Khi giải mã quadrature 4x, số đếm xung trên 1 vòng quay của trục động cơ là: $4 \times 2048 = 8192\text{ counts/rev}$. Do hộp số có tỉ số truyền $k_r = 100$, số đếm xung trên 1 vòng quay hoàn chỉnh của trục tải khớp là: $N_{joint} = 8192 \times 100 = 819\,200\text{ counts/rev}$.<br>2) Độ phân giải góc khớp nhỏ nhất: $\Delta q = \frac{2\pi}{819\,200} \approx 7.67 \times 10^{-6}\text{ rad} \approx 4.39 \times 10^{-4\circ} \approx 1.58\text{ arcsec}$. Độ phân giải siêu mịn này cho phép robot định vị chính xác vị trí khâu thao tác ở cấp độ micro-mét.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="../index.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Quay lại Portal Hub</span>
+        </a>
+        <a href="ch02.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 02: Động Học Cánh Tay Robot & Định Hướng Không Gian 3D →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim01 === "function") {
+        initSim01();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

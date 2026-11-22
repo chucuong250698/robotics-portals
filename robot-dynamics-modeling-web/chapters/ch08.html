@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 08: Cơ Học Lagrange: Tọa Độ Suy Rộng, Nhân Tử Lagrange & Robot Manipulators | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 08</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link active">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Cơ Học Giải Tích & Hệ Đa Vật Thể</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 8; Brian Fabien, Chương 2–3 (Trang 313–360)</span>
+        </div>
+        <h1 class="chapter-title">Chương 08: Cơ Học Lagrange: Tọa Độ Suy Rộng, Nhân Tử Lagrange & Robot Manipulators</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Hàm Lagrange L = T - V, Ma trận quán tính M(q), Ma trận Coriolis C(q,q_dot) & Tính phản đối xứng</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Khi robot có 6, 7 hoặc hàng chục khớp nối tự do (Cánh tay Cobot UR5, Tay máy KUKA iiwa, Robot hình người Humanoid), việc vẽ hàng chục sơ đồ vật thể tự do và khử hàng trăm lực phản lực khớp bằng phương pháp Newton là một cơn ác mộng dễ nhầm lẫn! <strong>Cơ học giải tích Lagrange (Lagrangian Mechanics)</strong> tiếp cận từ đại lượng năng lượng vô hướng: <em>Chỉ cần tính Động năng $T$ và Thế năng $V$ của toàn bộ robot</em>, cỗ máy vi phân Lagrange sẽ tự động loại bỏ 100% các lực phản lực khớp bên trong và sinh ra phương trình chuyển động hoàn chỉnh.</p>
+        </div>
+        <p>Phương trình động lực học chuẩn của mọi cánh tay robot $M(\mathbf{q})\ddot{\mathbf{q}} + C(\mathbf{q}, \dot{\mathbf{q}})\dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau}$ sở hữu tính chất toán học vàng: <strong>Ma trận $\dot{M} - 2C$ luôn là ma trận phản đối xứng (Skew-symmetric)</strong>. Đây là nền tảng cốt tử để chứng minh tính ổn định của mọi bộ điều khiển robot hiện đại.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Cho vector tọa độ suy rộng $\mathbf{q} \in \mathbb{R}^n$ và vận tốc suy rộng $\dot{\mathbf{q}} \in \mathbb{R}^n$. Hàm Lagrange (Lagrangian):</p>
+        $$\begin{equation}
+        L(\mathbf{q}, \dot{\mathbf{q}}) = T(\mathbf{q}, \dot{\mathbf{q}}) - V(\mathbf{q})
+        \end{equation}$$
+        <p>Phương trình chuyển động Euler-Lagrange loại 2:</p>
+        $$\begin{equation}
+        \frac{d}{dt}\left( \frac{\partial L}{\partial \dot{\mathbf{q}}} \right) - \frac{\partial L}{\partial \mathbf{q}} = \boldsymbol{\tau}
+        \end{equation}$$
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Động Lực Học Robot Dạng Ma Trận Chuẩn</div>
+          $$\begin{equation}
+          \mathbf{M}(\mathbf{q}) \ddot{\mathbf{q}} + \mathbf{C}(\mathbf{q}, \dot{\mathbf{q}}) \dot{\mathbf{q}} + \mathbf{g}(\mathbf{q}) = \boldsymbol{\tau}
+          \end{equation}$$
+        </div>
+        <ul>
+          <li>$\mathbf{M}(\mathbf{q}) = \mathbf{M}^T(\mathbf{q}) \gt 0$: Ma trận quán tính suy rộng (Đối xứng và xác định dương).</li>
+          <li>$\mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})$: Ma trận lực Coriolis và lực ly tâm (Định nghĩa qua ký hiệu Christoffel).</li>
+          <li>$\mathbf{g}(\mathbf{q}) = \frac{\partial V}{\partial \mathbf{q}}$: Vector mô-men trọng lực.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p><strong>Tính chất phản đối xứng của ma trận $\dot{\mathbf{M}} - 2\mathbf{C}$ (Skew-Symmetry Property):</strong></p>
+        <p>Nếu các phần tử của ma trận $\mathbf{C}$ được tính toán bằng ký hiệu Christoffel loại 1:</p>
+        $$\begin{equation}
+        c_{kj} = \sum_{i=1}^n c_{ijk} \dot{q}_i = \frac{1}{2} \sum_{i=1}^n \left( \frac{\partial m_{kj}}{\partial q_i} + \frac{\partial m_{ki}}{\partial q_j} - \frac{\partial m_{ij}}{\partial q_k} \right) \dot{q}_i
+        \end{equation}$$
+        <p>Thì ma trận $\mathbf{N}(\mathbf{q}, \dot{\mathbf{q}}) = \dot{\mathbf{M}}(\mathbf{q}) - 2\mathbf{C}(\mathbf{q}, \dot{\mathbf{q}})$ thỏa mãn:</p>
+        $$\begin{equation}
+        \mathbf{x}^T (\dot{\mathbf{M}} - 2\mathbf{C}) \mathbf{x} = 0 \quad \forall \mathbf{x} \in \mathbb{R}^n
+        \end{equation}$$
+        <p>Tính chất này phản ánh định luật bảo toàn năng lượng cơ học: Lực Coriolis và lực ly tâm không bao giờ sinh công thực!</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Suy Dẫn Phương Trình Động Lực Học Đầy Đủ Của Robot Cánh Tay Phẳng 2 Bậc Tự Do</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một robot cánh tay phẳng 2 bậc tự do chuyển động trong mặt phẳng đứng gồm 2 thanh liên kết cứng có chiều dài $l_1, l_2$, khối lượng tập trung ở đầu mút $m_1, m_2$. Góc khớp là $q_1$ (so với phương ngang) và $q_2$ (so với thanh 1). Gia tốc trọng trường $g$.<br>Yêu cầu: (a) Tính toán động năng $T$ và thế năng $V$ của robot; (b) Lập hàm Lagrange $L = T - V$ và suy ra tường minh ma trận quán tính $M(\mathbf{q})$; (c) Xác định ma trận Coriolis $C(\mathbf{q}, \dot{\mathbf{q}})$ và vector trọng lực $\mathbf{g}(\mathbf{q})$; (d) Ráp số cụ thể với $m_1 = 2.0\text{ kg}, m_2 = 1.0\text{ kg}, l_1 = 1.0\text{ m}, l_2 = 0.5\text{ m}, g = 9.81\text{ m/s}^2$ tại vị trí $\mathbf{q} = [0, \pi/2]^T$, $\dot{\mathbf{q}} = [1.0, -1.0]^T\text{ rad/s}$ để tính vector mô-men khớp $\boldsymbol{\tau}$ khi gia tốc $\ddot{\mathbf{q}} = \mathbf{0}$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định tọa độ vị trí và vận tốc của 2 khối lượng:<br>• Vị trí khối 1: $x_1 = l_1 \cos q_1$, $y_1 = l_1 \sin q_1 \implies v_1^2 = \dot{x}_1^2 + \dot{y}_1^2 = l_1^2 \dot{q}_1^2$.<br>• Vị trí khối 2: $x_2 = l_1 \cos q_1 + l_2 \cos(q_1 + q_2)$, $y_2 = l_1 \sin q_1 + l_2 \sin(q_1 + q_2)$.<br>Vận tốc khối 2:<br>$$v_2^2 = l_1^2 \dot{q}_1^2 + l_2^2 (\dot{q}_1 + \dot{q}_2)^2 + 2 l_1 l_2 \dot{q}_1 (\dot{q}_1 + \dot{q}_2) \cos q_2$$<br>Động năng tổng $T = \frac{1}{2}m_1 v_1^2 + \frac{1}{2}m_2 v_2^2$:<br>$$T = \frac{1}{2}(m_1 + m_2)l_1^2 \dot{q}_1^2 + \frac{1}{2}m_2 l_2^2 (\dot{q}_1 + \dot{q}_2)^2 + m_2 l_1 l_2 \cos q_2 \dot{q}_1 (\dot{q}_1 + \dot{q}_2)$$<br>Thế năng tổng $V = m_1 g y_1 + m_2 g y_2 = (m_1 + m_2)g l_1 \sin q_1 + m_2 g l_2 \sin(q_1 + q_2)$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Dẫn xuất ma trận quán tính $M(\mathbf{q})$ từ biểu thức động năng $T = \frac{1}{2}\dot{\mathbf{q}}^T M(\mathbf{q}) \dot{\mathbf{q}}$:<br>$$M(\mathbf{q}) = \begin{bmatrix} M_{11} & M_{12} \\ M_{21} & M_{22} \end{bmatrix}$$<br>• $M_{11}(\mathbf{q}) = (m_1 + m_2)l_1^2 + m_2 l_2^2 + 2 m_2 l_1 l_2 \cos q_2$<br>• $M_{12}(\mathbf{q}) = M_{21}(\mathbf{q}) = m_2 l_2^2 + m_2 l_1 l_2 \cos q_2$<br>• $M_{22}(\mathbf{q}) = m_2 l_2^2$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Dẫn xuất ma trận Coriolis $C(\mathbf{q}, \dot{\mathbf{q}})$ và vector trọng lực $\mathbf{g}(\mathbf{q})$:<br>Áp dụng phương trình Euler-Lagrange: $\frac{d}{dt}\frac{\partial L}{\partial \dot{q}_k} - \frac{\partial L}{\partial q_k} = \tau_k$.<br>Đặt $h = m_2 l_1 l_2 \sin q_2$. Ta thu được ma trận $C$ chuẩn bảo toàn tính phản đối xứng:<br>$$C(\mathbf{q}, \dot{\mathbf{q}}) = \begin{bmatrix} -h \dot{q}_2 & -h(\dot{q}_1 + \dot{q}_2) \\ h \dot{q}_1 & 0 \end{bmatrix}$$<br>Vector trọng lực $\mathbf{g}(\mathbf{q}) = \begin{bmatrix} \frac{\partial V}{\partial q_1} \\ \frac{\partial V}{\partial q_2} \end{bmatrix}$:<br>$$\mathbf{g}(\mathbf{q}) = \begin{bmatrix} (m_1 + m_2)g l_1 \cos q_1 + m_2 g l_2 \cos(q_1 + q_2) \\ m_2 g l_2 \cos(q_1 + q_2) \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Ráp số tính toán cụ thể tại vị trí $\mathbf{q} = [0, \pi/2]^T$, $\dot{\mathbf{q}} = [1.0, -1.0]^T\text{ rad/s}$ khi $\ddot{\mathbf{q}} = \mathbf{0}$:<br>• Vì $q_2 = \pi/2 \implies \cos q_2 = 0, \sin q_2 = 1$.<br>• Hệ số $h = m_2 l_1 l_2 \sin(\pi/2) = 1.0 \times 1.0 \times 0.5 \times 1 = 0.50\text{ kg}\cdot\text{m}^2$.<br>• Ma trận Coriolis:<br>$$C = \begin{bmatrix} -0.50(-1.0) & -0.50(1.0 - 1.0) \\ 0.50(1.0) & 0 \end{bmatrix} = \begin{bmatrix} 0.50 & 0 \\ 0.50 & 0 \end{bmatrix}$$<br>Lực Coriolis/ly tâm tác động: $C \dot{\mathbf{q}} = \begin{bmatrix} 0.50 & 0 \\ 0.50 & 0 \end{bmatrix} \begin{bmatrix} 1.0 \\ -1.0 \end{bmatrix} = \begin{bmatrix} 0.50 \\ 0.50 \end{bmatrix}\text{ N}\cdot\text{m}$.<br>• Vector trọng lực với $q_1 = 0, q_1 + q_2 = \pi/2 \implies \cos(0) = 1, \cos(\pi/2) = 0$:<br>$$\mathbf{g} = \begin{bmatrix} (2 + 1)(9.81)(1.0)(1) + 1(9.81)(0.5)(0) \\ 1(9.81)(0.5)(0) \end{bmatrix} = \begin{bmatrix} 29.43 \\ 0.00 \end{bmatrix}\text{ N}\cdot\text{m}$$<br>Mô-men khớp cần phát: $\boldsymbol{\tau} = M \ddot{\mathbf{q}} + C \dot{\mathbf{q}} + \mathbf{g} = \mathbf{0} + \begin{bmatrix} 0.50 \\ 0.50 \end{bmatrix} + \begin{bmatrix} 29.43 \\ 0.00 \end{bmatrix} = \begin{bmatrix} 29.93\text{ N}\cdot\text{m} \\ 0.50\text{ N}\cdot\text{m} \end{bmatrix}$.<br>Khớp 1 phải gánh $29.43\text{ N}\cdot\text{m}$ trọng lực và $0.5\text{ N}\cdot\text{m}$ lực Coriolis; khớp 2 chịu $0.5\text{ N}\cdot\text{m}$ lực ly tâm.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 08: Động Lực Học Robot Cánh Tay 2 Bậc Tự Do (Lagrange 2-DoF)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-08" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Gia tốc khớp 1 & 2: <span id="sim08-acc-val">Mượt mà</span></label>
+              <input type="range" id="sim08-acc" min="1" max="5" step="1" value="3">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim08-stats" class="sim-telemetry-text">Quan sát hai khâu robot vung chuyển động trong trường trọng lực, các lực Coriolis tác động làm uốn cong quỹ đạo đầu công tác.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// 2-DoF Robot Arm Dynamics in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+void computeArmDynamics(
+    const Eigen::Vector2d&amp; q,
+    const Eigen::Vector2d&amp; q_dot,
+    Eigen::Matrix2d&amp; M,
+    Eigen::Matrix2d&amp; C,
+    Eigen::Vector2d&amp; g) 
+{
+    double m1 = 2.0, m2 = 1.0, l1 = 1.0, l2 = 0.5, grav = 9.81;
+    double c2 = std::cos(q(1));
+    double s2 = std::sin(q(1));
+    
+    // Inertia Matrix
+    M(0, 0) = (m1 + m2) * l1 * l1 + m2 * l2 * l2 + 2 * m2 * l1 * l2 * c2;
+    M(0, 1) = m2 * l2 * l2 + m2 * l1 * l2 * c2;
+    M(1, 0) = M(0, 1);
+    M(1, 1) = m2 * l2 * l2;
+    
+    // Coriolis Matrix
+    double h = m2 * l1 * l2 * s2;
+    C(0, 0) = -h * q_dot(1);
+    C(0, 1) = -h * (q_dot(0) + q_dot(1));
+    C(1, 0) = h * q_dot(0);
+    C(1, 1) = 0.0;
+    
+    // Gravity Vector
+    g(0) = (m1 + m2) * grav * l1 * std::cos(q(0)) + m2 * grav * l2 * std::cos(q(0) + q(1));
+    g(1) = m2 * grav * l2 * std::cos(q(0) + q(1));
+}
+
+int main() {
+    Eigen::Vector2d q(0.0, M_PI / 2.0);
+    Eigen::Vector2d q_dot(1.0, -1.0);
+    Eigen::Matrix2d M, C;
+    Eigen::Vector2d g;
+    
+    computeArmDynamics(q, q_dot, M, C, g);
+    Eigen::Vector2d tau = C * q_dot + g;
+    
+    std::cout &lt;&lt; &quot;Mass Matrix M:\n&quot; &lt;&lt; M &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Required Torque tau:\n&quot; &lt;&lt; tau &lt;&lt; &quot; N.m\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Cơ học Lagrange:</strong> Phương pháp năng lượng vô hướng tối ưu, tự động khử toàn bộ lực phản lực liên kết nội tại.</li><li><strong>Ma trận quán tính M(q):</strong> Đối xứng, xác định dương toàn cục và phụ thuộc trực tiếp vào hình học cấu hình khớp.</li><li><strong>Lực Coriolis & Ly tâm:</strong> Các lực quán tính ảo phi tuyến bậc hai xuất hiện tự nhiên khi robot quay ở vận tốc cao.</li><li><strong>Tính phản đối xứng $\dot{M} - 2C$:</strong> Tính chất nền tảng bảo toàn công suất cơ học, chìa khóa chứng minh độ ổn định Lyapunov trong mọi bộ điều khiển robot.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 8.1: Kiểm tra tính phản đối xứng của M_dot - 2C</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Với ma trận $M$ và $C$ đã tìm được ở trên, hãy tính đạo hàm $\\dot{M}_{11}$ theo thời gian và chứng minh rằng phần tử $(1, 1)$ của ma trận $\\dot{M} - 2C$ bằng đúng 0.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Đạo hàm: $\\dot{M}_{11} = \\frac{d}{dt}(const + 2 m_2 l_1 l_2 \\cos q_2) = -2 m_2 l_1 l_2 \\sin q_2 \\dot{q}_2 = -2 h \\dot{q}_2$. Ta có $C_{11} = -h \\dot{q}_2 \\implies 2 C_{11} = -2 h \\dot{q}_2$. Hiệu: $\\dot{M}_{11} - 2 C_{11} = -2h \\dot{q}_2 - (-2h \\dot{q}_2) = 0$! Tính chất phản đối xứng được chứng minh trực tiếp.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch07.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 07: Phương Trình Newton-Euler & Con Lắc Furuta</span>
+        </a>
+        <a href="ch09.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Phương Pháp Kane & Hệ Ràng Buộc Phi Holonomic →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim08 === "function") {
+        initSim08();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 07: Trích Xuất Ngữ Nghĩa &amp; Lọc Môi Trường Động (Dynamic Masking) - SLAM &amp; Active Perception Portal</title>
+<meta content="Deep Semantic Extraction, YOLO/SAM &amp; Dynamic Outlier Rejection" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 4: SLAM NGỮ NGHĨA &amp; BIỂU DIỄN HIỆN ĐẠI</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 07</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 07</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-7-1">
+<span class="nav-text">7.1 Thách Thức Môi Trường Động Trong SLAM</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-2">
+<span class="nav-text">7.2 Thị Giác Học Sâu: YOLO, Mask R-CNN &amp; SAM</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-3">
+<span class="nav-text">7.3 Chiến Lược Lọc Mặt Nạ Động (Dynamic Masking)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-4">
+<span class="nav-text">7.4 Tái Tạo Hậu Cảnh Tĩnh (Static Scene Inpainting)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-sim">
+<span class="nav-text">⚡ Mô Phỏng Lọc Điểm Đặc Trưng Động (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Kiểm Định Chi-Square</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2 / PyTorch: Node Lọc Mây Điểm YOLO</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-7-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 4: SLAM NGỮ NGHĨA &amp; BIỂU DIỄN HIỆN ĐẠI • CHƯƠNG 07</div>
+<h1 class="chapter-title">Trích Xuất Ngữ Nghĩa &amp; Lọc Môi Trường Động (Dynamic Masking)</h1>
+<p class="chapter-subtitle">Deep Semantic Extraction, YOLO/SAM &amp; Dynamic Outlier Rejection</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Thanh Nguyen Canh et al. (IEEE 2021) &amp; Timothy Barfoot (2024)</strong></span>
+</div>
+</div>
+<!-- 7.1 -->
+<h2 id="sec-7-1">7.1 Nỗi Đau Của SLAM Truyền Thống Trong Môi Trường Thực Tế</h2>
+<p>Hầu hết các hệ thống SLAM hình học (ORB-SLAM, DSO, Cartographer) đều mang một giả định ngầm: <strong>Thế giới là tĩnh (Static World Assumption)</strong>. Khi mang robot vào vận hành trong nhà hàng, sân bay, kho hàng:</p>
+<ul>
+<li>Con người đi lại, xe nâng di chuyển tạo ra hàng loạt điểm đặc trưng giả (Dynamic outliers).</li>
+<li>Khi robot bám đuôi một người đang đi bộ, thuật toán tưởng lầm là cả thế giới đang dịch chuyển, dẫn đến việc ước lượng tư thế camera bị kéo lê dạt hàng mét và bản đồ bị nhòe vỡ.</li>
+</ul>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 SLAM NGỮ NGHĨA (SEMANTIC SLAM) GIẢI QUYẾT BÀI TOÁN NHƯ THẾ NÀO?</div>
+<div class="why-matters-body">
+            Theo khảo cứu toàn diện của Thanh Nguyen Canh et al. (IEEE 2021), <strong>Semantic SLAM</strong> kết hợp mạng nơ-ron học sâu (YOLO, Segment Anything Model SAM) để nhận diện ngữ nghĩa từng đối tượng. Hệ thống phân loại tiên nghiệm các lớp vật thể động (`person`, `car`, `dog`) và kích hoạt cơ chế <strong>Dynamic Masking</strong>: Triệt tiêu toàn bộ các điểm ảnh nằm trong vùng động trước khi đưa vào bộ theo dõi tư thế, giúp Visual Odometry giữ vững độ chính xác tuyệt đối ngay giữa đám đông hỗn loạn!
+          </div>
+</div>
+<!-- 7.2 -->
+<h2 id="sec-7-2">7.2 Chiến Lược Kết Hợp Nhất Quán Hình Học &amp; Mặt Nạ Ngữ Nghĩa</h2>
+<p>Nếu chỉ dựa thuần túy vào nhãn ngữ nghĩa, một chiếc xe ô tô đang đậu đỗ cố định (Static car) cũng sẽ bị loại bỏ lãng phí. Thuật toán SOTA kết hợp kiểm định chéo hai tầng:</p>
+<p>1. <strong>Tầng Ngữ nghĩa (Semantic Prior):</strong> Phát hiện các vùng bounding box / segmentation mask thuộc lớp có khả năng di chuyển.</p>
+<p>2. <strong>Tầng Hình học (Geometric Verification):</strong> Tính khoảng cách hồi quy từ điểm ảnh tới đường Epipolar $\text{dist}(p, l_{\text{epipolar}})$. Nếu khoảng cách này vượt ngưỡng thống kê Chi-Square test $\chi_{1, \alpha}^2$, điểm đó được kết luận chắc chắn là điểm động và bị xóa sổ.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-7-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Lọc Mặt Nạ Động (Dynamic Masking) Bảo Vệ Điểm Đặc Trưng</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-07" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-7-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Kiểm Định Sai Số Epipolar Bằng Phân Phối Chi-Square</h3>
+</div>
+<div class="exercise-statement">
+<p>Một điểm đặc trưng được theo dõi từ ảnh 1 sang ảnh 2 có tọa độ chuẩn hóa $\mathbf{x}_2 = [0.15, 0.40, 1.0]^T$. Đường dóng Epipolar tính từ ma trận Fundamental là $\mathbf{l} = [a, b, c]^T = [1.2, -0.8, -0.1]^T$. Sai số đo pixel có độ lệch chuẩn $\sigma = 1.0$ pixel. Tính khoảng cách vuông góc từ điểm $\mathbf{x}_2$ tới đường $\mathbf{l}$, chuẩn hóa sai số Mahalanobis $d_M^2$, và đối chiếu với ngưỡng $\chi_{1, 0.05}^2 = 3.841$ để quyết định xem điểm này là Tĩnh hay Động.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính tử số khoảng cách đại số $|\mathbf{x}_2^T \mathbf{l}|$</span>
+</div>
+<div class="step-content">
+<p>$$\text{res} = (0.15)(1.2) + (0.40)(-0.8) + (1.0)(-0.1) = 0.18 - 0.32 - 0.10 = -0.24$$</p><p>Độ lớn tử số: $|-0.24| = 0.24$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính mẫu số chuẩn hóa gradient $\sqrt{a^2 + b^2}$</span>
+</div>
+<div class="step-content">
+<p>$$\sqrt{a^2 + b^2} = \sqrt{(1.2)^2 + (-0.8)^2} = \sqrt{1.44 + 0.64} = \sqrt{2.08} \approx 1.4422$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính khoảng cách hình học và khoảng cách Mahalanobis $d_M^2$</span>
+</div>
+<div class="step-content">
+<p>Khoảng cách hình học: $d = \frac{0.24}{1.4422} \approx 0.1664$</p><p>Phương sai sai số $\sigma^2 = 0.005$ trong không gian chuẩn hóa:</p><p>$$d_M^2 = \frac{d^2}{\sigma^2} = \frac{(0.1664)^2}{0.005} = \frac{0.02769}{0.005} \approx 5.538$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Kiểm định thống kê giả thuyết Chi-Square</span>
+</div>
+<div class="step-content">
+<p>So sánh: $d_M^2 = 5.538 \gt \chi_{1, 0.05}^2 = 3.841$.</p><p>Kết luận: Điểm ảnh vi phạm nghiêm trọng ràng buộc Epipolar với độ tin cậy $95\%$. Hệ thống kết luận đây là <strong>Điểm Chuyển Động (Dynamic Outlier)</strong> và kích hoạt loại bỏ khỏi danh sách tracking!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Sự kết hợp giữa phân đoạn ngữ nghĩa và dòng quang học (Residual Optical Flow) tạo ra bộ lọc động học hai lớp: Loại bỏ triệt để các điểm ảnh thuộc người hoặc xe cộ đang di chuyển, chỉ giữ lại các mốc tĩnh cho bản đồ SLAM.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-7-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Node ROS 2 Python Lọc Mặt Nạ Động Bằng YOLOv8</h4>
+<p>Mã nguồn chuẩn nhận luồng ảnh RGB, chạy suy luận YOLOv8 để tạo nhãn mặt nạ động và xuất bản ảnh tĩnh:</p>
+<div class="code-card">
+<div class="code-header">
+<span>yolo_dynamic_filter_node.py (PyTorch / ROS 2)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
+from ultralytics import YOLO
+import cv2
+
+class DynamicFilterNode(Node):
+    def __init__(self):
+        super().__init__('yolo_dynamic_filter_node')
+        self.model = YOLO('yolov8n-seg.pt') # Mạng phân vùng đối tượng
+        self.bridge = CvBridge()
+        self.sub_img = self.create_subscription(Image, '/camera/image_raw', self.image_cb, 1)
+        self.pub_mask = self.create_publisher(Image, '/camera/static_image', 1)
+        self.dynamic_classes = [0, 1, 2, 3, 5, 7] # person, bicycle, car, motorcycle, bus, truck
+
+    def image_cb(self, msg):
+        frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+        results = self.model(frame, verbose=False)[0]
+        
+        # Tạo mặt nạ nhị phân cho các vùng động
+        mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+        if results.masks is not None:
+            for cls, seg in zip(results.boxes.cls, results.masks.xy):
+                if int(cls) in self.dynamic_classes:
+                    cv2.fillPoly(mask, [seg.astype(np.int32)], 255)
+                    
+        # Xóa các vùng động trên ảnh bằng màu đen
+        frame[mask == 255] = 0
+        out_msg = self.bridge.cv2_to_imgmsg(frame, 'bgr8')
+        self.pub_mask.publish(out_msg)</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-7-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Lọc Điểm Ảnh Động Dựa Trên Phân Đoạn Ngữ Nghĩa &amp; Vận Tốc Quang Học</h4>
+</div>
+<div class="practice-statement">
+<p>Trong hệ thống Semantic SLAM, một camera RGB-D phát hiện 2 vật thể trong phòng: một người đi bộ đang di chuyển và một bàn làm việc tĩnh. Điểm ảnh $p_A$ thuộc lớp 'Person' có xác suất nhận dạng $P_{\text{person}} = 0.94$, độ lớn dòng quang học (optical flow) đo được là $|\mathbf{v}_A| = 12.5\text{ pixel/frame}$. Trong khi đó, dòng quang học kỳ vọng do robot tự chuyển động gây ra tại vùng đó chỉ là $|\mathbf{v}_{\text{ego}}| = 3.2\text{ pixel/frame}$. Điểm $p_B$ thuộc lớp 'Table' có xác suất $P_{\text{table}} = 0.98$ và độ lệch dòng quang $|\mathbf{v}_B - \mathbf{v}_{\text{ego}}| = 0.4\text{ pixel/frame}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thiết lập tiêu chuẩn phát hiện điểm động kết hợp giữa ngữ nghĩa (Semantic Prior) và hình học (Residual Optical Flow).<br/>2) Tính chỉ số độ động $\gamma(p)$ cho cả 2 điểm ảnh.<br/>3) Đưa ra quyết định giữ lại hay loại bỏ điểm khỏi quá trình tối ưu hóa bundle adjustment.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tiêu chuẩn độ động: $\gamma(p) = P_{\text{dynamic-class}}(p) \times \frac{|\mathbf{v}(p) - \mathbf{v}_{\text{ego}}(p)|}{|\mathbf{v}_{\text{ego}}(p)| + \epsilon}$. Lớp 'Person' có prior động cao ($1.0$), lớp 'Table' có prior động bằng $0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tính toán: Với điểm $p_A$: $\Delta v_A = |12.5 - 3.2| = 9.3\text{ px}$. Chỉ số độ động $\gamma(p_A) = 0.94 \times \frac{9.3}{3.2 + 0.1} = 0.94 \times 2.818 = 2.65$.<br/>Với điểm $p_B$: Điểm bàn tĩnh có prior động bằng $0$ và $\Delta v_B = 0.4\text{ px} \ll 1.0\text{ px}$, nên $\gamma(p_B) \approx 0.0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Ngưỡng loại bỏ điểm động thường chọn $\gamma_{thresh} = 1.0$. Do $\gamma(p_A) = 2.65 \gt 1.0$, điểm $p_A$ bị loại bỏ hoàn toàn (Masked Out). Điểm $p_B$ được giữ lại làm mốc tĩnh tin cậy, ngăn ngừa méo mó quỹ đạo SLAM.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch06.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 06: Visual Odometry &amp; Epipolar</span>
+</a>
+<a class="ch-nav-card next" href="ch08.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 08: Bản Đồ Ngữ Nghĩa &amp; Dual Quadrics</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

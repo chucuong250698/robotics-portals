@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 04: Máy trạng thái hữu hạn &amp; Vùng trễ (FSM &amp; Hysteresis) - Elements of Robotics</title>
+<meta content="Mô hình toán học FSM, thuật toán men tường, hiện tượng rung giật chuyển mạch (chattering) và kỹ thuật dải trễ (hysteresis deadband) triệt tiêu dao động." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 2: Hành vi Phản xạ &amp; Máy trạng thái</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 04</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 04</span>
+<span class="sidebar-badge">8 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-4-1">
+<span class="nav-text">4.1 Mô hình Toán học của FSM</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-2">
+<span class="nav-text">4.2 Hành vi Men Tường (Wall-Following FSM)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-3">
+<span class="nav-text">4.3 Hiện tượng Rung giật Chuyển mạch (Chattering)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-4">
+<span class="nav-text">4.4 Kỹ thuật Dải Trễ (Hysteresis Deadband)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-hys">
+<span class="nav-text">⚡ Mô phỏng Vùng trễ FSM Men tường</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-5">
+<span class="nav-text">4.5 Cài đặt FSM trong Mã Nguồn &amp; State Pattern</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-worked">
+<span class="nav-text">Ví dụ tính số: Thiết kế dải trễ 3-sigma</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (Lifecycle Nodes)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-4-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 2: HÀNH VI PHẢN XẠ &amp; MÁY TRẠNG THÁI</div>
+<h1>Chương 04: Máy trạng thái hữu hạn &amp; Vùng trễ (FSM &amp; Hysteresis)</h1>
+<p class="chapter-subtitle">Mô hình toán học FSM, thuật toán men tường, hiện tượng rung giật chuyển mạch (chattering) và kỹ thuật dải trễ (hysteresis deadband) triệt tiêu dao động.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 4.1 -->
+<h4 id="sec-4-1">4.1 Mô hình Toán học của FSM</h4>
+<p>Máy trạng thái hữu hạn (Finite State Machine - FSM) là công cụ toán học nền tảng để điều khiển robot dựa trên sự kiện rời rạc. Một FSM được định nghĩa bởi bộ 5 thành phần $(S, I, O, \delta, \lambda)$:</p>
+<ul>
+<li>$S = \{s_1, s_2, \dots, s_n\}$: Tập hữu hạn các trạng thái của robot.</li>
+<li>$I$: Tập các sự kiện đầu vào (tín hiệu cảm biến vượt ngưỡng, bấm nút, timer).</li>
+<li>$O$: Tập các đầu ra điều khiển (lệnh vận tốc động cơ, đèn LED).</li>
+<li>$\delta: S \times I \to S$: Hàm chuyển trạng thái (State Transition Function).</li>
+<li>$\lambda: S \times I \to O$ (Mealy) hoặc $\lambda: S \to O$ (Moore): Hàm sinh đầu ra.</li>
+</ul>
+<!-- Mục 4.2 -->
+<h4 id="sec-4-2">4.2 Hành vi Men Tường (Wall-Following FSM)</h4>
+<p>Hành vi men tường giúp robot di chuyển dọc theo chu vi phòng hoặc chướng ngại vật lớn. Robot gồm 4 trạng thái điển hình:</p>
+<ol>
+<li><code>FIND_WALL</code>: Tiến thẳng cho tới khi cảm biến phát hiện tường ở cự ly gần.</li>
+<li><code>TURN_TO_ALIGN</code>: Quay thân xe song song với phương của tường.</li>
+<li><code>FOLLOW_WALL</code>: Duy trì cự ly ổn định song song với mặt tường.</li>
+<li><code>AVOID_COLLISION</code>: Lùi lại và rẽ góc gấp khi gặp góc tường cụt.</li>
+</ol>
+<!-- Mục 4.3 & 4.4 -->
+<h4 id="sec-4-3">4.3 Hiện tượng Rung giật Chuyển mạch (Chattering Phenomenon)</h4>
+<p>Nếu lập trình viên chỉ dùng <strong>một ngưỡng khoảng cách duy nhất $\tau$</strong> (ví dụ $\tau = 20\text{ cm}$): khi $d \lt 20\text{ cm}$ thì bẻ lái ra xa; khi $d \ge 20\text{ cm}$ thì bẻ lái vào gần. Do nhiễu cảm biến luôn dao động $\pm 1 - 2\text{ cm}$, robot sẽ chuyển trạng thái liên tục hàng chục lần mỗi giây. Hiện tượng này gọi là <strong>Chattering (rung giật)</strong>, làm mòn bánh răng động cơ và tiêu hao năng lượng trầm trọng.</p>
+<h4 id="sec-4-4">4.4 Kỹ thuật Dải Trễ (Hysteresis Deadband)</h4>
+<p>Giải pháp chuẩn học thuật là áp dụng <strong>Ngưỡng kép (Dual Thresholds)</strong> tạo nên một <em>vùng chết (Deadband)</em> $[\tau_{low}, \tau_{high}]$:</p>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ chu trình Trễ Hysteresis và Vùng chết Deadband" src="../assets/images/fsm_hysteresis.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 4.1:</strong> Cơ chế dải trễ Hysteresis trong điều khiển bám tường. Trạng thái chỉ chuyển từ "Xa tường" sang "Gần tường" khi cự ly tụt dưới $\tau_{low}$, và chỉ chuyển ngược lại khi cự ly vượt quá $\tau_{high}$.
+              </div>
+</div>
+<!-- SIMULATOR CONTAINER: HYSTERESIS -->
+<div class="simulator-wrapper" id="sim-hys">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 03: VÙNG TRỄ FSM MEN TƯỜNG (HYSTERESIS DEADBAND)</span>
+</div>
+<span class="sim-badge">Dynamic Deadband Filter</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="260" id="hysteresis-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item">
+<span class="telemetry-label">TRẠNG THÁI HIỆN TẠI:</span>
+<span class="telemetry-val" id="hys-state-badge">ON_TARGET (Bám ổn định)</span>
+</div>
+<div class="telemetry-item">
+<span class="telemetry-label">BỀ RỘNG VÙNG CHẾT $\Delta\tau$:</span>
+<span class="telemetry-val" id="hys-deadband-metric">10.0 cm</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Khoảng cách đo được $d$: <span id="hys-d-val">20.0</span> cm</label>
+<input class="control-slider" id="hys-d" max="45" min="5" step="0.5" type="range" value="20"/>
+</div>
+<div class="control-group">
+<label class="control-label">Ngưỡng dưới $\tau_{low}$: <span id="hys-low-val">15</span> cm</label>
+<input class="control-slider" id="hys-low" max="22" min="10" step="1" type="range" value="15"/>
+</div>
+<div class="control-group">
+<label class="control-label">Ngưỡng trên $\tau_{high}$: <span id="hys-high-val">25</span> cm</label>
+<input class="control-slider" id="hys-high" max="35" min="23" step="1" type="range" value="25"/>
+</div>
+<div class="control-group" style="flex: 0 0 auto;">
+<button class="control-btn secondary" id="hys-reset">Đặt lại</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-4-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 THIẾT KẾ DẢI TRỄ KHỬ CHATTERING CHO ROBOT HÚT BỤI</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Robot hút bụi sử dụng cảm biến ToF có độ lệch chuẩn nhiễu đo $\sigma = 1.2\text{ cm}$. Robot cần duy trì khoảng cách danh định $d_0 = 15.0\text{ cm}$ dọc chân tường. Để triệt tiêu $99.7\%$ nguy cơ chattering do nhiễu Gauss gây ra, hãy xác định các ngưỡng $\tau_{low}$ và $\tau_{high}$ tối ưu theo quy tắc $3\sigma$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Biên Độ Nhiễu Cực Đại $3\sigma$</span>
+</div>
+<div class="step-content">
+<p>Theo phân phối Gauss, $99.73\%$ giá trị nhiễu nằm trong khoảng $[-3\sigma, +3\sigma]$:<br/>
+                  $\Delta d_{noise} = 3 \times \sigma = 3 \times 1.2 = 3.6\text{ cm}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Xác Định Bề Rộng Vùng Chết Tối Thiểu</span>
+</div>
+<div class="step-content">
+<p>Để đảm bảo robot không bao giờ nhảy trạng thái do nhiễu thuần túy khi đang ở vị trí danh định $d_0$, nửa bề rộng vùng chết phải lớn hơn hoặc bằng biên độ nhiễu:<br/>
+                  $\Delta\tau = \tau_{high} - \tau_{low} \ge 2 \times 3.6 = 7.2\text{ cm}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Giá Trị Cụ Thể Hai Ngưỡng</span>
+</div>
+<div class="step-content">
+<p>Phân bổ đối xứng quanh mục tiêu $d_0 = 15.0\text{ cm}$:<br/>
+                  $\tau_{low} = d_0 - 3\sigma = 15.0 - 3.6 = 11.4\text{ cm}$<br/>
+                  $\tau_{high} = d_0 + 3\sigma = 15.0 + 3.6 = 18.6\text{ cm}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Thiết Lập Bảng Luật Chuyển FSM</span>
+</div>
+<div class="step-content">
+<p>Nếu $d \lt 11.4\text{ cm}$: Chuyển sang <code>STEER_AWAY</code> (bẻ ra xa).<br/>
+                  Nếu $d \gt 18.6\text{ cm}$: Chuyển sang <code>STEER_CLOSER</code> (bẻ lại gần).<br/>
+                  Nếu $11.4 \le d \le 18.6\text{ cm}$: <strong>GIỮ NGUYÊN TRẠNG THÁI CŨ</strong> (Vùng chết ổn định!).</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Thiết kế vùng trễ Hysteresis $\Delta H$ phân tách rõ ràng ngưỡng kích hoạt và ngưỡng thoát, triệt tiêu hoàn toàn hiện tượng rung giật chuyển trạng thái liên tục (Chattering), kéo dài tuổi thọ cơ cấu chấp hành và nâng cao tính ổn định.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-4-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Mô hình FSM trong ROS 2 thường được tổ chức bằng thư viện <strong>SMACH</strong> hoặc <strong>YASMIN</strong> (Yet Another State Machine). Với các robot công nghiệp, các trạng thái chuẩn hóa theo <strong>ROS 2 Lifecycle Nodes</strong>: <code>Unconfigured</code> $\to$ <code>Inactive</code> $\to$ <code>Active</code> $\to$ <code>Finalized</code>, đảm bảo việc cấp phát bộ nhớ và kích hoạt motor luôn an toàn và có kiểm soát.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-4-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Thiết Kế Vùng Trễ (Hysteresis Band) Cho Máy Trạng Thái FSM Tránh Rung Giật</h4>
+</div>
+<div class="practice-statement">
+<p>Một robot bám tường sử dụng cảm biến khoảng cách bên hông $d$. Máy trạng thái FSM chuyển đổi giữa 2 chế độ: 1) Chế độ 'Tiến Thẳng' (FWD) khi ở xa tường; 2) Chế độ 'Lùi Né' (AVOID) khi quá gần tường. Nếu chỉ dùng 1 ngưỡng duy nhất $d_{\text{thresh}} = 20.0\text{ cm}$, nhiễu cảm biến $\pm 1.0\text{ cm}$ sẽ khiến bộ điều khiển chuyển trạng thái liên tục ở tần số cao (Chattering), gây cháy rơ-le hoặc quá nhiệt động cơ.<br/><br/><strong>Yêu cầu:</strong><br/>1) Thiết kế 2 ngưỡng Schmitt Trigger: ngưỡng thấp $d_{\text{low}}$ và ngưỡng cao $d_{\text{high}}$ với vùng trễ $\Delta H = 6.0\text{ cm}$.<br/>2) Lập bảng chuyển trạng thái FSM dựa trên 2 ngưỡng này.<br/>3) Chứng minh cơ chế này triệt tiêu hoàn toàn hiện tượng rung giật khi tín hiệu đo dao động quanh mức $20\text{ cm}$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Chọn điểm cân bằng trung tâm $d_0 = 20.0\text{ cm}$ và vùng trễ $\Delta H = 6.0\text{ cm}$:<br/>• Ngưỡng chuyển sang né (Ngưỡng dưới): $d_{\text{low}} = d_0 - \frac{\Delta H}{2} = 20.0 - 3.0 = 17.0\text{ cm}$.<br/>• Ngưỡng thoát khỏi né trở lại thẳng (Ngưỡng trên): $d_{\text{high}} = d_0 + \frac{\Delta H}{2} = 20.0 + 3.0 = 23.0\text{ cm}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Bảng chuyển trạng thái FSM:<br/>• Khi đang ở FWD: Nếu $d \le 17.0\text{ cm} \implies$ Chuyển sang AVOID. Nếu $d \gt 17.0\text{ cm} \implies$ Giữ nguyên FWD.<br/>• Khi đang ở AVOID: Nếu $d \ge 23.0\text{ cm} \implies$ Chuyển sang FWD. Nếu $d \lt 23.0\text{ cm} \implies$ Giữ nguyên AVOID.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Khi robot ở khoảng cách $20\text{ cm}$, biên độ nhiễu $\pm 1.0\text{ cm}$ khiến tín hiệu dao động trong $[19.0, 21.0]\text{ cm}$. Dải dao động này nằm gọn hoàn toàn bên trong vùng trễ $[17.0, 23.0]\text{ cm}$, không chạm vào bất kỳ ngưỡng chuyển tiếp nào, triệt tiêu $100\%$ dao động chattering.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch03.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 03: Hành vi Phản xạ &amp; Phương tiện Br...</span>
+</a>
+<a class="page-nav-btn next" href="ch05.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 05: Động học Robot Vi sai &amp; Định vị ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

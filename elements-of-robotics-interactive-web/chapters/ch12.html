@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 12: Xử lý Ảnh Số &amp; Thị giác Máy tính cho Robot - Elements of Robotics</title>
+<meta content="Biểu diễn pixel và ma trận ảnh, nhân chập làm mịn Gauss, phát hiện biên cạnh Sobel Gradient, tiêu chuẩn góc Harris Corner và bám đuổi Color Blob." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 6: Trí tuệ Nhân tạo &amp; Học máy</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 12</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 12</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-12-1">
+<span class="nav-text">12.1 Biểu diễn Ảnh số &amp; Không gian Màu</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-2">
+<span class="nav-text">12.2 Nhân chập Lọc Không gian &amp; Lọc Gauss</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-3">
+<span class="nav-text">12.3 Phát hiện Biên cạnh Toán tử Sobel</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-4">
+<span class="nav-text">12.4 Trích xuất Điểm Đặc trưng Harris Corner</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-5">
+<span class="nav-text">12.5 Phân đoạn Màu HSV &amp; Color Blob Tracking</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-worked">
+<span class="nav-text">Ví dụ tính số: Nhân chập ma trận Sobel</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-12-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (image_transport &amp; cv_bridge)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-12-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: TRÍ TUỆ NHÂN TẠO &amp; HỌC MÁY</div>
+<h1>Chương 12: Xử lý Ảnh Số &amp; Thị giác Máy tính cho Robot</h1>
+<p class="chapter-subtitle">Biểu diễn pixel và ma trận ảnh, nhân chập làm mịn Gauss, phát hiện biên cạnh Sobel Gradient, tiêu chuẩn góc Harris Corner và bám đuổi Color Blob.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 12.1, 12.2, 12.3 -->
+<h4 id="sec-12-1">12.1 Biểu diễn Ảnh số &amp; Không gian Màu</h4>
+<p>Một bức ảnh kỹ thuật số là một ma trận 2D $I(x, y)$ chứa các mức cường độ điểm ảnh (pixel). Trong robot học, việc phân đoạn vật thể theo màu sắc thường chuyển đổi từ không gian <strong>RGB</strong> sang <strong>HSV (Hue, Saturation, Value)</strong> để giảm thiểu sự ảnh hưởng của cường độ chiếu sáng trong phòng.</p>
+<h4 id="sec-12-2">12.2 Nhân chập Lọc Không gian &amp; Toán tử Biên cạnh Sobel</h4>
+<p>Biên cạnh là nơi cường độ sáng thay đổi đột ngột. Toán tử Sobel sử dụng hai ma trận nhân chập (Kernels) $3 \times 3$ để ước lượng đạo hàm bậc nhất theo phương ngang $G_x$ và phương dọc $G_y$:</p>
+<p>$$K_x = \begin{bmatrix} -1 &amp; 0 &amp; 1 \\ -2 &amp; 0 &amp; 2 \\ -1 &amp; 0 &amp; 1 \end{bmatrix}, \quad K_y = \begin{bmatrix} -1 &amp; -2 &amp; -1 \\ 0 &amp; 0 &amp; 0 \\ 1 &amp; 2 &amp; 1 \end{bmatrix}$$</p>
+<p>Độ lớn gradient và hướng của biên cạnh tại mỗi điểm ảnh:</p>
+<p>$$|\nabla I| = \sqrt{G_x^2 + G_y^2}, \quad \theta = \text{atan2}(G_y, G_x)$$</p>
+<!-- Mục 12.4 & 12.5 -->
+<h4 id="sec-12-4">12.4 Trích xuất Điểm Đặc trưng Góc (Harris Corner Detector)</h4>
+<p>Điểm góc là điểm có gradient biến thiên mạnh theo mọi hướng, đóng vai trò mốc tiêu then chốt trong Visual Odometry (ORB-SLAM). Tiêu chuẩn góc Harris dựa trên ma trận cấu trúc cục bộ $M$:</p>
+<p>$$R = \det(M) - k \cdot (\text{trace}(M))^2$$</p>
+<p>Nếu $R \gt 0$ và lớn hơn ngưỡng: điểm đó là một <strong>Góc (Corner)</strong> vững chắc!</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-12-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 NHÂN CHẬP SOBEL TÍNH GRADIENT BIÊN CẠNH</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Cho ma trận cường độ sáng của vùng ảnh $3 \times 3$ quanh điểm tâm $(x, y)$:<br/>
+              $P = \begin{bmatrix} 50 &amp; 50 &amp; 200 \\ 50 &amp; 50 &amp; 200 \\ 50 &amp; 50 &amp; 200 \end{bmatrix}$.<br/>
+              Hãy tính thành phần đạo hàm ngang $G_x$, đạo hàm dọc $G_y$ và độ lớn gradient $|\nabla I|$ tại điểm tâm.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Áp Dụng Kernel Sobel $K_x$ Tính $G_x$</span>
+</div>
+<div class="step-content">
+<p>$G_x = (-1 \times 50 + 0 \times 50 + 1 \times 200) + (-2 \times 50 + 0 \times 50 + 2 \times 200) + (-1 \times 50 + 0 \times 50 + 1 \times 200)$<br/>
+                  $G_x = (150) + (300) + (150) = +600$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Áp Dụng Kernel Sobel $K_y$ Tính $G_y$</span>
+</div>
+<div class="step-content">
+<p>$G_y = (-1 \times 50 - 2 \times 50 - 1 \times 200) + 0 + (1 \times 50 + 2 \times 50 + 1 \times 200)$<br/>
+                  Hàng 1: $-350$. Hàng 3: $+350$.<br/>
+                  $G_y = -350 + 350 = 0$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Độ Lớn Gradient Tổng Hợp</span>
+</div>
+<div class="step-content">
+<p>$|\nabla I| = \sqrt{G_x^2 + G_y^2} = \sqrt{600^2 + 0^2} = 600$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Xác Định Hướng Biên Cạnh</span>
+</div>
+<div class="step-content">
+<p>$\theta = \text{atan2}(0, 600) = 0\text{ rad} = 0^\circ$.<br/>
+                  Pháp tuyến hướng sang phải, chứng minh biên cạnh thẳng đứng với độ tương phản cực kỳ sắc nét!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Toán tử nhân chập Sobel $3 \times 3$ tách biệt đồng thời độ lớn và góc hướng gradient biên cạnh: Cung cấp đặc trưng thị giác cốt lõi để nhận diện vật thể và phân tích làn đường trong thị giác máy tính robot.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-12-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Luồng ảnh camera trong ROS 2 được truyền tải qua <code>image_transport</code> với thông điệp <code>sensor_msgs/msg/Image</code>. Để xử lý thuật toán OpenCV trong C++/Python, gói <code>cv_bridge</code> thực hiện chuyển đổi hai chiều <code>toCvCopy()</code> sang ma trận <code>cv::Mat</code> với độ trễ tính bằng micro-giây.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-12-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Nhân Chập Ma Trận Toán Tử Sobel Tách Biên Cạnh &amp; Hướng Gradient Ảnh</h4>
+</div>
+<div class="practice-statement">
+<p>Một camera gắn trên robot thu được ma trận độ xám $3 \times 3$ của một vùng ảnh xung quanh điểm ảnh tâm $P(2, 2)$:<br/>$$\mathbf{I} = \begin{bmatrix} 50 &amp; 50 &amp; 200 \\ 50 &amp; 50 &amp; 200 \\ 50 &amp; 50 &amp; 200 \end{bmatrix}$$<br/>Toán tử Sobel ngang và dọc:<br/>$$\mathbf{S}_x = \begin{bmatrix} -1 &amp; 0 &amp; +1 \\ -2 &amp; 0 &amp; +2 \\ -1 &amp; 0 &amp; +1 \end{bmatrix}, \quad \mathbf{S}_y = \begin{bmatrix} -1 &amp; -2 &amp; -1 \\ 0 &amp; 0 &amp; 0 \\ +1 &amp; +2 &amp; +1 \end{bmatrix}$$<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính gradient ngang $G_x = \mathbf{S}_x * \mathbf{I}$ và gradient dọc $G_y = \mathbf{S}_y * \mathbf{I}$.<br/>2) Tính độ lớn biên cạnh $G = \sqrt{G_x^2 + G_y^2}$.<br/>3) Tính góc hướng của biên cạnh $\theta = \arctan\left(\frac{G_y}{G_x}\right)$ và nhận xét về cấu trúc biên.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Nhân chập ma trận:<br/>• $G_x = (-1)(50) + 0 + (+1)(200) + (-2)(50) + 0 + (+2)(200) + (-1)(50) + 0 + (+1)(200)$<br/>$G_x = 150 + 300 + 150 = +600$.<br/>• Do ảnh đối xứng theo phương dọc qua hàng 2: hàng 3 bằng hàng 1, các hệ số của $\mathbf{S}_y$ trái dấu đối xứng $\implies G_y = (-50 - 100 - 200) + 0 + (+50 + 100 + 200) = 0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Độ lớn gradient biên:<br/>$$G = \sqrt{(600)^2 + 0^2} = 600$$<br/>Độ lớn biên rất mạnh (vượt xa ngưỡng phát hiện biên thông thường $\approx 100$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Góc hướng biên: $\theta = \arctan\left(\frac{0}{600}\right) = 0^\circ$. Vector gradient vuông góc hướng thẳng sang phải dọc trục $X$. Điều này chứng minh tồn tại một đường biên thẳng đứng phân tách hoàn hảo giữa vùng tối (50) và vùng sáng (200), phù hợp với cạnh cột nhà hoặc mép cửa.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch11.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 11: Môi trường Phức tạp &amp; Điều khiển...</span>
+</a>
+<a class="page-nav-btn next" href="ch13.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 13: Mạng Nơ-ron &amp; Học Máy Lấy Cảm Hứ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

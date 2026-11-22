@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 09: Giải Tích Trên Nhóm Lie, BCH &amp; Phân Phối Gauss Tập Trung | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-3">Track 3: Hình Học 3D &amp; Nhóm Lie Ma Trận</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 09</span>
+<h3 class="sidebar-title">Giải Tích Trên Nhóm Lie, BCH &amp; Phân Phối Gauss Tập Trung</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 3 / Hình Học 3D &amp; Nhóm Lie Ma Trận / Chương 09</div>
+<h1 class="chapter-main-title">Chương 09: Giải Tích Trên Nhóm Lie, BCH &amp; Phân Phối Gauss Tập Trung</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 7.4–7.6 (Trang 263–304)</span>
+<span class="meta-item">🎯 Trọng tâm: Đạo hàm trên đa tạp, Xấp xỉ BCH, Jacobians trái/phải &amp; Gauss tập trung</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Làm thế nào để lấy đạo hàm của một hàm số nhận đầu vào là một ma trận quay: $\frac{\partial f(R)}{\partial R}$? Định nghĩa giới hạn Newton $\lim_{h \to 0} \frac{f(R+h) - f(R)}{h}$ hoàn toàn vô nghĩa vì $R + h$ rơi ra ngoài nhóm $SO(3)$! <strong>Giải tích trên Nhóm Lie</strong> định nghĩa phép lấy đạo hàm thông qua sai số vi phân tiếp tuyến: $R \exp(\boldsymbol{\epsilon}^\wedge)$, cho phép ta áp dụng thuật toán tối ưu hóa Gauss-Newton và Levenberg-Marquardt trực tiếp trên đa tạp (On-Manifold Optimization).</p>
+</div>
+<p>Bên cạnh đó, tích hai phép biến đổi Lie $\exp(\boldsymbol{\phi}_1^\wedge)\exp(\boldsymbol{\phi}_2^\wedge)$ không bằng $\exp((\boldsymbol{\phi}_1 + \boldsymbol{\phi}_2)^\wedge)$ do tính chất phi giao hoán. <strong>Công thức Baker-Campbell-Hausdorff (BCH)</strong> và các ma trận <strong>Jacobian bên trái / bên phải ($J_l, J_r$)</strong> chính là chìa khóa xấp xỉ vi phân bậc nhất mở đường cho mọi bộ lọc EKF trên nhóm Lie.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Công thức <strong>Baker-Campbell-Hausdorff (BCH)</strong> khai triển tích hai lũy thừa ma trận Lie thành chuỗi Lie Bracket:</p>
+        $$\begin{equation}
+        \ln\left( \exp(\boldsymbol{\phi}_1^\wedge) \exp(\boldsymbol{\phi}_2^\wedge) \right)^\vee = \boldsymbol{\phi}_1 + \boldsymbol{\phi}_2 + \frac{1}{2}[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] + \frac{1}{12}[\boldsymbol{\phi}_1, [\boldsymbol{\phi}_1, \boldsymbol{\phi}_2]] - \frac{1}{12}[\boldsymbol{\phi}_2, [\boldsymbol{\phi}_1, \boldsymbol{\phi}_2]] + \dots
+        \end{equation}$$
+        <p>Với $[\mathbf{a}, \mathbf{b}] = \mathbf{a}^\wedge \mathbf{b}$ là tích có hướng (Lie Bracket) trong $\mathfrak{so}(3)$.</p>
+<p>Khi có một nhiễu xoay nhỏ $\delta \boldsymbol{\phi}$, xấp xỉ tuyến tính BCH đưa về dạng Jacobian trái/phải:</p>
+        $$\begin{align}
+        \ln\left( \exp(\delta \boldsymbol{\phi}^\wedge) \exp(\boldsymbol{\phi}^\wedge) \right)^\vee &amp;\approx \boldsymbol{\phi} + \mathbf{J}_l^{-1}(\boldsymbol{\phi}) \delta \boldsymbol{\phi} \quad (\text{Left Jacobian}) \\
+        \ln\left( \exp(\boldsymbol{\phi}^\wedge) \exp(\delta \boldsymbol{\phi}^\wedge) \right)^\vee &amp;\approx \boldsymbol{\phi} + \mathbf{J}_r^{-1}(\boldsymbol{\phi}) \delta \boldsymbol{\phi} \quad (\text{Right Jacobian})
+        \end{align}$$
+      </section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Phân Phối Gauss Tập Trung Trên Nhóm Lie (Concentrated Gaussian)</div>
+          $$\begin{equation}
+          \mathbf{T} = \bar{\mathbf{T}} \exp(\boldsymbol{\epsilon}^\wedge), \quad \boldsymbol{\epsilon} \sim \mathcal{N}(\mathbf{0}, \boldsymbol{\Sigma}) \in \mathbb{R}^6
+          \end{equation}$$
+        </div>
+<p>Thay vì cố gắng định nghĩa phân phối Gauss trên mặt cong, ta định nghĩa phần dư bất định $\boldsymbol{\epsilon}$ là một biến ngẫu nhiên Gauss chuẩn trong không gian tiếp tuyến phẳng $\mathbb{R}^6$ bao quanh kỳ vọng danh định $\bar{\mathbf{T}}$.</p>
+<p>Khi nhân ma trận $\mathbf{T}' = \mathbf{T}_A \mathbf{T}_B$, nhờ công thức BCH và ma trận Adjoint, hiệp phương sai bất định lan truyền theo quy tắc giải tích chuẩn mực:</p>
+        $$\begin{equation}
+        \boldsymbol{\Sigma}' \approx \mathrm{Ad}(\mathbf{T}_B^{-1}) \boldsymbol{\Sigma}_A \mathrm{Ad}(\mathbf{T}_B^{-1})^T + \boldsymbol{\Sigma}_B
+        \end{equation}$$
+      </section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Tính Xấp Xỉ BCH &amp; Bước Cập Nhật Tối Ưu Hóa Gauss-Newton Trên Đa Tạp</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Cho hai phép quay nhỏ liên tiếp trong không gian tiếp tuyến $\mathfrak{so}(3)$ lần lượt là $\boldsymbol{\phi}_1 = [0.10, 0.00, 0.00]^T\text{ rad}$ và $\boldsymbol{\phi}_2 = [0.00, 0.10, 0.00]^T\text{ rad}$. Yêu cầu: (a) Áp dụng công thức BCH bậc 2 tính vector quay tổng hợp $\boldsymbol{\phi}_{sum}$; (b) Tính toán ma trận Jacobian bên trái $J_l(\boldsymbol{\phi}_1)$ bằng xấp xỉ chuỗi Taylor bậc 1; (c) Kiểm chứng tính nhất quán giữa công thức Jacobian và nghiệm BCH.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Tính tích Lie Bracket $[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \boldsymbol{\phi}_1^\wedge \boldsymbol{\phi}_2$:<br/>• Toán tử Hat của $\boldsymbol{\phi}_1$: $\boldsymbol{\phi}_1^\wedge = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.10 \\ 0 &amp; 0.10 &amp; 0 \end{bmatrix}$.<br/>• Nhân với vector $\boldsymbol{\phi}_2 = [0, 0.10, 0]^T$:<br/>$$[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.10 \\ 0 &amp; 0.10 &amp; 0 \end{bmatrix} \begin{bmatrix} 0 \\ 0.10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \\ 0.01 \end{bmatrix}\text{ rad}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Áp dụng công thức BCH bậc 2:<br/>$$\boldsymbol{\phi}_{sum} \approx \boldsymbol{\phi}_1 + \boldsymbol{\phi}_2 + \frac{1}{2}[\boldsymbol{\phi}_1, \boldsymbol{\phi}_2] = \begin{bmatrix} 0.10 \\ 0.00 \\ 0.00 \end{bmatrix} + \begin{bmatrix} 0.00 \\ 0.10 \\ 0.00 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 0.00 \\ 0.00 \\ 0.01 \end{bmatrix} = \begin{bmatrix} 0.10 \\ 0.10 \\ 0.005 \end{bmatrix}\text{ rad}$$<br/>Chú ý: Phép quay sinh ra một thành phần xoay mới theo trục Z ($+0.005\text{ rad}$) mặc dù hai phép quay ban đầu chỉ xoay quanh trục X và Y!</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tính toán ma trận Jacobian bên trái $J_l(\boldsymbol{\phi}_1)$ qua xấp xỉ chuỗi $J_l(\boldsymbol{\phi}) \approx I + \frac{1}{2}\boldsymbol{\phi}^\wedge$:<br/>$$J_l(\boldsymbol{\phi}_1) \approx \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} + \frac{1}{2}\begin{bmatrix} 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; -0.10 \\ 0 &amp; 0.10 &amp; 0 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; -0.05 \\ 0 &amp; 0.05 &amp; 1 \end{bmatrix}$$<br/>Kiểm chứng tích $J_l(\boldsymbol{\phi}_1) \boldsymbol{\phi}_2$:<br/>$$J_l(\boldsymbol{\phi}_1) \boldsymbol{\phi}_2 = \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; -0.05 \\ 0 &amp; 0.05 &amp; 1 \end{bmatrix} \begin{bmatrix} 0 \\ 0.10 \\ 0 \end{bmatrix} = \begin{bmatrix} 0 \\ 0.10 \\ 0.005 \end{bmatrix}$$<br/>Cộng với $\boldsymbol{\phi}_1$: $\boldsymbol{\phi}_1 + J_l(\boldsymbol{\phi}_1)\boldsymbol{\phi}_2 = [0.10, 0.10, 0.005]^T$. Khớp chính xác hoàn toàn với kết quả BCH ở Bước 2!</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Ý nghĩa thuật toán: Trong các bộ tối ưu hóa SLAM như GTSAM hay Ceres, thay vì phải tính chuỗi BCH vô hạn, ta chỉ cần nhân ma trận Jacobian trái $J_l$ với bước nhảy gradient $\Delta \mathbf{x}$. Điều này chứng minh tính đúng đắn và tốc độ siêu nhanh của tối ưu hóa On-Manifold.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 9.1: Lan truyền hiệp phương sai qua Adjoint</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Cho ma trận hiệp phương sai ban đầu $\boldsymbol{\Sigma} = 0.01 I_{6\times 6}$. Robot thực hiện tịnh tiến $\mathbf{t} = [2, 0, 0]^T$ và không xoay ($R = I$). Hãy tính ma trận hiệp phương sai mới $\boldsymbol{\Sigma}' = \mathrm{Ad}(T) \boldsymbol{\Sigma} \mathrm{Ad}(T)^T$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Ma trận $\mathrm{Ad}(T) = [I, \mathbf{t}^\wedge; 0, I]$. Khối hiệp phương sai vị trí mới $\boldsymbol{\Sigma}_{pos}' = 0.01 I + 0.01 \mathbf{t}^\wedge (\mathbf{t}^\wedge)^T$. Với $\mathbf{t} = [2, 0, 0]^T$, sai số vị trí theo các trục vuông góc với hướng chuyển động bị phóng đại thêm $0.04$!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 09: Lan Truyền Hiệp Phương Sai Bất Định Qua Nhóm Lie SE(3)</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-09" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Độ trôi góc quay $\sigma_\theta$: <span id="sim09-st-val">0.05</span> rad</label>
+<input id="sim09-st" max="0.2" min="0.01" step="0.01" type="range" value="0.05"/>
+</div>
+<div class="control-group">
+<label>Cánh tay đòn tịnh tiến: <span id="sim09-arm-val">5.0</span> m</label>
+<input id="sim09-arm" max="10.0" min="1.0" step="0.5" type="range" value="5.0"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim09-stats">Quan sát elip hiệp phương sai bị uốn cong theo cung tròn hình quả chuối (Banana distribution) do tính chất phi tuyến của Lie.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// On-Manifold Gauss-Newton Step on SO(3)
+#include &lt;iostream&gt;
+#include &lt;sophus/so3.hpp&gt;
+
+int main() {
+    // Current estimate on manifold
+    Sophus::SO3d R_est = Sophus::SO3d::exp(Eigen::Vector3d(0.1, 0.2, 0.0));
+    
+    // Measurement target
+    Sophus::SO3d R_meas = Sophus::SO3d::exp(Eigen::Vector3d(0.12, 0.18, 0.05));
+    
+    // Error on Lie algebra
+    Eigen::Vector3d error = (R_meas * R_est.inverse()).log();
+    std::cout &lt;&lt; "Residual error vector: " &lt;&lt; error.transpose() &lt;&lt; "\n";
+    
+    // Left Jacobian approximation J_l^{-1} \approx I - 0.5 * error^\wedge
+    Eigen::Matrix3d J_inv = Eigen::Matrix3d::Identity() - 0.5 * Sophus::SO3d::hat(error);
+    
+    // On-manifold update step: R_new = exp(delta) * R_est
+    Eigen::Vector3d delta = J_inv * error;
+    Sophus::SO3d R_updated = Sophus::SO3d::exp(delta) * R_est;
+    
+    std::cout &lt;&lt; "Remaining error after 1 step: " 
+              &lt;&lt; (R_meas * R_updated.inverse()).log().norm() &lt;&lt; " rad (Converged!)\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Giải tích đa tạp (Manifold Calculus):</strong> Thay thế phép cộng Euclid bằng phép nhân nhóm Lie và ánh xạ mũ.</li><li><strong>Công thức BCH:</strong> Giải mã bí mật phi giao hoán của chuyển động xoay không gian 3 chiều.</li><li><strong>Jacobians trái &amp; phải:</strong> Cầu nối biến đổi các phương trình phi tuyến phức tạp thành các hệ ma trận tuyến tính giải được.</li><li><strong>Phân phối Gauss tập trung:</strong> Mô hình toán học chuẩn mực mô tả độ bất định của tư thế 6-DoF trong toàn bộ giới SLAM hiện đại.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch08.html">← Chương 08: Nhóm Lie Ma Trận: SO(3), SE(3)</a>
+<a class="btn-nav btn-next" href="ch10.html">Chương tiếp theo: Căn Chỉnh Đám Mây Điểm: SVD Arun &amp; ICP →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

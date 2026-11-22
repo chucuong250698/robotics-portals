@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Phân Tích Đáp Ứng Động Thái Miền Thời Gian | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 03</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link active">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Đáp Ứng Động Thái & Kỹ Thuật Điều Khiển PID</span>
+          <span class="page-source-badge">📖 Mutambara, Chương 3 (Trang 185–274)</span>
+        </div>
+        <h1 class="chapter-title">Chương 03: Phân Tích Đáp Ứng Động Thái Miền Thời Gian</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Giải phương trình vi phân bằng biến đổi Laplace; Tín hiệu thử nghiệm chuẩn (Xung Dirac, Bước nhảy, Dốc); Định lý giá trị đầu/cuối (IVT/FVT); Hệ bậc nhất & Hằng số thời gian; Hệ bậc hai tiêu chuẩn (Hệ số dập tắt zeta, Tần số dao động riêng wn, Độ vọt lố %OS, Thời gian đạt đỉnh Tp, Thời gian xác lập Ts); Tác động của cực phụ và zero phụ; Hệ pha không cực tiểu (Non-minimum phase).</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Đáp ứng động thái miền thời gian (Time-Domain Transient Response) là thước đo trực quan và khắt khe nhất về chất lượng vận hành của mọi hệ thống kỹ thuật. Trong một chiếc thang máy tòa nhà chọc trời, nếu hệ thống có <em>độ vọt lố (Overshoot)</em> lớn và rung rinh lắc lư trước khi dừng, hành khách sẽ cảm thấy bất an và buồn nôn; trong một cánh tay robot phẫu thuật nội soi tinh vi, một cú vọt lố vượt quá vị trí chỉ $1\text{ mm}$ có thể làm rách mạch máu nguy hiểm tới tính mạng bệnh nhân; và trên một máy in 3D công nghiệp, thời gian quá độ kéo dài sẽ khiến đầu phun bị đọng nhựa và tạo đường gân gồ ghề trên sản phẩm. Phân tích miền thời gian giúp kỹ sư định lượng hóa chính xác thời gian phản ứng, mức độ dao động và độ chính xác xác lập của hệ thống.</p>
+        </div>
+        <p>Để đánh giá và so sánh định lượng chất lượng của các hệ thống điều khiển khác nhau, lý thuyết điều khiển sử dụng các <strong>Tín hiệu kích thích thử nghiệm chuẩn (Standard Test Signals)</strong>:</p>
+        <ul>
+          <li><strong>Hàm bước nhảy đơn vị (Unit Step Function - $u(t)$):</strong> Đại diện cho sự thay đổi trạng thái đột ngột của tín hiệu đặt (bước nhảy vị trí, điện áp đóng ngắt đột ngột), dùng để khảo sát cả đáp ứng quá độ (Transient response) lẫn sai số xác lập (Steady-state error).</li>
+          <li><strong>Hàm xung Dirac (Unit Impulse Function - $\delta(t)$):</strong> Đại diện cho các cú va chạm cơ học cực ngắn hoặc xung sét điện áp. Đáp ứng xung chính là <em>Đáp ứng tự nhiên (Natural Response)</em> của hệ thống.</li>
+          <li><strong>Hàm dốc đơn vị (Ramp Function - $r(t) = t \cdot u(t)$):</strong> Đại diện cho tín hiệu đặt biến thiên đều theo thời gian với vận tốc không đổi (ví dụ: bám theo vệ tinh bay trên quỹ đạo).</li>
+          <li><strong>Hàm parabol (Parabolic Function - $p(t) = \frac{1}{2} t^2 \cdot u(t)$):</strong> Đại diện cho mục tiêu di chuyển với gia tốc không đổi.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Trọng tâm lý thuyết của Mutambara trong phân tích miền thời gian là <strong>Hệ Thống Bậc Hai Tiêu Chuẩn (Standard Second-Order System)</strong>:</p>
+        <div class="formula-card">
+          <div class="formula-header">Hàm Truyền Hệ Thống Bậc Hai Chuẩn Hóa</div>
+          $$\begin{equation}
+          G(s) = \frac{\omega_n^2}{s^2 + 2\zeta \omega_n s + \omega_n^2}
+          \end{equation}$$
+          <p>Trong đó:</p>
+          <ul>
+            <li>$\omega_n \gt 0$: Tần số góc dao động riêng tự nhiên (Undamped Natural Frequency, rad/s).</li>
+            <li>$\zeta \ge 0$: Hệ số dập tắt (Damping Ratio, không thứ nguyên).</li>
+          </ul>
+          <p>Phương trình đặc trưng có hai nghiệm cực:</p>
+          $$\begin{equation}
+          s_{1,2} = -\zeta \omega_n \pm \omega_n \sqrt{\zeta^2 - 1}
+          \end{equation}$$
+        </div>
+
+        <p>Phân loại 4 chế độ đáp ứng động thái dựa trên giá trị của hệ số dập tắt $\zeta$:</p>
+        <ol>
+          <li><strong>Không dập tắt (Undamped, $\zeta = 0$):</strong> Hai cực thuần ảo $s_{1,2} = \pm j \omega_n$. Hệ thống dao động điều hòa vĩnh viễn với tần số $\omega_n$, không bao giờ tắt.</li>
+          <li><strong>Dưới dập tắt (Underdamped, $0 \lt \zeta \lt 1$):</strong> Cặp cực phức liên hợp nằm bên trái mặt phẳng phức:
+          $$s_{1,2} = -\sigma \pm j \omega_d = -\zeta\omega_n \pm j \omega_n \sqrt{1 - \zeta^2}$$
+          với $\sigma = \zeta\omega_n$ là độ suy giảm biên độ và $\omega_d = \omega_n\sqrt{1-\zeta^2}$ là tần số dao động tắt dần. Đáp ứng bước nhảy có dạng dao động suy giảm:
+          $$y(t) = 1 - \frac{e^{-\zeta\omega_n t}}{\sqrt{1 - \zeta^2}} \sin(\omega_d t + \phi), \quad \phi = \arccos(\zeta)$$
+          </li>
+          <li><strong>Dập tắt tới hạn (Critically Damped, $\zeta = 1$):</strong> Hai cực thực âm trùng nhau $s_{1,2} = -\omega_n$. Hệ thống đạt trạng thái xác lập nhanh nhất mà hoàn toàn không xảy ra dao động vọt lố.</li>
+          <li><strong>Quá dập tắt (Overdamped, $\zeta \gt 1$):</strong> Hai cực thực âm phân biệt $s_{1,2} = -\zeta\omega_n \pm \omega_n\sqrt{\zeta^2 - 1}$. Đáp ứng không có vọt lố nhưng chuyển động chậm chạp và lờ đờ.</li>
+        </ol>
+
+        <p>Các chỉ tiêu chất lượng miền thời gian chuẩn của hệ dưới dập tắt ($0 \lt \zeta \lt 1$):</p>
+        <div class="formula-card">
+          <div class="formula-header">Bộ Chỉ Tiêu Động Thái Thời Gian (Time-Domain Specifications)</div>
+          $$\begin{align}
+          \text{Độ vọt lố cực đại (\%OS):} \quad & \%OS = \exp\left( -\frac{\zeta \pi}{\sqrt{1 - \zeta^2}} \right) \times 100\% \\
+          \text{Thời gian đạt đỉnh (Peak Time):} \quad & T_p = \frac{\pi}{\omega_d} = \frac{\pi}{\omega_n \sqrt{1 - \zeta^2}} \\
+          \text{Thời gian xác lập (Settling Time, tiêu chuẩn 2\%):} \quad & T_s \approx \frac{4}{\zeta \omega_n} = \frac{4}{\sigma} \\
+          \text{Thời gian tăng trưởng (Rise Time, 10\% - 90\%):} \quad & T_r \approx \frac{\pi - \phi}{\omega_d} \approx \frac{1 - 0.4167\zeta + 2.917\zeta^2}{\omega_n}
+          \end{align}$$
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <p>Trong thực tiễn thiết kế hệ thống điều khiển công nghiệp, mối liên hệ hình học trên mặt phẳng phức $s$ cho phép kỹ sư "nhìn thấy" trước chất lượng động thái:</p>
+        <ul>
+          <li><strong>Độ dập tắt $\zeta$ và góc nghiêng:</strong> Góc hợp bởi vector điểm cực với trục thực âm thỏa mãn $\cos\theta = \zeta$. Để đảm bảo độ vọt lố nhỏ hơn $5\%$, điểm cực phải nằm trong cung quạt có góc $\theta \le 45^\circ$ (tương ứng $\zeta \ge 0.707$).</li>
+          <li><strong>Thời gian xác lập $T_s$ và đường biên dọc:</strong> Do $T_s \approx \frac{4}{\sigma}$, để đáp ứng nhanh dưới $1\text{ s}$, điểm cực phải nằm bên trái đường thẳng đứng $s = -4.0$.</li>
+          <li><strong>Tác động của Zero phụ (Additional Zero):</strong> Nếu hệ thống có thêm một điểm zero ở nửa mặt phẳng trái $s = -z_0$ ($z_0 \gt 0$), zero này đóng vai trò như một khâu vi phân $\left(1 + \frac{s}{z_0}\right)$, làm tăng tốc độ đáp ứng ban đầu nhưng lại làm <em>tăng vọt lố $\%OS$</em> rất mạnh.</li>
+          <li><strong>Hệ pha không cực tiểu (Non-Minimum Phase System):</strong> Khi hệ thống xuất hiện zero ở nửa mặt phẳng phải ($s = +z_r$ với $z_r \gt 0$), đáp ứng bước nhảy ban đầu sẽ bị sụt giảm theo chiều ngược lại (Undershoot - ví dụ: tên lửa quay mũi xuống trước khi bay lên, hoặc xe lùi đuôi trước khi chuyển làn). Đây là thách thức điều khiển cực kỳ khó khăn trong ngành hàng không vũ trụ!</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Phân Tích Chi Tiết Đáp Ứng Bước Nhảy Của Hệ Thống Truyền Động Khớp Robot Bậc Hai</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một cơ cấu servo điều khiển vị trí khớp quay của cánh tay robot có hàm truyền vòng kín được mô hình hóa bởi hệ bậc hai tiêu chuẩn:<br>$$T(s) = \frac{\Theta(s)}{\Theta_{ref}(s)} = \frac{25}{s^2 + 6s + 25}$$<br>Tại thời điểm $t = 0$, người vận hành cấp một lệnh bước nhảy góc vị trí có độ lớn $\theta_{ref}(t) = 2.0\text{ rad} \cdot u(t)$ ($114.6^\circ$).<br><br><strong>Yêu cầu:</strong><br>1) Xác định tần số dao động tự nhiên $\omega_n$, hệ số dập tắt $\zeta$, tần số dao động tắt dần $\omega_d$, và phân loại chế độ dập tắt của hệ thống.<br>2) Sử dụng phép biến đổi ngược Laplace (Inverse Laplace Transform) để tìm biểu thức giải tích chính xác của góc quay $\theta(t)$ theo thời gian.<br>3) Tính toán số học chi tiết các chỉ tiêu chất lượng động học: Giá trị xác lập $\theta_{ss}$, Độ vọt lố phần trăm $(\%OS)$, Giá trị vị trí góc cực đại $\theta_{\max}$, Thời gian đạt đỉnh $T_p$, và Thời gian xác lập $T_s$ (tiêu chuẩn $2\%$).<br>4) Vẽ biểu đồ vị trí các điểm cực trên mặt phẳng phức $s$ và biện luận ý nghĩa cơ học của từng thông số đối với quá trình định vị của tay máy.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Đồng nhất phương trình mẫu số với dạng bậc hai chuẩn hóa & Xác định các thông số cốt lõi:<br>• Hàm truyền tiêu chuẩn: $T(s) = \frac{\omega_n^2}{s^2 + 2\zeta\omega_n s + \omega_n^2} = \frac{25}{s^2 + 6s + 25}$.<br>• Đồng nhất hệ số:<br>$$\omega_n^2 = 25 \implies \omega_n = \sqrt{25} = 5.0\text{ rad/s}$$<br>$$2\zeta\omega_n = 6 \implies \zeta = \frac{6}{2 \times 5.0} = \frac{6}{10.0} = 0.60$$<br>• Vì $0 \lt \zeta = 0.60 \lt 1$, hệ thống thuộc chế độ <strong>Dưới dập tắt (Underdamped)</strong>, đáp ứng bước nhảy chắc chắn sẽ xuất hiện dao động tắt dần.<br>• Tần số góc dao động tắt dần $\omega_d$:<br>$$\omega_d = \omega_n \sqrt{1 - \zeta^2} = 5.0 \times \sqrt{1 - (0.60)^2} = 5.0 \times \sqrt{1 - 0.36} = 5.0 \times \sqrt{0.64} = 5.0 \times 0.80 = 4.0\text{ rad/s}$$<br>• Hệ số suy giảm biên độ: $\sigma = \zeta \omega_n = 0.60 \times 5.0 = 3.0\text{ s}^{-1}$.<br>• Tọa độ cặp cực phức liên hợp trên mặt phẳng $s$: $s_{1,2} = -\sigma \pm j \omega_d = -3.0 \pm j 4.0$.</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tìm nghiệm giải tích $\theta(t)$ bằng Khai triển Laplace phân thức Heaviside:<br>• Tín hiệu đặt: $\Theta_{ref}(s) = \frac{2.0}{s}$.<br>• Tín hiệu đầu ra trong miền Laplace:<br>$$\Theta(s) = T(s) \Theta_{ref}(s) = \frac{25}{s^2 + 6s + 25} \cdot \frac{2.0}{s} = \frac{50}{s(s^2 + 6s + 25)}$$<br>• Tách phân thức tối giản:<br>$$\Theta(s) = \frac{A}{s} + \frac{B(s + 3) + C(4)}{(s + 3)^2 + 4^2}$$<br>• Hệ số Heaviside $A$ tính theo định lý thặng dư:<br>$$A = \lim_{s \to 0} s \Theta(s) = \lim_{s \to 0} \frac{50}{s^2 + 6s + 25} = \frac{50}{25} = 2.0$$<br>• Quy đồng mẫu số và cân bằng hệ số tử số: $A[(s+3)^2 + 16] + [B(s+3) + 4C]s = 50$.<br>Với $s = -3$: $2.0[0 + 16] - 3[4C] = 50 \implies 32 - 12C = 50 \implies 12C = -18 \implies C = -1.5$.<br>Hệ số của $s^2$: $A + B = 0 \implies B = -A = -2.0$.<br>Do đó: $\Theta(s) = \frac{2.0}{s} - 2.0 \frac{s + 3}{(s+3)^2 + 4^2} - 1.5 \frac{4}{(s+3)^2 + 4^2}$.<br>• Áp dụng biến đổi ngược Laplace $\mathcal{L}^{-1}$:<br>$$\theta(t) = 2.0 - 2.0 e^{-3t} \cos(4t) - 1.5 e^{-3t} \sin(4t) = 2.0 \left[ 1 - e^{-3t} \left( \cos(4t) + \frac{3}{4} \sin(4t) \right) \right]\text{ rad}$$<br>Chuyển đổi sang dạng sóng hình sin lệch pha duy nhất: $\theta(t) = 2.0 \left[ 1 - \frac{1}{\sqrt{1 - \zeta^2}} e^{-\zeta\omega_n t} \sin(\omega_d t + \phi) \right]$ với $\phi = \arccos(0.60) \approx 0.9273\text{ rad} = 53.13^\circ$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học chi tiết các chỉ tiêu chất lượng động thái:<br>1) <strong>Vị trí góc xác lập ($\theta_{ss}$):</strong><br>$$\theta_{ss} = \lim_{t \to \infty} \theta(t) = 2.0 \left[ 1 - 0 \right] = 2.0000\text{ rad} \quad (\text{Khớp chính xác tín hiệu đặt } \theta_{ref})$$<br>2) <strong>Độ vọt lố phần trăm (\%OS):</strong><br>$$\%OS = \exp\left( -\frac{\zeta \pi}{\sqrt{1 - \zeta^2}} \right) \times 100\% = \exp\left( -\frac{0.60 \times 3.14159265}{0.80} \right) \times 100\% = \exp\left( -2.356194 \right) \times 100\% \approx 9.478\%$$<br>3) <strong>Góc quay cực đại ($\theta_{\max}$):</strong><br>$$\theta_{\max} = \theta_{ss} \left( 1 + \frac{\%OS}{100} \right) = 2.0 \times (1 + 0.09478) = 2.0 \times 1.09478 = 2.1896\text{ rad} \approx 125.45^\circ$$<br>4) <strong>Thời gian đạt đỉnh ($T_p$):</strong><br>$$T_p = \frac{\pi}{\omega_d} = \frac{3.14159265}{4.0} \approx 0.7854\text{ s}$$<br>5) <strong>Thời gian xác lập $2\%$ ($T_s$):</strong><br>$$T_s \approx \frac{4}{\zeta \omega_n} = \frac{4}{3.0} \approx 1.3333\text{ s}$$<br>6) <strong>Thời gian tăng trưởng ($T_r, 10\% \to 90\%$):</strong><br>$$T_r \approx \frac{\pi - \phi}{\omega_d} = \frac{3.14159 - 0.9273}{4.0} = \frac{2.2143}{4.0} \approx 0.5536\text{ s}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận ý nghĩa vật lý & Hình học trên mặt phẳng phức $s$:<br>• Cặp cực $s_{1,2} = -3.0 \pm j 4.0$ nằm trên đường tròn bán kính $\omega_n = \sqrt{(-3)^2 + 4^2} = 5.0\text{ rad/s}$. Khoảng cách từ điểm cực đến gốc tọa độ tỷ lệ thuận với băng thông và tốc độ phản ứng của hệ thống.<br>• Góc nghiêng $\theta = \arccos(\zeta) = 53.13^\circ$ quyết định độ vọt lố. Vì $\zeta = 0.60 \ge 0.5$, độ vọt lố $9.48\%$ nằm hoàn toàn trong giới hạn an toàn kỹ thuật cho phép của tay máy công nghiệp ($%OS \le 10\%$).<br>• Phần thực $\sigma = -3.0$ xác định tốc độ tiêu tán động năng do ma sát nhớt. Đường bao hình suy giảm biên độ dao động có dạng $\pm 2.5 e^{-3t}$, sau $1.33\text{ s}$ biên độ dao động đã co lại nhỏ hơn $2\%$ sai số cho phép, sẵn sàng cho chu kỳ gắp thả linh kiện tiếp theo.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết mô hình hóa, nhận dạng và thiết kế hệ thống điều khiển tự động trong giáo trình Design and Analysis of Control Systems (Arthur G.O. Mutambara, CRC Press). Đây là cơ sở định lượng vững chắc cho các hệ thống điều khiển công nghiệp 4IR thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 03: Đáp Ứng Động Thái Miền Thời Gian Của Hệ Bậc Hai Tiêu Chuẩn</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-03" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Hệ số dập tắt ($\zeta$): <span id="sim03-zeta-val">0.40</span></label>
+              <input type="range" id="sim03-zeta" min="0.0" max="2.0" step="0.05" value="0.4">
+            </div>
+            <div class="control-group">
+              <label>Tần số tự nhiên ($\omega_n$): <span id="sim03-wn-val">3.0 rad/s</span></label>
+              <input type="range" id="sim03-wn" min="1.0" max="10.0" step="0.5" value="3.0">
+            </div>
+            <div class="control-group">
+              <label>Biên độ bước nhảy ($A$): <span id="sim03-amp-val">1.0</span></label>
+              <input type="range" id="sim03-amp" min="0.5" max="5.0" step="0.5" value="1.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim03-stats" class="sim-telemetry-text">Đang phân tích trực tuyến độ vọt lố %OS, thời gian đạt đỉnh Tp, và thời gian xác lập Ts (2%).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Time-Domain Step Response Analyzer in C++20 for Second-Order Systems
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;vector&gt;
+#include &lt;iomanip&gt;
+
+struct SecondOrderMetrics {
+    double wn;        // Natural frequency (rad/s)
+    double zeta;      // Damping ratio
+    double wd;        // Damped natural frequency (rad/s)
+    double OS_pct;    // Overshoot percentage (%)
+    double Tp;        // Peak time (s)
+    double Ts;        // Settling time 2% (s)
+    double Tr;        // Rise time (s)
+};
+
+class SecondOrderAnalyzer {
+public:
+    static SecondOrderMetrics analyze(double wn, double zeta) {
+        SecondOrderMetrics m;
+        m.wn = wn;
+        m.zeta = zeta;
+
+        if (zeta &lt; 1.0) { // Underdamped
+            m.wd = wn * std::sqrt(1.0 - zeta * zeta);
+            m.OS_pct = std::exp(-zeta * M_PI / std::sqrt(1.0 - zeta * zeta)) * 100.0;
+            m.Tp = M_PI / m.wd;
+            m.Ts = 4.0 / (zeta * wn);
+            double phi = std::acos(zeta);
+            m.Tr = (M_PI - phi) / m.wd;
+        } else if (std::abs(zeta - 1.0) &lt; 1e-5) { // Critically damped
+            m.wd = 0.0;
+            m.OS_pct = 0.0;
+            m.Tp = 0.0; // No peak
+            m.Ts = 5.83 / wn;
+            m.Tr = 3.36 / wn;
+        } else { // Overdamped
+            m.wd = 0.0;
+            m.OS_pct = 0.0;
+            m.Tp = 0.0;
+            double s1 = -zeta * wn + wn * std::sqrt(zeta * zeta - 1.0);
+            m.Ts = 4.0 / std::abs(s1); // Dominated by slower pole
+            m.Tr = 2.2 / std::abs(s1);
+        }
+
+        return m;
+    }
+
+    static double computeStepResponse(double t, double wn, double zeta, double amp = 1.0) {
+        if (t &lt; 0.0) return 0.0;
+        if (zeta &lt; 1.0) {
+            double wd = wn * std::sqrt(1.0 - zeta * zeta);
+            double phi = std::acos(zeta);
+            return amp * (1.0 - (1.0 / std::sqrt(1.0 - zeta * zeta)) * 
+                          std::exp(-zeta * wn * t) * std::sin(wd * t + phi));
+        } else if (std::abs(zeta - 1.0) &lt; 1e-5) {
+            return amp * (1.0 - (1.0 + wn * t) * std::exp(-wn * t));
+        } else {
+            double s1 = -zeta * wn + wn * std::sqrt(zeta * zeta - 1.0);
+            double s2 = -zeta * wn - wn * std::sqrt(zeta * zeta - 1.0);
+            return amp * (1.0 + (s2 * std::exp(s1 * t) - s1 * std::exp(s2 * t)) / (s1 - s2));
+        }
+    }
+};
+
+int main() {
+    double wn = 5.0;
+    double zeta = 0.60;
+    double amp = 2.0;
+
+    auto metrics = SecondOrderAnalyzer::analyze(wn, zeta);
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;=== SECOND-ORDER SYSTEM TRANSIENT ANALYSIS ===\n&quot;;
+    std::cout &lt;&lt; &quot;Natural Frequency (wn): &quot; &lt;&lt; metrics.wn &lt;&lt; &quot; rad/s\n&quot;;
+    std::cout &lt;&lt; &quot;Damping Ratio (zeta):   &quot; &lt;&lt; metrics.zeta &lt;&lt; &quot;\n&quot;;
+    std::cout &lt;&lt; &quot;Damped Frequency (wd):  &quot; &lt;&lt; metrics.wd &lt;&lt; &quot; rad/s\n&quot;;
+    std::cout &lt;&lt; &quot;Overshoot (%OS):        &quot; &lt;&lt; metrics.OS_pct &lt;&lt; &quot; %\n&quot;;
+    std::cout &lt;&lt; &quot;Peak Time (Tp):         &quot; &lt;&lt; metrics.Tp &lt;&lt; &quot; s\n&quot;;
+    std::cout &lt;&lt; &quot;Settling Time 2% (Ts):  &quot; &lt;&lt; metrics.Ts &lt;&lt; &quot; s\n&quot;;
+    std::cout &lt;&lt; &quot;Rise Time (Tr):         &quot; &lt;&lt; metrics.Tr &lt;&lt; &quot; s\n\n&quot;;
+
+    std::cout &lt;&lt; &quot;Time(s)    Step Input(rad)   System Response y(t)(rad)\n&quot;;
+    std::cout &lt;&lt; &quot;------------------------------------------------------\n&quot;;
+    for (double t = 0.0; t &lt;= 2.0; t += 0.2) {
+        double y = SecondOrderAnalyzer::computeStepResponse(t, wn, zeta, amp);
+        std::cout &lt;&lt; std::setw(6) &lt;&lt; t &lt;&lt; &quot;         &quot; 
+                  &lt;&lt; std::setw(6) &lt;&lt; amp &lt;&lt; &quot;              &quot; 
+                  &lt;&lt; std::setw(8) &lt;&lt; y &lt;&lt; &quot;\n&quot;;
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>4 Chế độ dập tắt:</strong> Dựa trên $\zeta$: Không dập tắt ($\zeta=0$), Dưới dập tắt ($0\lt\zeta\lt 1$), Dập tắt tới hạn ($\zeta=1$), và Quá dập tắt ($\zeta\gt 1$).</li><li><strong>Quan hệ \%OS và $\zeta$:</strong> Độ vọt lố $\%OS = e^{-\frac{\zeta\pi}{\sqrt{1-\zeta^2}}} \times 100\%$ chỉ phụ thuộc duy nhất vào hệ số dập tắt $\zeta$, độc lập với tần số $\omega_n$.</li><li><strong>Vị trí cực trên mặt phẳng $s$:</strong> Phần thực $-\sigma = -\zeta\omega_n$ quyết định thời gian xác lập $T_s \approx 4/\sigma$; phần ảo $\pm \omega_d$ quyết định tần số dao động.</li><li><strong>Hệ pha không cực tiểu:</strong> Điểm zero ở nửa mặt phẳng phải ($z\gt 0$) gây ra hiện tượng đáp ứng ngược (Undershoot) nguy hiểm, đòi hỏi kỹ thuật điều khiển cẩn trọng.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 3.1: Đáp ứng ngược (Undershoot) của hệ pha không cực tiểu</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một hệ thống lái cánh lái góc đuôi máy bay có hàm truyền bậc hai chứa một điểm zero nằm ở nửa mặt phẳng phức bên phải (Right-Half Plane Zero - Non-minimum phase system):<br>$$G(s) = \frac{-s + 4}{s^2 + 2s + 4}$$<br>Tín hiệu đầu vào là bước nhảy đơn vị $u(t)$. Hãy: 1) Xác định các cực và zero của hệ thống. 2) Tìm giá trị đầu $y(0^+)$, đạo hàm đầu $\dot{y}(0^+)$ và giá trị xác lập $y(\infty)$ bằng các định lý IVT và FVT. 3) Giải thích nguyên nhân vật lý tại sao hệ thống bị đáp ứng ngược (Undershoot $y(t) \lt 0$) trong khoảng thời gian đầu và tính giá trị cực tiểu $y_{\min}$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>1) Điểm cực: Nghiệm của $s^2 + 2s + 4 = 0 \implies s_{1,2} = -1 \pm j\sqrt{3}$ ($\omega_n = 2, \zeta = 0.5$). Điểm zero: $-s + 4 = 0 \implies z = +4.0 \gt 0$ (RHP Zero).<br>2) Áp dụng định lý giá trị đầu (IVT): $y(0^+) = \lim_{s \to \infty} s Y(s) = \lim_{s \to \infty} \frac{-s + 4}{s^2 + 2s + 4} = 0$.<br>Đạo hàm đầu: $\dot{y}(0^+) = \lim_{s \to \infty} s [s Y(s) - y(0)] = \lim_{s \to \infty} \frac{s(-s + 4)}{s^2 + 2s + 4} = -1.0 \lt 0$. Vận tốc ban đầu mang dấu âm!<br>Áp dụng định lý giá trị cuối (FVT): $y(\infty) = \lim_{s \to 0} s Y(s) = \frac{4}{4} = 1.0$.<br>3) Giải thích: Zero tại $s = +4$ đóng vai trò như một khâu đạo hàm ngược chiều $y(t) = y_{min\_phase}(t) - \frac{1}{4} \dot{y}_{min\_phase}(t)$. Vì ban đầu $\dot{y} \gt 0$, thành phần đạo hàm kéo đáp ứng tụt xuống dưới $0$ (Undershoot) trước khi lực phục hồi kéo hệ thống tăng trưởng trở lại $1.0$. Điểm cực tiểu đạt xấp xỉ $y_{\min} \approx -0.15$ tại $t \approx 0.35\text{ s}$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch02.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 02: Mô Hình Hóa Hệ Thống Động Lực Đa Miền</span>
+        </a>
+        <a href="ch04.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 04: Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim03 === "function") {
+        initSim03();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

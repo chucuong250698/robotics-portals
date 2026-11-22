@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 04</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link active">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Đáp Ứng Động Thái & Kỹ Thuật Điều Khiển PID</span>
+          <span class="page-source-badge">📖 Mutambara, Chương 4 (Trang 275–396)</span>
+        </div>
+        <h1 class="chapter-title">Chương 04: Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Bản chất phản hồi âm; Triệt tiêu sai số xác lập theo loại hệ thống (Type 0, 1, 2) và hằng số sai số Kp, Kv, Ka; Độ nhạy thông số; Tiêu chuẩn ổn định Routh-Hurwitz & các trường hợp suy biến; Kiến trúc bộ điều khiển PID kinh điển và chuẩn công nghiệp ISA; Phương pháp chỉnh định Ziegler-Nichols 1 & 2; Chống bão hòa tích phân (Anti-windup); Khâu lọc vi phân.</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Dù các lý thuyết điều khiển hiện đại (như điều khiển thích nghi, điều khiển nơ-ron AI, hay điều khiển dự báo mô hình MPC) phát triển mạnh mẽ, thực tế khảo sát trong các nhà máy lọc dầu, tổ hợp hóa chất, dây chuyền sản xuất ô tô và nhà máy điện hạt nhân trên toàn thế giới cho thấy: <strong>hơn 90% các vòng lặp điều khiển tự động đang vận hành đều sử dụng thuật toán PID (Proportional - Integral - Derivative)</strong>. Sự đơn giản, trực quan về mặt vật lý và hiệu quả bền bỉ của PID biến nó thành "ngựa thồ" của toàn bộ nền công nghiệp thế giới. Tuy nhiên, nếu không nắm vững quy tắc chỉnh định tham số và tiêu chuẩn ổn định toán học Routh-Hurwitz, việc tăng độ lợi PID quá mức sẽ lập tức biến một hệ thống ổn định thành một "cỗ máy tự hủy" dao động phân kỳ dữ dội!</p>
+        </div>
+        <p>Bản chất sức mạnh của bộ điều khiển phản hồi PID nằm ở sự phối hợp hài hòa giữa 3 mốc thời gian:</p>
+        <ul>
+          <li><strong>Khâu Tỉ Lệ (Proportional - $P$): "Hiện tại"</strong> — Sinh lực điều khiển tỉ lệ thuận với sai số tức thời $e(t)$. Giúp hệ thống phản ứng nhanh nhạy, nhưng nếu dùng đơn độc sẽ luôn để lại sai số xác lập hữu hạn và có xu hướng gây dao động khi độ lợi lớn.</li>
+          <li><strong>Khâu Tích Phân (Integral - $I$): "Quá khứ"</strong> — Tích lũy toàn bộ lịch sử sai số $\int_0^t e(\tau)d\tau$. Tự động nâng mức điều khiển lên cho đến khi sai số xác lập bị triệt tiêu hoàn toàn về $0$, nhưng làm chậm đáp ứng và giảm hệ số dự trữ ổn định.</li>
+          <li><strong>Khâu Vi Phân (Derivative - $D$): "Tương lai"</strong> — Dự báo xu hướng thay đổi bằng tốc độ biến thiên sai số $\frac{de(t)}{dt}$. Đóng vai trò như một "chiếc phanh giảm chấn ảo", hãm đà quán tính, dập tắt dao động và cải thiện vượt bậc độ ổn định của hệ thống.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Phân tích sai số xác lập của hệ thống phản hồi âm đơn vị ($H(s) = 1$) dựa trên <strong>Loại Hệ Thống (System Type $N$)</strong>, tức số lượng điểm cực hở nằm tại gốc tọa độ $s = 0$ ($G(s) = \frac{K \prod (s+z_i)}{s^N \prod (s+p_j)}$):</p>
+        <div class="formula-card">
+          <div class="formula-header">Bảng Hằng Số Sai Số Tĩnh & Sai Số Xác Lập $e_{ss}$</div>
+          $$\begin{align}
+          \text{Hằng số sai số vị trí:} \quad & K_p = \lim_{s \to 0} G(s) \implies e_{ss,\text{step}} = \frac{1}{1 + K_p} \\
+          \text{Hằng số sai số vận tốc:} \quad & K_v = \lim_{s \to 0} s G(s) \implies e_{ss,\text{ramp}} = \frac{1}{K_v} \\
+          \text{Hằng số sai số gia tốc:} \quad & K_a = \lim_{s \to 0} s^2 G(s) \implies e_{ss,\text{parabolic}} = \frac{1}{K_a}
+          \end{align}$$
+          <p>• <strong>Hệ loại 0 ($N = 0$):</strong> Bám bước nhảy có sai số hữu hạn $\frac{1}{1+K_p}$; không thể bám hàm dốc ($e_{ss} = \infty$).<br>
+          • <strong>Hệ loại 1 ($N = 1$):</strong> Bám bước nhảy sai số bằng $0$; bám hàm dốc với sai số hữu hạn $\frac{1}{K_v}$.<br>
+          • <strong>Hệ loại 2 ($N = 2$):</strong> Bám bước nhảy và hàm dốc với sai số bằng $0$; bám hàm parabol với sai số hữu hạn $\frac{1}{K_a}$.</p>
+        </div>
+
+        <p>Để đánh giá tính ổn định tuyệt đối mà không cần giải nghiệm đa thức bậc cao, tiêu chuẩn <strong>Routh - Hurwitz</strong> thiết lập bảng ma trận Routh từ đa thức đặc trưng:</p>
+        <div class="formula-card">
+          <div class="formula-header">Tiêu Chuẩn Ổn Định Routh - Hurwitz</div>
+          $$P(s) = a_n s^n + a_{n-1} s^{n-1} + a_{n-2} s^{n-2} + \dots + a_1 s + a_0 = 0 \quad (a_n \gt 0)$$
+          <p>Lập bảng Routh:</p>
+          $$\begin{array}{c|cccc}
+          s^n & a_n & a_{n-2} & a_{n-4} & \dots \\
+          s^{n-1} & a_{n-1} & a_{n-3} & a_{n-5} & \dots \\
+          s^{n-2} & b_1 & b_2 & b_3 & \dots \\
+          s^{n-3} & c_1 & c_2 & c_3 & \dots \\
+          \vdots & \vdots & \vdots & \vdots & \ddots
+          \end{array}$$
+          <p>Với các phần tử được tính theo quy tắc định thức chéo đảo dấu:</p>
+          $$\begin{equation}
+          b_1 = \frac{a_{n-1} a_{n-2} - a_n a_{n-3}}{a_{n-1}}, \quad b_2 = \frac{a_{n-1} a_{n-4} - a_n a_{n-5}}{a_{n-1}}, \quad c_1 = \frac{b_1 a_{n-3} - a_{n-1} b_2}{b_1}
+          \end{equation}$$
+          <p><strong>Định lý Routh:</strong> Số nghiệm có phần thực dương (nằm bên phải mặt phẳng phức, gây mất ổn định) đúng bằng số lần đổi dấu của các phần tử trong <em>cột đầu tiên</em> của bảng Routh. Hệ thống ổn định BIBO khi và chỉ khi toàn bộ cột đầu tiên đều mang số dương ngặt!</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <p>Trong công nghiệp hiện đại, bộ điều khiển PID không bao giờ được lập trình dưới dạng lý thuyết thuần túy $K_d s$ vì thành phần đạo hàm thuần sẽ khuếch đại vô hạn nhiễu đo lường tần số cao từ cảm biến. Thay vào đó, chuẩn công nghiệp <strong>Standard ISA PID</strong> tích hợp hai kỹ thuật bảo vệ cốt tử:</p>
+        <ul>
+          <li><strong>Khâu lọc thông thấp đạo hàm (Filtered Derivative):</strong>
+          $$D(s) = \frac{K_d s}{1 + \frac{K_d}{N K_p} s} = \frac{K_d s}{1 + \frac{T_d}{N} s}$$
+          với hệ số lọc $N \in [8, 20]$ (thường chọn $N = 10$). Khâu này cho phép vi phân tín hiệu sai số ở dải tần thấp nhưng đóng vai trò như một bộ lọc thông thấp triệt tiêu nhiễu cao tần.</li>
+          <li><strong>Chống bão hòa tích phân (Anti-Windup Clamping):</strong> Khi cơ cấu chấp hành chạm ngưỡng giới hạn vật lý (như van mở $100\%$ hoặc điện áp động cơ bão hòa ở $24\text{ V}$), khâu tích phân nếu tiếp tục tích lũy sai số sẽ bị "phình to" (Windup), khiến hệ thống bị kẹt và mất rất nhiều thời gian mới hồi phục. Thuật toán Anti-windup lập tức khóa tích phân ngay khi tín hiệu điều khiển bị cắt ngọn ($u(t) \ge u_{\max}$).</li>
+        </ul>
+        <p>Phương pháp chỉnh định thực nghiệm kinh điển của <strong>Ziegler - Nichols 2 (Phương pháp giới hạn ổn định / Frequency Response Method)</strong>:</p>
+        <ol>
+          <li>Tắt hoàn toàn khâu $I$ và $D$ ($K_i = 0, K_d = 0$).</li>
+          <li>Tăng dần độ lợi tỉ lệ $K_p$ cho đến khi hệ thống bắt đầu xuất hiện dao động điều hòa liên tục không tắt ở biên giới ổn định. Ghi nhận giá trị độ lợi tới hạn này là $K_u$ (Ultimate Gain) và đo chu kỳ dao động tới hạn $T_u$ (Ultimate Period).</li>
+          <li>Tra bảng thông số Ziegler-Nichols cho bộ điều khiển PID:
+          $$K_p = 0.60 K_u, \quad T_i = 0.50 T_u \implies K_i = \frac{K_p}{T_i}, \quad T_d = 0.125 T_u \implies K_d = K_p T_d$$
+          </li>
+        </ol>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Kiểm Định Ổn Định Routh-Hurwitz & Thiết Kế Bộ Điều Khiển PID Theo Phương Pháp Ziegler-Nichols</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một hệ thống điều khiển vị trí bàn máy gia công cơ khí chính xác có hàm truyền đối tượng hở (Open-loop plant):<br>$$G(s) = \frac{10}{s(s + 2)(s + 5)} = \frac{10}{s^3 + 7s^2 + 10s}$$<br>Hệ thống sử dụng cấu trúc hồi tiếp âm đơn vị $H(s) = 1$.<br><br><strong>Yêu cầu:</strong><br>1) Khi chỉ sử dụng bộ điều khiển tỉ lệ $C(s) = K$, hãy thiết lập đa thức đặc trưng của hệ kín. Áp dụng tiêu chuẩn Routh-Hurwitz để tìm khoảng độ lợi $K$ bảo đảm hệ kín ổn định.<br>2) Xác định giá trị độ lợi tới hạn $K_u$ và tần số dao động tới hạn $\omega_u$ (rad/s) cùng chu kỳ tới hạn $T_u$ (s) tại biên giới ổn định.<br>3) Sử dụng quy tắc chỉnh định Ziegler-Nichols 2 để tính toán bộ thông số cho bộ điều khiển PID chuẩn: $K_p, T_i, T_d$ và các hệ số tương đương $K_i, K_d$.<br>4) Lập phương trình đặc trưng của hệ thống sau khi lắp đặt bộ điều khiển PID vừa thiết kế, sử dụng bảng Routh để chứng minh rằng hệ kín hoàn toàn ổn định và sai số xác lập vị trí bằng không ($e_{ss} = 0$).</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập phương trình đặc trưng với bộ điều khiển tỉ lệ $K$ & Lập bảng Routh:<br>• Hàm truyền vòng kín: $T(s) = \frac{K G(s)}{1 + K G(s)} = \frac{10K}{s(s+2)(s+5) + 10K}$.<br>• Đa thức đặc trưng của hệ kín:<br>$$P(s) = s(s^2 + 7s + 10) + 10K = s^3 + 7s^2 + 10s + 10K = 0$$<br>Các hệ số đa thức: $a_3 = 1, a_2 = 7, a_1 = 10, a_0 = 10K$.<br>• Thiết lập bảng Routh cho đa thức bậc 3:<br>$$\begin{array}{c|cc}
+          s^3 & 1 & 10 \\
+          s^2 & 7 & 10K \\
+          s^1 & b_1 & 0 \\
+          s^0 & c_1 & 0
+          \end{array}$$<br>• Tính các phần tử:<br>$$b_1 = \frac{7 \times 10 - 1 \times 10K}{7} = \frac{70 - 10K}{7} = 10 - \frac{10}{7}K$$<br>$$c_1 = \frac{b_1 \times 10K - 7 \times 0}{b_1} = 10K$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định miền ổn định & Tính toán độ lợi và tần số tới hạn ($K_u, \omega_u, T_u$):<br>• Để hệ thống ổn định, mọi phần tử ở cột 1 của bảng Routh phải dương ngặt ($b_1 \gt 0$ và $c_1 \gt 0$):<br>1) $c_1 = 10K \gt 0 \implies K \gt 0$.<br>2) $b_1 = \frac{70 - 10K}{7} \gt 0 \implies 70 - 10K \gt 0 \implies 10K \lt 70 \implies K \lt 7.0$.<br>Vậy miền độ lợi để hệ thống ổn định là: $0 \lt K \lt 7.0$.<br>• Tại biên giới ổn định, hàng $s^1$ triệt tiêu hoàn toàn về $0$, tức là $b_1 = 0$:<br>$$10 - \frac{10}{7}K_u = 0 \implies K_u = 7.0$$<br>• Khi $K = K_u = 7.0$, ta lập <strong>Phương trình phụ trợ (Auxiliary Equation)</strong> từ hàng $s^2$ ngay phía trên:<br>$$A(s) = 7 s^2 + 10 K_u = 7 s^2 + 70 = 0 \implies s^2 + 10 = 0 \implies s^2 = -10 \implies s = \pm j \sqrt{10}$$<br>• Cặp nghiệm thuần ảo trên trục ảo chứng minh hệ thống dao động điều hòa tự do với tần số góc tới hạn:<br>$$\omega_u = \sqrt{10} \approx 3.162277\text{ rad/s}$$<br>• Chu kỳ dao động tới hạn tương ứng:<br>$$T_u = \frac{2\pi}{\omega_u} = \frac{2 \times 3.14159265}{3.162277} \approx \frac{6.283185}{3.162277} \approx 1.986918\text{ s} \approx 1.987\text{ s}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán tham số bộ điều khiển PID theo công thức Ziegler - Nichols 2:<br>Tra bảng chuẩn Ziegler-Nichols với $K_u = 7.0$ và $T_u \approx 1.9869\text{ s}$:<br>• <strong>Độ lợi tỉ lệ ($K_p$):</strong><br>$$K_p = 0.60 K_u = 0.60 \times 7.0 = 4.2000$$<br>• <strong>Thời gian tích phân ($T_i$) và Độ lợi tích phân ($K_i$):</strong><br>$$T_i = 0.50 T_u = 0.50 \times 1.986918 = 0.993459\text{ s}$$<br>$$K_i = \frac{K_p}{T_i} = \frac{4.2000}{0.993459} \approx 4.22765\text{ s}^{-1} \approx 4.228\text{ s}^{-1}$$<br>• <strong>Thời gian vi phân ($T_d$) và Độ lợi vi phân ($K_d$):</strong><br>$$T_d = 0.125 T_u = \frac{1}{8} \times 1.986918 = 0.248365\text{ s}$$<br>$$K_d = K_p T_d = 4.2000 \times 0.248365 \approx 1.04313\text{ s} \approx 1.043\text{ s}$$<br>• Hàm truyền bộ điều khiển PID tổng hợp:<br>$$C(s) = K_p + \frac{K_i}{s} + K_d s = \frac{K_d s^2 + K_p s + K_i}{s} = \frac{1.0431 s^2 + 4.2000 s + 4.2277}{s}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm chứng ổn định của hệ kín sau khi đóng vòng PID bằng Bảng Routh:<br>• Hàm truyền vòng hở mới: $L(s) = C(s) G(s) = \frac{1.0431 s^2 + 4.2000 s + 4.2277}{s} \cdot \frac{10}{s(s+2)(s+5)}$.<br>• Đa thức đặc trưng hệ kín $1 + L(s) = 0$:<br>$$s^2(s+2)(s+5) + 10(1.0431 s^2 + 4.2000 s + 4.2277) = 0$$<br>$$s^4 + 7 s^3 + 10 s^2 + 10.431 s^2 + 42.000 s + 42.277 = 0$$<br>$$s^4 + 7 s^3 + 20.431 s^2 + 42.000 s + 42.277 = 0$$<br>• Lập bảng Routh cho đa thức bậc 4:<br>$$\begin{array}{c|ccc}
+          s^4 & 1 & 20.431 & 42.277 \\
+          s^3 & 7 & 42.000 & 0 \\
+          s^2 & b_1 & b_2 & 0 \\
+          s^1 & c_1 & 0 & 0 \\
+          s^0 & d_1 & 0 & 0
+          \end{array}$$<br>• Tính các hàng:<br>$$b_1 = \frac{7 \times 20.431 - 1 \times 42.000}{7} = \frac{143.017 - 42.000}{7} = \frac{101.017}{7} \approx 14.431 \gt 0$$<br>$$b_2 = \frac{7 \times 42.277 - 1 \times 0}{7} = 42.277$$<br>$$c_1 = \frac{b_1 \times 42.000 - 7 \times b_2}{b_1} = \frac{14.431 \times 42.000 - 7 \times 42.277}{14.431} = \frac{606.102 - 295.939}{14.431} = \frac{310.163}{14.431} \approx 21.493 \gt 0$$<br>$$d_1 = b_2 = 42.277 \gt 0$$<br>• <strong>Kết luận:</strong> Tất cả các phần tử ở cột đầu tiên $(1.0, 7.0, 14.431, 21.493, 42.277)$ đều mang giá trị dương ngặt, không có sự đổi dấu nào! Hệ kín hoàn toàn ổn định vững chắc. Ngoài ra, do bộ điều khiển PID bổ sung một điểm cực tại gốc tọa độ $s = 0$, loại hệ thống được nâng lên thành Hệ Loại 2 (System Type 2), bảo đảm sai số xác lập vị trí $e_{ss} = 0$ hoàn hảo!</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết mô hình hóa, nhận dạng và thiết kế hệ thống điều khiển tự động trong giáo trình Design and Analysis of Control Systems (Arthur G.O. Mutambara, CRC Press). Đây là cơ sở định lượng vững chắc cho các hệ thống điều khiển công nghiệp 4IR thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 04: Bộ Điều Khiển PID Số Tương Tác & Triệt Tiêu Nhiễu Tải</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-04" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Độ lợi tỉ lệ ($K_p$): <span id="sim04-kp-val">4.2</span></label>
+              <input type="range" id="sim04-kp" min="0.5" max="15.0" step="0.1" value="4.2">
+            </div>
+            <div class="control-group">
+              <label>Độ lợi tích phân ($K_i$): <span id="sim04-ki-val">4.2</span></label>
+              <input type="range" id="sim04-ki" min="0.0" max="15.0" step="0.2" value="4.2">
+            </div>
+            <div class="control-group">
+              <label>Độ lợi vi phân ($K_d$): <span id="sim04-kd-val">1.0</span></label>
+              <input type="range" id="sim04-kd" min="0.0" max="5.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+              <label>Nhiễu tải bước nhảy ($d_{ext}$): <span id="sim04-disturb-val">1.0</span></label>
+              <input type="range" id="sim04-disturb" min="-3.0" max="3.0" step="0.5" value="1.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim04-stats" class="sim-telemetry-text">Đang theo dõi đáp ứng quá độ, độ vọt lố %OS, kiểm tra cột 1 bảng Routh và khả năng triệt tiêu nhiễu.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Industrial Standard ISA PID Controller Class in C++20
+#include &lt;iostream&gt;
+#include &lt;algorithm&gt;
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+
+class IndustrialPID {
+public:
+    struct Params {
+        double Kp = 4.2;
+        double Ki = 4.228;
+        double Kd = 1.043;
+        double N  = 10.0;     // Derivative filter coefficient
+        double u_min = -24.0; // Actuator lower saturation
+        double u_max = 24.0;  // Actuator upper saturation
+    };
+
+    IndustrialPID(const Params&amp; p) : p_(p), integral_(0.0), prev_e_(0.0), prev_d_(0.0) {}
+
+    double update(double setpoint, double measurement, double dt) {
+        double error = setpoint - measurement;
+
+        // 1. Proportional term
+        double P = p_.Kp * error;
+
+        // 2. Filtered Derivative term: D = (Kd * N * (e - prev_e) + prev_d * (Kd - N*Kp*dt)) / (Kd + N*Kp*dt)
+        // Or discrete Euler: dD/dt = N * Kp / Kd * (Kd * de/dt - D)
+        double alpha = (p_.Kd &gt; 1e-6) ? (dt / (p_.Kd / (p_.N * p_.Kp) + dt)) : 1.0;
+        double derivative_raw = (error - prev_e_) / dt;
+        double D = prev_d_ + alpha * (p_.Kd * derivative_raw - prev_d_);
+
+        // 3. Candidate control signal before integral anti-windup clamping
+        double u_unsat = P + integral_ + D;
+
+        // 4. Actuator Saturation Check
+        double u_sat = std::clamp(u_unsat, p_.u_min, p_.u_max);
+
+        // 5. Integral update with conditional anti-windup clamping
+        // Only integrate if not saturated, or if error is driving output back toward linear range
+        bool is_saturated = (u_unsat != u_sat);
+        bool error_opposite = (u_unsat &gt; p_.u_max &amp;&amp; error &lt; 0.0) || 
+                              (u_unsat &lt; p_.u_min &amp;&amp; error &gt; 0.0);
+
+        if (!is_saturated || error_opposite) {
+            integral_ += p_.Ki * error * dt;
+        }
+
+        prev_e_ = error;
+        prev_d_ = D;
+
+        return u_sat;
+    }
+
+    void reset() {
+        integral_ = 0.0;
+        prev_e_ = 0.0;
+        prev_d_ = 0.0;
+    }
+
+private:
+    Params p_;
+    double integral_;
+    double prev_e_;
+    double prev_d_;
+};
+
+int main() {
+    IndustrialPID::Params p;
+    IndustrialPID pid(p);
+
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;=== INDUSTRIAL PID RUNTIME TEST: STEP TRACKING &amp; DISTURBANCE ===\n&quot;;
+    std::cout &lt;&lt; &quot;Gains: Kp=&quot; &lt;&lt; p.Kp &lt;&lt; &quot;, Ki=&quot; &lt;&lt; p.Ki &lt;&lt; &quot;, Kd=&quot; &lt;&lt; p.Kd &lt;&lt; &quot; (Filter N=10)\n&quot;;
+    std::cout &lt;&lt; &quot;Saturation Limits: [&quot; &lt;&lt; p.u_min &lt;&lt; &quot;, &quot; &lt;&lt; p.u_max &lt;&lt; &quot;] V\n\n&quot;;
+
+    double y = 0.0;
+    double dy = 0.0;
+    double ddy = 0.0;
+    const double dt = 0.01;
+    const double setpoint = 1.0; // 1.0 radian setpoint step
+
+    std::cout &lt;&lt; &quot;Time(s)    Setpoint(rad)  Position y(t)   Control u(t)    Error e(t)\n&quot;;
+    std::cout &lt;&lt; &quot;------------------------------------------------------------------\n&quot;;
+
+    for (double t = 0.0; t &lt;= 3.0; t += dt) {
+        double dist = (t &gt;= 1.5) ? 2.0 : 0.0; // Disturbance injected at t=1.5s
+        double u = pid.update(setpoint, y, dt);
+
+        // Plant simulation: y&#x27;&#x27;&#x27; + 7y&#x27;&#x27; + 10y&#x27; = 10*(u - dist)
+        // In discrete form:
+        ddy += (10.0 * (u - dist) - 7.0 * ddy - 10.0 * dy) * dt;
+        dy += ddy * dt;
+        y += dy * dt;
+
+        if (std::abs(std::remainder(t, 0.3)) &lt; 1e-6) {
+            std::cout &lt;&lt; std::setw(6) &lt;&lt; t &lt;&lt; &quot;         &quot;
+                      &lt;&lt; std::setw(6) &lt;&lt; setpoint &lt;&lt; &quot;         &quot;
+                      &lt;&lt; std::setw(8) &lt;&lt; y &lt;&lt; &quot;       &quot;
+                      &lt;&lt; std::setw(8) &lt;&lt; u &lt;&lt; &quot;     &quot;
+                      &lt;&lt; std::setw(8) &lt;&lt; (setpoint - y) &lt;&lt; &quot;\n&quot;;
+        }
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Bản chất 3 khâu PID:</strong> Tỉ lệ P triệt tiêu sai số hiện tại; Tích phân I loại bỏ sai số xác lập quá khứ; Vi phân D dự báo xu hướng tương lai và hãm dao động.</li><li><strong>Tiêu chuẩn Routh-Hurwitz:</strong> Cung cấp phương pháp đại số kiểm tra tính ổn định BIBO mà không cần giải nghiệm đa thức đặc trưng bậc cao.</li><li><strong>Quy tắc Ziegler-Nichols 2:</strong> Dựa trên độ lợi tới hạn $K_u$ và chu kỳ dao động tới hạn $T_u$ giúp xác định nhanh chóng bộ thông số chuẩn cho công nghiệp.</li><li><strong>Kỹ thuật công nghiệp bắt buộc:</strong> Phải trang bị bộ lọc thông thấp đạo hàm (Filtered Derivative $N=10$) và thuật toán chống bão hòa tích phân (Anti-windup clamping).</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 4.1: Xét ổn định hệ bậc 5 có nghiệm trên trục ảo</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Cho một hệ thống điều khiển có đa thức đặc trưng bậc 5 sau:<br>$$P(s) = s^5 + 2s^4 + 24s^3 + 48s^2 - 25s - 50 = 0$$<br>Hãy: 1) Lập bảng Routh và nhận diện các hàng đặc biệt. 2) Lập phương trình phụ trợ và tìm các nghiệm trên trục ảo. 3) Kết luận số lượng nghiệm nằm ở nửa mặt phẳng trái (LHP), nửa mặt phẳng phải (RHP) và trên trục ảo ($j\omega$).</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>1) Hàng $s^5: [1, 24, -25]$; Hàng $s^4: [2, 48, -50]$ (chia cho 2 thành $[1, 24, -25]$).<br>Khi tính hàng $s^3$: $b_1 = \frac{1(24) - 1(24)}{1} = 0, b_2 = \frac{1(-25) - 1(-25)}{1} = 0$. Hàng $s^3$ là hàng toàn số không!<br>2) Lập phương trình phụ trợ từ hàng $s^4$: $A(s) = s^4 + 24s^2 - 25 = 0$.<br>Đạo hàm $\frac{dA}{ds} = 4s^3 + 48s$, thay vào hàng $s^3$ để tiếp tục lập bảng.<br>Giải $A(s) = 0$: Đặt $u = s^2 \implies u^2 + 24u - 25 = 0 \implies (u - 1)(u + 25) = 0$.<br>• $u_1 = 1 \implies s^2 = 1 \implies s = \pm 1$ (gồm 1 nghiệm RHP tại $+1$ và 1 nghiệm LHP tại $-1$).<br>• $u_2 = -25 \implies s^2 = -25 \implies s = \pm j 5$ (cặp nghiệm thuần ảo trên trục ảo).<br>3) Kết hợp với nghiệm còn lại từ $\frac{P(s)}{A(s)} = s + 2 = 0 \implies s = -2$ (LHP).<br>Kết luận: Hệ có 2 nghiệm LHP ($s = -1, -2$), 1 nghiệm RHP ($s = +1$), và 2 nghiệm trên trục ảo ($s = \pm j 5$). Hệ thống không ổn định!</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch03.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 03: Phân Tích Đáp Ứng Động Thái Miền Thời Gian</span>
+        </a>
+        <a href="ch05.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 05: Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus) →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim04 === "function") {
+        initSim04();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

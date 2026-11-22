@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 09: Phương Pháp Kane & Hệ Ràng Buộc Phi Holonomic | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 09</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link active">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Cơ Học Giải Tích & Hệ Đa Vật Thể</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 8; Fabien, Chương 4–5 (Trang 115–182)</span>
+        </div>
+        <h1 class="chapter-title">Chương 09: Phương Pháp Kane & Hệ Ràng Buộc Phi Holonomic</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Vận tốc suy rộng, Vận tốc riêng phần, Lực suy rộng Kane & Robot di động phi Holonomic</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Khi mô hình hóa các hệ thống robot có ràng buộc vận tốc lăn không trượt (như xe tự hành 2 bánh vi sai AMR, xe 4 bánh lái ô tô Ackerman, hay robot hình cầu Spherical Robot), phương pháp Lagrange cổ điển gặp rắc rối nghiêm trọng: nó buộc phải sử dụng các <em>Nhân tử Lagrange $\lambda$</em> làm tăng số chiều phương trình đại số vi phân DAEs, hoặc đòi hỏi biến đổi ma trận chiếu rất tốn kém tính toán. <strong>Phương pháp Kane (Thomas R. Kane, Đại học Stanford)</strong> giải quyết triệt để vấn đề này bằng cách đưa vào khái niệm <em>Vận tốc suy rộng (Generalized Speeds $u_r$)</em> và <em>Vận tốc riêng phần (Partial Velocities)</em>, cho phép thiết lập trực tiếp hệ phương trình vi phân bậc một thuần túy nhỏ gọn nhất mà <strong>tự động loại bỏ hoàn toàn các lực ràng buộc không sinh công</strong> ngay từ đầu!</p>
+        </div>
+        <p>Phương pháp Kane được NASA, ESA và ngành công nghiệp mô phỏng động lực học đa vật thể (Adams, Simpack) áp dụng làm chuẩn mực tính toán thời gian thực cho các hệ cơ khí và cánh tay robot phức tạp.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét hệ $N$ vật rắn với $n$ tọa độ suy rộng $\mathbf{q} = [q_1, \dots, q_n]^T$ chịu $m$ ràng buộc vận tốc phi holonomic dạng Pfaffian:</p>
+        $$\begin{equation}
+        \mathbf{A}(\mathbf{q})\dot{\mathbf{q}} = \mathbf{0}, \quad \mathbf{A} \in \mathbb{R}^{m \times n}
+        \end{equation}$$
+        <p>Bậc tự do thực sự của hệ là $p = n - m$. Định nghĩa $p$ vận tốc suy rộng $u_r$ ($r = 1, \dots, p$):</p>
+        $$\begin{equation}
+        u_r = \sum_{s=1}^n Y_{rs}(\mathbf{q})\dot{q}_s + Z_r(\mathbf{q}, t) \implies \dot{\mathbf{q}} = \mathbf{S}(\mathbf{q})\mathbf{u}
+        \end{equation}$$
+        <p>Trong đó ma trận cột $\mathbf{S}(\mathbf{q}) \in \mathbb{R}^{n \times p}$ thỏa mãn $\mathbf{A}(\mathbf{q})\mathbf{S}(\mathbf{q}) = \mathbf{0}$ (không gian hạt nhân nullspace của ràng buộc).</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Động Lực Học Kane & Vận Tốc Riêng Phần</div>
+          $$\begin{equation}
+          F_r + F_r^* = 0, \qquad (r = 1, \dots, p)
+          \end{equation}$$
+          $$\begin{equation}
+          F_r = \sum_{i=1}^N \mathbf{v}_r^{P_i} \cdot \mathbf{R}_i + \boldsymbol{\omega}_r^i \cdot \mathbf{T}_i \quad (\text{Lực tác động suy rộng})
+          \end{equation}$$
+          $$\begin{equation}
+          F_r^* = \sum_{i=1}^N \mathbf{v}_r^{C_i} \cdot (-m_i \mathbf{a}_{C_i}) + \boldsymbol{\omega}_r^i \cdot \left( -\mathbf{I}_i \boldsymbol{\alpha}_i - \boldsymbol{\omega}_i \times (\mathbf{I}_i \boldsymbol{\omega}_i) \right) \quad (\text{Lực quán tính suy rộng})
+          \end{equation}$$
+          <p>Với $\mathbf{v}_r^{C_i} = \frac{\partial \mathbf{v}_{C_i}}{\partial u_r}$ và $\boldsymbol{\omega}_r^i = \frac{\partial \boldsymbol{\omega}_i}{\partial u_r}$ là các vector vận tốc riêng phần.</p>
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Quy trình 5 bước kinh điển giải bài toán động lực học bằng phương pháp Kane:</p>
+        <ul>
+          <li><strong>Bước 1:</strong> Xác định tọa độ vị trí $\mathbf{q}$ và các ràng buộc phi holonomic $\mathbf{A}(\mathbf{q})\dot{\mathbf{q}} = \mathbf{0}$.</li>
+          <li><strong>Bước 2:</strong> Chọn $p = n - m$ vận tốc suy rộng $u_r$ có ý nghĩa vật lý (ví dụ vận tốc tiến $v$ và vận tốc góc quay $\omega$).</li>
+          <li><strong>Bước 3:</strong> Biểu diễn vector vận tốc và gia tốc của trọng tâm từng vật theo $\mathbf{u}$ và $\dot{\mathbf{u}}$.</li>
+          <li><strong>Bước 4:</strong> Rút trích các vector vận tốc riêng phần $\mathbf{v}_r, \boldsymbol{\omega}_r$ bằng cách lấy đạo hàm riêng theo $u_r$.</li>
+          <li><strong>Bước 5:</strong> Chiếu tích vô hướng lực tác động $F_r$ và lực quán tính $F_r^*$, thiết lập hệ phương trình Kane $F_r + F_r^* = 0$.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Lập Động Lực Học Xe Tự Hành 2 Bánh Vi Sai Bằng Phương Pháp Kane</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một xe tự hành vi sai (Differential Drive Mobile Robot) di chuyển trên mặt phẳng 2D. Tọa độ cấu hình gồm vị trí tâm trục bánh $\mathbf{q} = [x, y, \theta]^T$ ($n=3$). Bán kính mỗi bánh xe là $R = 0.10\text{ m}$, khoảng cách giữa 2 bánh là $L = 0.50\text{ m}$. Khối lượng toàn xe $m = 20.0\text{ kg}$, mô-men quán tính quanh trục thẳng đứng qua khối tâm $I_z = 1.20\text{ kg}\cdot\text{m}^2$. Giả thiết khối tâm trùng với tâm trục bánh xe. Hai động cơ tạo ra mô-men quay ở hai bánh là $\tau_R, \tau_L$. Ràng buộc lăn không trượt theo phương ngang bánh xe: $-\dot{x}\sin\theta + \dot{y}\cos\theta = 0$ ($m=1$).<br>Yêu cầu: Hãy áp dụng phương pháp Kane để chọn 2 vận tốc suy rộng $u_1, u_2$, xác định các vector vận tốc riêng phần, thiết lập lực suy rộng $F_r, F_r^*$ và rút ra hệ phương trình vi phân mô tả chuyển động của xe.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định ràng buộc và chọn các vận tốc suy rộng $u_1, u_2$:<br>Ràng buộc không trượt phương ngang: $-\dot{x}\sin\theta + \dot{y}\cos\theta = 0$. Số bậc tự do thực: $p = 3 - 1 = 2$.<br>Chọn 2 vận tốc suy rộng tự nhiên:<br>• $u_1 = v = \dot{x}\cos\theta + \dot{y}\sin\theta$ (Vận tốc tiến thẳng của xe).<br>• $u_2 = \omega = \dot{\theta}$ (Vận tốc góc quay thân xe).<br>Biểu diễn quan hệ động học ngược $\dot{\mathbf{q}} = \mathbf{S}(\mathbf{q})\mathbf{u}$:<br>$$\begin{bmatrix} \dot{x} \\ \dot{y} \\ \dot{\theta} \end{bmatrix} = \begin{bmatrix} \cos\theta & 0 \\ \sin\theta & 0 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} u_1 \\ u_2 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán vector vận tốc và gia tốc trọng tâm $C$ của thân xe:<br>Vận tốc tuyến tính: $\mathbf{v}_C = u_1 \mathbf{i}_B$ (với $\mathbf{i}_B$ là trục dọc thân xe, $\mathbf{j}_B$ là trục ngang).<br>Vận tốc góc: $\boldsymbol{\omega} = u_2 \mathbf{k}_B$.<br>Gia tốc trọng tâm $C$ trong hệ quy chiếu cố định:<br>$$\mathbf{a}_C = \frac{d}{dt}(u_1 \mathbf{i}_B) = \dot{u}_1 \mathbf{i}_B + u_1 (\boldsymbol{\omega} \times \mathbf{i}_B) = \dot{u}_1 \mathbf{i}_B + u_1 u_2 \mathbf{j}_B$$<br>Gia tốc góc: $\boldsymbol{\alpha} = \dot{u}_2 \mathbf{k}_B$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định các vận tốc riêng phần (Partial Velocities):<br>Đối với $u_1$:<br>• $\mathbf{v}_1^C = \frac{\partial \mathbf{v}_C}{\partial u_1} = \mathbf{i}_B, \quad \boldsymbol{\omega}_1 = \frac{\partial \boldsymbol{\omega}}{\partial u_1} = \mathbf{0}$<br>Đối với $u_2$:<br>• $\mathbf{v}_2^C = \frac{\partial \mathbf{v}_C}{\partial u_2} = \mathbf{0}, \quad \boldsymbol{\omega}_2 = \frac{\partial \boldsymbol{\omega}}{\partial u_2} = \mathbf{k}_B$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Tính lực suy rộng $F_r$, lực quán tính suy rộng $F_r^*$ và kết luận phương trình Kane:<br>• Lực quán tính suy rộng:<br>$$F_1^* = \mathbf{v}_1^C \cdot (-m \mathbf{a}_C) = \mathbf{i}_B \cdot (-m (\dot{u}_1 \mathbf{i}_B + u_1 u_2 \mathbf{j}_B)) = -m \dot{u}_1 = -20 \dot{u}_1$$<br>$$F_2^* = \boldsymbol{\omega}_2 \cdot (-I_z \boldsymbol{\alpha}) = \mathbf{k}_B \cdot (-I_z \dot{u}_2 \mathbf{k}_B) = -I_z \dot{u}_2 = -1.2 \dot{u}_2$$<br>• Lực tác động suy rộng từ 2 mô-men bánh xe $(\tau_R, \tau_L)$ qua bán kính bánh $R = 0.1\text{ m}$:<br>Lực đẩy dọc: $F_{push} = \frac{\tau_R + \tau_L}{R} \implies F_1 = \frac{\tau_R + \tau_L}{R}$<br>Mô-men quay quanh trục thẳng đứng: $\tau_{rot} = \frac{L}{2}\left(\frac{\tau_R - \tau_L}{R}\right) \implies F_2 = \frac{L}{2R}(\tau_R - \tau_L)$<br>• Phương trình Kane $F_r + F_r^* = 0$ cho kết quả cực kỳ gọn gàng:<br>$$\begin{cases} m \dot{u}_1 = \frac{\tau_R + \tau_L}{R} \implies 20 \dot{v} = \frac{\tau_R + \tau_L}{0.10} \\ I_z \dot{u}_2 = \frac{L}{2R}(\tau_R - \tau_L) \implies 1.20 \dot{\omega} = \frac{0.50}{0.20}(\tau_R - \tau_L) \end{cases}$$<br>Toàn bộ các lực ràng buộc không trượt phương ngang đã biến mất hoàn toàn mà không cần giải bất kỳ nhân tử Lagrange nào!</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 09: Xe Tự Hành 2 Bánh Vi Sai Chuyển Động Phi Holonomic (Kane Kinematics)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-09" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Vận tốc tiến $v$: <span id="sim09-v-val">1.0</span> m/s</label>
+              <input type="range" id="sim09-v" min="-2.0" max="2.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+              <label>Vận tốc góc $\omega$: <span id="sim09-w-val">0.8</span> rad/s</label>
+              <input type="range" id="sim09-w" min="-2.0" max="2.0" step="0.1" value="0.8">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim09-stats" class="sim-telemetry-text">Quan sát thân xe di chuyển theo quỹ đạo cong mượt mà. Xe luôn tuân thủ nghiêm ngặt ràng buộc không trượt ngang (vận tốc vuông góc với hướng mũi xe luôn bằng 0).</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Differential Mobile Robot Dynamics via Kane&#x27;s Method in C++
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;Eigen/Dense&gt;
+
+struct MobileRobotState {
+    double x = 0.0;
+    double y = 0.0;
+    double theta = 0.0;
+    double v = 0.0;      // u1: linear speed
+    double omega = 0.0;  // u2: yaw rate
+};
+
+void stepKaneDynamics(MobileRobotState&amp; s, double tau_R, double tau_L, double dt) {
+    // Vehicle specs
+    const double m = 20.0;       // kg
+    const double Iz = 1.20;      // kg.m^2
+    const double R = 0.10;       // wheel radius (m)
+    const double L = 0.50;       // wheel base (m)
+    
+    // Kane&#x27;s generalized active forces
+    double F1 = (tau_R + tau_L) / R;
+    double F2 = (L / (2.0 * R)) * (tau_R - tau_L);
+    
+    // Kane&#x27;s equations: F_r + F_r^* = 0 =&gt; M * u_dot = F
+    double v_dot = F1 / m;
+    double omega_dot = F2 / Iz;
+    
+    // Euler-Symplectic integration
+    s.v += v_dot * dt;
+    s.omega += omega_dot * dt;
+    
+    // Nonholonomic kinematic projection
+    s.x += s.v * std::cos(s.theta) * dt;
+    s.y += s.v * std::sin(s.theta) * dt;
+    s.theta += s.omega * dt;
+}
+
+int main() {
+    MobileRobotState bot;
+    for (int k = 0; k &lt; 1000; ++k) {
+        stepKaneDynamics(bot, 2.5, 2.0, 0.001); // Turning right
+    }
+    std::cout &lt;&lt; &quot;Robot Pose: (&quot; &lt;&lt; bot.x &lt;&lt; &quot; m, &quot; &lt;&lt; bot.y &lt;&lt; &quot; m), Heading: &quot; 
+              &lt;&lt; bot.theta * 180.0 / M_PI &lt;&lt; &quot; deg\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Phương pháp Kane:</strong> Công cụ động lực học mạnh mẽ cho hệ đa vật thể, tự động loại trừ phản lực liên kết nội.</li><li><strong>Vận tốc suy rộng:</strong> Lựa chọn tổ hợp vận tốc trực giao với không gian ràng buộc, giảm số phương trình đúng bằng bậc tự do thực.</li><li><strong>Vận tốc riêng phần:</strong> Đạo hàm riêng của vector vận tốc theo vận tốc suy rộng, đóng vai trò như các vector cơ sở chiếu lực.</li><li><strong>Ràng buộc phi Holonomic:</strong> Xe vi sai và robot di động tuân thủ điều kiện vận tốc Pfaffian $\mathbf{A}\dot{\mathbf{q}} = 0$ mà không thể tích phân thành vị trí.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 9.1: Trường hợp khối tâm lệch khỏi trục bánh xe một khoảng d</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Nếu trọng tâm của xe bị lệch về phía trước một khoảng $d = 0.15\text{ m}$ dọc theo trục $\mathbf{i}_B$, hãy dùng phương pháp Kane để tìm số hạng ghép nối gia tốc giữa vận tốc tiến $u_1$ và gia tốc góc $\dot{u}_2$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Vị trí khối tâm $\mathbf{r}_C = \mathbf{r}_O + d\mathbf{i}_B \implies \mathbf{v}_C = u_1 \mathbf{i}_B + d u_2 \mathbf{j}_B$. Khi đó $\mathbf{v}_2^C = d \mathbf{j}_B$. Lực quán tính suy rộng $F_2^*$ xuất hiện thêm số hạng ghép nối $-m d^2 \dot{u}_2 - m d \dot{u}_1$, dẫn đến phương trình góc có dạng $(I_z + m d^2)\dot{u}_2 + m d u_1 u_2 = F_2$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch08.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 08: Cơ Học Lagrange: Robot Manipulators</span>
+        </a>
+        <a href="ch10.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Cơ Học Hamilton & Hệ Port-Hamiltonian Trong Robot →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim09 === "function") {
+        initSim09();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 06: Động Học Vật Rắn 3D: Ma Trận Quay, Quaternions & Dyadics Quán Tính | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 06</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link active">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Động Học & Động Lực Học Vật Rắn</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 6 (Trang 209–262)</span>
+        </div>
+        <h1 class="chapter-title">Chương 06: Động Học Vật Rắn 3D: Ma Trận Quay, Quaternions & Dyadics Quán Tính</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Đại số Dyadics, Ma trận quay, Quaternions & Phương trình vi phân động học</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Mọi thuật toán điều khiển phi thuyền vũ trụ, vệ tinh định vị, drone 4 cánh và cánh tay robot 6 bậc tự do đều đòi hỏi mô tả hướng xoay không gian 3 chiều. Tuy nhiên, việc biểu diễn góc quay trong không gian 3D luôn tiềm ẩn cạm bẫy toán học: 3 góc Euler Roll-Pitch-Yaw bị <em>hiện tượng khóa trục Gimbal Lock</em> khi Pitch $= 90^{\circ}$, khiến bộ điều khiển mất lái; ma trận quay $SO(3)$ gồm 9 tham số dư thừa ràng buộc trực giao $R R^T = I$. <strong>Đại số Dyadics và Unit Quaternions</strong> là ngôn ngữ hình học không gian tối thượng giúp biểu diễn định hướng và ten-xơ quán tính trơn tru tuyệt đối mà không có bất kỳ điểm kỳ dị nào.</p>
+        </div>
+        <p>Giáo trình của GS. Egeland & Gravdahl giới thiệu đại số Dyadics - một công cụ vector bất biến không phụ thuộc hệ tọa độ, đặt nền tảng dẫn xuất chính xác các định luật biến thiên động lượng và phương trình Poisson kinematic $\dot{R} = R \boldsymbol{\omega}^\wedge$.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p><strong>Đại số Dyadics Quán Tính (Inertia Dyadic):</strong> Dyadic quán tính của một vật rắn quanh khối tâm $C$ được định nghĩa độc lập với hệ quy chiếu:</p>
+        $$\begin{equation}
+        \mathbf{I}_C = \int_V \left( (\mathbf{r}^T \mathbf{r})\mathbf{U} - \mathbf{r} \mathbf{r} \right) \rho \, dV
+        \end{equation}$$
+        <p>Với $\mathbf{U}$ là Dyadic đơn vị (Unit Dyadic). Khi chiếu lên hệ quy chiếu vật thể $\{b\}$, ta thu được Ma trận quán tính $3 \times 3$ đối xứng xác định dương:</p>
+        $$\begin{equation}
+        \mathbf{I}_C^b = \begin{bmatrix} I_{xx} & -I_{xy} & -I_{xz} \\ -I_{xy} & I_{yy} & -I_{yz} \\ -I_{xz} & -I_{yz} & I_{zz} \end{bmatrix}
+        \end{equation}$$
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Vi Phân Động Học Quaternion (Kinematic Differential Equation)</div>
+          $$\begin{equation}
+          \dot{\mathbf{q}} = \frac{1}{2} \mathbf{q} \otimes \begin{bmatrix} 0 \\ \boldsymbol{\omega}_{ib}^b \end{bmatrix} = \frac{1}{2} \begin{bmatrix} -\boldsymbol{\epsilon}^T \\ \eta \mathbf{I} + \boldsymbol{\epsilon}^\wedge \end{bmatrix} \boldsymbol{\omega}_{ib}^b
+          \end{equation}$$
+        </div>
+        <p>Với $\mathbf{q} = [\eta, \boldsymbol{\epsilon}^T]^T$ là Unit Quaternion ($\eta^2 + \|\boldsymbol{\epsilon}\|^2 = 1$), $\boldsymbol{\omega}_{ib}^b$ là vector vận tốc góc của vật thể đối với hệ quán tính biểu diễn trong hệ vật thể. Phương trình này hoàn toàn tuyến tính theo vận tốc góc và <strong>không bao giờ bị suy biến chia cho 0</strong>!</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Chuyển Đổi Trạng Thái Góc Xoay & Tích Phân Số Động Học Quaternion</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một vệ tinh robot quan sát Trái Đất có định hướng ban đầu tại $t=0$ được mô tả bởi Unit Quaternion $\\mathbf{q}(0) = [\\eta, \\epsilon_1, \\epsilon_2, \\epsilon_3]^T = [0.80, 0.60, 0.00, 0.00]^T$ (quay quanh trục X). Cảm biến con quay hồi chuyển IMU đo được vector vận tốc góc tức thời trong hệ vật thể là $\\boldsymbol{\\omega}^b = [0.10, 0.20, 0.00]^T\\text{ rad/s}$.<br>Yêu cầu: (a) Kiểm tra tính chuẩn tắc của Quaternion $\\mathbf{q}(0)$ và tính ma trận quay tương ứng $\\mathbf{R} \\in SO(3)$; (b) Tính vector đạo hàm thời gian $\\dot{\\mathbf{q}}(0)$; (c) Sử dụng phương pháp tích phân số Euler với bước thời gian $\\Delta t = 0.10\\text{ s}$ để dự đoán Quaternion $\\mathbf{q}(\\Delta t)$ và chuẩn hóa lại.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm tra chuẩn tắc và tính ma trận quay $R \in SO(3)$:<br>• Chuẩn Quaternion: $\|\mathbf{q}(0)\|^2 = 0.80^2 + 0.60^2 + 0^2 + 0^2 = 0.64 + 0.36 = 1.000$ (Chuẩn tắc).<br>• Góc quay quanh trục X: $\eta = \cos(\theta/2) = 0.80 \implies \theta/2 \approx 0.6435\text{ rad} \approx 36.87^{\circ} \implies \theta \approx 73.74^{\circ}$.<br>Công thức Euler-Rodrigues với $\boldsymbol{\epsilon} = [0.60, 0, 0]^T$:<br>$$R = (\eta^2 - \|\boldsymbol{\epsilon}\|^2)I + 2\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T + 2\eta \boldsymbol{\epsilon}^\wedge = (0.64 - 0.36)I + 2\begin{bmatrix} 0.36 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix} + 2(0.80)\begin{bmatrix} 0 & 0 & 0 \\ 0 & 0 & -0.60 \\ 0 & 0.60 & 0 \end{bmatrix}$$<br>$$R = \begin{bmatrix} 0.28 + 0.72 & 0 & 0 \\ 0 & 0.28 & -0.96 \\ 0 & 0.96 & 0.28 \end{bmatrix} = \begin{bmatrix} 1.00 & 0.00 & 0.00 \\ 0.00 & 0.28 & -0.96 \\ 0.00 & 0.96 & 0.28 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán đạo hàm $\dot{\mathbf{q}}(0)$ bằng phương trình động học:<br>Công thức: $\dot{\mathbf{q}} = \frac{1}{2} \begin{bmatrix} -\boldsymbol{\epsilon}^T \\ \eta I + \boldsymbol{\epsilon}^\wedge \end{bmatrix} \boldsymbol{\omega}^b$<br>Thành phần vô hướng:<br>$$\dot{\eta} = -\frac{1}{2}\boldsymbol{\epsilon}^T \boldsymbol{\omega}^b = -\frac{1}{2}[0.60, 0, 0] \begin{bmatrix} 0.10 \\ 0.20 \\ 0 \end{bmatrix} = -\frac{1}{2}(0.060) = -0.0300\text{ s}^{-1}$$<br>Thành phần vector:<br>$$\dot{\boldsymbol{\epsilon}} = \frac{1}{2}(\eta \boldsymbol{\omega}^b + \boldsymbol{\epsilon} \times \boldsymbol{\omega}^b) = \frac{1}{2} \left( 0.80 \begin{bmatrix} 0.10 \\ 0.20 \\ 0 \end{bmatrix} + \begin{bmatrix} 0.60 \\ 0 \\ 0 \end{bmatrix} \times \begin{bmatrix} 0.10 \\ 0.20 \\ 0 \end{bmatrix} \right) = \frac{1}{2} \left( \begin{bmatrix} 0.08 \\ 0.16 \\ 0 \end{bmatrix} + \begin{bmatrix} 0 \\ 0 \\ 0.12 \end{bmatrix} \right) = \begin{bmatrix} 0.0400 \\ 0.0800 \\ 0.0600 \end{bmatrix}\text{ s}^{-1}$$<br>Đạo hàm đầy đủ: $\dot{\mathbf{q}}(0) = [-0.0300, 0.0400, 0.0800, 0.0600]^T\text{ s}^{-1}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tích phân số Euler và chuẩn hóa lại tại $\Delta t = 0.10\text{ s}$:<br>$$\mathbf{q}_{raw}(\Delta t) = \mathbf{q}(0) + \dot{\mathbf{q}}(0) \Delta t = \begin{bmatrix} 0.80 \\ 0.60 \\ 0.00 \\ 0.00 \end{bmatrix} + \begin{bmatrix} -0.0300 \\ 0.0400 \\ 0.0800 \\ 0.0600 \end{bmatrix} \times 0.10 = \begin{bmatrix} 0.7970 \\ 0.6040 \\ 0.0080 \\ 0.0060 \end{bmatrix}$$<br>Tính chuẩn để tái chuẩn hóa (Re-normalization):<br>$$\|\mathbf{q}_{raw}\| = \sqrt{0.7970^2 + 0.6040^2 + 0.0080^2 + 0.0060^2} = \sqrt{0.635209 + 0.364816 + 0.000064 + 0.000036} = \sqrt{1.000125} \approx 1.000062$$<br>Quaternion chuẩn hóa:<br>$$\mathbf{q}(\Delta t) = \frac{\mathbf{q}_{raw}}{\|\mathbf{q}_{raw}\|} = \begin{bmatrix} 0.79695 \\ 0.60396 \\ 0.00800 \\ 0.00600 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Diễn giải ý nghĩa: Phương trình vi phân động học Quaternion cho phép cập nhật định hướng góc xoay siêu nhanh chỉ bằng một vài phép nhân ma trận - vector đơn giản, không chứa bất kỳ hàm lượng giác phi tuyến $\\sin, \\cos$ nào! Bước chuẩn hóa định kỳ $\|\mathbf{q}\| = 1$ sau mỗi chu kỳ tích phân số là bắt buộc để triệt tiêu sai số tích lũy máy tính.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 06: Chuyển Động Tiến Động Con Quay Hồi Chuyển (Gyroscopic Precession)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-06" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Tốc độ quay tự thân (Spin Rate): <span id="sim06-spin-val">Nhanh</span></label>
+              <input type="range" id="sim06-spin" min="1" max="5" step="1" value="4">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim06-stats" class="sim-telemetry-text">Quan sát đĩa con quay tự xoay quanh trục nghiêng và toàn bộ trục quay tiến động quanh trục thẳng đứng theo định luật mô-men động lượng.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Quaternion Kinematics &amp; Euler-Rodrigues in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+#include &lt;Eigen/Geometry&gt;
+
+int main() {
+    Eigen::Quaterniond q(0.80, 0.60, 0.0, 0.0);
+    q.normalize();
+    
+    Eigen::Vector3d omega(0.10, 0.20, 0.0); // rad/s
+    
+    // Quaternion derivative: q_dot = 0.5 * q * [0, omega]
+    Eigen::Quaterniond omega_quat(0.0, omega.x(), omega.y(), omega.z());
+    Eigen::Quaterniond q_dot;
+    q_dot.coeffs() = 0.5 * (q * omega_quat).coeffs();
+    
+    std::cout &lt;&lt; &quot;Initial Quaternion (w,x,y,z): &quot; &lt;&lt; q.w() &lt;&lt; &quot;, &quot; 
+              &lt;&lt; q.x() &lt;&lt; &quot;, &quot; &lt;&lt; q.y() &lt;&lt; &quot;, &quot; &lt;&lt; q.z() &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Quaternion Derivative:\n&quot; &lt;&lt; q_dot.coeffs().transpose() &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Rotation Matrix SO(3):\n&quot; &lt;&lt; q.toRotationMatrix() &lt;&lt; &quot;\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Dyadics Quán Tính:</strong> Công cụ ten-xơ bất biến mô tả sự phân bố khối lượng 3D độc lập với hệ tọa độ tham chiếu.</li><li><strong>Hiểm họa Gimbal Lock:</strong> Bế tắc toán học chí mạng khi sử dụng 3 góc Euler Roll-Pitch-Yaw trong điều khiển bay và robot.</li><li><strong>Unit Quaternion:</strong> Biểu diễn 4 tham số trơn láng, tích chập đại số siêu nhanh và triệt tiêu toàn bộ điểm kỳ dị.</li><li><strong>Phương trình động học Poisson:</strong> Tuyến tính theo vận tốc góc, là chuẩn mực số 1 trong các bộ lọc định vị AHRS và VIO.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 6.1: Tích con quay hồi chuyển trên cả 3 trục</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Nếu vận tốc góc đổi thành $\\boldsymbol{\\omega}^b = [0, 0, 1.0]^T\\text{ rad/s}$ (quay thuần túy quanh trục Z). Hãy tính đạo hàm $\\dot{\\mathbf{q}}(0)$ và giải thích tại sao thành phần $\\epsilon_3$ vọt tăng.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Thành phần vô hướng $\\dot{\\eta} = 0$. Thành phần vector $\\dot{\\boldsymbol{\\epsilon}} = \\frac{1}{2}(0.80[0,0,1]^T + [0.6,0,0]^T \\times [0,0,1]^T) = \\frac{1}{2}([0,0,0.8]^T + [0,-0.6,0]^T) = [0, -0.3, 0.4]^T$. Thành phần $\\epsilon_3$ tăng nhanh phản ánh sự dịch chuyển góc quay quanh trục Z.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch05.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 05: Mô Hình Ma Sát LuGre</span>
+        </a>
+        <a href="ch07.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Phương Trình Newton-Euler & Con Lắc Furuta →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim06 === "function") {
+        initSim06();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

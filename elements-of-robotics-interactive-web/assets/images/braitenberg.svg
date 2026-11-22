@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" width="100%" height="100%" style="background:#ffffff; border-radius:8px; font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <defs>
+    <marker id="b-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563eb" />
+    </marker>
+    <marker id="b-inhibit" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6">
+      <circle cx="5" cy="5" r="4" fill="#dc2626" />
+    </marker>
+  </defs>
+
+  <text x="380" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="#0f172a">Sơ Đồ Mạch Nơ-ron Các Dòng Xe Braitenberg (Tập Tính Nổi Sinh)</text>
+  <text x="380" y="45" text-anchor="middle" font-size="12" fill="#64748b">Cơ chế dây thẳng / chéo kết hợp kích thích (+) / ức chế (-) tạo nên 4 trạng thái hành vi</text>
+
+  <!-- Vehicle 2a: Fear (Sợ hãi) -->
+  <g transform="translate(60, 70)">
+    <rect width="145" height="175" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+    <text x="72" y="24" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">Xe 2a: FEAR</text>
+    <text x="72" y="40" text-anchor="middle" font-size="10" fill="#dc2626">(Sợ hãi / Bỏ chạy)</text>
+
+    <!-- Chassis -->
+    <rect x="35" y="55" width="75" height="100" rx="10" fill="#fee2e2" stroke="#ef4444" />
+    <!-- Sensors -->
+    <circle cx="48" cy="55" r="7" fill="#ef4444" />
+    <circle cx="97" cy="55" r="7" fill="#ef4444" />
+    <!-- Motors -->
+    <rect x="25" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <rect x="110" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <!-- Straight Excitatory Wiring (+) -->
+    <line x1="48" y1="62" x2="30" y2="125" stroke="#2563eb" stroke-width="2" marker-end="url(#b-arrow)" />
+    <line x1="97" y1="62" x2="115" y2="125" stroke="#2563eb" stroke-width="2" marker-end="url(#b-arrow)" />
+    <text x="72" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#2563eb">Thẳng (+)</text>
+    <text x="72" y="170" text-anchor="middle" font-size="9.5" fill="#475569">Rẽ xa nguồn sáng</text>
+  </g>
+
+  <!-- Vehicle 2b: Aggression (Hung hăng) -->
+  <g transform="translate(230, 70)">
+    <rect width="145" height="175" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+    <text x="72" y="24" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">Xe 2b: AGGRESSION</text>
+    <text x="72" y="40" text-anchor="middle" font-size="10" fill="#d97706">(Hung hăng / Tông vào)</text>
+
+    <!-- Chassis -->
+    <rect x="35" y="55" width="75" height="100" rx="10" fill="#fef3c7" stroke="#f59e0b" />
+    <!-- Sensors -->
+    <circle cx="48" cy="55" r="7" fill="#f59e0b" />
+    <circle cx="97" cy="55" r="7" fill="#f59e0b" />
+    <!-- Motors -->
+    <rect x="25" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <rect x="110" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <!-- Crossed Excitatory Wiring (+) -->
+    <line x1="48" y1="62" x2="115" y2="125" stroke="#2563eb" stroke-width="2" marker-end="url(#b-arrow)" />
+    <line x1="97" y1="62" x2="30" y2="125" stroke="#2563eb" stroke-width="2" marker-end="url(#b-arrow)" />
+    <text x="72" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#2563eb">Chéo (+)</text>
+    <text x="72" y="170" text-anchor="middle" font-size="9.5" fill="#475569">Lao thẳng vào sáng</text>
+  </g>
+
+  <!-- Vehicle 3a: Love (Gắn kết) -->
+  <g transform="translate(400, 70)">
+    <rect width="145" height="175" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+    <text x="72" y="24" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">Xe 3a: LOVE</text>
+    <text x="72" y="40" text-anchor="middle" font-size="10" fill="#16a34a">(Gắn kết / Dừng lại)</text>
+
+    <!-- Chassis -->
+    <rect x="35" y="55" width="75" height="100" rx="10" fill="#dcfce7" stroke="#16a34a" />
+    <!-- Sensors -->
+    <circle cx="48" cy="55" r="7" fill="#16a34a" />
+    <circle cx="97" cy="55" r="7" fill="#16a34a" />
+    <!-- Motors -->
+    <rect x="25" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <rect x="110" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <!-- Straight Inhibitory Wiring (-) -->
+    <line x1="48" y1="62" x2="30" y2="125" stroke="#dc2626" stroke-width="2" marker-end="url(#b-inhibit)" />
+    <line x1="97" y1="62" x2="115" y2="125" stroke="#dc2626" stroke-width="2" marker-end="url(#b-inhibit)" />
+    <text x="72" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#dc2626">Thẳng (-)</text>
+    <text x="72" y="170" text-anchor="middle" font-size="9.5" fill="#475569">Tiến lại rồi đứng yên</text>
+  </g>
+
+  <!-- Vehicle 3b: Explorer (Khám phá) -->
+  <g transform="translate(570, 70)">
+    <rect width="145" height="175" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+    <text x="72" y="24" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">Xe 3b: EXPLORER</text>
+    <text x="72" y="40" text-anchor="middle" font-size="10" fill="#7c3aed">(Khám phá / Lướt qua)</text>
+
+    <!-- Chassis -->
+    <rect x="35" y="55" width="75" height="100" rx="10" fill="#f3e8ff" stroke="#7c3aed" />
+    <!-- Sensors -->
+    <circle cx="48" cy="55" r="7" fill="#7c3aed" />
+    <circle cx="97" cy="55" r="7" fill="#7c3aed" />
+    <!-- Motors -->
+    <rect x="25" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <rect x="110" y="125" width="10" height="22" rx="2" fill="#1e293b" />
+    <!-- Crossed Inhibitory Wiring (-) -->
+    <line x1="48" y1="62" x2="115" y2="125" stroke="#dc2626" stroke-width="2" marker-end="url(#b-inhibit)" />
+    <line x1="97" y1="62" x2="30" y2="125" stroke="#dc2626" stroke-width="2" marker-end="url(#b-inhibit)" />
+    <text x="72" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#dc2626">Chéo (-)</text>
+    <text x="72" y="170" text-anchor="middle" font-size="9.5" fill="#475569">Rẽ vào rồi vượt qua</text>
+  </g>
+
+  <!-- Summary Principles Box below -->
+  <g transform="translate(60, 265)">
+    <rect width="655" height="145" rx="8" fill="#eff6ff" stroke="#bfdbfe" />
+    <text x="20" y="26" font-size="13" font-weight="bold" fill="#1e40af">Quy luật Valentino Braitenberg (1984):</text>
+    <text x="20" y="52" font-size="11.5" fill="#1e3a8a">• <strong>Đấu dây thẳng (+):</strong> Bánh xe cùng phía với cảm biến quay nhanh hơn → Robot rẽ tránh nguồn kích thích (Sợ hãi).</text>
+    <text x="20" y="74" font-size="11.5" fill="#1e3a8a">• <strong>Đấu dây chéo (+):</strong> Bánh xe đối diện quay nhanh hơn → Robot chuyển hướng thẳng về phía nguồn kích thích (Hung hăng).</text>
+    <text x="20" y="96" font-size="11.5" fill="#1e3a8a">• <strong>Đấu dây ức chế (-):</strong> Càng gần nguồn kích thích tốc độ càng giảm → Dừng lại ở vị trí thích hợp (Gắn kết).</text>
+    <text x="20" y="118" font-size="11.5" fill="#1e3a8a">• <strong>Triết lý nổi sinh (Emergence):</strong> Không có thuật toán logic phức tạp hay CPU, hành vi thông minh tự nảy sinh từ cấu trúc vật lý.</text>
+  </g>
+</svg>

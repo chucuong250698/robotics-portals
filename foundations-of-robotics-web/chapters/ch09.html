@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 09: Hoạch Định Chuyển Động Trong Không Gian Cấu Hình | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 09</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link active">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Robot Di Động, Thị Giác & Hoạch Định</span>
+          <span class="page-source-badge">📖 Siciliano et al. (2025), Chương 9, Trang 463–496</span>
+        </div>
+        <h1 class="chapter-title">Chương 09: Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Không gian cấu hình C-space, Vật cản cấu hình C_obs, Đồ thị Voronoi, Phân rã ô Cell Decomposition, RRT/RRT*, PRM, Trường thế nhân tạo (Potential Fields)</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Lập kế hoạch chuyển động (Motion Planning) là bộ não điều hướng cấp cao của mọi hệ thống robot tự hành hiện đại — từ cánh tay robot hàn thân vỏ xe trong nhà máy tự động, robot phẫu thuật nội soi luồn lách qua các mô mềm nhạy cảm, cho đến xe tự hành né tránh chướng ngại vật trên đường phố. Bài toán kinh điển đặt ra là: <em>Làm thế nào để tìm ra một đường đi liên tục, an toàn không va chạm nối từ cấu hình xuất phát $\mathbf{q}_{start}$ tới cấu hình đích $\mathbf{q}_{goal}$?</em></p>
+          <p>Nếu cố gắng giải quyết bài toán này trực tiếp trong không gian làm việc vật lý 3D ($\mathcal{W} \subset \mathbb{R}^3$), việc kiểm tra va chạm giữa khối hình học phức tạp của các khâu robot chuyển động quay với các vật thể môi trường đòi hỏi khối lượng tính toán khổng lồ và rất dễ rơi vào bế tắc. Khái niệm <strong>Không gian cấu hình ($\mathcal{C}$-space, Tomás Lozano-Pérez, MIT 1983)</strong> đã tạo nên một cuộc cách mạng: <em>biến đổi hình dạng phức tạp của robot thành một chất điểm duy nhất</em> $\mathbf{q} \in \mathcal{C}$, trong khi các vật cản thực được "thổi phồng" tương ứng thành <strong>Vật cản cấu hình ($\mathcal{C}_{obs}$)</strong>. Nhờ đó, bài toán tìm đường đi cho robot phức tạp được quy về bài toán tìm đường đi cho một chất điểm trong không gian tự do $\mathcal{C}_{free} = \mathcal{C} \setminus \mathcal{C}_{obs}$.</p>
+        </div>
+        <p>Các phương pháp hoạch định chuyển động hiện đại chia thành ba nhóm chiến lược:</p>
+        <ul>
+          <li><strong>Phương pháp hình học phân rã & Co rút (Retraction & Cell Decomposition):</strong> Xây dựng đồ thị Voronoi tổng quát (GVD) tối đa hóa khoảng cách tới vật cản, hoặc phân rã không gian tự do thành các ô lồi (Convex Cells) để tìm đường đi thông qua đồ thị liên kết.</li>
+          <li><strong>Phương pháp lấy mẫu ngẫu nhiên (Sampling-Based Planning):</strong> Điển hình là Bản đồ lộ trình xác suất (PRM) và Cây ngẫu nhiên mở rộng nhanh (RRT / RRT*). Đây là tiêu chuẩn vàng trong không gian cấu hình số chiều cao ($n \ge 6$) của cánh tay robot công nghiệp (tích hợp trong MoveIt 2 / OMPL).</li>
+          <li><strong>Phương pháp trường thế năng nhân tạo (Artificial Potential Fields - APF):</strong> Sử dụng hàm thế toán học để biến điểm đích thành "hố hút" thế năng cực tiểu và các vật cản thành "ngọn đồi" đẩy lùi robot. Phương pháp này có tốc độ phản hồi cực nhanh, lý tưởng cho bài toán né vật cản động thời gian thực.</li>
+        </ul>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Xét không gian cấu hình $n$ chiều $\mathcal{C}$. Robot được đại diện bởi tập hợp hình học $\mathcal{A}(\mathbf{q}) \subset \mathcal{W}$ và môi trường chứa các vật cản cố định $\mathcal{B}_i \subset \mathcal{W}$.</p>
+        
+        <h3>1. Toán Học Không Gian Cấu Hình & Tổng Minkowski</h3>
+        <p>Vật cản trong không gian cấu hình $\mathcal{C}_{obs}$ được định nghĩa là tập hợp tất cả các cấu hình $\mathbf{q}$ mà tại đó robot va chạm hoặc giao cắt với bất kỳ vật cản nào:</p>
+        $$\mathcal{C}_{obs} = \{\mathbf{q} \in \mathcal{C} \mid \mathcal{A}(\mathbf{q}) \cap \mathcal{B} \ne \emptyset\}$$
+        <p>Với trường hợp robot chỉ chuyển động tịnh tiến không quay trong mặt phẳng ($\mathbf{q} = [x, y]^T$), $\mathcal{C}_{obs}$ được tính toán giải tích chính xác thông qua phép toán <strong>Tổng Minkowski (Minkowski Sum)</strong> giữa vật cản $\mathcal{B}$ và hình học đối xứng qua gốc của robot $-\mathcal{A}(0)$:</p>
+        $$\mathcal{C}_{obs} = \mathcal{B} \oplus (-\mathcal{A}(0)) = \{\mathbf{b} - \mathbf{a} \mid \mathbf{b} \in \mathcal{B}, \mathbf{a} \in \mathcal{A}(0)\}$$
+        <p>Khi đó không gian di chuyển hợp lệ của robot là không gian tự do mở: $\mathcal{C}_{free} = \mathcal{C} \setminus \mathcal{C}_{obs}$.</p>
+
+        <h3>2. Giải Thuật Cây Ngẫu Nhiên Mở Rộng Nhanh (RRT & RRT*)</h3>
+        <p>Giải thuật RRT (LaValle, 1998) giải quyết bài toán tìm kiếm đường đi bằng cách mở rộng một cây $\mathcal{T} = (\mathcal{V}, \mathcal{E})$ từ cấu hình xuất phát $\mathbf{q}_{start}$:</p>
+        <ol>
+          <li>Lấy mẫu ngẫu nhiên: Chọn một cấu hình $\mathbf{q}_{rand} \sim \mathcal{C}_{free}$ (có xác suất $p_{goal}$ hướng trực tiếp về $\mathbf{q}_{goal}$).</li>
+          <li>Tìm nút gần nhất: $\mathbf{q}_{near} = \arg\min_{\mathbf{q} \in \mathcal{V}} \|\mathbf{q} - \mathbf{q}_{rand}\|$.</li>
+          <li>Mở rộng bước nhảy $\Delta q$: Tạo nút mới $\mathbf{q}_{new} = \mathbf{q}_{near} + \min(\Delta q, \|\mathbf{q}_{rand} - \mathbf{q}_{near}\|) \frac{\mathbf{q}_{rand} - \mathbf{q}_{near}}{\|\mathbf{q}_{rand} - \mathbf{q}_{near}\|}$.</li>
+          <li>Kiểm tra va chạm: Nếu đoạn thẳng nối $(\mathbf{q}_{near}, \mathbf{q}_{new}) \subset \mathcal{C}_{free}$, thêm $\mathbf{q}_{new}$ vào cây $\mathcal{V}$ và cạnh vào $\mathcal{E}$.</li>
+        </ol>
+        <p>Giải thuật <strong>RRT* (Karaman & Frazzoli, 2011)</strong> bổ sung hai bước cốt lõi: <em>Chọn cha tối ưu (Choose Best Parent)</em> và <em>Nối lại dây lân cận (Rewiring)</em> trong một quả cầu bán kính $r_n = \gamma (\frac{\log n}{n})^{1/d}$. RRT* đã chứng minh được tính chất <strong>Tối ưu tiệm cận (Asymptotic Optimality)</strong>: khi số bước lấy mẫu $N \to \infty$, chi phí đường đi hội tụ xác suất gần như chắc chắn về nghiệm tối ưu toàn cục.</p>
+
+        <h3>3. Phương Pháp Trường Thế Năng Nhân Tạo (Artificial Potential Fields)</h3>
+        <p>Robot được xem như một chất điểm chuyển động dưới tác dụng của lực nhân tạo $\mathbf{F}(\mathbf{q}) = -\nabla U(\mathbf{q})$. Hàm thế năng tổng hợp là $U(\mathbf{q}) = U_{att}(\mathbf{q}) + U_{rep}(\mathbf{q})$.</p>
+        <p><strong>Thế năng hút (Attractive Potential):</strong> Kéo robot về đích $\mathbf{q}_{goal}$ theo hàm thế bậc hai parabol:</p>
+        $$U_{att}(\mathbf{q}) = \frac{1}{2} \xi \|\mathbf{q} - \mathbf{q}_{goal}\|^2 \implies \mathbf{F}_{att}(\mathbf{q}) = -\nabla U_{att} = -\xi (\mathbf{q} - \mathbf{q}_{goal})$$
+        <p><strong>Thế năng đẩy (Repulsive Potential, Khatib 1986):</strong> Đẩy robot ra khỏi vật cản khi khoảng cách ngắn nhất $\rho(\mathbf{q})$ nhỏ hơn bán kính ảnh hưởng an toàn $\rho_0$:</p>
+        $$U_{rep}(\mathbf{q}) = \begin{cases} \frac{1}{2} \eta \left( \frac{1}{\rho(\mathbf{q})} - \frac{1}{\rho_0} \right)^2 & \text{khi } \rho(\mathbf{q}) \le \rho_0 \\ 0 & \text{khi } \rho(\mathbf{q}) \gt \rho_0 \end{cases}$$
+        <p>Lực đẩy nhân tạo tương ứng là:</p>
+        $$\mathbf{F}_{rep}(\mathbf{q}) = -\nabla U_{rep} = \begin{cases} \eta \left( \frac{1}{\rho(\mathbf{q})} - \frac{1}{\rho_0} \right) \frac{1}{\rho^2(\mathbf{q})} \nabla \rho(\mathbf{q}) & \text{khi } \rho(\mathbf{q}) \le \rho_0 \\ \mathbf{0} & \text{khi } \rho(\mathbf{q}) \gt \rho_0 \end{cases}$$
+        <p>trong đó $\nabla \rho(\mathbf{q}) = \frac{\mathbf{q} - \mathbf{q}_{obs}}{\|\mathbf{q} - \mathbf{q}_{obs}\|}$ là vector đơn vị hướng từ điểm gần nhất trên vật cản tới robot.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <h3>Khắc Phục Điểm Cực Tiểu Cục Bộ & Kiến Trúc OMPL / MoveIt 2</h3>
+        <p>Hạn chế lớn nhất của phương pháp thế năng nhân tạo truyền thống là hiện tượng <strong>Bẫy cực tiểu cục bộ (Local Minima Trap)</strong>: khi lực hút và lực đẩy triệt tiêu lẫn nhau ($\mathbf{F}_{att} + \mathbf{F}_{rep} = \mathbf{0}$) tại một vị trí khác đích đến, hoặc khi vật cản nằm sát cạnh điểm đích khiến lực đẩy chiếm ưu thế (hiện tượng GNRON - Goal Non-Reachable with Obstacles Nearby). Các giải pháp trong công nghiệp bao gồm:</p>
+        <ul>
+          <li><strong>Hàm thế điều hòa (Harmonic Potentials):</strong> Giải phương trình vi phân đạo hàm riêng Laplace $\nabla^2 U = 0$ với điều kiện biên Dirichlet. Theo nguyên lý cực đại của hàm điều hòa, nghiệm không tồn tại bất kỳ điểm cực tiểu cục bộ nào trong lòng không gian tự do!</li>
+          <li><strong>Thêm lực tiếp tuyến trực giao (Vortical / Gyroscopic Force):</strong> Khi tốc độ di chuyển giảm xuống dưới ngưỡng do đối kháng lực, kích hoạt thành phần lực trực giao $\mathbf{F}_{vort} = \mathbf{R}(\frac{\pi}{2})\mathbf{F}_{rep}$ để trượt men theo chu vi vật cản.</li>
+        </ul>
+
+        <h4>Kiến Trúc Hoạch Định Tích Hợp Trong ROS 2 MoveIt 2</h4>
+        <p>Trong hệ thống MoveIt 2, pipeline lập kế hoạch chuyển động phối hợp nhịp nhàng giữa 3 lớp module:</p>
+        <ul>
+          <li><strong>Planning Pipeline:</strong> Nhận Goal Request và gọi bộ giải tối ưu OMPL (chọn bộ lập trình RRT-Connect, BiTRRT hoặc PRM*).</li>
+          <li><strong>Collision Detection Plugin (FCL - Flexible Collision Library / Bullet):</strong> Kiểm tra va chạm cấu hình 3D liên tục dựa trên biểu diễn cây phân cấp Bounding Volume Hierarchies (BVH) và lưới không gian OctoMap.</li>
+          <li><strong>Trajectory Processing:</strong> Làm mịn đường gấp khúc bằng bộ lọc Time-Optimal Path Parameterization (TOPP-RA) để gán quy luật thời gian thỏa mãn giới hạn vận tốc và gia tốc phần cứng từng khớp robot.</li>
+        </ul>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Tính Toán Lực Thế Năng Nhân Tạo Tổng Hợp Và Bước Di Chuyển Của Robot Tránh Vật Cản</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một robot di động dạng chất điểm hoạt động trong mặt phẳng 2D có tọa độ cấu hình hiện tại $\mathbf{q}_0 = [1.00, 1.00]^T\text{ m}$. Mục tiêu cần đến là điểm đích $\mathbf{q}_{goal} = [5.00, 5.00]^T\text{ m}$. Một vật cản hình tròn cố định có tâm đặt tại $\mathbf{q}_{obs} = [2.00, 2.00]^T\text{ m}$ với bán kính vật thể $R_{obs} = 0.50\text{ m}$. Vùng ảnh hưởng an toàn của lực đẩy chọn $\rho_0 = 1.50\text{ m}$.<br><br>Các tham số trường thế nhân tạo được thiết lập: hệ số thế hút $\xi = 1.20\text{ N/m}$, hệ số thế đẩy $\eta = 2.50\text{ N}\cdot\text{m}$. Bước tích phân gradient descent cập nhật vị trí là $\alpha = 0.05\text{ m/N}$.<br><br>Hãy thực hiện: (1) Tính khoảng cách ngắn nhất $\rho(\mathbf{q}_0)$ từ robot tới mép vật cản và vector gradient khoảng cách $\nabla\rho$; (2) Tính toán vector lực hút $\mathbf{F}_{att}(\mathbf{q}_0)$ và độ lớn của nó; (3) Tính toán vector lực đẩy $\mathbf{F}_{rep}(\mathbf{q}_0)$ và độ lớn của nó; (4) Xác định vector lực tổng hợp $\mathbf{F}_{total}(\mathbf{q}_0)$ và tọa độ cấu hình mới $\mathbf{q}_1$ sau một bước dịch chuyển, kèm biện luận xu hướng né tránh của robot.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định khoảng cách ngắn nhất $\rho(\mathbf{q}_0)$ tới bề mặt vật cản và vector gradient $\nabla\rho$:<br>Khoảng cách từ vị trí robot $\mathbf{q}_0 = [1.00, 1.00]^T$ tới tâm vật cản $\mathbf{q}_{obs} = [2.00, 2.00]^T$ là:<br>$$d_c = \|\mathbf{q}_0 - \mathbf{q}_{obs}\| = \sqrt{(1.00 - 2.00)^2 + (1.00 - 2.00)^2} = \sqrt{(-1.00)^2 + (-1.00)^2} = \sqrt{2} \approx 1.4142\text{ m}$$<br>Vì vật cản là hình tròn bán kính $R_{obs} = 0.50\text{ m}$, khoảng cách ngắn nhất tới bề mặt vật cản là:<br>$$\rho(\mathbf{q}_0) = d_c - R_{obs} = 1.4142 - 0.50 = 0.9142\text{ m}$$<br>Kiểm tra vùng ảnh hưởng: vì $\rho(\mathbf{q}_0) = 0.9142\text{ m} \le \rho_0 = 1.50\text{ m}$, robot đang nằm trong vùng tác dụng của lực đẩy.<br>Vector gradient khoảng cách $\nabla\rho(\mathbf{q}_0)$ là vector đơn vị hướng từ tâm vật cản tới vị trí robot:<br>$$\nabla\rho(\mathbf{q}_0) = \frac{\mathbf{q}_0 - \mathbf{q}_{obs}}{\|\mathbf{q}_0 - \mathbf{q}_{obs}\|} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1.00 - 2.00 \\ 1.00 - 2.00 \end{bmatrix} = \begin{bmatrix} -0.7071 \\ -0.7071 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán vector lực hút $\mathbf{F}_{att}(\mathbf{q}_0)$ hướng về điểm đích:<br>Áp dụng công thức thế hút với $\xi = 1.20\text{ N/m}$ và $\mathbf{q}_{goal} = [5.00, 5.00]^T$:<br>$$\mathbf{F}_{att}(\mathbf{q}_0) = -\xi (\mathbf{q}_0 - \mathbf{q}_{goal}) = \xi (\mathbf{q}_{goal} - \mathbf{q}_0) = 1.20 \cdot \begin{bmatrix} 5.00 - 1.00 \\ 5.00 - 1.00 \end{bmatrix} = 1.20 \cdot \begin{bmatrix} 4.00 \\ 4.00 \end{bmatrix} = \begin{bmatrix} 4.80 \\ 4.80 \end{bmatrix}\text{ N}$$<br>Độ lớn lực hút Euclidean:<br>$$\|\mathbf{F}_{att}(\mathbf{q}_0)\| = \sqrt{4.80^2 + 4.80^2} = 4.80 \sqrt{2} \approx 6.7882\text{ N}$$<br>Lực hút có phương chếch lên góc $45^\circ$, kéo robot thẳng về phía điểm đích.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán vector lực đẩy $\mathbf{F}_{rep}(\mathbf{q}_0)$ từ vật cản:<br>Áp dụng công thức Khatib với $\eta = 2.50\text{ N}\cdot\text{m}$, $\rho = 0.9142\text{ m}$, $\rho_0 = 1.50\text{ m}$:<br>$$\left(\frac{1}{\rho} - \frac{1}{\rho_0}\right) = \left(\frac{1}{0.9142} - \frac{1}{1.50}\right) = (1.09385 - 0.66667) = 0.42718\text{ m}^{-1}$$<br>Số hạng mẫu số bình phương: $\frac{1}{\rho^2} = \frac{1}{(0.9142)^2} = \frac{1}{0.83576} \approx 1.1965\text{ m}^{-2}$<br>Độ lớn hệ số lực đẩy vô hướng:<br>$$k_{rep} = \eta \left(\frac{1}{\rho} - \frac{1}{\rho_0}\right) \frac{1}{\rho^2} = 2.50 \cdot 0.42718 \cdot 1.1965 \approx 1.2778\text{ N}$$<br>Vector lực đẩy $\mathbf{F}_{rep}(\mathbf{q}_0)$ hướng theo chiều $\nabla\rho$ (đẩy robot ra xa tâm vật cản):<br>$$\mathbf{F}_{rep}(\mathbf{q}_0) = k_{rep} \nabla\rho(\mathbf{q}_0) = 1.2778 \cdot \begin{bmatrix} -0.7071 \\ -0.7071 \end{bmatrix} = \begin{bmatrix} -0.9035 \\ -0.9035 \end{bmatrix}\text{ N}$$<br>Độ lớn lực đẩy: $\|\mathbf{F}_{rep}\| = 1.2778\text{ N}$.</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định vector lực tổng hợp và tọa độ cấu hình mới $\mathbf{q}_1$:<br>Vector lực tổng hợp tác dụng lên robot:<br>$$\mathbf{F}_{total}(\mathbf{q}_0) = \mathbf{F}_{att}(\mathbf{q}_0) + \mathbf{F}_{rep}(\mathbf{q}_0) = \begin{bmatrix} 4.80 - 0.9035 \\ 4.80 - 0.9035 \end{bmatrix} = \begin{bmatrix} 3.8965 \\ 3.8965 \end{bmatrix}\text{ N}$$<br>Độ lớn lực tổng hợp: $\|\mathbf{F}_{total}\| = \sqrt{3.8965^2 + 3.8965^2} \approx 5.5105\text{ N}$<br><br>Cập nhật vị trí mới theo thuật toán Gradient Descent với bước học $\alpha = 0.05\text{ m/N}$:<br>$$\mathbf{q}_1 = \mathbf{q}_0 + \alpha \mathbf{F}_{total}(\mathbf{q}_0) = \begin{bmatrix} 1.00 \\ 1.00 \end{bmatrix} + 0.05 \cdot \begin{bmatrix} 3.8965 \\ 3.8965 \end{bmatrix} = \begin{bmatrix} 1.00 + 0.1948 \\ 1.00 + 0.1948 \end{bmatrix} = \begin{bmatrix} 1.1948 \\ 1.1948 \end{bmatrix}\text{ m}$$<br><strong>Biện luận cơ học:</strong> Do robot, vật cản và đích đến cùng nằm đối xứng trên đường chéo $y = x$, lực hút hướng theo $[+1, +1]^T$ còn lực đẩy hướng theo $[-1, -1]^T$. Do lực hút ($6.79\text{ N}$) lớn hơn lực đẩy ($1.28\text{ N}$), robot tiến lên một khoảng $0.2755\text{ m}$. Tuy nhiên, khi robot càng tiến gần vật cản, $\rho \to 0$ khiến lực đẩy tăng theo tỷ lệ $\frac{1}{\rho^2} \to \infty$, lực đẩy sẽ nhanh chóng vượt trội lực hút và đẩy robot lượn tránh sang một bên, đảm bảo tuyệt đối không bao giờ xảy ra va chạm.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Lập Kế Hoạch Chuyển Động RRT* & Thế Năng Nhân Tạo Trong C-Space</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-09" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim09()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim09()">Thiết lập lại</button>
+        <label class="sim-label">Thuật toán: 
+          <select id="sim09-algo" onchange="updateSim09Algo()">
+            <option value="apf">Thế năng nhân tạo (APF)</option>
+            <option value="rrt">Cây ngẫu nhiên (RRT*)</option>
+          </select>
+        </label>
+        <label class="sim-label">Hệ số lực đẩy $\eta$: <input type="range" id="sim09-eta" min="0.5" max="5.0" step="0.5" value="2.5" onchange="updateSim09Params()"></label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim09-stats" class="sim-telemetry-text">Vị trí robot $(x, y)$: (1.00, 1.00) m | Lực hút $F_{att}$: 6.79 N | Lực đẩy $F_{rep}$: 1.28 N | Lực tổng $F_{total}$: 5.51 N | C-free: Đạt</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// C++20 / Eigen Implementation: Artificial Potential Field 2D Motion Planner
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;Eigen/Dense&gt;
+
+struct CircularObstacle {
+    Eigen::Vector2d center;
+    double radius;
+    double influence_radius; // rho_0
+};
+
+class APFPlanner2D {
+public:
+    APFPlanner2D(double xi, double eta, double step_size)
+        : xi_(xi), eta_(eta), alpha_(step_size) {}
+
+    Eigen::Vector2d computeForce(const Eigen::Vector2d&amp; q, 
+                                 const Eigen::Vector2d&amp; q_goal, 
+                                 const std::vector&lt;CircularObstacle&gt;&amp; obstacles) {
+        // 1. Lực hút thế năng bậc 2: F_att = -xi * (q - q_goal)
+        Eigen::Vector2d F_att = -xi_ * (q - q_goal);
+
+        // 2. Lực đẩy Khatib từ tất cả các vật cản
+        Eigen::Vector2d F_rep = Eigen::Vector2d::Zero();
+        for (const auto&amp; obs : obstacles) {
+            double d_center = (q - obs.center).norm();
+            double rho = d_center - obs.radius; // Khoảng cách tới bề mặt vật cản
+
+            if (rho &gt; 0.0 &amp;&amp; rho &lt;= obs.influence_radius) {
+                Eigen::Vector2d grad_rho = (q - obs.center) / d_center;
+                double rep_magnitude = eta_ * (1.0 / rho - 1.0 / obs.influence_radius) * (1.0 / (rho * rho));
+                F_rep += rep_magnitude * grad_rho;
+            }
+        }
+
+        return F_att + F_rep;
+    }
+
+    Eigen::Vector2d step(const Eigen::Vector2d&amp; q, 
+                         const Eigen::Vector2d&amp; q_goal, 
+                         const std::vector&lt;CircularObstacle&gt;&amp; obstacles) {
+        Eigen::Vector2d F = computeForce(q, q_goal, obstacles);
+        return q + alpha_ * F;
+    }
+
+private:
+    double xi_;    // Hệ số thế hút
+    double eta_;   // Hệ số thế đẩy
+    double alpha_; // Bước tích phân gradient
+};
+
+int main() {
+    APFPlanner2D planner(1.20, 2.50, 0.05);
+    Eigen::Vector2d q0(1.00, 1.00);
+    Eigen::Vector2d q_goal(5.00, 5.00);
+    std::vector&lt;CircularObstacle&gt; obstacles = {
+        {Eigen::Vector2d(2.00, 2.00), 0.50, 1.50}
+    };
+
+    Eigen::Vector2d F = planner.computeForce(q0, q_goal, obstacles);
+    Eigen::Vector2d q1 = planner.step(q0, q_goal, obstacles);
+
+    std::cout &lt;&lt; &quot;Total Force F_total = [&quot; &lt;&lt; F.x() &lt;&lt; &quot;, &quot; &lt;&lt; F.y() &lt;&lt; &quot;]^T N (norm = &quot; &lt;&lt; F.norm() &lt;&lt; &quot; N)\n&quot;;
+    std::cout &lt;&lt; &quot;Next Configuration q1 = [&quot; &lt;&lt; q1.x() &lt;&lt; &quot;, &quot; &lt;&lt; q1.y() &lt;&lt; &quot;]^T m\n&quot;;
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Không gian cấu hình C-space biến đổi hình dạng robot phức tạp thành 1 điểm chất điểm và thổi phồng vật cản thành C_obs bằng tổng Minkowski.</li><li>Giải thuật RRT và RRT* lấy mẫu ngẫu nhiên không gian cấu hình, trong đó RRT* chứng minh được tính tối ưu tiệm cận thông qua bước nối lại dây Rewiring.</li><li>Trường thế năng nhân tạo kết hợp lực hút hướng về đích và lực đẩy Khatib tỷ lệ nghịch với bình phương khoảng cách bề mặt vật cản 1/rho^2.</li><li>Hiện tượng bẫy cực tiểu cục bộ xảy ra khi lực hút và lực đẩy đối kháng triệt tiêu nhau, có thể giải quyết bằng hàm thế điều hòa Laplace hoặc lực xoáy trực giao.</li><li>Kiến trúc MoveIt 2 tích hợp thư viện OMPL và FCL để hoạch định đường đi tối ưu và kiểm tra va chạm thời gian thực cho robot nhiều bậc tự do.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 9.1: Khắc phục điểm cực tiểu cục bộ (Local Minima) bằng kỹ thuật lực xoáy tiếp tuyến (Vortical Force)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Giả sử tại một cấu hình $\mathbf{q}_{trap}$, lực hút và lực đẩy cân bằng hoàn toàn: $\mathbf{F}_{att} = -\mathbf{F}_{rep} \implies \mathbf{F}_{total} = \mathbf{0}$, khiến robot bị đứng im (bẫy bế tắc). Hãy đề xuất công thức tính lực xoáy $\mathbf{F}_{vort}$ tác dụng vuông góc với vector lực đẩy $\mathbf{F}_{rep}$ để giúp robot thoát khỏi bẫy cực tiểu cục bộ, và tính giá trị cụ thể khi $\mathbf{F}_{rep} = [-2.00, -2.00]^T\text{ N}$ với hệ số xoáy $\beta = 1.0$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Để thoát bẫy cực tiểu cục bộ, ta bổ sung một lực xoáy vuông góc $\mathbf{F}_{vort} = \beta \mathbf{R}(\frac{\pi}{2}) \mathbf{F}_{rep}$, trong đó $\mathbf{R}(\frac{\pi}{2}) = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ là ma trận xoay $90^\circ$ ngược chiều kim đồng hồ.<br>Với $\mathbf{F}_{rep} = [-2.00, -2.00]^T\text{ N}$ và $\beta = 1.0$:<br>$$\mathbf{F}_{vort} = 1.0 \cdot \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix} \begin{bmatrix} -2.00 \\ -2.00 \end{bmatrix} = \begin{bmatrix} -(-2.00) \\ -2.00 \end{bmatrix} = \begin{bmatrix} 2.00 \\ -2.00 \end{bmatrix}\text{ N}$$<br>Khi đó lực tổng hợp mới là $\mathbf{F}_{new} = \mathbf{F}_{total} + \mathbf{F}_{vort} = \mathbf{0} + [2.00, -2.00]^T = [2.00, -2.00]^T\text{ N} \ne \mathbf{0}$. Lực này sẽ đẩy robot trượt men theo chu vi đường tròn vật cản để phá vỡ thế đối kháng đối xứng và tiếp tục tiến về đích.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch08.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 08: Điều Khiển Bằng Thị Giác Máy Tính</span>
+        </a>
+        <a href="ch10.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Điều Khiển Tương Tác Lực & Trở Kháng →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim09 === "function") {
+        initSim09();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

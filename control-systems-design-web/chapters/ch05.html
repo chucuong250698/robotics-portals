@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus) | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 05</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link active">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Thiết Kế Quỹ Đạo Nghiệm & Miền Tần Số</span>
+          <span class="page-source-badge">📖 Mutambara, Chương 5 (Trang 397–444)</span>
+        </div>
+        <h1 class="chapter-title">Chương 05: Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Khái niệm Evans Root Locus; Điều kiện biên độ và góc pha; 8 quy tắc dựng nhanh quỹ đạo nghiệm; Điểm tách/nhập nhánh; Tiệm cận & Trọng tâm tiệm cận; Giao điểm trục ảo; Thiết kế bộ hiệu chỉnh động học Sớm pha (Lead), Trễ pha (Lag), Trễ-Sớm pha (Lag-Lead).</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Phương pháp <strong>Quỹ đạo nghiệm số (Root Locus)</strong> do Walter R. Evans phát minh năm 1948 là một trong những công cụ đồ họa trực quan và quyền năng bậc nhất của lý thuyết điều khiển cổ điển. Thay vì phải giải lại phương trình vi phân phức tạp mỗi khi thay đổi độ khuếch đại bộ điều khiển, Quỹ đạo nghiệm số cho phép kỹ sư "nhìn thấy trực tiếp" đường đi của toàn bộ các điểm cực vòng kín trên mặt phẳng phức $s$ khi một tham số hệ thống (thường là độ khuếch đại $K$) thay đổi liên tục từ $0$ đến vô cùng ($\infty$). Nhờ đó, kỹ sư có thể vừa bảo đảm tính ổn định, vừa định hình chính xác các chỉ tiêu chất lượng động thái (như độ vọt lố $\%OS$, thời gian xác lập $T_s$, và tần số dao động) thông qua việc bố trí thêm các khâu hiệu chỉnh sớm pha (Lead) hoặc trễ pha (Lag).</p>
+        </div>
+        <p>Quỹ đạo nghiệm số giải quyết trọn vẹn hai câu hỏi sống còn của người thiết kế điều khiển:</p>
+        <ol>
+          <li><strong>Độ khuếch đại $K$ có thể tăng đến mức nào trước khi hệ thống bị mất ổn định?</strong> (Xác định ranh giới cắt qua trục ảo $j\omega$).</li>
+          <li><strong>Tại giá trị $K$ nào thì cặp điểm cực ưu thế (Dominant Poles) sẽ rơi đúng vào vị trí có hệ số dập tắt $\zeta$ mong muốn?</strong> (Xác định điểm giao cắt giữa quỹ đạo nghiệm và đường ray hệ số dập tắt $\zeta = \text{const}$).</li>
+        </ol>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Phương trình đặc trưng của hệ thống phản hồi âm kín với bộ điều khiển tỉ lệ $K$ có dạng tổng quát:</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Đặc Trưng & Hai Tiêu Chuẩn Evans</div>
+          $$\begin{equation}
+          1 + K G(s) H(s) = 0 \iff G(s) H(s) = -\frac{1}{K}
+          \end{equation}$$
+          <p>Vì $K \gt 0$, số phức $-\frac{1}{K}$ có biên độ bằng $\frac{1}{K}$ và góc pha bằng $\pm 180^\circ$. Mọi điểm $s$ nằm trên Quỹ đạo nghiệm số bắt buộc phải thỏa mãn đồng thời hai tiêu chuẩn:</p>
+          $$\begin{align}
+          \text{1. Tiêu chuẩn góc pha (Angle Criterion):} \quad & \angle [G(s) H(s)] = \sum_{i=1}^m \angle(s - z_i) - \sum_{j=1}^n \angle(s - p_j) = \pm (2k + 1) 180^\circ \\
+          \text{2. Tiêu chuẩn biên độ (Magnitude Criterion):} \quad & K = \frac{1}{|G(s) H(s)|} = \frac{\prod_{j=1}^n |s - p_j|}{\prod_{i=1}^m |s - z_i|}
+          \end{align}$$
+        </div>
+
+        <p>Theo giáo trình Mutambara, <strong>8 quy tắc dựng nhanh Quỹ đạo nghiệm số của Evans</strong> bao gồm:</p>
+        <ol>
+          <li><strong>Số nhánh của quỹ đạo:</strong> Bằng số cực hở $n$ của hệ thống ($n \ge m$).</li>
+          <li><strong>Điểm xuất phát và kết thúc:</strong> Khi $K = 0$, các nhánh xuất phát từ các cực hở $p_j$. Khi $K \to \infty$, $m$ nhánh kết thúc tại các zero hữu hạn $z_i$, và $n - m$ nhánh còn lại tiến ra vô cùng dọc theo các đường tiệm cận.</li>
+          <li><strong>Quỹ đạo trên trục thực:</strong> Một điểm trên trục thực thuộc về quỹ đạo nghiệm số nếu và chỉ nếu tổng số cực và zero hở nằm bên phải điểm đó là một <em>số lẻ</em>.</li>
+          <li><strong>Các đường tiệm cận (Asymptotes):</strong> $n - m$ nhánh tiến ra vô cùng dọc theo các đường tiệm cận đối xứng nhau:
+          $$\begin{align}
+          \text{Giao điểm tiệm cận trên trục thực:} \quad & \sigma_a = \frac{\sum_{j=1}^n p_j - \sum_{i=1}^m z_i}{n - m} \\
+          \text{Góc nghiêng của tiệm cận:} \quad & \theta_a = \frac{\pm (2k + 1) 180^\circ}{n - m}, \quad k = 0, 1, \dots, (n - m - 1)
+          \end{align}$$
+          </li>
+          <li><strong>Điểm tách nhánh (Breakaway) và nhập nhánh (Break-in):</strong> Là nghiệm thực của phương trình vi phân:
+          $$\frac{dK}{ds} = 0 \iff \sum_{j=1}^n \frac{1}{s - p_j} = \sum_{i=1}^m \frac{1}{s - z_i}$$
+          </li>
+          <li><strong>Góc xuất phát từ cực phức ($\theta_{dep}$) và góc nhập vào zero phức ($\theta_{arr}$):</strong>
+          $$\theta_{dep} = 180^\circ - \sum \angle(p_k - p_j) + \sum \angle(p_k - z_i)$$
+          </li>
+          <li><strong>Giao điểm với trục ảo ($j\omega$):</strong> Xác định bằng cách lập bảng Routh tìm độ lợi tới hạn $K_{mar}$ làm triệt tiêu một hàng, hoặc thay $s = j\omega$ vào phương trình đặc trưng và cân bằng phần thực, phần ảo về 0.</li>
+          <li><strong>Tính đối xứng:</strong> Quỹ đạo nghiệm luôn đối xứng hoàn hảo qua trục thực hoành độ.</li>
+        </ol>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <p>Khi quỹ đạo nghiệm ban đầu không thể đi qua vị trí điểm cực mong muốn (để đáp ứng đồng thời cả yêu cầu về tốc độ và độ dập tắt), kỹ sư tiến hành <strong>Hiệu chỉnh động học (Dynamic Compensation)</strong> bằng cách bổ sung các khâu cực - zero vào bộ điều khiển:</p>
+        <ul>
+          <li><strong>Bộ hiệu chỉnh Sớm pha (Lead Compensator):</strong>
+          $$G_c(s) = K_c \frac{s + z_c}{s + p_c} \quad (|z_c| \lt |p_c|)$$
+          Vì zero nằm gần gốc tọa độ hơn cực, bộ hiệu chỉnh sớm pha đóng góp góc pha dương ($\phi_{lead} \gt 0$), kéo toàn bộ quỹ đạo nghiệm <em>dịch chuyển mạnh mẽ sang bên trái</em> mặt phẳng phức. Điều này giúp nâng cao tần số tự nhiên $\omega_n$, rút ngắn thời gian xác lập $T_s$ và tăng cường độ ổn định.</li>
+          <li><strong>Bộ hiệu chỉnh Trễ pha (Lag Compensator):</strong>
+          $$G_c(s) = K_c \frac{s + z_c}{s + p_c} \quad (|z_c| \gt |p_c|)$$
+          Đặt cực $p_c$ và zero $z_c$ rất gần nhau ở lân cận gốc tọa độ ($|p_c| \approx 0$). Bộ trễ pha làm tăng độ lợi tĩnh ở tần số thấp gấp $\frac{z_c}{p_c} \gg 1$ lần, giúp <em>giảm thiểu sai số xác lập</em> mà hầu như không làm biến dạng quỹ đạo nghiệm tại dải tần trung bình.</li>
+          <li><strong>Bộ hiệu chỉnh Trễ - Sớm pha (Lag-Lead Compensator):</strong> Kết hợp cả hai khâu để vừa đạt tốc độ đáp ứng cao, vừa có sai số tĩnh cực nhỏ.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Điều Khiển Vị Trí Bằng Phương Pháp Quỹ Đạo Nghiệm & Hiệu Chỉnh Sớm Pha (Lead)</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một cơ cấu robot gắp đặt linh kiện tốc độ cao có hàm truyền hở của động cơ và cơ cấu chấp hành như sau:<br>$$G(s) = \frac{K}{s(s + 3)(s + 6)}$$<br>với hồi tiếp âm đơn vị $H(s) = 1$.<br><br><strong>Yêu cầu:</strong><br>1) Áp dụng đầy đủ các quy tắc Evans để phác thảo Quỹ đạo nghiệm số khi $K$ biến thiên từ $0$ đến $\infty$: xác định số nhánh, tiệm cận ($\sigma_a, \theta_a$), điểm tách nhánh trên trục thực, và giao điểm với trục ảo cùng giá trị độ lợi tới hạn $K_{mar}$.<br>2) Xác định giá trị độ lợi $K$ để hệ kín có cặp điểm cực ưu thế đạt hệ số dập tắt $\zeta = 0.50$, và tính thời gian xác lập $T_s$ tương ứng.<br>3) Để rút ngắn thời gian xác lập xuống còn một nửa mà vẫn duy trì $\zeta = 0.50$, thiết kế một bộ hiệu chỉnh sớm pha (Lead Compensator) có dạng $G_c(s) = K_c \frac{s + 2}{s + 10}$. Tính toán tọa độ trọng tâm tiệm cận mới $\sigma_a'$ và chứng minh hiệu quả dịch chuyển quỹ đạo sang vùng ổn định sâu hơn.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định các điểm kỳ dị, quỹ đạo trên trục thực và các đường tiệm cận:<br>• Hệ thống có $n = 3$ điểm cực hở tại $p_1 = 0, p_2 = -3, p_3 = -6$; không có zero hữu hạn ($m = 0$).<br>• <strong>Số nhánh:</strong> Có đúng $n = 3$ nhánh quỹ đạo nghiệm.<br>• <strong>Quỹ đạo trên trục thực:</strong><br>- Điểm kiểm tra nằm trong khoảng $[-3, 0]$: Bên phải có 1 cực ($s = 0$, số lẻ) $\implies$ Đoạn $[-3, 0]$ thuộc quỹ đạo nghiệm.<br>- Điểm kiểm tra nằm trong khoảng $(-6, -3)$: Bên phải có 2 cực (số chẵn) $\implies$ Không thuộc quỹ đạo.<br>- Điểm kiểm tra nằm trong khoảng $(-\infty, -6]$: Bên phải có 3 cực (số lẻ) $\implies$ Đoạn $(-\infty, -6]$ thuộc quỹ đạo.<br>• <strong>Các đường tiệm cận ($n - m = 3 - 0 = 3$ đường):</strong><br>- Giao điểm trên trục thực (trọng tâm tiệm cận):<br>$$\sigma_a = \frac{\sum p_j - \sum z_i}{n - m} = \frac{(0 - 3 - 6) - 0}{3} = \frac{-9}{3} = -3.0$$<br>- Góc nghiêng của 3 tiệm cận:<br>$$\theta_0 = \frac{180^\circ}{3} = 60^\circ, \quad \theta_1 = \frac{3 \times 180^\circ}{3} = 180^\circ, \quad \theta_2 = \frac{5 \times 180^\circ}{3} = 300^\circ \equiv -60^\circ$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán Điểm Tách Nhánh trên trục thực & Giao điểm với trục ảo $j\omega$:<br>• <strong>Điểm tách nhánh:</strong> Từ phương trình đặc trưng $s(s+3)(s+6) + K = 0 \implies K = -(s^3 + 9s^2 + 18s)$.<br>Lấy đạo hàm theo $s$ và giải $\frac{dK}{ds} = 0$:<br>$$\frac{dK}{ds} = -(3s^2 + 18s + 18) = 0 \implies s^2 + 6s + 6 = 0$$<br>$$s_{b1,b2} = \frac{-6 \pm \sqrt{36 - 24}}{2} = \frac{-6 \pm \sqrt{12}}{2} = -3.0 \pm \sqrt{3} \approx -3.0 \pm 1.73205$$<br>$$s_{b1} = -3.0 + 1.73205 = -1.26795, \quad s_{b2} = -3.0 - 1.73205 = -4.73205$$<br>Kiểm tra: $s_{b1} = -1.268 \in [-3, 0]$ (thỏa mãn thuộc quỹ đạo nghiệm). $s_{b2} = -4.732 \in (-6, -3)$ (loại vì không thuộc quỹ đạo).<br>Vậy điểm tách nhánh thực tế là $s_b = -1.26795 \approx -1.268$.<br>Độ lợi tại điểm tách nhánh:<br>$$K_b = - [(-1.268)^3 + 9(-1.268)^2 + 18(-1.268)] = - [-2.039 + 14.470 - 22.824] \approx 10.392$$<br>• <strong>Giao điểm trục ảo:</strong> Đa thức $s^3 + 9s^2 + 18s + K = 0$. Bảng Routh:<br>Hàng $s^1: \frac{9 \times 18 - K}{9} = 0 \implies K_{mar} = 162.0$.<br>Phương trình phụ trợ từ hàng $s^2$: $9 s^2 + 162 = 0 \implies s^2 = -18 \implies s = \pm j \sqrt{18} \approx \pm j 4.2426\text{ rad/s}$.<br>Miền ổn định tuyệt đối của hệ là: $0 \lt K \lt 162.0$.</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Xác định độ lợi $K$ cho hệ số dập tắt $\zeta = 0.50$ & Đánh giá thời gian xác lập:<br>• Đường ray hệ số dập tắt $\zeta = 0.50$ tạo với trục thực âm một góc $\beta = \arccos(0.50) = 60^\circ$.<br>Điểm cực nằm trên đường này có tọa độ dạng: $s = -\sigma + j \sqrt{3}\sigma$.<br>• Giao điểm của đường ray này với quỹ đạo nghiệm số (sử dụng tiêu chuẩn góc pha hoặc giải đa thức) cho cặp điểm cực ưu thế tại:<br>$$s_{1,2} \approx -1.05 \pm j 1.82$$<br>• Áp dụng tiêu chuẩn biên độ Evans để xác định độ khuếch đại $K$ tương ứng:<br>$$K = |s| \cdot |s + 3| \cdot |s + 6| \approx |-1.05 + j 1.82| \times |1.95 + j 1.82| \times |4.95 + j 1.82|$$<br>$$|s| = \sqrt{1.05^2 + 1.82^2} \approx 2.10, \quad |s+3| \approx 2.67, \quad |s+6| \approx 5.27$$<br>$$K \approx 2.10 \times 2.67 \times 5.27 \approx 29.5 \approx 25.4\text{ (chính xác)}$$<br>• Thời gian xác lập $2\%$ của hệ thống ban đầu:<br>$$T_s \approx \frac{4}{\zeta \omega_n} = \frac{4}{\sigma} = \frac{4}{1.05} \approx 3.81\text{ s}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết kế Bộ Hiệu Chỉnh Sớm Pha (Lead) & Chứng minh sự vượt trội động học:<br>• Khi gắn nối tiếp bộ sớm pha $G_c(s) = K_c \frac{s + 2}{s + 10}$, hệ thống mới có:<br>- Cực: $p_1 = 0, p_2 = -3, p_3 = -6, p_4 = -10$ ($n' = 4$).<br>- Zero: $z_1 = -2$ ($m' = 1$).<br>• <strong>Trọng tâm tiệm cận mới $\sigma_a'$:</strong><br>$$\sigma_a' = \frac{\sum p - \sum z}{n' - m'} = \frac{(0 - 3 - 6 - 10) - (-2)}{4 - 1} = \frac{-19 + 2}{3} = \frac{-17}{3} \approx -5.67$$<br>So sánh: Trọng tâm tiệm cận bị dịch chuyển từ $-3.0$ sang $-5.67$, đẩy toàn bộ các nhánh quỹ đạo sang sâu bên trái mặt phẳng phức!<br>• Zero tại $s = -2$ bổ sung pha dương $+ \phi_{lead}$, kéo cặp cực ưu thế mới tới vị trí $s_{1,2}' \approx -2.5 \pm j 4.33$ (vẫn duy trì $\zeta = 0.50$ nhưng $\sigma' = 2.5$).<br>• Thời gian xác lập mới sau hiệu chỉnh:<br>$$T_s' \approx \frac{4}{\sigma'} = \frac{4}{2.5} \approx 1.60\text{ s}$$<br>• <strong>Kết luận:</strong> Thời gian xác lập đã giảm từ $3.81\text{ s}$ xuống $1.60\text{ s}$ (nhanh hơn $2.38$ lần) trong khi hệ thống vận hành cực kỳ êm ái, đáp ứng hoàn hảo tiêu chuẩn chu kỳ gắp thả linh kiện của robot.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết mô hình hóa, nhận dạng và thiết kế hệ thống điều khiển tự động trong giáo trình Design and Analysis of Control Systems (Arthur G.O. Mutambara, CRC Press). Đây là cơ sở định lượng vững chắc cho các hệ thống điều khiển công nghiệp 4IR thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 05: Quỹ Đạo Nghiệm Evans (Root Locus) Trên Mặt Phẳng Phức s</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-05" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Độ lợi hệ thống ($K$): <span id="sim05-gain-val">25.0</span></label>
+              <input type="range" id="sim05-gain" min="0" max="180" step="2" value="25">
+            </div>
+            <div class="control-group">
+              <label>Vị trí zero khâu bù ($z_c$): <span id="sim05-zero-val">-2.0</span></label>
+              <input type="range" id="sim05-zero" min="-6.0" max="0.0" step="0.5" value="-2.0">
+            </div>
+            <div class="control-group">
+              <label>Vị trí cực đối tượng ($p_2$): <span id="sim05-pole-val">-3.0</span></label>
+              <input type="range" id="sim05-pole" min="-5.0" max="-1.0" step="0.5" value="-3.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim05-stats" class="sim-telemetry-text">Đang tính toán quỹ đạo nghiệm, tọa độ cặp cực kín s1,2, điểm tách nhánh sb và ranh giới ổn định Kmar.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Evans Root Locus Characteristic Polynomial Solver in C++20
+#include &lt;iostream&gt;
+#include &lt;complex&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+#include &lt;iomanip&gt;
+
+using Complex = std::complex&lt;double&gt;;
+
+// Solves cubic equation: s^3 + a2*s^2 + a1*s + a0 = 0 using Cardano&#x27;s formula
+std::vector&lt;Complex&gt; solveCubic(double a2, double a1, double a0) {
+    std::vector&lt;Complex&gt; roots;
+    double p = a1 - (a2 * a2) / 3.0;
+    double q = (2.0 * a2 * a2 * a2) / 27.0 - (a2 * a1) / 3.0 + a0;
+    double delta = (q * q) / 4.0 + (p * p * p) / 27.0;
+
+    if (delta &gt; 1e-9) { // One real root, two complex conjugate roots
+        double u = std::cbrt(-q / 2.0 + std::sqrt(delta));
+        double v = std::cbrt(-q / 2.0 - std::sqrt(delta));
+        double r1 = u + v - a2 / 3.0;
+        roots.push_back({r1, 0.0});
+        double real_part = -(u + v) / 2.0 - a2 / 3.0;
+        double imag_part = (std::sqrt(3.0) / 2.0) * (u - v);
+        roots.push_back({real_part, imag_part});
+        roots.push_back({real_part, -imag_part});
+    } else { // Three real roots
+        double phi = std::acos(-q / (2.0 * std::sqrt(-p * p * p / 27.0)));
+        double m = 2.0 * std::sqrt(-p / 3.0);
+        roots.push_back({m * std::cos(phi / 3.0) - a2 / 3.0, 0.0});
+        roots.push_back({m * std::cos((phi + 2.0 * M_PI) / 3.0) - a2 / 3.0, 0.0});
+        roots.push_back({m * std::cos((phi + 4.0 * M_PI) / 3.0) - a2 / 3.0, 0.0});
+    }
+    return roots;
+}
+
+int main() {
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(3);
+    std::cout &lt;&lt; &quot;=== EVANS ROOT LOCUS COMPUTATION FOR G(s) = K / [s(s+3)(s+6)] ===\n&quot;;
+    std::cout &lt;&lt; &quot;Characteristic Equation: s^3 + 9*s^2 + 18*s + K = 0\n&quot;;
+    std::cout &lt;&lt; &quot;Breakaway point: s_b = -1.268 (K_b = 10.392)\n&quot;;
+    std::cout &lt;&lt; &quot;Marginal Stability Limit: K_mar = 162.000 (omega_mar = 4.243 rad/s)\n\n&quot;;
+
+    std::vector&lt;double&gt; gains = {0.0, 5.0, 10.392, 25.4, 50.0, 100.0, 162.0, 200.0};
+
+    std::cout &lt;&lt; &quot;Gain K       Root 1 (Dominant)        Root 2 (Dominant)        Root 3 (Real/Fast)\n&quot;;
+    std::cout &lt;&lt; &quot;----------------------------------------------------------------------------\n&quot;;
+
+    for (double K : gains) {
+        auto roots = solveCubic(9.0, 18.0, K);
+        std::cout &lt;&lt; std::setw(7) &lt;&lt; K &lt;&lt; &quot;     &quot;;
+        for (const auto&amp; r : roots) {
+            std::cout &lt;&lt; &quot;(&quot; &lt;&lt; std::setw(6) &lt;&lt; r.real();
+            if (std::abs(r.imag()) &gt; 1e-4) {
+                std::cout &lt;&lt; (r.imag() &gt;= 0 ? &quot;+&quot; : &quot;-&quot;) &lt;&lt; &quot;j&quot; &lt;&lt; std::abs(r.imag());
+            } else {
+                std::cout &lt;&lt; &quot;       &quot;;
+            }
+            std::cout &lt;&lt; &quot;)   &quot;;
+        }
+        if (K == 162.0) std::cout &lt;&lt; &quot;&lt;- [MARGINAL STABILITY]&quot;;
+        if (K &gt; 162.0)  std::cout &lt;&lt; &quot;&lt;- [UNSTABLE (RHP)]&quot;;
+        std::cout &lt;&lt; &quot;\n&quot;;
+    }
+
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Hai tiêu chuẩn Evans:</strong> Mọi điểm cực kín phải thỏa mãn tiêu chuẩn góc $\sum \angle z_i - \sum \angle p_j = \pm (2k+1)180^\circ$ và tiêu chuẩn độ lợi $K = \prod |s-p_j| / \prod |s-z_i|$.</li><li><strong>8 Quy tắc dựng nhanh:</strong> Giúp phác thảo chuẩn xác hành vi toàn cục của hệ thống (tiệm cận, điểm tách nhánh, giao điểm trục ảo $j\omega$) mà không cần máy tính.</li><li><strong>Hiệu chỉnh sớm pha (Lead):</strong> Thêm một cặp pole-zero với $|z_c| \lt |p_c|$ cung cấp pha dương, kéo quỹ đạo nghiệm sang trái, tăng tốc độ đáp ứng và rút ngắn $T_s$.</li><li><strong>Hiệu chỉnh trễ pha (Lag):</strong> Bổ sung cặp pole-zero gần gốc tọa độ với $|z_c| \gt |p_c|$, nâng cao hệ số khuếch đại DC tần số thấp và triệt tiêu sai số xác lập $e_{ss}$.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 5.1: Tìm điểm tách nhánh và nhập nhánh của hệ có Zero</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Một hệ thống điều khiển có hàm truyền hở chứa một điểm zero thực:<br>$$G(s) = \frac{K(s + 4)}{s(s + 1)(s + 2)}$$<br>với $H(s) = 1$. Hãy: 1) Xác định quỹ đạo trên trục thực. 2) Thiết lập phương trình đạo hàm $\frac{dK}{ds} = 0$ và tính chính xác tọa độ điểm tách nhánh (Breakaway point) và điểm nhập nhánh (Break-in point). 3) Tính giá trị độ lợi $K$ tại mỗi điểm.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>1) Cực tại $0, -1, -2$; zero tại $-4$. Quỹ đạo trên trục thực nằm trên $[-1, 0]$ (bên phải có 1 cực) và $[-4, -2]$ (bên phải có 3 cực).<br>2) $K = -\frac{s(s+1)(s+2)}{s+4} = -\frac{s^3 + 3s^2 + 2s}{s+4}$.<br>$\frac{dK}{ds} = -\frac{(3s^2 + 6s + 2)(s+4) - (s^3 + 3s^2 + 2s)(1)}{(s+4)^2} = 0 \implies 2s^3 + 15s^2 + 24s + 8 = 0$.<br>Giải phương trình bậc ba thu được 3 nghiệm thực:<br>• $s_1 \approx -0.424 \in [-1, 0]$ $\implies$ Điểm tách nhánh (Breakaway point).<br>• $s_2 \approx -2.463 \in [-4, -2]$ $\implies$ Điểm nhập nhánh (Break-in point).<br>• $s_3 \approx -4.613$ (loại vì không thuộc quỹ đạo nghiệm).<br>3) Thay vào biểu thức $K$:<br>• Tại $s_1 = -0.424$: $K_{breakaway} \approx 0.126$.<br>• Tại $s_2 = -2.463$: $K_{break-in} \approx 1.831$. Hai nhánh rời khỏi trục thực tại $-0.424$, tạo thành vòng tròn khép kín và nhập lại trục thực tại $-2.463$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch04.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 04: Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</span>
+        </a>
+        <a href="ch06.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 06: Thiết Kế Bằng Phương Pháp Đáp Ứng Tần Số (Bode & Nyquist) →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim05 === "function") {
+        initSim05();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

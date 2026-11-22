@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 08: Định vị Xác suất &amp; Bộ lọc Bayes (Bayes Filter) - Elements of Robotics</title>
+<meta content="Lý thuyết xác suất trong robot học, biểu diễn niềm tin belief, bước dự đoán (chuyển động tản mác entropy) và bước hiệu chỉnh cảm biến (thu hẹp phương sai)." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 4: Dẫn đường &amp; Định vị Bayes</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 08</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 08</span>
+<span class="sidebar-badge">9 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-8-1">
+<span class="nav-text">8.1 Xác suất &amp; Bất định trong Robot học</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-2">
+<span class="nav-text">8.2 Biểu diễn Niềm tin (Belief PMF)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-3">
+<span class="nav-text">8.3 Định lý Bayes: Prior, Likelihood, Posterior</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-4">
+<span class="nav-text">8.4 Bước Dự đoán (Motion Update)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-5">
+<span class="nav-text">8.5 Bước Hiệu chỉnh (Measurement Update)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-bayes">
+<span class="nav-text">⚡ Mô phỏng Bộ lọc Bayes 1D</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-6">
+<span class="nav-text">8.6 Chu trình Lặp Bộ lọc Bayes</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-worked">
+<span class="nav-text">Ví dụ tính số: Chu kỳ Bayes trên lưới 5 ô</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-8-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (nav2_amcl)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-8-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 4: DẪN ĐƯỜNG &amp; ĐỊNH VỊ BAYES</div>
+<h1>Chương 08: Định vị Xác suất &amp; Bộ lọc Bayes (Bayes Filter)</h1>
+<p class="chapter-subtitle">Lý thuyết xác suất trong robot học, biểu diễn niềm tin belief, bước dự đoán (chuyển động tản mác entropy) và bước hiệu chỉnh cảm biến (thu hẹp phương sai).</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 8.1, 8.2 -->
+<h4 id="sec-8-1">8.1 Tại sao phải sử dụng Xác suất trong Robot học?</h4>
+<p>Thế giới thực không bao giờ chắc chắn tuyệt đối. Bánh xe luôn có độ trượt ngẫu nhiên, cảm biến luôn chịu nhiễu Gauss hoặc phản xạ ảo. Robot học xác suất (Probabilistic Robotics) thay thế việc lưu giữ một điểm tọa độ duy nhất bằng một <strong>Phân bố xác suất (Belief Distribution)</strong> bao phủ toàn bộ không gian trạng thái.</p>
+<h4 id="sec-8-2">8.2 Biểu diễn Niềm tin (Belief Representation)</h4>
+<p>Niềm tin của robot tại thời điểm $t$ về trạng thái $x_t$ dựa trên toàn bộ lịch sử đo đạc $z_{1:t}$ và lệnh điều khiển $u_{1:t}$ được ký hiệu là:</p>
+<p>$$\text{bel}(x_t) = P(x_t \mid z_{1:t}, u_{1:t})$$</p>
+<!-- Mục 8.3, 8.4, 8.5 -->
+<h4 id="sec-8-3">8.3 Chu trình Đệ quy Hai Bước của Bộ lọc Bayes</h4>
+<p>Bộ lọc Bayes duy trì niềm tin thông qua hai bước xen kẽ đệ quy liên tục:</p>
+<div class="formula-hero">
+<div class="formula-title">HAI BƯỚC ĐỆ QUY CỦA BỘ LỌC BAYES</div>
+<div class="formula-math">
+                $$\text{Bước 1 (Dự đoán): } \overline{\text{bel}}(x_t) = \sum_{x_{t-1}} P(x_t \mid x_{t-1}, u_t) \cdot \text{bel}(x_{t-1})$$
+                $$\text{Bước 2 (Hiệu chỉnh): } \text{bel}(x_t) = \eta \cdot P(z_t \mid x_t) \cdot \overline{\text{bel}}(x_t)$$
+              </div>
+<div class="formula-legend">
+<strong>Bước Dự đoán (Motion Update):</strong> Áp dụng Định lý Xác suất toàn phần và mô hình chuyển động. Chuyển động luôn làm tản mác entropy (làm phân bố rộng hơn, độ bất định tăng lên).<br/>
+<strong>Bước Hiệu chỉnh (Measurement Update):</strong> Áp dụng Định lý Bayes nhân với hàm khả dĩ $P(z_t \mid x_t)$ và chuẩn hóa bằng hệ số $\eta = \frac{1}{\sum_{x_t} \overline{\text{bel}}(x_t) P(z_t \mid x_t)}$. Đo đạc cảm biến thu hẹp độ bất định, gom xác suất về vị trí đúng!
+              </div>
+</div>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ tiến hóa phân bố niềm tin Belief qua các bước Dự đoán và Hiệu chỉnh" src="../assets/images/bayes_evolution.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 8.1:</strong> Quá trình tiến hóa của niềm tin $\text{bel}(x)$ trong bộ lọc Bayes 1D: Từ phân bố đều (chưa biết gì) $\to$ sau khi đo đạc (hình thành các đỉnh đa mốt) $\to$ sau khi di chuyển (phân bố dịch chuyển và nhòe dần) $\to$ sau lần đo thứ hai (hội tụ về một đỉnh duy nhất chính xác).
+              </div>
+</div>
+<!-- SIMULATOR CONTAINER: BAYES -->
+<div class="simulator-wrapper" id="sim-bayes">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 06: BỘ LỌC XÁC SUẤT BAYES 1D (DISCRETE BAYES FILTER)</span>
+</div>
+<span class="sim-badge">Recursive Probability Engine</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="280" id="bayes-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item" style="flex: 2;">
+<span class="telemetry-label">TRẠNG THÁI HIỆN TẠI:</span>
+<span class="telemetry-val" id="bayes-step-label">Khởi tạo: Phân bố đều (Chưa biết vị trí ban đầu)</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group" style="flex-direction: row; gap: 0.5rem; flex-wrap: wrap;">
+<button class="control-btn secondary" id="bayes-btn-init">1. Khởi tạo Phân bố đều</button>
+<button class="control-btn primary" id="bayes-btn-move">2. Di chuyển (+1 ô, Tản mác)</button>
+<button class="control-btn primary" id="bayes-btn-sense">3. Đo cảm biến (Thu hẹp đỉnh)</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-8-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 TÍNH TOÁN BẰNG SỐ ĐẦY ĐỦ MỘT CHU KỲ BỘ LỌC BAYES TRÊN LƯỚI 5 Ô</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Hành lang gồm 5 ô $[x_1, x_2, x_3, x_4, x_5]$. Ô $x_2$ và ô $x_4$ có cửa sổ. Robot ban đầu có niềm tin đều $\text{bel}(x_i) = 0.20$ ($\forall i$). Cảm biến phát hiện cửa sổ có xác suất đúng $P(\text{Cửa} \mid \text{có cửa}) = 0.8$ và xác suất báo giả $P(\text{Cửa} \mid \text{không cửa}) = 0.1$. Khi robot đo được "Thấy Cửa", hãy tính niềm tin hậu nghiệm $\text{bel}(x_i)$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Xác Định Hàm Khả Dĩ Đo Lường</span>
+</div>
+<div class="step-content">
+<p>$P(z=\text{Cửa} \mid x_2) = P(z=\text{Cửa} \mid x_4) = 0.8$<br/>
+                  $P(z=\text{Cửa} \mid x_1) = P(z=\text{Cửa} \mid x_3) = P(z=\text{Cửa} \mid x_5) = 0.1$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Tích Không Chuẩn Hóa</span>
+</div>
+<div class="step-content">
+<p>$\overline{p}(x_1) = 0.1 \times 0.2 = 0.02$<br/>
+                  $\overline{p}(x_2) = 0.8 \times 0.2 = 0.16$<br/>
+                  $\overline{p}(x_3) = 0.1 \times 0.2 = 0.02$<br/>
+                  $\overline{p}(x_4) = 0.8 \times 0.2 = 0.16$<br/>
+                  $\overline{p}(x_5) = 0.1 \times 0.2 = 0.02$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Thừa Số Chuẩn Hóa $\eta$</span>
+</div>
+<div class="step-content">
+<p>Tổng xác suất không chuẩn hóa:<br/>
+                  $P(z) = \sum \overline{p}(x_i) = 0.02 + 0.16 + 0.02 + 0.16 + 0.02 = 0.38$<br/>
+                  Hệ số chuẩn hóa: $\eta = \frac{1}{0.38} \approx 2.6316$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính Niềm Tin Hậu Nghiệm $\text{bel}(x_i)$</span>
+</div>
+<div class="step-content">
+<p>$\text{bel}(x_1) = \text{bel}(x_3) = \text{bel}(x_5) = \frac{0.02}{0.38} \approx 5.26\%$<br/>
+                  $\text{bel}(x_2) = \text{bel}(x_4) = \frac{0.16}{0.38} \approx 42.11\%$<br/>
+                  Niềm tin đã tập trung mạnh mẽ vào hai vị trí có cửa sổ ($x_2$ và $x_4$)!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Cập nhật xác suất Bayes cho thấy sức mạnh của việc kết hợp thông tin tiên nghiệm và phép đo cảm biến: Dù cảm biến có xác suất đọc nhầm, chuỗi đo lặp lại vẫn đưa độ tin cậy nhận diện vạch đường lên trên $90\%$.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-8-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Thuật toán định vị kinh điển trong gói Navigation 2 (Nav2) của ROS 2 là <code>nav2_amcl</code> (Adaptive Monte Carlo Localization). AMCL chính là dạng biến thể Particle Filter (lấy mẫu Monte Carlo) của Bộ lọc Bayes liên tục, biểu diễn niềm tin bằng hàng ngàn "hạt" xác suất di động trong không gian 2D $SE(2)$.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-8-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Cập Nhật Xác Suất Bayes Cho Cảm Biến Quang Phân Biệt Sàn Trắng / Vạch Đen</h4>
+</div>
+<div class="practice-statement">
+<p>Robot bám vạch dò sàn bằng cảm biến quang trở (LDR). Sàn nhà có $80\%$ diện tích là màu trắng ($S = \text{white}$) và $20\%$ diện tích là vạch đen ($S = \text{black}$): $P(S=\text{black}) = 0.20$. Đặc tính cảm biến: Khi ở trên vạch đen, xác suất đọc được giá trị điện áp thấp $Z=\text{low}$ là $P(Z=\text{low} | S=\text{black}) = 0.90$. Khi ở trên sàn trắng, do phản xạ ánh sáng môi trường, xác suất đọc nhầm $Z=\text{low}$ là $P(Z=\text{low} | S=\text{white}) = 0.05$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính xác suất toàn phần xuất hiện tín hiệu $Z=\text{low}$.<br/>2) Áp dụng định lý Bayes tính xác suất thực sự robot đang ở trên vạch đen $P(S=\text{black} | Z=\text{low})$.<br/>3) Đưa ra quyết định logic nếu ngưỡng tin cậy tối thiểu là $0.70$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Xác suất toàn phần của phép đo:<br/>$$P(Z=\text{low}) = P(Z=\text{low} | \text{black}) P(\text{black}) + P(Z=\text{low} | \text{white}) P(\text{white})$$<br/>$$P(Z=\text{low}) = 0.90 \times 0.20 + 0.05 \times 0.80 = 0.18 + 0.04 = 0.22$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Xác suất hậu nghiệm Bayes:<br/>$$P(\text{black} | Z=\text{low}) = \frac{P(Z=\text{low} | \text{black}) P(\text{black})}{P(Z=\text{low})} = \frac{0.18}{0.22} = \frac{18}{22} \approx 0.8182\text{ (} 81.82\%)$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>So sánh: $0.8182 \gt 0.70$. Hệ thống tin tưởng với xác suất $81.8\%$ rằng robot đã chạm vạch đen và kích hoạt hành vi bám vạch.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch07.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 07: Định vị Trực tiếp &amp; Phương pháp ...</span>
+</a>
+<a class="page-nav-btn next" href="ch09.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 09: Lập bản đồ Lưới Chiếm chỗ &amp; Nghị... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

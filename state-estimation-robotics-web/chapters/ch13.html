@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 13: Bundle Adjustment &amp; Triệt Tiêu Schur Complement | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-5">Track 5: Bundle Adjustment &amp; Ước Lượng Liên Tục</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 13</span>
+<h3 class="sidebar-title">Bundle Adjustment &amp; Triệt Tiêu Schur Complement</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 5 / Bundle Adjustment &amp; Ước Lượng Liên Tục / Chương 13</div>
+<h1 class="chapter-main-title">Chương 13: Bundle Adjustment &amp; Triệt Tiêu Schur Complement</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 10.4 &amp; 11.1–11.3 (Trang 433–478)</span>
+<span class="meta-item">🎯 Trọng tâm: Tối ưu hóa cấu trúc &amp; chuyển động, Ma trận hình mũi tên &amp; Khử Schur quy mô lớn</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p><strong>Cân Bằng Bó (Bundle Adjustment - BA)</strong> là 'chén thánh' của thị giác máy tính và Visual SLAM, giúp tái dựng mô hình 3D của cả thành phố từ hàng triệu bức ảnh chụp từ flycam hoặc điện thoại. Bài toán đặt ra: <em>Cùng một lúc tối ưu hóa cả vị trí của hàng trăm camera và tọa độ của hàng triệu điểm mốc 3D trong không gian</em>. Kích thước ma trận hệ thống có thể lên tới hàng triệu hàng triệu! Giải trực tiếp sẽ mất hàng thế kỷ và làm nổ tung RAM máy tính tính toán. <strong>Phép Triệt Tiêu Phần Bù Schur (Schur Complement Marginalization)</strong> chính là phép màu đại số tuyến tính giúp giải quyết bài toán khổng lồ này trong chớp mắt.</p>
+</div>
+<p>Bí mật nằm ở chỗ: <em>Các điểm mốc 3D hoàn toàn độc lập với nhau khi đã cố định vị trí các camera!</em> Điều này tạo nên cấu trúc ma trận hệ thống hình mũi tên (Arrowhead Hessian Matrix). Bằng phép khử Schur, ta loại bỏ hoàn toàn hàng triệu biến điểm mốc, thu gọn hệ phương trình về đúng kích thước nhỏ gọn của số lượng camera.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Hàm mục tiêu cực tiểu hóa sai số chiếu lại (Reprojection Error) trên mặt phẳng ảnh của Camera:</p>
+        $$\begin{equation}
+        \min_{\{\mathbf{T}_i\}, \{\mathbf{p}_j\}} \frac{1}{2}\sum_{i=1}^M \sum_{j=1}^N \|\mathbf{z}_{ij} - \pi(\mathbf{T}_i, \mathbf{p}_j)\|_{\boldsymbol{\Sigma}_{ij}^{-1}}^2
+        \end{equation}$$
+        <p>Hệ phương trình chuẩn Gauss-Newton có cấu trúc khối đặc biệt:</p>
+        $$\begin{equation}
+        \begin{bmatrix} \mathbf{B} &amp; \mathbf{E} \\ \mathbf{E}^T &amp; \mathbf{C} \end{bmatrix} \begin{bmatrix} \Delta \mathbf{x}_c \\ \Delta \mathbf{x}_l \end{bmatrix} = \begin{bmatrix} \mathbf{v} \\ \mathbf{w} \end{bmatrix}
+        \end{equation}$$
+        <ul>
+<li>$\mathbf{B} \in \mathbb{R}^{6M \times 6M}$: Khối thông tin giữa các Camera (kích thước nhỏ).</li>
+<li>$\mathbf{C} \in \mathbb{R}^{3N \times 3N}$: Khối thông tin giữa các Điểm mốc 3D (kích thước khổng lồ nhưng là <strong>Ma trận đường chéo khối độc lập</strong>).</li>
+<li>$\mathbf{E}$: Khối tương tác liên kết quan sát giữa Camera và Điểm mốc.</li>
+</ul>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Triệt Tiêu Phần Bù Schur (Schur Complement Marginalization)</div>
+          $$\begin{align}
+          (\mathbf{B} - \mathbf{E} \mathbf{C}^{-1} \mathbf{E}^T) \Delta \mathbf{x}_c &amp;= \mathbf{v} - \mathbf{E} \mathbf{C}^{-1} \mathbf{w} \\
+          \mathbf{H}_{schur} \Delta \mathbf{x}_c &amp;= \mathbf{b}_{schur}
+          \end{align}$$
+        </div>
+<p>Vì $\mathbf{C}$ là ma trận đường chéo khối, nghịch đảo $\mathbf{C}^{-1}$ được tính cực nhanh theo từng khối $3 \times 3$ độc lập với độ phức tạp $O(N)$!</p>
+<p>Sau khi giải hệ phương trình thu gọn tìm được bước nhảy camera $\Delta \mathbf{x}_c$, ta thế ngược trở lại để tìm tức thì bước nhảy của hàng triệu điểm mốc:</p>
+        $$\begin{equation}
+        \Delta \mathbf{x}_l = \mathbf{C}^{-1}(\mathbf{w} - \mathbf{E}^T \Delta \mathbf{x}_c)
+        \end{equation}$$
+      </section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Triệt Tiêu Phần Bù Schur Cho Hệ Thống 2 Camera &amp; 1 Điểm Mốc 3D</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Một hệ thống Visual SLAM thu nhỏ gồm 2 tham số vị trí camera $\Delta \mathbf{x}_c \in \mathbb{R}^2$ và 1 tham số độ sâu điểm mốc $\Delta \mathbf{x}_l \in \mathbb{R}^1$. Hệ phương trình chuẩn Gauss-Newton có các khối số học như sau:<br/>$$B = \begin{bmatrix} 10 &amp; 2 \\ 2 &amp; 8 \end{bmatrix}, \quad E = \begin{bmatrix} 3 \\ 4 \end{bmatrix}, \quad C = [5], \quad \mathbf{v} = \begin{bmatrix} 14 \\ 18 \end{bmatrix}, \quad \mathbf{w} = [10]$$<br/>Yêu cầu: (a) Tính phần bù Schur $H_{schur}$ và vector thu gọn $\mathbf{b}_{schur}$; (b) Giải tìm nghiệm bước nhảy camera $\Delta \mathbf{x}_c$; (c) Thế ngược trở lại tìm bước nhảy của điểm mốc $\Delta \mathbf{x}_l$.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định nghịch đảo khối mốc $C^{-1}$ và tích tương tác $E C^{-1}$:<br/>• Nghịch đảo: $C^{-1} = [1/5] = [0.20]$.<br/>• Tích $E C^{-1} = \begin{bmatrix} 3 \\ 4 \end{bmatrix} [0.20] = \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính toán ma trận Schur $H_{schur} = B - E C^{-1} E^T$ và vector $\mathbf{b}_{schur} = \mathbf{v} - E C^{-1} \mathbf{w}$:<br/>• Tích ngoài: $E C^{-1} E^T = \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix} [3, 4] = \begin{bmatrix} 1.80 &amp; 2.40 \\ 2.40 &amp; 3.20 \end{bmatrix}$.<br/>• Ma trận Schur:<br/>$$H_{schur} = \begin{bmatrix} 10 &amp; 2 \\ 2 &amp; 8 \end{bmatrix} - \begin{bmatrix} 1.80 &amp; 2.40 \\ 2.40 &amp; 3.20 \end{bmatrix} = \begin{bmatrix} 10 - 1.80 &amp; 2 - 2.40 \\ 2 - 2.40 &amp; 8 - 3.20 \end{bmatrix} = \begin{bmatrix} 8.20 &amp; -0.40 \\ -0.40 &amp; 4.80 \end{bmatrix}$$<br/>• Vector thu gọn:<br/>$$\mathbf{b}_{schur} = \begin{bmatrix} 14 \\ 18 \end{bmatrix} - \begin{bmatrix} 0.60 \\ 0.80 \end{bmatrix} [10] = \begin{bmatrix} 14 \\ 18 \end{bmatrix} - \begin{bmatrix} 6.00 \\ 8.00 \end{bmatrix} = \begin{bmatrix} 8.00 \\ 10.00 \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Giải hệ phương trình camera $H_{schur} \Delta \mathbf{x}_c = \mathbf{b}_{schur}$:<br/>• Định thức: $\det(H_{schur}) = 8.20 \times 4.80 - (-0.40)^2 = 39.36 - 0.16 = 39.20$.<br/>• Nghịch đảo ma trận Schur:<br/>$$H_{schur}^{-1} = \frac{1}{39.20}\begin{bmatrix} 4.80 &amp; 0.40 \\ 0.40 &amp; 8.20 \end{bmatrix}$$<br/>• Nghiệm camera:<br/>$$\Delta \mathbf{x}_c = \frac{1}{39.20}\begin{bmatrix} 4.80(8) + 0.40(10) \\ 0.40(8) + 8.20(10) \end{bmatrix} = \frac{1}{39.20}\begin{bmatrix} 38.40 + 4.00 \\ 3.20 + 82.00 \end{bmatrix} = \frac{1}{39.20}\begin{bmatrix} 42.40 \\ 85.20 \end{bmatrix} = \begin{bmatrix} 1.0816 \\ 2.1735 \end{bmatrix}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Thế ngược tìm nghiệm điểm mốc $\Delta \mathbf{x}_l = C^{-1}(\mathbf{w} - E^T \Delta \mathbf{x}_c)$:<br/>• Tích $E^T \Delta \mathbf{x}_c = [3, 4] \begin{bmatrix} 1.0816 \\ 2.1735 \end{bmatrix} = 3(1.0816) + 4(2.1735) = 3.2448 + 8.6940 = 11.9388$.<br/>• Bước nhảy mốc: $\Delta \mathbf{x}_l = 0.20 \times (10.00 - 11.9388) = 0.20 \times (-1.9388) = -0.3878$.<br/>Diễn giải: Nhờ Schur Complement, bài toán kích thước $3 \times 3$ được chẻ đôi thành một hệ $2 \times 2$ và một phép chia đơn giản. Trong các dự án bản đồ lớn với $50.000$ điểm mốc, Schur Complement giảm khối lượng tính toán từ $O((50.000)^3)$ xuống đúng kích thước nhỏ gọn của số camera!</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 13.1: Đánh giá độ phức tạp tính toán</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Một hệ thống Visual SLAM có $M = 100$ camera và $N = 20.000$ điểm mốc 3D. Hãy so sánh số phép tính khi giải trực tiếp toàn bộ hệ thống $O((6M + 3N)^3)$ so với giải bằng Schur Complement $O((6M)^3 + N)$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Giải trực tiếp: $(600 + 60.000)^3 \approx 2.22 \times 10^{14}$ phép tính (bất khả thi trên máy tính cá nhân). Dùng Schur: $600^3 + 20.000 \times 3^3 \approx 2.16 \times 10^8$ phép tính. Tốc độ tăng hơn 1.000.000 lần!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 13: Cấu Trúc Ma Trận Hình Mũi Tên &amp; Khử Schur Trong Bundle Adjustment</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-13" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Số lượng điểm mốc Landmarks: <span id="sim13-pts-val">20</span></label>
+<input id="sim13-pts" max="50" min="5" step="5" type="range" value="20"/>
+</div>
+<div class="control-group">
+<label>Hiện cấu trúc thưa: <span id="sim13-spy-val">Bật</span></label>
+<input id="sim13-spy" max="1" min="0" step="1" type="range" value="1"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim13-stats">Quan sát cấu trúc ma trận hình mũi tên Arrowhead: khối đường chéo điểm mốc bị triệt tiêu biến mất sau bước khử Schur.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Ceres Solver Bundle Adjustment Structure in C++
+#include &lt;iostream&gt;
+#include &lt;ceres/ceres.h&gt;
+
+struct ReprojectionError {
+    ReprojectionError(double observed_x, double observed_y)
+        : observed_x(observed_x), observed_y(observed_y) {}
+
+    template &lt;typename T&gt;
+    bool operator()(const T* const camera_pose, const T* const point, T* residuals) const {
+        // Pinhole camera projection: u = fx * (X/Z) + cx, v = fy * (Y/Z) + cy
+        T p[3];
+        // Rotate and translate point using camera_pose
+        p[0] = point[0] + camera_pose[0];
+        p[1] = point[1] + camera_pose[1];
+        p[2] = point[2] + camera_pose[2];
+        
+        T xp = p[0] / p[2];
+        T yp = p[1] / p[2];
+        
+        residuals[0] = xp - T(observed_x);
+        residuals[1] = yp - T(observed_y);
+        return true;
+    }
+
+    double observed_x, observed_y;
+};
+
+int main() {
+    ceres::Problem problem;
+    ceres::Solver::Options options;
+    
+    // Crucial: Use Schur complement linear solver!
+    options.linear_solver_type = ceres::DENSE_SCHUR;
+    options.minimizer_progress_to_stdout = true;
+    
+    std::cout &lt;&lt; "Ceres configured with DENSE_SCHUR solver for maximum efficiency.\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Bundle Adjustment (BA):</strong> Chuẩn mực tối hậu của thị giác máy tính, tinh chỉnh đồng thời cả tư thế camera và mô hình 3D.</li><li><strong>Arrowhead Matrix:</strong> Cấu trúc hình mũi tên độc nhất vô nhị sinh ra từ tính chất độc lập điều kiện giữa các điểm mốc.</li><li><strong>Schur Complement:</strong> Kỹ thuật triệt tiêu đại số giúp giải bài toán hàng triệu biến số chỉ với độ phức tạp của số camera.</li><li><strong>Trái tim Ceres Solver &amp; g2o:</strong> Kỹ thuật cốt lõi vận hành bên trong Google Maps, SfM, Photogrammetry và Visual SLAM.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch12.html">← Chương 12: Tiền Tích Phân IMU Cho VIO</a>
+<a class="btn-nav btn-next" href="ch14.html">Chương tiếp theo: STEAM: Ước Lượng Quỹ Đạo Thời Gian Liên Tục →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

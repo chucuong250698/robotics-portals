@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 06: Xử Lý Ngoại Lai, NEES/NIS &amp; Variational Inference | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-2">Track 2: Ước Lượng Phi Tuyến &amp; Suy Luận Biến Phân</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 06</span>
+<h3 class="sidebar-title">Xử Lý Ngoại Lai, NEES/NIS &amp; Variational Inference</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 2 / Ước Lượng Phi Tuyến &amp; Suy Luận Biến Phân / Chương 06</div>
+<h1 class="chapter-main-title">Chương 06: Xử Lý Ngoại Lai, NEES/NIS &amp; Variational Inference</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 4.5–4.7 (Trang 143–180)</span>
+<span class="meta-item">🎯 Trọng tâm: Ước lượng vững Robust M-Estimation, Thống kê NIS/NEES &amp; Phân rã ELBO</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Hàm lỗi bình phương tối thiểu (Least Squares) có một tử huyệt chí mạng: <em>Nó phạt sai số theo hàm bậc hai $r^2$</em>. Do đó, chỉ cần một phép đo ngoại lai cực lớn (Outlier) - ví dụ camera nhận nhầm điểm đặc trưng ở chân trời, LiDAR bị phản xạ gương - nó sẽ sinh ra lực kéo khổng lồ làm sụp đổ toàn bộ quỹ đạo của robot! <strong>Robust M-Estimation</strong> (Huber, Cauchy) và <strong>Variational Inference</strong> chính là lá chắn thép bảo vệ tính toàn vẹn của hệ thống.</p>
+</div>
+<p>Bên cạnh việc chống ngoại lai, làm sao một kỹ sư biết bộ lọc Kalman của mình có đang hoạt động chuẩn xác (Consistent) hay đang quá tự tin (Overconfident) hoặc quá bi quan (Underconfident)? Hai tiêu chuẩn thống kê quốc tế <strong>NEES (Normalized Estimation Error Squared)</strong> và <strong>NIS (Normalized Innovation Squared)</strong> chính là công cụ định lượng độ tin cậy của thuật toán.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Để đánh giá tính nhất quán (Consistency) của bộ lọc, ta sử dụng hai chỉ số thống kê chuẩn hóa:</p>
+<div class="formula-card">
+<div class="formula-header">Tiêu Chuẩn Kiểm Định Độ Nhất Quán NEES &amp; NIS</div>
+          $$\begin{align}
+          \epsilon_k^{NEES} &amp;= (\mathbf{x}_k - \hat{\mathbf{x}}_k)^T \hat{\mathbf{P}}_k^{-1} (\mathbf{x}_k - \hat{\mathbf{x}}_k) \sim \chi^2_n \\
+          \epsilon_k^{NIS} &amp;= \boldsymbol{\nu}_k^T \mathbf{S}_k^{-1} \boldsymbol{\nu}_k \sim \chi^2_m
+          \end{align}$$
+        </div>
+<p>Bộ lọc được gọi là nhất quán nếu giá trị trung bình mẫu của $\epsilon_k$ nằm gọn bên trong khoảng tin cậy hai phía $[\chi^2(1 - \alpha/2), \chi^2(\alpha/2)]$.</p>
+<p>Nếu $\epsilon_k \gg \chi^2$: Bộ lọc quá tự tin (hiệp phương sai $\mathbf{P}$ tính ra quá nhỏ so với sai số thực tế $\implies$ nguy cơ phân kỳ).</p>
+<p>Nếu $\epsilon_k \ll \chi^2$: Bộ lọc quá bi quan (hiệp phương sai $\mathbf{P}$ quá lớn $\implies$ không tận dụng hết thông tin cảm biến).</p>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<p>Phương pháp Robust M-Estimation thay thế hàm chi phí bậc hai $f(r) = \frac{1}{2}r^2$ bằng một hàm suy giảm độ dốc khi phần dư lớn:</p>
+<ul>
+<li><strong>Huber Loss:</strong> Chuyển từ bậc hai sang bậc một khi $|r| \gt k$:
+            $$\rho_H(r) = \begin{cases} \frac{1}{2}r^2 &amp; \text{khi } |r| \le k \\ k|r| - \frac{1}{2}k^2 &amp; \text{khi } |r| \gt k \end{cases} \implies w_H(r) = \begin{cases} 1 &amp; \text{khi } |r| \le k \\ \frac{k}{|r|} &amp; \text{khi } |r| \gt k \end{cases}$$
+          </li>
+<li><strong>Cauchy Loss:</strong> Triệt tiêu mạnh mẽ với hàm logarit:
+            $$\rho_C(r) = \frac{c^2}{2} \ln\left(1 + \frac{r^2}{c^2}\right) \implies w_C(r) = \frac{1}{1 + (r/c)^2}$$
+          </li>
+</ul>
+<p>Thuật toán <strong>IRLS (Iteratively Reweighted Least Squares)</strong> gán trọng số $w(r_i)$ cho từng phép đo và giải lại hệ phương trình ở mỗi vòng lặp cho đến khi hội tụ.</p>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Ước Lượng Vững Huber &amp; Cauchy Triệt Tiêu Outlier Bằng Phương Pháp IRLS</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Robot đo khoảng cách tới chướng ngại vật qua 5 mẫu đo độc lập: $\mathbf{y} = [2.01, 1.98, 2.03, 5.80, 2.00]^T\text{ m}$. Mẫu thứ 4 bị nhảy tín hiệu bất thường (outlier $5.80\text{ m}$). Giả thiết phương sai đo danh định $\sigma = 0.1\text{ m}$. Ngưỡng Huber chọn $k = 1.345\sigma = 0.1345\text{ m}$. Yêu cầu: Khởi tạo ước lượng ban đầu bằng trung vị $x^{(0)} = \text{median}(\mathbf{y})$, tính toán trọng số Huber $w_i$ và tính nghiệm ước lượng sau 1 vòng lặp IRLS $\hat{x}^{(1)}$. So sánh với ước lượng bình phương tối thiểu thông thường (Least Squares).
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định ước lượng ban đầu $x^{(0)} = \text{median}(\{2.01, 1.98, 2.03, 5.80, 2.00\}) = 2.01\text{ m}$. Ngưỡng Huber $k = 0.1345\text{ m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính phần dư $r_i = y_i - x^{(0)}$ và trọng số Huber $w_i$:<br/>• $r_1 = 2.01 - 2.01 = 0.00\text{ m} \le k \implies w_1 = 1.000$<br/>• $r_2 = 1.98 - 2.01 = -0.03\text{ m} \implies |r_2| = 0.03 \le k \implies w_2 = 1.000$<br/>• $r_3 = 2.03 - 2.01 = +0.02\text{ m} \le k \implies w_3 = 1.000$<br/>• $r_4 = 5.80 - 2.01 = +3.79\text{ m} \gt k \implies w_4 = \frac{k}{|r_4|} = \frac{0.1345}{3.79} \approx 0.03549$<br/>• $r_5 = 2.00 - 2.01 = -0.01\text{ m} \le k \implies w_5 = 1.000$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Cập nhật nghiệm IRLS sau vòng lặp 1:<br/>$$\hat{x}^{(1)} = \frac{\sum_{i=1}^5 w_i y_i}{\sum_{i=1}^5 w_i} = \frac{1(2.01) + 1(1.98) + 1(2.03) + 0.03549(5.80) + 1(2.00)}{1 + 1 + 1 + 0.03549 + 1} = \frac{8.02 + 0.2058}{4.03549} = \frac{8.2258}{4.03549} \approx 2.0384\text{ m}$$<br/>So sánh với trung bình cộng bình phương tối thiểu thông thường (Standard Least Squares):<br/>$$\bar{y} = \frac{2.01 + 1.98 + 2.03 + 5.80 + 2.00}{5} = \frac{13.82}{5} = 2.7640\text{ m}$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Diễn giải ý nghĩa: Phương pháp bình phương tối thiểu bị mẫu ngoại lai $5.80\text{ m}$ kéo lệch thảm hại tới $+0.764\text{ m}$ ($38\%$ sai số). Trong khi đó, Huber M-Estimator đã tự động dìm trọng số của mẫu ngoại lai xuống chỉ còn $0.0355$ (giảm $96.5\%$ quyền biểu quyết), giúp ước lượng giữ vững ở $2.038\text{ m}$ (sai lệch chỉ $0.038\text{ m}$), bảo vệ an toàn cho robot.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 6.1: Thử nghiệm với Cauchy Loss</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu thay thế Huber bằng Cauchy M-Estimator với hàm trọng số $w(r) = \frac{1}{1 + (r/c)^2}$ với tham số $c = 0.2\text{ m}$. Hãy tính trọng số $w_4$ của mẫu ngoại lai và ước lượng $\hat{x}_{Cauchy}^{(1)}$.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Với phần dư $r_4 = 3.79\text{ m}$: $w_4 = \frac{1}{1 + (3.79/0.2)^2} = \frac{1}{1 + 359.1} \approx 0.00278$. Tổng tử số: $8.02 + 0.00278(5.80) = 8.0361$. Tổng mẫu số: $4.00278$. Nghiệm $\hat{x}_{Cauchy}^{(1)} \approx 2.0076\text{ m}$ (triệt tiêu ngoại lai gần như tuyệt đối 100%)!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 06: Kháng Nhiễu Ngoại Lai Cực Đại Với Huber &amp; Cauchy</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-06" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Biên độ ngoại lai (Outlier Amp): <span id="sim06-amp-val">10</span> m</label>
+<input id="sim06-amp" max="20" min="2" step="1" type="range" value="10"/>
+</div>
+<div class="control-group">
+<label>Hàm mất mát (Loss Function): <span id="sim06-loss-val">Huber</span></label>
+<input id="sim06-loss" max="3" min="1" step="1" type="range" value="2"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim06-stats">Kéo Outlier Amp lên tối đa để chứng kiến đường Least-Squares (đỏ) vọt lên trời trong khi Huber (xanh) vẫn vững như bàn thạch.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Robust Huber Loss Weighting in GTSAM / C++
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;cmath&gt;
+
+double getHuberWeight(double residual, double k = 1.345) {
+    double abs_r = std::abs(residual);
+    if (abs_r &lt;= k) {
+        return 1.0;
+    } else {
+        return k / abs_r;
+    }
+}
+
+int main() {
+    std::vector&lt;double&gt; residuals = {0.01, -0.03, 0.02, 3.79, -0.01};
+    std::cout &lt;&lt; "Huber Weights:\n";
+    for (size_t i = 0; i &lt; residuals.size(); ++i) {
+        double w = getHuberWeight(residuals[i], 0.1345);
+        std::cout &lt;&lt; "Sample " &lt;&lt; i + 1 &lt;&lt; " (r = " &lt;&lt; residuals[i] &lt;&lt; " m) -&gt; Weight = " &lt;&lt; w &lt;&lt; "\n";
+    }
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Sự nguy hiểm của L2 Loss:</strong> Phạt bậc hai khiến một ngoại lai duy nhất có thể phá hủy hoàn toàn nghiệm tối ưu của toàn hệ thống.</li><li><strong>M-Estimators (Huber &amp; Cauchy):</strong> Giảm độ dốc chi phí với các phần dư lớn, biến bài toán thành bình phương tối thiểu có trọng số lặp (IRLS).</li><li><strong>NEES &amp; NIS:</strong> Hai thước đo thống kê chuẩn mực để chứng minh về mặt toán học rằng bộ lọc ước lượng không bị overconfident hay chệch.</li><li><strong>Variational Inference:</strong> Mở rộng suy luận Bayes sang bài toán phi tuyến phức tạp bằng cách tối ưu hóa chặn dưới bằng chứng ELBO.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch05.html">← Chương 05: Ước Lượng Phi Tuyến: EKF, UKF</a>
+<a class="btn-nav btn-next" href="ch07.html">Chương tiếp theo: Hình Học 3D: Ma Trận Quay, Quaternions &amp; SE(3) →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

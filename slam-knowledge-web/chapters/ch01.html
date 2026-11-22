@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 01: Động Học Robot Di Động &amp; Tích Lũy Sai Số Đo Quãng Đường - SLAM &amp; Active Perception Portal</title>
+<meta content="Differential Drive Kinematics &amp; Dead Reckoning Error Accumulation" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 1: NỀN TẢNG ĐỘNG HỌC &amp; CẢM BIẾN</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 01</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-1-1">
+<span class="nav-text">1.1 Động Học Xe Vi Sai &amp; Mô Hình Unicycle</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-2">
+<span class="nav-text">1.2 Tích Phân Vận Tốc Sang Vị Trí (Runge-Kutta)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-3">
+<span class="nav-text">1.3 Phân Tích Sai Số Hệ Thống &amp; Ngẫu Nhiên</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-4">
+<span class="nav-text">1.4 Thử Nghiệm Chuẩn UMBmark</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-sim">
+<span class="nav-text">⚡ Mô Phỏng Trôi Lệch Dead Reckoning (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Hiệp Phương Sai Sai Số</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Node Xuất Bản Odom &amp; TF2</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-1-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 1: NỀN TẢNG ĐỘNG HỌC &amp; CẢM BIẾN • CHƯƠNG 01</div>
+<h1 class="chapter-title">Động Học Robot Di Động &amp; Tích Lũy Sai Số Đo Quãng Đường</h1>
+<p class="chapter-subtitle">Differential Drive Kinematics &amp; Dead Reckoning Error Accumulation</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Mordechai Ben-Ari &amp; Francesco Mondada (Elements of Robotics, Springer)</strong></span>
+</div>
+</div>
+<!-- 1.1 -->
+<h2 id="sec-1-1">1.1 Động Học Robot Di Động Vi Sai &amp; Mô Hình Xe Một Bánh (Unicycle Model)</h2>
+<p>Hầu hết các robot di động trong nhà (như robot hút bụi, xe tự hành công nghiệp AMR) sử dụng cơ cấu dẫn động vi sai (Differential Drive) với hai bánh chủ động độc lập có bán kính $r$ cách nhau một khoảng cách trục $b$.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 TẠI SAO CẦN HIỂU RÕ ĐO QUÃNG ĐƯỜNG (ODOMETRY)?</div>
+<div class="why-matters-body">
+            Đo quãng đường bằng encoder bánh xe (Wheel Odometry) là nguồn dữ liệu thời gian thực có tần số cao nhất (50 - 100 Hz) trên robot. Tuy nhiên, odometry mang một điểm yếu chết người: <strong>Sai số tích lũy không giới hạn theo thời gian (Unbounded Drift)</strong>. Nếu không có các cảm biến mốc bên ngoài (LiDAR, Camera) trong hệ thống SLAM để hiệu chỉnh, chỉ sau vài chục mét di chuyển, robot sẽ hoàn toàn mất phương hướng và lao vào tường.
+          </div>
+</div>
+<p>Vận tốc dài $v$ và vận tốc góc $\omega$ của khung thân robot được xác định từ tốc độ góc của bánh phải $\omega_R$ và bánh trái $\omega_L$:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương Trình Động Học Vi Sai Thuận</div>
+<div class="formula-math">
+            $$\begin{bmatrix} v \\ \omega \end{bmatrix} = \begin{bmatrix} \frac{r}{2} &amp; \frac{r}{2} \\ \frac{r}{b} &amp; -\frac{r}{b} \end{bmatrix} \begin{bmatrix} \omega_R \\ \omega_L \end{bmatrix}$$
+          </div>
+<div class="formula-legend">
+<strong>Ý nghĩa các đại lượng:</strong>
+<br/>• $r$: Bán kính danh định của bánh xe dẫn động (m).
+            <br/>• $b$: Khoảng cách giữa hai điểm tiếp xúc của bánh xe với mặt sàn (Track gauge, m).
+            <br/>• $v$: Vận tốc tịnh tiến tức thời của trọng tâm robot (m/s).
+            <br/>• $\omega$: Vận tốc quay góc hướng thân robot quanh trục $z$ thẳng đứng (rad/s).
+          </div>
+</div>
+<!-- 1.2 -->
+<h2 id="sec-1-2">1.2 Tích Phân Vận Tốc Sang Tọa Độ Không Gian Toàn Cục (Runge-Kutta)</h2>
+<p>Tư thế của robot trong mặt phẳng 2D được biểu diễn bởi vector trạng thái $\mathbf{x} = [x, y, \theta]^T \in \mathrm{SE}(2)$. Phương trình vi phân phi tuyến mô tả chuyển động:</p>
+        $$\dot{x} = v \cos\theta, \quad \dot{y} = v \sin\theta, \quad \dot{\theta} = \omega$$
+        <p>Trong một chu kỳ lấy mẫu nhỏ $\Delta t$, phương pháp tích phân bậc hai Runge-Kutta giúp xấp xỉ chính xác vị trí mới:</p>
+        $$\theta_{k+1} = \theta_k + \omega_k \Delta t$$
+        $$\Delta s = v_k \Delta t, \quad x_{k+1} = x_k + \Delta s \cos\left(\theta_k + \frac{\omega_k \Delta t}{2}\right), \quad y_{k+1} = y_k + \Delta s \sin\left(\theta_k + \frac{\omega_k \Delta t}{2}\right)$$
+
+        <!-- 1.3 -->
+<h2 id="sec-1-3">1.3 Phân Tích Nguồn Gốc Sai Số: Sai Số Hệ Thống vs Sai Số Ngẫu Nhiên</h2>
+<p>Theo phân tích chuẩn mực của Borenstein &amp; Feng, sai số đo quãng đường được chia làm 2 nhóm:</p>
+<table class="academic-table" style="width:100%; margin: 1.5rem 0; border-collapse: collapse;">
+<thead>
+<tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+<th style="padding: 0.75rem;">Đặc Tính</th>
+<th style="padding: 0.75rem;">Sai Số Hệ Thống (Systematic Errors)</th>
+<th style="padding: 0.75rem;">Sai Số Ngẫu Nhiên (Non-Systematic Errors)</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Nguyên nhân</strong></td>
+<td style="padding: 0.75rem;">Bán kính bánh xe thực tế khác nhau ($r_R \neq r_L$), sai lệch khoảng cách trục $b$ so với thiết kế.</td>
+<td style="padding: 0.75rem;">Bánh xe bị trượt trên sàn trơn, sàn gồ ghề, va chạm nhẹ với vật cản.</td>
+</tr>
+<tr style="border-bottom: 1px solid var(--border-color);">
+<td style="padding: 0.75rem;"><strong>Quy luật tích lũy</strong></td>
+<td style="padding: 0.75rem;">Tích lũy đơn điệu theo hàm số xác định (khiến robot luôn bị quẹo về một bên dù đi thẳng).</td>
+<td style="padding: 0.75rem;">Dao động ngẫu nhiên, mô hình hóa bằng nhiễu trắng Gauss $\mathcal{N}(0, \mathbf{Q})$.</td>
+</tr>
+<tr>
+<td style="padding: 0.75rem;"><strong>Khả năng bù trừ</strong></td>
+<td style="padding: 0.75rem;">Có thể hiệu chuẩn (Calibration) bằng phương pháp UMBmark.</td>
+<td style="padding: 0.75rem;">Bắt buộc phải dùng bộ lọc trạng thái (EKF, Particle Filter) và cảm biến ngoài để triệt tiêu.</td>
+</tr>
+</tbody>
+</table>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-1-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Sự Trôi Lệch Sai Số Dead Reckoning Khi Chạy Hình Vuông</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-01" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số lệch bánh xe / trượt sàn: <input id="sim01-slip" max="0.15" min="0.0" step="0.01" type="range" value="0.05"/> <span id="sim01-slip-val">Hệ số trượt/lệch bánh: 5%</span></label>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-1-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Lan Truyền Hiệp Phương Sai Sai Số Vị Trí Qua Ma Trận Jacobian</h3>
+</div>
+<div class="exercise-statement">
+<p>Một robot vi sai đang ở tư thế $x = 0$ m, $y = 0$ m, $\theta = 0^\circ$ ($0$ rad). Ma trận hiệp phương sai ban đầu $\mathbf{P}_0 = \mathbf{0}$. Robot nhận lệnh di chuyển thẳng một quãng đường $\Delta s = 1.0$ m với góc quay $\Delta \theta = 0.0$ rad. Sai số đo quãng đường của bánh xe có phương sai $\sigma_s^2 = 0.01\text{ m}^2$ và sai số góc quay có phương sai $\sigma_\theta^2 = 0.0025\text{ rad}^2$. Tính ma trận Jacobian của mô hình chuyển động và ma trận hiệp phương sai $\mathbf{P}_1$ sau bước di chuyển.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập phương trình cập nhật trạng thái</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{x}_1 = \mathbf{f}(\mathbf{x}_0, \mathbf{u}) = \begin{bmatrix} x_0 + \Delta s \cos(\theta_0) \\ y_0 + \Delta s \sin(\theta_0) \\ \theta_0 + \Delta \theta \end{bmatrix}$$</p><p>Thay số: $x_1 = 0 + 1.0 \cos(0) = 1.0$ m; $y_1 = 0 + 1.0 \sin(0) = 0.0$ m; $\theta_1 = 0.0$ rad.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính ma trận Jacobian theo điều khiển $\mathbf{G}_u = \frac{\partial \mathbf{f}}{\partial \mathbf{u}}$</span>
+</div>
+<div class="step-content">
+<p>Vector điều khiển $\mathbf{u} = [\Delta s, \Delta \theta]^T$:</p><p>$$\mathbf{G}_u = \begin{bmatrix} \cos\theta_0 &amp; 0 \\ \sin\theta_0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} \cos(0) &amp; 0 \\ \sin(0) &amp; 0 \\ 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Lập ma trận hiệp phương sai nhiễu điều khiển $\mathbf{M}$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{M} = \begin{bmatrix} \sigma_s^2 &amp; 0 \\ 0 &amp; \sigma_\theta^2 \end{bmatrix} = \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.0025 \end{bmatrix}$$</p><p>Ma trận lan truyền nhiễu: $\mathbf{Q} = \mathbf{G}_u \mathbf{M} \mathbf{G}_u^T$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính ma trận hiệp phương sai mới $\mathbf{P}_1$</span>
+</div>
+<div class="step-content">
+<p>$$\mathbf{P}_1 = \mathbf{G}_u \mathbf{M} \mathbf{G}_u^T = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 0 \\ 0 &amp; 1 \end{bmatrix} \begin{bmatrix} 0.01 &amp; 0 \\ 0 &amp; 0.0025 \end{bmatrix} \begin{bmatrix} 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} = \begin{bmatrix} 0.01 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 0.0025 \end{bmatrix}$$</p><p>Độ không chắc chắn theo trục $x$ là $\sigma_x = \sqrt{0.01} = 0.1$ m, theo góc hướng là $\sigma_\theta = \sqrt{0.0025} = 0.05$ rad ($\approx 2.86^\circ$).</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Qua 4 bước tính toán ma trận Jacobian và hiệp phương sai, ta thấy sai số vị trí lan truyền tăng theo bình phương quãng đường di chuyển. Việc kiểm soát sai số hướng góc là yếu tố quyết định để tránh trôi dạt (drift) không giới hạn của hệ thống Dead Reckoning.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-1-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Node Xuất Bản Odometry Chuẩn ROS 2 C++</h4>
+<p>Mã nguồn chuẩn tích hợp encoder xuất bản chủ đề `nav_msgs/msg/Odometry` và phát khung biến đổi `tf2` giữa `odom` $\to$ `base_link`:</p>
+<div class="code-card">
+<div class="code-header">
+<span>diffdrive_odometry_node.cpp (ROS 2 / C++)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;nav_msgs/msg/odometry.hpp&gt;
+#include &lt;tf2_ros/transform_broadcaster.h&gt;
+#include &lt;geometry_msgs/msg/transform_stamped.hpp&gt;
+#include &lt;cmath&gt;
+
+class DiffDriveOdometryNode : public rclcpp::Node {
+public:
+  DiffDriveOdometryNode() : Node("diffdrive_odometry_node"), x_(0.0), y_(0.0), th_(0.0) {
+    odom_pub_ = this-&gt;create_publisher&lt;nav_msgs::msg::Odometry&gt;("/odom", 50);
+    tf_broadcaster_ = std::make_unique&lt;tf2_ros::TransformBroadcaster&gt;(*this);
+    last_time_ = this-&gt;now();
+    timer_ = this-&gt;create_wall_timer(std::chrono::milliseconds(20), std::bind(&amp;DiffDriveOdometryNode::update, this));
+  }
+
+private:
+  void update() {
+    auto current_time = this-&gt;now();
+    double dt = (current_time - last_time_).seconds();
+    last_time_ = current_time;
+
+    double v = 0.5; // Giả lập vận tốc dài 0.5 m/s
+    double w = 0.1; // Vận tốc góc 0.1 rad/s
+
+    th_ += w * dt;
+    x_ += v * std::cos(th_) * dt;
+    y_ += v * std::sin(th_) * dt;
+
+    // Phát TF2 Transform odom -&gt; base_link
+    geometry_msgs::msg::TransformStamped tf_msg;
+    tf_msg.header.stamp = current_time;
+    tf_msg.header.frame_id = "odom";
+    tf_msg.child_frame_id = "base_link";
+    tf_msg.transform.translation.x = x_;
+    tf_msg.transform.translation.y = y_;
+    tf_msg.transform.translation.z = 0.0;
+    tf_msg.transform.rotation.z = std::sin(th_ / 2.0);
+    tf_msg.transform.rotation.w = std::cos(th_ / 2.0);
+    tf_broadcaster_-&gt;sendTransform(tf_msg);
+
+    // Xuất bản bản tin Odometry
+    nav_msgs::msg::Odometry odom;
+    odom.header.stamp = current_time;
+    odom.header.frame_id = "odom";
+    odom.child_frame_id = "base_link";
+    odom.pose.pose.position.x = x_;
+    odom.pose.pose.position.y = y_;
+    odom.pose.pose.orientation = tf_msg.transform.rotation;
+    odom_pub_-&gt;publish(odom);
+  }
+  double x_, y_, th_;
+  rclcpp::Time last_time_;
+  rclcpp::Publisher&lt;nav_msgs::msg::Odometry&gt;::SharedPtr odom_pub_;
+  std::unique_ptr&lt;tf2_ros::TransformBroadcaster&gt; tf_broadcaster_;
+  rclcpp::TimerBase::SharedPtr timer_;
+};</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-1-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tích Lũy Sai Số Góc &amp; Hiệp Phương Sai Khi Robot Vi Sai Quay Tại Chỗ</h4>
+</div>
+<div class="practice-statement">
+<p>Một robot di động vi sai đứng yên tại gốc tọa độ $(0, 0, 0)$ thực hiện động tác quay tại chỗ một góc $\Delta \theta = \frac{\pi}{2}\text{ rad}$ ($90^\circ$) với vận tốc góc $\omega = 0.5\text{ rad/s}$ trong thời gian $\Delta t = \pi\text{ s}$. Khoảng cách giữa 2 bánh xe là $b = 0.4\text{ m}$. Sai số đo quãng đường của mỗi bánh xe có phương sai $\sigma_R^2 = \sigma_L^2 = 10^{-4}\text{ m}^2$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Xác định ma trận Jacobian của góc quay $\theta$ theo độ dịch chuyển bánh xe $\Delta s_R, \Delta s_L$.<br/>2) Tính phương sai sai số tích lũy của góc hướng $\sigma_\theta^2$ sau khi quay xong.<br/>3) Nếu robot tiếp tục di chuyển thẳng $2.0\text{ m}$, ước tính bán kính vùng không chắc chắn $2\sigma$ của vị trí robot theo phương ngang $y$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Góc quay của robot vi sai được tính từ độ chênh lệch dịch chuyển 2 bánh xe: $\Delta\theta = \frac{\Delta s_R - \Delta s_L}{b}$. Do đó ma trận Jacobian theo vector đo bánh xe là $\mathbf{J}_\theta = \begin{bmatrix} \frac{\partial\theta}{\partial s_R} &amp; \frac{\partial\theta}{\partial s_L} \end{bmatrix} = \begin{bmatrix} \frac{1}{b} &amp; -\frac{1}{b} \end{bmatrix} = \begin{bmatrix} 2.5 &amp; -2.5 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Do sai số hai bánh xe độc lập, ma trận hiệp phương sai nhiễu đo là $\mathbf{Q}_{RL} = \text{diag}(\sigma_R^2, \sigma_L^2) = 10^{-4} \mathbf{I}_2$. Phương sai góc quay tích lũy: $\sigma_\theta^2 = \mathbf{J}_\theta \mathbf{Q}_{RL} \mathbf{J}_\theta^T = \left(\frac{1}{b}\right)^2 \sigma_R^2 + \left(-\frac{1}{b}\right)^2 \sigma_L^2 = 2 \times 6.25 \times 10^{-4} = 1.25 \times 10^{-3}\text{ rad}^2$. Độ lệch chuẩn góc: $\sigma_\theta = \sqrt{0.00125} \approx 0.0354\text{ rad} \approx 2.03^\circ$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Khi di chuyển thẳng đoạn đường $L = 2.0\text{ m}$, sai số góc hướng lan truyền trực tiếp sang sai số vị trí vuông góc: $\sigma_y \approx L \cdot \sigma_\theta = 2.0 \times 0.0354 = 0.0707\text{ m} = 7.07\text{ cm}$. Bán kính ellipse không chắc chắn $2\sigma$ là $2 \times 7.07 = 14.14\text{ cm}$, cho thấy rõ bản chất nguy hiểm của sai số góc hướng trong dead reckoning.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="../index.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Lộ trình Tổng quan</span>
+</a>
+<a class="ch-nav-card next" href="ch02.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 02: Mô Hình Cảm Biến &amp; Occupancy Grid</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

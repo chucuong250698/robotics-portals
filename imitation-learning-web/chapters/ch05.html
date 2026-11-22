@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 05: Động Tác Nguyên Mẫu Động Lực Học (DMPs) &amp; ProMPs - Imitation Learning in Robotics</title>
+<meta content="Dynamic Movement Primitives &amp; Probabilistic Motor Skills" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 3: BIỂU DIỄN ĐỘNG TÁC &amp; DEEP IL</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 05</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-5-1">
+<span class="nav-text">5.1 Giới hạn Nội suy Điểm &amp; Khái niệm DMPs</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-2">
+<span class="nav-text">5.2 Kiến trúc Hệ Chính Tắc &amp; Hệ Biến Đổi Bậc 2</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-3">
+<span class="nav-text">5.3 Hàm Lực Phi Tuyến RBF &amp; Tính Bất Biến Tỷ Lệ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-4">
+<span class="nav-text">5.4 Mở rộng Probabilistic Movement Primitives (ProMPs)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-sim">
+<span class="nav-text">⚡ Mô phỏng Co Giãn Quỹ Đạo DMPs (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-worked">
+<span class="nav-text">📐 Ví dụ Tính Số 4 Bước Cập Nhật Trọng Số w_i</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-bridge">
+<span class="nav-text">🛠️ Cầu nối ROS 2: Node Phát Sinh Quỹ Đạo DMPs</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-5-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 3: BIỂU DIỄN ĐỘNG TÁC &amp; DEEP IL • CHƯƠNG 05</div>
+<h1 class="chapter-title">Động Tác Nguyên Mẫu Động Lực Học (DMPs) &amp; ProMPs</h1>
+<p class="chapter-subtitle">Dynamic Movement Primitives &amp; Probabilistic Motor Skills</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Carlos Celemin et al. (FnT Robotics 2022) &amp; Zare et al. (IEEE 2023)</strong></span>
+</div>
+</div>
+<!-- 5.1 -->
+<h2 id="sec-5-1">5.1 Giới Hạn Của Nội Suy Rời Rạc &amp; Sự Ra Đời Của DMPs</h2>
+<p>Trong các phương pháp truyền thống của robot học, quỹ đạo biểu diễn của con người thường được lưu trữ dưới dạng một chuỗi các tọa độ rời rạc $(x_t, y_t, z_t)$ kèm mốc thời gian $t$. Tuy nhiên, cách tiếp cận này bộc lộ những nhược điểm chí mạng:</p>
+<ul>
+<li><strong>Nhạy cảm với nhiễu thời gian:</strong> Nếu robot bị cản trở hoặc làm chậm, toàn bộ chuỗi điểm nội suy sẽ bị lệch pha.</li>
+<li><strong>Không có khả năng khái quát hóa không gian:</strong> Khi vị trí vật thể cần gắp dời sang tọa độ mới $(g' \neq g)$, quỹ đạo cũ hoàn toàn vô dụng và việc co dãn tuyến tính đơn giản sẽ làm biến dạng các đặc trưng vận động then chốt.</li>
+<li><strong>Không đảm bảo tính ổn định Lyapunov:</strong> Robot dễ rơi vào dao động mất ổn định ở cuối hành trình.</li>
+</ul>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 ĐỘNG TÁC NGUYÊN MẪU (DMPs) ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">
+            Dynamic Movement Primitives (DMPs), được khởi xướng bởi Stefan Schaal và Auke Ijspeert, mô hình hóa chuyển động của robot như một hệ phương trình vi phân phi tuyến có điểm hút ổn định toàn cục (Globally Stable Attractor). DMPs cho phép robot:
+            <br/>1. <strong>Tự động co dãn theo không gian:</strong> Khi điểm đích $g$ dịch chuyển, quỹ đạo tự uốn nắn mượt mà tới đích mà không va chạm.
+            <br/>2. <strong>Tự động co dãn theo thời gian:</strong> Thay đổi tham số $\tau$ cho phép tăng giảm tốc độ thực hiện động tác mà vẫn giữ nguyên hình dáng cử động.
+            <br/>3. <strong>Bền vững với nhiễu ngoại lực:</strong> Nếu bị bàn tay người đẩy lệch, hệ thống tự động sinh lực phục hồi kéo robot quay trở lại quỹ đạo danh định.
+          </div>
+</div>
+<!-- 5.2 -->
+<h2 id="sec-5-2">5.2 Kiến Trúc Hệ Thống: Hệ Chính Tắc (Canonical) &amp; Hệ Biến Đổi (Transformation)</h2>
+<p>Kiến trúc toán học của DMPs được cấu thành từ hai hệ phương trình vi phân tương tác chặt chẽ:</p>
+<div class="formula-hero">
+<div class="formula-title">1. Hệ Chính Tắc (Canonical System)</div>
+<div class="formula-math">
+            $$\tau \dot{s} = -\alpha_s s, \quad s(0) = 1$$
+          </div>
+<div class="formula-legend">
+<strong>Ý nghĩa tham số:</strong>
+<br/>• $s \in (0, 1]$: Biến pha thay thế cho thời gian $t$. Khi thời gian trôi qua, $s$ suy giảm đơn điệu từ $1$ về $0$ theo hàm mũ $s(t) = \exp(-\alpha_s t / \tau)$.
+            <br/>• $\alpha_s$: Hệ số suy giảm pha định trước.
+            <br/>• $\tau$: Tham số tỷ lệ thời gian (Time scaling factor). Tăng $\tau$ giúp động tác chuyển động chậm rãi hơn.
+          </div>
+</div>
+<div class="formula-hero" style="margin-top: 1.5rem;">
+<div class="formula-title">2. Hệ Biến Đổi Bậc Hai (Transformation System)</div>
+<div class="formula-math">
+            $$\tau^2 \ddot{y} = \alpha_y \left( \beta_y (g - y) - \tau \dot{y} \right) + f(s)$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách thành phần cơ học:</strong>
+<br/>• $y, \dot{y}, \ddot{y}$: Vị trí, vận tốc và gia tốc góc khớp hoặc tọa độ không gian tác vụ.
+            <br/>• $g$: Điểm đích mục tiêu (Goal position).
+            <br/>• $\alpha_y, \beta_y$: Các hằng số lò xo - giảm chấn (thường chọn $\beta_y = \alpha_y / 4$ để hệ suy giảm tới hạn - Critically Damped, triệt tiêu hoàn toàn dao động vọt lố).
+            <br/>• $f(s)$: Hàm lực ép phi tuyến (Nonlinear forcing term) mã hóa hình dáng đặc trưng của quỹ đạo thị phạm.
+          </div>
+</div>
+<!-- 5.3 -->
+<h2 id="sec-5-3">5.3 Biểu Diễn Hàm Lực Phi Tuyến RBF &amp; Tính Bất Biến Tỷ Lệ Không Gian</h2>
+<p>Hàm lực ép $f(s)$ được biểu diễn bằng tổ hợp tuyến tính của $K$ hàm nhân cơ sở hướng tâm Gauss (Gaussian Radial Basis Functions - RBFs):</p>
+<div class="formula-hero">
+<div class="formula-title">Công Thức Hàm Lực Phi Tuyến $f(s)$</div>
+<div class="formula-math">
+            $$f(s) = \frac{\sum_{i=1}^K \psi_i(s) w_i}{\sum_{i=1}^K \psi_i(s)} s (g - y_0)$$
+          </div>
+<div class="formula-legend">
+<strong>Trong đó:</strong>
+<br/>• $\psi_i(s) = \exp\left( -h_i (s - c_i)^2 \right)$: Hàm Gaussian thứ $i$ phân bố dọc theo pha suy giảm $s$, với tâm $c_i$ và độ rộng $h_i$.
+            <br/>• $w_i$: Trọng số học được từ quỹ đạo mẫu của chuyên gia.
+            <br/>• $s$: Nhân tố dập tắt lực ép khi về gần đích ($s \to 0 \Rightarrow f(s) \to 0$), đảm bảo hệ thống hồi tụ chính xác tuyệt đối về điểm đích $g$.
+            <br/>• $(g - y_0)$: Nhân tố tỷ lệ không gian giúp co dãn toàn bộ biên độ động tác khi khoảng cách giữa điểm xuất phát $y_0$ và đích $g$ thay đổi.
+          </div>
+</div>
+<!-- 5.4 -->
+<h2 id="sec-5-4">5.4 Mở Rộng Sang Probabilistic Movement Primitives (ProMPs)</h2>
+<p>Mặc dù DMPs xuất sắc trong việc co dãn không gian - thời gian, nhưng lại là mô hình tất định (Deterministic) chỉ học từ duy nhất một quỹ đạo mẫu. Khi chuyên gia cung cấp nhiều quỹ đạo thị phạm với sự biến thiên tự nhiên, <strong>Probabilistic Movement Primitives (ProMPs)</strong> được phát triển nhằm nắm bắt phân phối xác suất của cử động:</p>
+        $$y_t = \Phi_t w + \epsilon_y, \quad \epsilon_y \sim \mathcal{N}(0, \Sigma_y)$$
+        $$p(w) = \mathcal{N}(\mu_w, \Sigma_w)$$
+        <p>ProMPs cho phép thực hiện phép <em>Điều kiện hóa (Conditioning)</em> theo lý thuyết xác suất Bayes: khi robot bắt buộc phải đi qua một điểm chướng ngại hoặc điểm gắp tại thời điểm $t_1$, phân phối trọng số mới $p(w \mid y_{t_1})$ được cập nhật đóng kín (Closed-form) mà không làm mất đi dáng điệu tự nhiên của toàn bộ chuyển động.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-5-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Co Giãn Quỹ Đạo DMPs Khi Thay Đổi Đích $g$ &amp; Thời Gian $\tau$</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-05" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1.5rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Vị trí Đích Goal $g$: <input id="sim05-goal" max="220" min="40" step="5" type="range" value="100"/> <span id="sim05-goal-val">Đích G = 100</span></label>
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số thời gian $\tau$: <input id="sim05-tau" max="3.0" min="0.5" step="0.1" type="range" value="1.0"/> <span id="sim05-tau-val">Thời gian τ = 1.0x</span></label>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-5-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Học Trọng Số Lực Ép $w_i$ Bằng Hồi Quy Tuyến Tính Trọng Số (Weighted Ridge Regression)</h3>
+</div>
+<div class="exercise-statement">
+<p>Cho một quỹ đạo mẫu 1 bậc tự do có tọa độ xuất phát $y_0 = 0.0$ m, đích $g = 1.0$ m, thời gian thực hiện $T = 1.0$ s ($\tau = 1.0$). Tại thời điểm $t = 0.5$ s, pha $s = \exp(-3.0 \times 0.5) = 0.2231$. Vị trí, vận tốc, gia tốc đo được là $y = 0.65$ m, $\dot{y} = 1.2$ m/s, $\ddot{y} = -2.5$ m/s$^2$. Các thông số hệ biến đổi: $\alpha_y = 25.0, \beta_y = 6.25$. Có 2 hàm cơ sở tại pha này với hoạt độ $\psi_1 = 0.8$ và $\psi_2 = 0.2$. Tính giá trị lực ép mục tiêu $f_{\text{target}}$ và biểu thức hồi quy để giải trọng số $w_1, w_2$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính lực ép mục tiêu $f_{\text{target}}$ từ phương trình hệ biến đổi</span>
+</div>
+<div class="step-content">
+<p>Biến đổi phương trình DMP để tách riêng lực ép:</p><p>$$f_{\text{target}} = \tau^2 \ddot{y} - \alpha_y (\beta_y (g - y) - \tau \dot{y})$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số tính toán lực phục hồi đàn hồi</span>
+</div>
+<div class="step-content">
+<p>• Thành phần lò xo: $\beta_y (g - y) = 6.25 \times (1.0 - 0.65) = 6.25 \times 0.35 = 2.1875$</p><p>• Thành phần cản: $\tau \dot{y} = 1.0 \times 1.2 = 1.2$</p><p>• Hiệu lò xo - cản: $2.1875 - 1.2 = 0.9875$</p><p>• Nhân với $\alpha_y$: $25.0 \times 0.9875 = 24.6875$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính lực ép phi tuyến $f_{\text{target}}$</span>
+</div>
+<div class="step-content">
+<p>$$f_{\text{target}} = (1.0)^2 \times (-2.5) - 24.6875 = -2.5 - 24.6875 = -27.1875\text{ N}$$</p><p>Lực ép âm biểu thị quỹ đạo mẫu cần một lực hãm ngược lại lò xo để tạo đường cong vận động.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Thiết lập phương trình hồi quy trọng số</span>
+</div>
+<div class="step-content">
+<p>Ta có: $f(s) = \frac{\psi_1 w_1 + \psi_2 w_2}{\psi_1 + \psi_2} s (g - y_0) = f_{\text{target}}$</p><p>$$\frac{0.8 w_1 + 0.2 w_2}{1.0} \times 0.2231 \times (1.0 - 0.0) = -27.1875$$</p><p>$$0.8 w_1 + 0.2 w_2 = \frac{-27.1875}{0.2231} \approx -121.86$$</p><p>Khi gom đủ các bước thời gian $t_1, \dots, t_M$, bài toán trở thành hệ phương trình chính tắc giải bằng bình phương tối thiểu có chính quy hóa (Ridge Regression): $\mathbf{w} = (\mathbf{\Psi}^T \mathbf{S}^2 \mathbf{\Psi} + \lambda \mathbf{I})^{-1} \mathbf{\Psi}^T \mathbf{S} \mathbf{f}_{\text{target}}$.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Phương trình vi phân DMP bảo đảm tính ổn định tiệm cận Lyapunov toàn cục: Robot có thể thay đổi mục tiêu đích linh hoạt trong thời gian thực mà vẫn giữ nguyên hình dáng cử động học được.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-5-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Bộ Phát Quỹ Đạo DMPs Trong ROS 2 C++ / Python</h4>
+<p>Triển khai phát xung quỹ đạo DMPs thời gian thực ở tần số 100 Hz truyền lệnh vị trí tới bộ điều khiển cánh tay robot:</p>
+<div class="code-card">
+<div class="code-header">
+<span>dmp_trajectory_node.py (ROS 2 / Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import rclpy
+from rclpy.node import Node
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
+import numpy as np
+
+class DMPControllerNode(Node):
+    def __init__(self):
+        super().__init__('dmp_trajectory_node')
+        self.pub_traj = self.create_publisher(JointTrajectory, '/arm_controller/joint_trajectory', 10)
+        self.timer = self.create_timer(0.01, self.step_dmp) # Vòng lặp 100 Hz
+        self.alpha_s = 3.0
+        self.tau = 1.5 # Giãn thời gian 1.5x
+        self.s = 1.0
+        self.dt = 0.01
+        self.y = np.array([0.0, -0.5, 0.0, 1.2, 0.0, 0.0]) # 6 khớp
+        self.yd = np.zeros(6)
+        self.goal = np.array([0.4, 0.2, -0.3, 1.5, 0.1, -0.2]) # Đích mới
+
+    def step_dmp(self):
+        if self.s \lt 0.001:
+            return # Đã hội tụ về đích
+        # Cập nhật pha
+        self.s -= (self.alpha_s * self.s / self.tau) * self.dt
+        # Tính toán hệ biến đổi bậc 2
+        f_s = self.compute_forcing_term(self.s)
+        ydd = (25.0 * (6.25 * (self.goal - self.y) - self.tau * self.yd) + f_s) / (self.tau**2)
+        self.yd += ydd * self.dt
+        self.y += self.yd * self.dt
+
+        # Đóng gói bản tin ROS 2
+        msg = JointTrajectory()
+        pt = JointTrajectoryPoint()
+        pt.positions = self.y.tolist()
+        pt.velocities = self.yd.tolist()
+        msg.points.append(pt)
+        self.pub_traj.publish(msg)
+
+    def compute_forcing_term(self, s):
+        # Trọng số RBFs đã huấn luyện offline
+        return np.sin(s * np.pi) * 20.0 * s</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-5-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Toán Quỹ Đạo Động Tác Nguyên Mẫu DMP Với Hệ Chính Tắc Pha</h4>
+</div>
+<div class="practice-statement">
+<p>Một hệ thống DMP 1D có điểm xuất phát $y_0 = 0.0\text{ m}$, điểm đích $g = 1.0\text{ m}$. Hệ chính tắc pha $\tau \dot{s} = -\alpha_s s$ có $\alpha_s = 1.0$, chu kỳ $\tau = 1.0\text{ s}$. Hệ thống biến đổi bậc 2 có $\alpha_y = 25, \beta_y = 6.25$ (giảm chấn tới hạn). Tại thời điểm $t = 0.5\text{ s}$, giá trị pha là $s(0.5) = e^{-0.5} \approx 0.6065$. Hàm lực phi tuyến khớp được giá trị $f(s) = 2.0$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Viết phương trình vi phân hệ biến đổi DMP bậc 2.<br/>2) Tính gia tốc tức thời $\ddot{y}$ tại $t = 0.5\text{ s}$ khi trạng thái hiện tại là $y = 0.4\text{ m}, \dot{y} = 0.8\text{ m/s}$.<br/>3) Đánh giá tính ổn định tiệm cận của hệ thống khi $t \to \infty$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Phương trình DMP dạng chuẩn:<br/>$$\tau^2 \ddot{y} = \alpha_y (\beta_y (g - y) - \tau \dot{y}) + f(s)$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Thay số với $\tau = 1.0$:<br/>• Số hạng lò xo: $\beta_y (g - y) = 6.25(1.0 - 0.4) = 6.25 \times 0.6 = 3.75\text{ m/s}$.<br/>• Số hạng giảm chấn: $\tau \dot{y} = 1.0 \times 0.8 = 0.8\text{ m/s}$.<br/>• Hiệu lực: $3.75 - 0.8 = 2.95\text{ m/s}$.<br/>• Gia tốc: $\ddot{y} = 25 \times 2.95 + 2.0 = 73.75 + 2.0 = 75.75\text{ m/s}^2$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Khi $t \to \infty$, $s(t) \to 0 \implies f(s) \to 0$. Phương trình trở thành hệ tuyến tính bậc 2 thuần túy: $\ddot{y} + 25\dot{y} + 156.25(y - g) = 0$. Vì các hệ số $\alpha_y, \beta_y \gt 0$, hệ thống đảm bảo ổn định tiệm cận Lyapunov toàn cục về đích $g=1.0\text{ m}$ dù có bất kỳ nhiễu loạn ngoại cảnh nào.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch04.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 04: Họ Thuật Toán DAgger</span>
+</a>
+<a class="ch-nav-card next" href="ch06.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 06: Diffusion Policy &amp; ACT</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

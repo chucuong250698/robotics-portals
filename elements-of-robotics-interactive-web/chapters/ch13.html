@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 13: Mạng Nơ-ron &amp; Học Máy Lấy Cảm Hứng Sinh Học - Elements of Robotics</title>
+<meta content="Nơ-ron sinh học, quy tắc học Hebbian, mô hình Perceptron của Rosenblatt, ranh giới phân tách tuyến tính và chứng minh hội tụ thuật toán Perceptron." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 6: Trí tuệ Nhân tạo &amp; Học máy</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 13</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 13</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-13-1">
+<span class="nav-text">13.1 Cảm hứng Sinh học &amp; Nơ-ron Nhân tạo</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-2">
+<span class="nav-text">13.2 Quy tắc Học Hebb (Hebbian Learning)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-3">
+<span class="nav-text">13.3 Perceptron của Rosenblatt &amp; Ranh giới Tuyến tính</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-4">
+<span class="nav-text">13.4 Thuật toán Huấn luyện Perceptron &amp; Hội tụ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-5">
+<span class="nav-text">13.5 Mạng Nơ-ron Đa tầng (MLP) &amp; Backpropagation</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-worked">
+<span class="nav-text">Ví dụ tính số: Cập nhật trọng số Perceptron</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-13-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (ONNX Runtime / TensorRT)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-13-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: TRÍ TUỆ NHÂN TẠO &amp; HỌC MÁY</div>
+<h1>Chương 13: Mạng Nơ-ron &amp; Học Máy Lấy Cảm Hứng Sinh Học</h1>
+<p class="chapter-subtitle">Nơ-ron sinh học, quy tắc học Hebbian, mô hình Perceptron của Rosenblatt, ranh giới phân tách tuyến tính và chứng minh hội tụ thuật toán Perceptron.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 13.1, 13.2, 13.3 -->
+<h4 id="sec-13-1">13.1 Cảm hứng Sinh học &amp; Nơ-ron Nhân tạo</h4>
+<p>Bộ não con người gồm hàng chục tỷ tế bào thần kinh kết nối chằng chịt. Mô hình toán học nơ-ron nhân tạo lấy tổng có trọng số của các đầu vào và đưa qua một hàm kích hoạt phi tuyến:</p>
+<p>$$y = f\left( \sum_{i=1}^n w_i x_i + b \right)$$</p>
+<h4 id="sec-13-2">13.2 Quy tắc Học Hebb (Hebbian Learning)</h4>
+<p>Được đề xuất bởi Donald Hebb năm 1949: <em>"Khi hai nơ-ron cùng kích hoạt đồng thời, liên kết synap giữa chúng sẽ được tăng cường"</em> ("Neurons that fire together, wire together"):</p>
+<p>$$\Delta w_i = \eta \cdot x_i \cdot y$$</p>
+<h4 id="sec-13-3">13.3 Mô hình Perceptron của Rosenblatt &amp; Ranh giới Tuyến tính</h4>
+<p>Frank Rosenblatt (1958) đề xuất Perceptron với hàm kích hoạt bước nhảy Heaviside. Perceptron có khả năng phân loại hoàn hảo mọi bài toán phân tách tuyến tính (Linearly Separable). Tuy nhiên, cuốn sách năm 1969 của Minsky &amp; Papert đã chỉ ra Perceptron đơn tầng không thể giải được bài toán logic XOR, mở đường cho sự phát triển của Mạng Nơ-ron Đa tầng (MLP) và giải thuật Lan truyền ngược (Backpropagation).</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-13-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 MỘT BƯỚC CẬP NHẬT TRỌNG SỐ PERCEPTRON PHÂN LOẠI VẬT CẢN</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Perceptron nhận 2 tín hiệu cảm biến hồng ngoại $x = [x_1, x_2]^T = [0.8, 0.4]^T$. Trọng số ban đầu $w = [0.2, -0.5]^T$, bias $b = 0.1$. Tốc độ học $\eta = 0.1$. Nhãn thực tế là $y_{true} = 1$ (có vật cản). Hàm kích hoạt là hàm bước nhảy: nếu $a \ge 0$ thì $\hat{y} = 1$, ngược lại $\hat{y} = 0$. Hãy cập nhật trọng số mới.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Tổng Kích Hoạt Tuyến Tính $a$</span>
+</div>
+<div class="step-content">
+<p>$a = w_1 x_1 + w_2 x_2 + b = (0.2 \times 0.8) + (-0.5 \times 0.4) + 0.1$<br/>
+                  $a = 0.16 - 0.20 + 0.10 = +0.06$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Dự Đoán Nhãn Đầu Ra $\hat{y}$</span>
+</div>
+<div class="step-content">
+<p>Vì $a = +0.06 \ge 0 \Rightarrow \hat{y} = 1$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Sai Số Huấn Luyện</span>
+</div>
+<div class="step-content">
+<p>$e = y_{true} - \hat{y} = 1 - 1 = 0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Cập Nhật Trọng Số Mới</span>
+</div>
+<div class="step-content">
+<p>Vì sai số bằng 0, không cần điều chỉnh trọng số: $\Delta w = 0$.<br/>
+                  Nếu giả sử mẫu tiếp theo bị sai ($e = 1$), công thức cập nhật sẽ là:<br/>
+                  $w_{new} = w_{old} + \eta \cdot e \cdot x = [0.2 + 0.1 \times 1 \times 0.8, -0.5 + 0.1 \times 1 \times 0.4]^T = [0.28, -0.46]^T$.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Thuật toán học Delta Rule trong mạng nơ-ron Perceptron chứng minh khả năng tự điều chỉnh siêu phẳng phân tách: Robot tự động cập nhật trọng số để phân loại chính xác các bề mặt cảm nhận sau một số bước học hữu hạn.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-13-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Mạng nơ-ron học sâu ngày nay được nhúng vào ROS 2 thông qua ONNX Runtime hoặc TensorRT node. Mô hình nhận luồng ảnh camera, thực thi suy luận Object Detection (YOLOv8) với tốc độ $60\text{ FPS}$ và xuất bản danh sách vật cản lên topic <code>/detections</code> (kiểu <code>vision_msgs/msg/Detection2DArray</code>).</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-13-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Cập Nhật Trọng Số Mạng Nơ-ron Perceptron Đơn Lớp Bằng Delta Rule</h4>
+</div>
+<div class="practice-statement">
+<p>Một perceptron nhị phân học phân loại vạch đường cho robot dựa trên 2 cảm biến quang trở $x_1$ và $x_2$. Hàm kích hoạt hàm bước nhảy Heaviside: $\hat{y} = 1$ nếu $w_1 x_1 + w_2 x_2 + b \ge 0$, ngược lại $\hat{y} = 0$. Trọng số ban đầu $w_1 = 0.5, w_2 = -0.3$, độ lệch $b = 0.1$. Tốc độ học $\eta = 0.2$. Robot gặp mẫu huấn luyện mới: $(x_1 = 0.8, x_2 = 0.9)$ có nhãn chuẩn là $y = 1$ (trên đường line).<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính tổng trọng số đầu vào và dự đoán hiện tại $\hat{y}$.<br/>2) Tính sai số dự đoán $e = y - \hat{y}$.<br/>3) Cập nhật trọng số $w_1', w_2'$ và độ lệch $b'$ theo Perceptron Delta Rule.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Tổng trọng số đầu vào:<br/>$$z = w_1 x_1 + w_2 x_2 + b = 0.5(0.8) + (-0.3)(0.9) + 0.1 = 0.40 - 0.27 + 0.10 = 0.23$$<br/>Vì $z = 0.23 \ge 0$, dự đoán là $\hat{y} = 1$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Sai số dự đoán: $e = y - \hat{y} = 1 - 1 = 0$. Mạng đã phân loại chính xác mẫu này.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Nếu xét mẫu khác bị phân loại sai (ví dụ $e = +1$), công thức cập nhật Delta Rule là:<br/>• $w_i' = w_i + \eta \cdot e \cdot x_i$<br/>• $b' = b + \eta \cdot e$<br/>Cơ chế này dịch chuyển siêu phẳng phân tách dần về phía giảm thiểu số mẫu lỗi, đảm bảo hội tụ tuyến tính theo định lý hội tụ Novikoff.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch12.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 12: Xử lý Ảnh Số &amp; Thị giác Máy tính...</span>
+</a>
+<a class="page-nav-btn next" href="ch14.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 14: Bộ Phân Loại Fisher LDA &amp; Trực G... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

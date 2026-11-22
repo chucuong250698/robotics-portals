@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 02: Biến Ngẫu Nhiên Gauss &amp; Khoảng Cách Mahalanobis | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-1">Track 1: Cơ Sở Xác Suất &amp; Tuyến Tính Gauss</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 02</span>
+<h3 class="sidebar-title">Biến Ngẫu Nhiên Gauss &amp; Khoảng Cách Mahalanobis</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 1 / Cơ Sở Xác Suất &amp; Tuyến Tính Gauss / Chương 02</div>
+<h1 class="chapter-main-title">Chương 02: Biến Ngẫu Nhiên Gauss &amp; Khoảng Cách Mahalanobis</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 2.2 (Trang 18–35)</span>
+<span class="meta-item">🎯 Trọng tâm: Biểu diễn dạng thông tin &amp; Kiểm định ngoại lai bằng Chi-Square</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Phân phối Gauss (Normal Distribution) thống trị 90% các thuật toán định vị và SLAM vì tính chất toán học độc nhất: <em>tổng của các biến Gauss vẫn là Gauss, và tích hai hàm Gauss vẫn là Gauss</em>. Trong môi trường thực tế, cảm biến LiDAR thường xuyên bắt nhầm các điểm phản xạ giả (bụi, kính, vệt sáng). Khoảng cách Mahalanobis và kiểm định Chi-bình phương ($\chi^2$) chính là 'bộ lọc bảo vệ' giúp robot quyết định phép đo nào hợp lệ (Inlier) và phép đo nào là rác (Outlier) trước khi đưa vào bộ lọc Kalman.</p>
+</div>
+<p>Khoảng cách Euclid thông thường $d_E = \|\mathbf{y} - \boldsymbol{\mu}\|$ giả định mọi hướng đều có sai số như nhau. Nhưng trong robot, cảm biến thường có độ bất định theo hình elip dẹp (ví dụ sai số dọc tia ngắm nhỏ hơn sai số phương vị). Khoảng cách Mahalanobis $d_M = \sqrt{(\mathbf{y} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\mathbf{y} - \boldsymbol{\mu})}$ chính là thước đo khoảng cách đã được chuẩn hóa theo hình học bất định của hiệp phương sai.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Biến ngẫu nhiên Gauss nhiều chiều $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ với $\mathbf{x} \in \mathbb{R}^n$ có hàm mật độ xác suất chuẩn (Covariance Form):</p>
+        $$\begin{equation}
+        p(\mathbf{x}) = \frac{1}{\sqrt{(2\pi)^n \det(\boldsymbol{\Sigma})}} \exp\left( -\frac{1}{2} (\mathbf{x} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) \right)
+        \end{equation}$$
+        <p>Để tối ưu hóa tính toán trong các hệ thống phân tán và SLAM đồ thị, ta chuyển sang <strong>Dạng thông tin (Information Form / Canonical Form)</strong>:</p>
+        $$\begin{equation}
+        \mathbf{Y} = \boldsymbol{\Sigma}^{-1} \quad (\text{Information Matrix}), \qquad \mathbf{y}_v = \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu} \quad (\text{Information Vector})
+        \end{equation}$$
+        <p>Hàm mật độ khi đó được viết lại ngắn gọn:</p>
+        $$\begin{equation}
+        p(\mathbf{x}) \propto \exp\left( -\frac{1}{2} \mathbf{x}^T \mathbf{Y} \mathbf{x} + \mathbf{y}_v^T \mathbf{x} \right)
+        \end{equation}$$
+        <p>Khi tích hợp phép đo độc lập mới, ở dạng thông tin ta chỉ cần <em>cộng trực tiếp</em>: $\mathbf{Y}_{new} = \mathbf{Y} + \mathbf{Y}_{meas}$ mà không cần nghịch đảo ma trận!</p>
+</section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Khoảng Cách Mahalanobis Bình Phương &amp; Phân Phối Chi-Square</div>
+          $$\begin{equation}
+          d_M^2 = (\mathbf{x} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu}) \sim \chi^2_n
+          \end{equation}$$
+        </div>
+<p>Nếu $\mathbf{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$ trong không gian $n$ chiều, thì đại lượng vô hướng $d_M^2$ tuân theo chính xác phân phối Chi-bình phương với $n$ bậc tự do ($\chi^2_n$).</p>
+<p><strong>Cơ chế Chi-Square Gating (Loại bỏ ngoại lai):</strong> Cho một ngưỡng xác suất tin cậy $1 - \alpha$ (thường chọn $95\%$ hoặc $99\%$), ta tra bảng tìm giá trị tới hạn $\gamma = \chi^2_n(1 - \alpha)$:</p>
+<ul>
+<li>Nếu $d_M^2 \le \gamma$: Phép đo nằm trong elip bất định $\implies$ <strong>Chấp nhận (Inlier)</strong>.</li>
+<li>Nếu $d_M^2 \gt \gamma$: Phép đo bất thường nằm ngoài phân phối $\implies$ <strong>Loại bỏ (Outlier)</strong>.</li>
+</ul>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Outlier Gating Cho Cảm Biến LiDAR 2D Bằng Khoảng Cách Mahalanobis</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Robot ước lượng vị trí một cột mốc trong bản đồ với kỳ vọng tiên nghiệm $\boldsymbol{\mu} = [10.0, 2.0]^T\text{ m}$ và ma trận hiệp phương sai sai số $\boldsymbol{\Sigma} = \begin{bmatrix} 0.09 &amp; 0.04 \\ 0.04 &amp; 0.09 \end{bmatrix}\text{ m}^2$. Cảm biến LiDAR quét về một điểm mốc quan sát được tại tọa độ $\mathbf{y} = [10.6, 2.4]^T\text{ m}$. Với mức ý nghĩa $\alpha = 0.05$ (độ tin cậy $95\%$), hãy: (a) Chuyển đổi phân phối tiên nghiệm sang dạng thông tin $(\mathbf{Y}, \mathbf{y}_v)$; (b) Tính khoảng cách Mahalanobis bình phương $d_M^2$; (c) Ra quyết định chấp nhận hay loại bỏ phép đo.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định bậc tự do $n = 2$ và tra ngưỡng Chi-bình phương: $\gamma = \chi^2_2(0.95) = 5.991$. Sai số quan sát: $\mathbf{e} = \mathbf{y} - \boldsymbol{\mu} = [10.6 - 10.0, 2.4 - 2.0]^T = [0.6, 0.4]^T\text{ m}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính nghịch đảo ma trận hiệp phương sai (Information Matrix) $\mathbf{Y} = \boldsymbol{\Sigma}^{-1}$:<br/>$\det(\boldsymbol{\Sigma}) = 0.09 \times 0.09 - 0.04^2 = 0.0081 - 0.0016 = 0.0065$.<br/>$$\mathbf{Y} = \boldsymbol{\Sigma}^{-1} = \frac{1}{0.0065}\begin{bmatrix} 0.09 &amp; -0.04 \\ -0.04 &amp; 0.09 \end{bmatrix} = \begin{bmatrix} 13.846 &amp; -6.154 \\ -6.154 &amp; 13.846 \end{bmatrix}\text{ m}^{-2}$$<br/>Information Vector: $\mathbf{y}_v = \mathbf{Y} \boldsymbol{\mu} = \begin{bmatrix} 13.846(10) - 6.154(2) \\ -6.154(10) + 13.846(2) \end{bmatrix} = \begin{bmatrix} 126.154 \\ -33.848 \end{bmatrix}$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Tính khoảng cách Mahalanobis bình phương:<br/>$$d_M^2 = \mathbf{e}^T \mathbf{Y} \mathbf{e} = [0.6, 0.4] \begin{bmatrix} 13.846 &amp; -6.154 \\ -6.154 &amp; 13.846 \end{bmatrix} \begin{bmatrix} 0.6 \\ 0.4 \end{bmatrix}$$<br/>Tích trung gian: $\mathbf{Y}\mathbf{e} = \begin{bmatrix} 13.846(0.6) - 6.154(0.4) \\ -6.154(0.6) + 13.846(0.4) \end{bmatrix} = \begin{bmatrix} 8.308 - 2.462 \\ -3.692 + 5.538 \end{bmatrix} = \begin{bmatrix} 5.846 \\ 1.846 \end{bmatrix}$.<br/>Nhân vô hướng: $d_M^2 = 0.6(5.846) + 0.4(1.846) = 3.508 + 0.738 = 4.246$.<br/>Độ lệch chuẩn chuẩn hóa: $d_M = \sqrt{4.246} \approx 2.060\sigma$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>So sánh với ngưỡng tới hạn: $d_M^2 = 4.246 \lt \chi^2_2(0.95) = 5.991$. Do đó, phép đo nằm bên trong elip tin cậy $95\%$ $\implies$ **Chấp nhận (Inlier)** và được đưa vào cập nhật bộ lọc. Nếu tính khoảng cách Euclid thông thường $d_E^2 = 0.6^2 + 0.4^2 = 0.52\text{ m}^2$, ta không thấy được tác động của tương quan chéo ($0.04$), chứng minh tầm quan trọng của Mahalanobis.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 2.1: Phát hiện xung nhiễu Outlier</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Giả sử do phản xạ gương, LiDAR trả về điểm đo $\mathbf{y}_{spike} = [10.8, 1.2]^T\text{ m}$. Hãy tính khoảng cách Mahalanobis $d_M^2$ và kết luận phép đo này có bị loại bỏ hay không.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Sai số $\mathbf{e} = [0.8, -0.8]^T$. Tích $\mathbf{Y}\mathbf{e} = [16.000, -16.000]^T$. Khoảng cách $d_M^2 = 0.8(16) + (-0.8)(-16) = 12.8 + 12.8 = 25.60$. Vì $d_M^2 = 25.60 \gt 5.991$, phép đo lập tức bị loại bỏ (Outlier Rejected)!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 02: Elip Hiệp Phương Sai &amp; Khoảng Cách Mahalanobis Tương Tác</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-02" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Phương sai $\sigma_x^2$: <span id="sim02-sx-val">0.09</span></label>
+<input id="sim02-sx" max="0.25" min="0.02" step="0.01" type="range" value="0.09"/>
+</div>
+<div class="control-group">
+<label>Hiệp phương sai chéo $\sigma_{xy}$: <span id="sim02-sxy-val">0.04</span></label>
+<input id="sim02-sxy" max="0.08" min="-0.08" step="0.01" type="range" value="0.04"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim02-stats">Rê chuột trên canvas để di chuyển điểm đo y và quan sát giá trị d_M thay đổi so với các đường elip 1-sigma, 2-sigma, 3-sigma.</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Chi-Squared Outlier Gating in ROS 2 / C++
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+bool chiSquareGating(
+    const Eigen::Vector2d&amp; y_meas,
+    const Eigen::Vector2d&amp; y_pred,
+    const Eigen::Matrix2d&amp; S_covariance,
+    double chi2_threshold = 5.991) 
+{
+    Eigen::Vector2d error = y_meas - y_pred;
+    double d_mahalanobis_sq = error.transpose() * S_covariance.inverse() * error;
+    
+    std::cout &lt;&lt; "Mahalanobis distance squared: " &lt;&lt; d_mahalanobis_sq;
+    if (d_mahalanobis_sq &lt;= chi2_threshold) {
+        std::cout &lt;&lt; " [INLIER - Accepted]\n";
+        return true;
+    } else {
+        std::cout &lt;&lt; " [OUTLIER - Rejected]\n";
+        return false;
+    }
+}
+
+int main() {
+    Eigen::Vector2d mu(10.0, 2.0);
+    Eigen::Matrix2d Sigma;
+    Sigma &lt;&lt; 0.09, 0.04, 0.04, 0.09;
+    
+    Eigen::Vector2d inlier_pt(10.6, 2.4);
+    Eigen::Vector2d outlier_pt(10.8, 1.2);
+    
+    chiSquareGating(inlier_pt, mu, Sigma);
+    chiSquareGating(outlier_pt, mu, Sigma);
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Phân phối Gauss:</strong> Khép kín dưới các phép biến đổi tuyến tính, là nền tảng của toàn bộ lý thuyết lọc tối ưu Kalman.</li><li><strong>Dạng thông tin (Canonical Form):</strong> Nghịch đảo ma trận hiệp phương sai thành Information Matrix $\mathbf{Y}$, biến phép cập nhật Bayes thành phép cộng đại số.</li><li><strong>Khoảng cách Mahalanobis:</strong> Chuẩn hóa sai số theo hình học phân tán thực tế, phát hiện chính xác các tương quan chéo.</li><li><strong>Chi-Square Gating:</strong> Quy tắc chốt chặn bắt buộc trong mọi hệ thống SLAM và định vị để miễn nhiễm trước dữ liệu đo sai hỏng.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch01.html">← Chương 01: Cơ Sở Xác Suất</a>
+<a class="btn-nav btn-next" href="ch03.html">Chương tiếp theo: Ước Lượng Tuyến Tính Gauss &amp; RTS Smoother →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

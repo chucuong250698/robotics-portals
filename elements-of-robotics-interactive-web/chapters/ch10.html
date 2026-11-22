@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 10: Không gian C-Space &amp; Thuật toán Tìm đường A* - Elements of Robotics</title>
+<meta content="Không gian cấu hình C-Space, phép cộng Minkowski, thuật toán Dijkstra, hàm heuristic A* chấp nhận được/nhất quán và tìm kiếm trọng số Weighted A*." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 5: Bản đồ Môi trường &amp; Quy hoạch Đường đi</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 10</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 10</span>
+<span class="sidebar-badge">9 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-10-1">
+<span class="nav-text">10.1 Không gian Cấu hình C-Space &amp; Minkowski Sum</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-2">
+<span class="nav-text">10.2 Rời rạc hóa Không gian</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-3">
+<span class="nav-text">10.3 Thuật toán Dijkstra</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-4">
+<span class="nav-text">10.4 Thuật toán Tìm đường A* Search</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-astar">
+<span class="nav-text">⚡ Mô phỏng A* Pathfinding Grid</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-5">
+<span class="nav-text">10.5 Heuristic Trọng số (Weighted A*)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-6">
+<span class="nav-text">10.6 Quy hoạch Động D* &amp; Tránh va chạm DWA</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-worked">
+<span class="nav-text">Ví dụ tính số: Duyệt tay hàng đợi A*</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (nav2_smac_planner)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-10-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 5: BẢN ĐỒ MÔI TRƯỜNG &amp; QUY HOẠCH ĐƯỜNG ĐI</div>
+<h1>Chương 10: Không gian C-Space &amp; Thuật toán Tìm đường A*</h1>
+<p class="chapter-subtitle">Không gian cấu hình C-Space, phép cộng Minkowski, thuật toán Dijkstra, hàm heuristic A* chấp nhận được/nhất quán và tìm kiếm trọng số Weighted A*.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 10.1 & 10.2 -->
+<h4 id="sec-10-1">10.1 Không gian Cấu hình (Configuration Space / C-Space) &amp; Phép cộng Minkowski</h4>
+<p>Robot trong thực tế có kích thước hình học hữu hạn (bán kính $R_{robot}$). Nếu kiểm tra va chạm bằng cách tính giao thoa hình học của toàn bộ thân xe ở mỗi điểm, thuật toán sẽ cực kỳ chậm.</p>
+<p>Giải pháp thông minh: <strong>Thu nhỏ robot thành một chất điểm duy nhất</strong>, đồng thời <strong>"thổi phồng" (giãn nở) tất cả các chướng ngại vật</strong> trong môi trường bằng một lượng đúng bằng bán kính robot thông qua <em>Phép cộng Minkowski (Minkowski Sum)</em>:</p>
+<p>$$\mathcal{C}_{obs} = \mathcal{W}_{obs} \oplus (-\mathcal{A})$$</p>
+<p>Sau khi chuyển đổi sang không gian C-Space, mọi đường đi không cắt vào vật cản giãn nở đều đảm bảo an toàn tuyệt đối cho robot thực!</p>
+<!-- Mục 10.3 & 10.4 -->
+<h4 id="sec-10-3">10.3 Thuật toán Dijkstra vs A* Search</h4>
+<p>Dijkstra khám phá không gian theo mọi hướng đều nhau (tương tự vòng tròn loang dần), gây lãng phí tính toán khi hướng đi ngược với đích đến. Thuật toán <strong>A* Search</strong> khắc phục bằng cách bổ sung hàm dự đoán heuristic $h(n)$ định hướng tìm kiếm thẳng về mục tiêu:</p>
+<div class="formula-hero">
+<div class="formula-title">HÀM ĐÁNH GIÁ CHI PHÍ A* SEARCH</div>
+<div class="formula-math">
+                $$f(n) = g(n) + h(n)$$
+              </div>
+<div class="formula-legend">
+                $g(n)$: Chi phí thực tế đã đi từ điểm xuất phát (Start) đến nút $n$.<br/>
+                $h(n)$: Chi phí ước lượng rẻ nhất (Heuristic) từ nút $n$ đến đích (Goal).<br/>
+                $f(n)$: Tổng chi phí ước lượng của đường đi tối ưu đi qua nút $n$.
+              </div>
+</div>
+<p><strong>Điều kiện để A* đảm bảo tìm được đường đi ngắn nhất tuyệt đối:</strong></p>
+<ul>
+<li><strong>Heuristic Chấp nhận được (Admissible Heuristic):</strong> $0 \le h(n) \le h^*(n)$ với mọi $n$ (không bao giờ đánh giá quá cao khoảng cách thực tế đến đích).</li>
+<li><strong>Heuristic Nhất quán (Consistent / Monotonic):</strong> $h(n) \le c(n, a, n') + h(n')$ thỏa mãn bất đẳng thức tam giác.</li>
+</ul>
+<!-- SIMULATOR CONTAINER: ASTAR -->
+<div class="simulator-wrapper" id="sim-astar">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 07: QUY HOẠCH ĐƯỜNG ĐI TRÊN LƯỚI A* SEARCH</span>
+</div>
+<span class="sim-badge">Interactive Grid Pathfinding</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="320" id="astar-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item" style="flex: 2;">
+<span class="telemetry-label">TRẠNG THÁI THUẬT TOÁN:</span>
+<span class="telemetry-val" id="astar-status">Sẵn sàng. Nhấp kéo chuột trên lưới để vẽ/xóa tường vật cản!</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Trọng số Heuristic $\epsilon$ (Weighted A*): <span id="astar-weight-val">1.0</span></label>
+<input class="control-slider" id="astar-weight" max="3.0" min="0.0" step="0.2" type="range" value="1.0"/>
+</div>
+<div class="control-group" style="flex: 0 0 auto; display: flex; gap: 0.5rem;">
+<button class="control-btn primary" id="astar-btn-run">Chạy Tìm đường A*</button>
+<button class="control-btn secondary" id="astar-btn-clear">Xóa vật cản</button>
+</div>
+</div>
+</div>
+</div>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-10-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 DUYỆT TỪNG BƯỚC HÀNG ĐỢI A* TRÊN LƯỚI 4x4</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Tìm đường trên lưới từ $S(0,0)$ đến $G(3,3)$. Chi phí di chuyển mỗi ô kề cạnh là $c = 1$. Vật cản tại $(1,1)$ và $(1,2)$. Áp dụng heuristic khoảng cách Manhattan $h(x, y) = |x - 3| + |y - 3|$. Hãy xác định giá trị $f(n) = g(n) + h(n)$ cho các nút láng giềng đầu tiên từ $S$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Khởi Tạo Nút Bắt Đầu $S(0,0)$</span>
+</div>
+<div class="step-content">
+<p>$g(S) = 0$<br/>
+                  $h(S) = |0 - 3| + |0 - 3| = 3 + 3 = 6$<br/>
+                  $f(S) = 0 + 6 = 6$<br/>
+                  Đưa $S$ vào tập <code>OPEN</code>.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Mở Rộng $S$, Xét Các Nút Kề</span>
+</div>
+<div class="step-content">
+<p>Lấy $S$ ra đưa vào <code>CLOSED</code>. Hai nút láng giềng hợp lệ:<br/>
+                  - Phải: $A(1,0)$<br/>
+                  - Lên: $B(0,1)$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Toán Chi Phí $f(n)$ cho $A$ và $B$</span>
+</div>
+<div class="step-content">
+<p><strong>Nút $A(1,0)$:</strong> $g(A) = 1$, $h(A) = |1-3| + |0-3| = 2 + 3 = 5 \Rightarrow f(A) = 1 + 5 = 6$.<br/>
+<strong>Nút $B(0,1)$:</strong> $g(B) = 1$, $h(B) = |0-3| + |1-3| = 3 + 2 = 5 \Rightarrow f(B) = 1 + 5 = 6$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Chọn Nút Kế Tiếp Từ Tập OPEN</span>
+</div>
+<div class="step-content">
+<p>Do $f(A) = f(B) = 6$, hòa điểm tie-breaking chọn $A(1,0)$ trước.<br/>
+                  Từ $A(1,0)$, nút $(1,1)$ là vật cản bị bỏ qua, thuật toán chuyển sang mở rộng $(2,0)$ với $f=6$, hướng thẳng về đích nhanh nhất!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Mở rộng chướng ngại vật trong không gian cấu hình C-Space bằng tổng Minkowski cho phép co robot về chất điểm đơn nhất: Đơn giản hóa bài toán quy hoạch quỹ đạo và bảo đảm an toàn hình học tuyệt đối khi di chuyển.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-10-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Thuật toán A* được triển khai trong Nav2 của ROS 2 thông qua plugin <code>nav2_smac_planner</code> (hỗ trợ 2D A*, Hybrid A* cho xe có góc lái Ackermann) hoặc <code>nav2_navfn_planner</code>. Chi phí được tính toán trên <code>global_costmap</code> đã được tự động giãn nở (Inflation Layer) theo bán kính robot.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-10-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Mở Rộng Chướng Ngại Vật Trong Không Gian Cấu Hình (C-Space) Bằng Minkowski Sum</h4>
+</div>
+<div class="practice-statement">
+<p>Một robot di động hình tròn bán kính $r = 0.25\text{ m}$. Môi trường có một chướng ngại vật hình chữ nhật có các đỉnh tại $A(1.0, 1.0)$, $B(2.0, 1.0)$, $C(2.0, 3.0)$, $D(1.0, 3.0)$ (đơn vị mét). Thuật toán quy hoạch đường đi mở rộng chướng ngại vật trong C-Space bằng tổng Minkowski $C_{\text{obs}} = \mathcal{O} \oplus \mathcal{B}_r(0)$ để co robot về một chất điểm duy nhất $(x, y)$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Xác định hình dạng hình học của chướng ngại vật mở rộng $C_{\text{obs}}$.<br/>2) Tính kích thước bao chữ nhật mới sau khi mở rộng.<br/>3) Kiểm tra xem một đường đi của chất điểm đi qua điểm $P(0.85, 2.0)$ có bị coi là va chạm không.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Chướng ngại vật mở rộng $C_{\text{obs}}$ là một hình chữ nhật bo tròn 4 góc với bán kính góc bo đúng bằng bán kính robot $r = 0.25\text{ m}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Kích thước hình chữ nhật bao ngoài mở rộng mỗi phía một khoảng $r = 0.25\text{ m}$:<br/>• $X_{\text{min}} = 1.0 - 0.25 = 0.75\text{ m}$; $X_{\text{max}} = 2.0 + 0.25 = 2.25\text{ m}$ (Chiều rộng $1.5\text{ m}$).<br/>• $Y_{\text{min}} = 1.0 - 0.25 = 0.75\text{ m}$; $Y_{\text{max}} = 3.0 + 0.25 = 3.25\text{ m}$ (Chiều dài $2.5\text{ m}$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Kiểm tra điểm $P(0.85, 2.0)$:<br/>Tại $y = 2.0$, mặt phẳng biên trái nguyên bản là đoạn thẳng $x = 1.0$. Biên mở rộng tại đây là đường thẳng $x = 1.0 - 0.25 = 0.75\text{ m}$.<br/>Vì $x_P = 0.85\text{ m} \gt 0.75\text{ m}$ và $y_P = 2.0 \in [1.0, 3.0]$, điểm $P$ nằm lọt BÊN TRONG chướng ngại vật mở rộng $C_{\text{obs}}$. Do đó, tâm robot đặt tại $P$ sẽ va chạm cạnh trái của vật thể thật.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch09.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 09: Lập bản đồ Lưới Chiếm chỗ &amp; Nghị...</span>
+</a>
+<a class="page-nav-btn next" href="ch11.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 11: Môi trường Phức tạp &amp; Điều khiển... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

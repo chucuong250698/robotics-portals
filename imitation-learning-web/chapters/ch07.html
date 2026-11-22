@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 07: Học Tăng Cường Nghịch Đảo (Inverse RL) &amp; Maximum Entropy - Imitation Learning in Robotics</title>
+<meta content="Inverse Reinforcement Learning &amp; Feature Matching" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 4: HỌC TĂNG CƯỜNG NGHỊCH ĐẢO &amp; ĐỐI NGHỊCH</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 07</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 07</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-7-1">
+<span class="nav-text">7.1 Bài Toán Khôi Phục Hàm Phần Thưởng Ẩn R(s,a)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-2">
+<span class="nav-text">7.2 Thuật Toán Maximum Margin IRL (Ng &amp; Russell)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-3">
+<span class="nav-text">7.3 Maximum Entropy IRL (Ziebart 2008)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-4">
+<span class="nav-text">7.4 Feature Matching &amp; Gradient Descent</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-sim">
+<span class="nav-text">⚡ Mô Phỏng Bản Đồ Nhiệt Thưởng R(s) Gridworld (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Gradient Feature Matching</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-7-bridge">
+<span class="nav-text">🛠️ Cầu Nối Kỹ Thuật: Triển Khai Thuật Toán MaxEnt Solver</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-7-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 4: HỌC TĂNG CƯỜNG NGHỊCH ĐẢO &amp; ĐỐI NGHỊCH • CHƯƠNG 07</div>
+<h1 class="chapter-title">Học Tăng Cường Nghịch Đảo (Inverse RL) &amp; Maximum Entropy</h1>
+<p class="chapter-subtitle">Inverse Reinforcement Learning &amp; Feature Matching</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Carlos Celemin et al. (FnT Robotics 2022) &amp; Zare et al. (IEEE 2023)</strong></span>
+</div>
+</div>
+<!-- 7.1 -->
+<h2 id="sec-7-1">7.1 Đặt Vấn Đề: Tại Sao Cần Khôi Phục Hàm Phần Thưởng Ẩn?</h2>
+<p>Nhân bản hành vi (BC) chỉ đơn thuần "bắt chước mù quáng" các hành động bề mặt $a$ mà không hề thấu hiểu <em>mục đích tối hậu</em> của chuyên gia. Khi môi trường có sự thay đổi về chướng ngại vật hoặc luật động học, chính sách BC lập tức sụp đổ. <strong>Học Tăng Cường Nghịch Đảo (Inverse Reinforcement Learning - IRL)</strong> đi tìm câu trả lời cho câu hỏi cốt lõi: <em>"Động cơ hay hàm phần thưởng $R^*(s,a)$ nào đã khiến chuyên gia hành động như vậy?"</em></p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 ƯU ĐIỂM VƯỢT TRỘI CỦA HÀM PHẦN THƯỞNG R(s,a)</div>
+<div class="why-matters-body">
+            1. <strong>Bất biến với động lực học môi trường (Environment Invariance):</strong> Nếu thay đổi khối lượng robot hoặc bề mặt ma sát, chính sách cũ không dùng được, nhưng hàm phần thưởng $R(s)$ vẫn giữ nguyên chân lý. Ta chỉ việc chạy lại thuật toán RL tối ưu là robot mới lập tức thích nghi.
+            <br/>2. <strong>Biểu diễn cô đọng nhất của hành vi:</strong> Toàn bộ tri thức phức tạp được nén gọn trong một hàm thế vô hướng $R: \mathcal{S} \times \mathcal{A} \to \mathbb{R}$.
+            <br/>3. <strong>Vấn đề nan giải (Ill-posed problem):</strong> Luôn tồn tại vô số hàm thưởng tầm thường thỏa mãn (ví dụ: $R(s,a) \equiv 0$ khiến mọi chính sách đều có giá trị bằng nhau).
+          </div>
+</div>
+<!-- 7.2 -->
+<h2 id="sec-7-2">7.2 Thuật Toán Maximum Margin IRL (Abbeel &amp; Ng 2004)</h2>
+<p>Giả định hàm phần thưởng tuyến tính theo vector đặc trưng trạng thái $\phi(s) \in \mathbb{R}^d$:</p>
+        $$R_w(s) = w^T \phi(s), \quad \|w\|_2 \le 1$$
+        <p>Giá trị kỳ vọng của một chính sách $\pi$ được biểu diễn qua vector đặc trưng kỳ vọng (Expected Feature Counts):</p>
+        $$\mathbb{E}\left[\sum_{t=0}^\infty \gamma^t R(s_t)\right] = w^T \mu(\pi), \quad \text{với } \mu(\pi) = \mathbb{E}\left[\sum_{t=0}^\infty \gamma^t \phi(s_t) \;\middle|\; \pi\right]$$
+        <p>Thuật toán <strong>Maximum Margin</strong> tìm kiếm vector trọng số $w$ sao cho chính sách chuyên gia $\pi_E$ vượt trội hơn tất cả các chính sách khác một khoảng lề an toàn tối đa (Margin):</p>
+        $$\max_w \min_i w^T \left( \mu_E - \mu(\pi_i) \right), \quad \text{s.t. } \|w\|_2 \le 1$$
+
+        <!-- 7.3 -->
+<h2 id="sec-7-3">7.3 Maximum Entropy IRL (Ziebart et al., 2008)</h2>
+<p>Thuật toán Max-Margin vẫn còn nhược điểm: giả định con người hành động hoàn hảo và có thể chọn một hàm thưởng tùy tiện ở biên. Brian Ziebart đưa ra nguyên lý mang tính bước ngoặt: <em>Trong số tất cả các phân phối quỹ đạo phù hợp với dữ liệu chuyên gia, hãy chọn phân phối có Entropy cực đại (ít thiên kiến giả định nhất).</em></p>
+<div class="formula-hero">
+<div class="formula-title">Phân Phối Xác Suất Quỹ Đạo Theo Nguyên Lý Gibbs/Boltzmann</div>
+<div class="formula-math">
+            $$P(\tau \mid \theta) = \frac{1}{Z(\theta)} \exp\left( R_\theta(\tau) \right) = \frac{1}{Z(\theta)} \exp\left( \theta^T \Phi(\tau) \right)$$
+          </div>
+<div class="formula-legend">
+<strong>Trong đó:</strong>
+<br/>• $\Phi(\tau) = \sum_{t=0}^T \phi(s_t)$: Tổng vector đặc trưng tích lũy dọc theo quỹ đạo $\tau$.
+            <br/>• $Z(\theta) = \int \exp\left(\theta^T \Phi(\tau)\right) d\tau$: Hàm phân phối trạng thái (Partition function), tích phân trên toàn bộ các quỹ đạo hợp lệ có thể sinh ra trong MDP.
+            <br/>• Quỹ đạo có tổng phần thưởng cao hơn sẽ có xác suất xuất hiện lớn hơn theo quy luật hàm mũ, đồng thời chuyên gia vẫn có thể mắc sai sót nhỏ ngẫu nhiên (Bounded Rationality).
+          </div>
+</div>
+<!-- 7.4 -->
+<h2 id="sec-7-4">7.4 Feature Matching &amp; Thuật Toán Tối Ưu Gradient Descent</h2>
+<p>Hàm mục tiêu Log-Likelihood cực đại hóa xác suất của tập biểu diễn chuyên gia $\mathcal{D}_E$:</p>
+        $$\mathcal{L}(\theta) = \sum_{\tau \in \mathcal{D}_E} \log P(\tau \mid \theta) = \sum_{\tau \in \mathcal{D}_E} \theta^T \Phi(\tau) - |\mathcal{D}_E| \log Z(\theta)$$
+        <p>Đạo hàm Gradient đẹp đẽ của hàm mục tiêu theo tham số $\theta$:</p>
+        $$\nabla_\theta \mathcal{L}(\theta) = \tilde{\mu}_E - \sum_{\tau} P(\tau \mid \theta) \Phi(\tau) = \tilde{\mu}_E - \sum_{s \in \mathcal{S}} D_s \phi(s)$$
+        <p>với $\tilde{\mu}_E = \frac{1}{N} \sum_{i=1}^N \Phi(\tau_i)$ là đặc trưng thực nghiệm của chuyên gia, và $D_s$ là tần suất viếng thăm trạng thái (State Visitation Frequency - SVF) tính bằng quy hoạch động.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-7-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Khôi Phục Bản Đồ Nhiệt Phần Thưởng Ẩn $R(s)$ Trong Gridworld</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="320" id="sim-canvas-07" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-7-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Cập Nhật Trọng Số Phần Thưởng $\theta$ Qua Gradient Feature Matching</h3>
+</div>
+<div class="exercise-statement">
+<p>Xét một bài toán robot có 2 đặc trưng quan sát: $\phi_1(s)$ (tốc độ di chuyển) và $\phi_2(s)$ (khoảng cách tới vật cản). Chuyên gia có vector đặc trưng trung bình thực nghiệm $\tilde{\mu}_E = [4.5, 0.8]^T$. Trọng số thưởng khởi tạo hiện tại là $\theta = [0.5, -1.0]^T$. Khi mô phỏng chính sách hiện tại với $\theta$, tần suất viếng thăm trạng thái sinh ra vector đặc trưng kỳ vọng là $\mathbb{E}_{\pi_\theta}[\mu] = [3.2, 1.5]^T$. Tốc độ học $\eta = 0.1$. Tính vector gradient và cập nhật vector trọng số thưởng $\theta_{\text{new}}$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính vector sai lệch đặc trưng (Feature Discrepancy)</span>
+</div>
+<div class="step-content">
+<p>Gradient hàm mục tiêu chính là hiệu giữa đặc trưng chuyên gia và đặc trưng chính sách:</p><p>$$\nabla_\theta \mathcal{L}(\theta) = \tilde{\mu}_E - \mathbb{E}_{\pi_\theta}[\mu]$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số tính toán từng thành phần gradient</span>
+</div>
+<div class="step-content">
+<p>• Thành phần tốc độ: $\Delta_1 = 4.5 - 3.2 = +1.3$</p><p>• Thành phần vật cản: $\Delta_2 = 0.8 - 1.5 = -0.7$</p><p>Vector gradient: $\nabla_\theta \mathcal{L} = [1.3, -0.7]^T$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Cập nhật trọng số thưởng theo Gradient Ascent</span>
+</div>
+<div class="step-content">
+<p>$$\theta_{\text{new}} = \theta_{\text{old}} + \eta \nabla_\theta \mathcal{L}(\theta)$$</p><p>• $\theta_1^{\text{new}} = 0.5 + 0.1 \times (1.3) = 0.5 + 0.13 = 0.63$</p><p>• $\theta_2^{\text{new}} = -1.0 + 0.1 \times (-0.7) = -1.0 - 0.07 = -1.07$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Phân tích ý nghĩa học máy của trọng số mới</span>
+</div>
+<div class="step-content">
+<p>• $\theta_1$ tăng từ $0.5 \to 0.63$: Robot được khuyến khích di chuyển nhanh hơn để bắt kịp phong cách chuyên gia.</p><p>• $\theta_2$ giảm sâu hơn từ $-1.0 \to -1.07$: Hình phạt lại gần vật cản bị siết chặt hơn do chính sách cũ tiếp cận quá gần vật cản so với chuyên gia.</p><p>Thuật toán hội tụ khi $\|\nabla_\theta \mathcal{L}\| \to 0$ (Đặc trưng khớp hoàn hảo).</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Thuật toán Maximum Entropy IRL khôi phục hàm phần thưởng ẩn bất biến từ quỹ đạo chuyên gia: Tránh việc phụ thuộc vào hàm thưởng nhân tạo thủ công và giải quyết hiện tượng mập mờ phần thưởng (Reward Ambiguity).</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-7-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Thuật Toán Tính Tần Suất Trạng Thái (SVF) MaxEnt Trong Python</h4>
+<p>Mã nguồn lõi tính toán tần suất viếng thăm trạng thái $D_s$ bằng quy hoạch động thuận nghịch:</p>
+<div class="code-card">
+<div class="code-header">
+<span>maxent_svf_solver.py (Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import numpy as np
+
+def compute_state_visitation_frequency(P_trans, policy, p0, T):
+    # P_trans: [n_states, n_actions, n_states]
+    # policy: [n_states, n_actions]
+    # p0: phân phối xuất phát [n_states]
+    n_states, n_actions, _ = P_trans.shape
+    D = np.zeros((n_states, T))
+    D[:, 0] = p0
+
+    for t in range(1, T):
+        for s_prime in range(n_states):
+            # Tính tổng xác suất chuyển dịch từ mọi cặp (s, a) tới s_prime
+            prob_flow = 0.0
+            for s in range(n_states):
+                for a in range(n_actions):
+                    prob_flow += D[s, t-1] * policy[s, a] * P_trans[s, a, s_prime]
+            D[s_prime, t] = prob_flow
+            
+    # Tần suất viếng thăm trạng thái tích lũy
+    return np.sum(D, axis=1)</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-7-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Khôi Phục Trọng Số Hàm Phần Thưởng Ẩn Trong Maximum Entropy IRL</h4>
+</div>
+<div class="practice-statement">
+<p>Hệ thống MaxEnt IRL mô hình hóa hàm phần thưởng dưới dạng tuyến tính theo vector đặc trưng: $R_\theta(s) = \mathbf{\theta}^T \mathbf{f}(s)$. Không gian gồm 2 trạng thái $s_1$ (vùng phẳng) và $s_2$ (vùng gồ ghề) với $\mathbf{f}(s_1) = [1, 0]^T$ và $\mathbf{f}(s_2) = [0, 1]^T$. Chuyên gia di chuyển cho tần suất thăm trạng thái $\mu_E = [0.85, 0.15]^T$. Chính sách hiện tại của robot có tần suất thăm kỳ vọng $\mu_\theta = [0.60, 0.40]^T$. Tốc độ học $\eta = 0.5$, vector trọng số ban đầu $\mathbf{\theta}_0 = [0.0, 0.0]^T$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính gradient hàm mục tiêu log-likelihood MaxEnt: $\nabla_\theta L = \mathbf{\mu}_E - \mathbf{\mu}_\theta$.<br/>2) Cập nhật vector trọng số phần thưởng $\mathbf{\theta}_1 = \mathbf{\theta}_0 + \eta \nabla_\theta L$.<br/>3) Diễn giải ý nghĩa vật lý của trọng số phần thưởng sau cập nhật.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Gradient hàm mục tiêu chính là hiệu giữa vector đặc trưng chuyên gia và vector đặc trưng của chính sách hiện tại:<br/>$$\nabla_\theta L = \mathbf{\mu}_E - \mathbf{\mu}_\theta = \begin{bmatrix} 0.85 \\ 0.15 \end{bmatrix} - \begin{bmatrix} 0.60 \\ 0.40 \end{bmatrix} = \begin{bmatrix} +0.25 \\ -0.25 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Cập nhật trọng số thưởng:<br/>$$\mathbf{\theta}_1 = \begin{bmatrix} 0.0 \\ 0.0 \end{bmatrix} + 0.5 \times \begin{bmatrix} +0.25 \\ -0.25 \end{bmatrix} = \begin{bmatrix} +0.125 \\ -0.125 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Ý nghĩa: Trọng số ứng với trạng thái vùng phẳng nhận giá trị dương ($+0.125$), trong khi vùng gồ ghề nhận giá trị âm ($-0.125$). Thuật toán tự động phát hiện chuyên gia thích đi trên đường bằng phẳng và ghét đường xóc mà không cần con người định nghĩa hàm thưởng thủ công.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch06.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 06: Diffusion Policy &amp; ACT</span>
+</a>
+<a class="ch-nav-card next" href="ch08.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 08: Học Bắt Chước Đối Nghịch GAIL</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

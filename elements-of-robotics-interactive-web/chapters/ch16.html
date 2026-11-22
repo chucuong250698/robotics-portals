@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 16: Cánh Tay Thao Tác 2-DOF &amp; Động Học Không Gian 3D - Elements of Robotics</title>
+<meta content="Khớp quay và khớp trượt, động học thuận lượng giác vs ma trận thuần nhất 4x4, động học ngược luật Cosine (Elbow-Up/Down), điểm kỳ dị và xoay 3D Euler/Quaternions." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 7: Swarm Robotics &amp; Cánh tay 3D</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 16</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 16</span>
+<span class="sidebar-badge">8 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-16-1">
+<span class="nav-text">16.1 Robot Di động SE(2) vs Cánh tay Thao tác SE(3)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-16-2">
+<span class="nav-text">16.2 Giải phẫu Cánh tay: Khớp quay &amp; Khớp trượt</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-16-3">
+<span class="nav-text">16.3 Động học Thuận (Forward Kinematics)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-16-4">
+<span class="nav-text">16.4 Động học Ngược (Inverse Kinematics) &amp; 2 Nghiệm Đối xứng</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-arm">
+<span class="nav-text">⚡ Mô phỏng Cánh tay 2-DOF Kéo Thả IK</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-16-5">
+<span class="nav-text">16.5 Động học Quay 3D: Gimbal Lock &amp; Quaternions</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-16-worked">
+<span class="nav-text">Ví dụ tính số: Giải ngược góc khớp 2-DOF</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-16-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (MoveIt 2 &amp; URDF)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-16-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 7: SWARM ROBOTICS &amp; CÁNH TAY 3D</div>
+<h1>Chương 16: Cánh Tay Thao Tác 2-DOF &amp; Động Học Không Gian 3D</h1>
+<p class="chapter-subtitle">Khớp quay và khớp trượt, động học thuận lượng giác vs ma trận thuần nhất 4x4, động học ngược luật Cosine (Elbow-Up/Down), điểm kỳ dị và xoay 3D Euler/Quaternions.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 16.1, 16.2, 16.3 -->
+<h4 id="sec-16-1">16.1 So sánh Robot Di động ($SE(2)$) và Cánh tay Thao tác ($SE(3)$)</h4>
+<p>Khác với robot bánh xe di chuyển trên mặt sàn phẳng 2D với 3 bậc tự do $(x, y, \theta)$, cánh tay cơ khí thao tác (Articulated Manipulator) gồm chuỗi các thanh nối cứng (Links) liên kết qua các khớp động học (Joints) để điều khiển đầu kẹp thao tác (End-Effector) trong không gian 3 chiều với 6 bậc tự do $(x, y, z, \text{roll}, \text{pitch}, \text{yaw})$.</p>
+<h4 id="sec-16-2">16.2 Động học Thuận Cánh tay Phẳng 2 Bậc tự do (2-DOF Planar Arm)</h4>
+<p>Xét cánh tay phẳng 2 bậc tự do với chiều dài hai thanh nối lần lượt là $l_1, l_2$ và góc quay của các khớp là $\theta_1, \theta_2$:</p>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ Động học Thuận và Động học Ngược Cánh tay 2-DOF" src="../assets/images/robot_arm.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 16.1:</strong> Hình học cánh tay phẳng 2-DOF. Cho biết $(\theta_1, \theta_2) \implies$ tính được tọa độ đầu kẹp $(x, y)$ (Động học Thuận). Cho biết $(x, y) \implies$ giải ra hai cấu hình đối xứng Elbow-Up và Elbow-Down (Động học Ngược).
+              </div>
+</div>
+<div class="formula-hero">
+<div class="formula-title">PHƯƠNG TRÌNH ĐỘNG HỌC THUẬN (FORWARD KINEMATICS)</div>
+<div class="formula-math">
+                $$x = l_1 \cos\theta_1 + l_2 \cos(\theta_1 + \theta_2)$$
+                $$y = l_1 \sin\theta_1 + l_2 \sin(\theta_1 + \theta_2)$$
+              </div>
+<div class="formula-legend">
+                Vị trí đầu kẹp là sự xếp chồng lượng giác của hai vector thanh nối. Động học thuận luôn có nghiệm duy nhất và giải rất dễ dàng!
+              </div>
+</div>
+<!-- Mục 16.4 -->
+<h4 id="sec-16-4">16.4 Động học Ngược (Inverse Kinematics) &amp; Hai Nghiệm Đối xứng</h4>
+<p>Động học ngược là bài toán ngược lại: cho trước tọa độ mong muốn $(x, y)$, tìm các góc khớp $(\theta_1, \theta_2)$ để đặt đầu kẹp chính xác vào vị trí đó. Áp dụng định lý hàm số Cosine cho tam giác tạo bởi gốc tọa độ, khớp 2 và đầu kẹp:</p>
+<p>$$r^2 = x^2 + y^2 = l_1^2 + l_2^2 - 2 l_1 l_2 \cos(180^\circ - \theta_2) = l_1^2 + l_2^2 + 2 l_1 l_2 \cos\theta_2$$</p>
+<p>Suy ra giá trị $\cos\theta_2$:</p>
+<p>$$\cos\theta_2 = \frac{x^2 + y^2 - l_1^2 - l_2^2}{2 l_1 l_2}$$</p>
+<p>Vì $\sin\theta_2 = \pm \sqrt{1 - \cos^2\theta_2}$, bài toán luôn tồn tại <strong>Hai nghiệm đối xứng (Dual Solutions)</strong>:</p>
+<ul>
+<li><strong>Cùi chỏ hướng lên (Elbow-Up):</strong> $\theta_2 \lt 0$.</li>
+<li><strong>Cùi chỏ hướng xuống (Elbow-Down):</strong> $\theta_2 \gt 0$.</li>
+</ul>
+<p>Góc $\theta_1$ được xác định thông qua phép trừ góc lượng giác:</p>
+<p>$$\theta_1 = \text{atan2}(y, x) - \text{atan2}\left( l_2 \sin\theta_2, \; l_1 + l_2 \cos\theta_2 \right)$$</p>
+<!-- SIMULATOR CONTAINER: ARM -->
+<div class="simulator-wrapper" id="sim-arm">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 08: CÁNH TAY 2-DOF ĐỘNG HỌC THUẬN &amp; ĐỘNG HỌC NGƯỢC</span>
+</div>
+<span class="sim-badge">Interactive Drag-and-Drop IK</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="340" id="arm-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item" style="flex: 2;">
+<span class="telemetry-label">TỌA ĐỘ ĐẦU KẸP (END-EFFECTOR):</span>
+<span class="telemetry-val" id="arm-pos-val">X = 220.0 mm, Y = 130.0 mm</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Góc khớp 1 $\theta_1$: <span id="arm-th1-val">30</span>°</label>
+<input class="control-slider" id="arm-th1" max="180" min="-90" step="1" type="range" value="30"/>
+</div>
+<div class="control-group">
+<label class="control-label">Góc khớp 2 $\theta_2$: <span id="arm-th2-val">45</span>°</label>
+<input class="control-slider" id="arm-th2" max="160" min="-160" step="1" type="range" value="45"/>
+</div>
+<div class="control-group" style="flex: 0 0 auto; display: flex; align-items: center; gap: 0.75rem;">
+<button class="control-btn primary" id="arm-elbow-toggle">Chuyển Elbow-Up/Down</button>
+<button class="control-btn secondary" id="arm-reset">Đặt lại</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Mục 16.5 -->
+<h4 id="sec-16-5">16.5 Động học Quay 3D: Góc Euler, Khóa khớp (Gimbal Lock) &amp; Quaternions</h4>
+<p>Trong không gian 3 chiều, việc biểu diễn phép quay bằng 3 góc Euler $(\text{roll } \phi, \text{pitch } \theta, \text{yaw } \psi)$ rất trực quan nhưng ẩn chứa một hiểm họa trí mạng: khi góc pitch $\theta = \pm 90^\circ$, trục quay roll và yaw bị trùng phương nhau, làm mất đi một bậc tự do quay. Hiện tượng này gọi là <strong>Khóa khớp (Gimbal Lock)</strong>.</p>
+<p>Để khắc phục hoàn hảo và tránh kỳ dị toán học, robot học hiện đại sử dụng số <strong>Quaternions (Tứ nguyên số)</strong> gồm 4 thành phần $q = [q_w, q_x, q_y, q_z]^T$ với điều kiện chuẩn hóa $\|q\| = 1$.</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-16-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 GIẢI CHI TIẾT ĐỘNG HỌC NGƯỢC CÁNH TAY 2-DOF</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Cánh tay phẳng 2 bậc tự do có chiều dài thanh nối $l_1 = 150\text{ mm}$ và $l_2 = 100\text{ mm}$. Cần đặt đầu kẹp tới vị trí đích $(x, y) = (180\text{ mm}, 120\text{ mm})$. Hãy tính nghiệm góc khớp $(\theta_1, \theta_2)$ cho cấu hình cùi chỏ hướng lên (Elbow-Up, $\theta_2 \lt 0$).</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Bán Kính Cự Ly Bình Phương $r^2$</span>
+</div>
+<div class="step-content">
+<p>$r^2 = x^2 + y^2 = 180^2 + 120^2 = 32400 + 14400 = 46800\text{ mm}^2$<br/>
+                  $l_1^2 + l_2^2 = 150^2 + 100^2 = 22500 + 10000 = 32500\text{ mm}^2$<br/>
+                  $2 l_1 l_2 = 2 \times 150 \times 100 = 30000\text{ mm}^2$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính $\cos\theta_2$ và Góc Khớp $\theta_2$</span>
+</div>
+<div class="step-content">
+<p>$\cos\theta_2 = \frac{46800 - 32500}{30000} = \frac{14300}{30000} \approx 0.4767$<br/>
+                  Vì chọn Elbow-Up: $\theta_2 = -\arccos(0.4767) \approx -61.53^\circ$ ($-1.0739\text{ rad}$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Góc Hướng Tổng Thể $\beta$ và Góc Bù $\alpha$</span>
+</div>
+<div class="step-content">
+<p>$\beta = \text{atan2}(120, 180) \approx 33.69^\circ$<br/>
+                  $k_1 = l_1 + l_2 \cos\theta_2 = 150 + 100 \times 0.4767 = 197.67\text{ mm}$<br/>
+                  $k_2 = l_2 \sin\theta_2 = 100 \times \sin(-61.53^\circ) = -87.90\text{ mm}$<br/>
+                  $\alpha = \text{atan2}(-87.90, 197.67) \approx -23.98^\circ$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính Góc Khớp $\theta_1$ và Thử Lại</span>
+</div>
+<div class="step-content">
+<p>$\theta_1 = \beta - \alpha = 33.69^\circ - (-23.98^\circ) = 57.67^\circ$.<br/>
+<strong>Thử lại:</strong> $x = 150\cos(57.67^\circ) + 100\cos(57.67^\circ - 61.53^\circ) = 80.22 + 99.77 = 179.99 \approx 180\text{ mm}$. Tuyệt đối chính xác!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Giải phương trình động học nghịch IK cho cánh tay 2 khâu phẳng chứng minh mối liên hệ hình học chặt chẽ giữa không gian khớp và không gian tác vụ: Cho phép điều khiển chính xác vị trí công cụ đầu cuối tới tọa độ mong muốn.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-16-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Mọi cánh tay cơ khí trong ROS 2 được điều khiển qua framework <strong>MoveIt 2</strong>. File mô tả cấu trúc <code>URDF</code> định nghĩa các khớp <code>joint</code> và liên kết <code>link</code>. MoveIt 2 tích hợp các solver động học ngược tối tân như <code>KDL</code>, <code>TRAC-IK</code>, hoặc <code>bio_ik</code> để tính toán đường đi tránh tự va chạm trong thời gian thực dưới 5 phần nghìn giây.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-16-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Giải Động Học Thuận &amp; Động Học Nghịch (IK) Cho Cánh Tay Thao Tác 2 Khâu Phẳng</h4>
+</div>
+<div class="practice-statement">
+<p>Một cánh tay robot 2 khâu phẳng có chiều dài $l_1 = 0.20\text{ m}$ và $l_2 = 0.15\text{ m}$. Cánh tay cần đưa đầu gắp (End-Effector) đến tọa độ đích $(x, y) = (0.25\text{ m}, 0.15\text{ m})$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính cự ly từ gốc tọa độ tới điểm đích $r = \sqrt{x^2 + y^2}$ và kiểm tra xem điểm đích có nằm trong không gian làm việc (Workspace) không.<br/>2) Áp dụng định lý hàm số cos tính góc khớp thứ hai $\theta_2$ (chọn cấu hình gập khuỷu tay xuống - Elbow Down).<br/>3) Tính góc khớp thứ nhất $\theta_1$ và kiểm tra lại vị trí bằng phương trình động học thuận.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Khoảng cách tới đích: $r = \sqrt{(0.25)^2 + (0.15)^2} = \sqrt{0.0625 + 0.0225} = \sqrt{0.085} \approx 0.2915\text{ m}$.<br/>Không gian làm việc tối đa: $R_{\text{max}} = l_1 + l_2 = 0.20 + 0.15 = 0.35\text{ m}$. Không gian tối thiểu: $R_{\text{min}} = |l_1 - l_2| = 0.05\text{ m}$.<br/>Vì $0.05 \le 0.2915 \le 0.35$, điểm đích nằm hoàn toàn trong không gian thao tác.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tính $\theta_2$ qua định lý cos:<br/>$$\cos\theta_2 = \frac{x^2 + y^2 - l_1^2 - l_2^2}{2 l_1 l_2} = \frac{0.085 - (0.04 + 0.0225)}{2 \times 0.20 \times 0.15} = \frac{0.085 - 0.0625}{0.060} = \frac{0.0225}{0.060} = 0.375$$<br/>Góc $\theta_2 = \arccos(0.375) \approx 1.1864\text{ rad} \approx 67.98^\circ$. Cấu hình Elbow Down lấy $\theta_2 = -67.98^\circ$ (hoặc $+67.98^\circ$ tùy quy ước). Chọn $\theta_2 = +67.98^\circ$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Tính $\theta_1$:<br/>$$\theta_1 = \arctan2(y, x) - \arctan2(l_2 \sin\theta_2, l_1 + l_2 \cos\theta_2)$$<br/>• $\arctan2(0.15, 0.25) \approx 0.5404\text{ rad}$ ($30.96^\circ$).<br/>• $l_2 \sin(67.98^\circ) = 0.15 \times 0.9271 = 0.1391\text{ m}$.<br/>• $l_1 + l_2 \cos(67.98^\circ) = 0.20 + 0.15 \times 0.375 = 0.20 + 0.05625 = 0.25625\text{ m}$.<br/>• $\arctan2(0.1391, 0.25625) \approx 0.4972\text{ rad}$ ($28.49^\circ$).<br/>Vậy $\theta_1 = 0.5404 - 0.4972 = 0.0432\text{ rad} \approx 2.48^\circ$.<br/>Kiểm tra lại động học thuận:<br/>$x = 0.20 \cos(2.48^\circ) + 0.15 \cos(2.48^\circ + 67.98^\circ) = 0.20(0.9991) + 0.15 \cos(70.46^\circ) = 0.1998 + 0.15(0.3345) = 0.1998 + 0.0502 = 0.2500\text{ m}$. Chính xác tuyệt đối.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch15.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 15: Robot Bầy Đàn &amp; Thuật Toán Tụ Hộ...</span>
+</a>
+<a class="page-nav-btn next" href="appendix-a.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Phụ lục A: Toán học Robot →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

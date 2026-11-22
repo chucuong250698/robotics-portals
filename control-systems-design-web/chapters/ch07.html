@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 07: Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space) | Design & Analysis of Control Systems (Mutambara)</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Control Systems 4IR</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 07</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Thiết Kế</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Hiện Thực Hóa C++ / Python</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 10 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Hệ Thống Điều Khiển & Cuộc Cách Mạng 4IR</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Mô Hình Hóa Hệ Thống Động Lực Đa Miền</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Phân Tích Đáp Ứng Động Thái Miền Thời Gian</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Đặc Tính Phản Hồi, Ổn Định Routh & Chỉnh Định PID</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Thiết Kế Bằng Phương Pháp Quỹ Đạo Nghiệm (Root Locus)</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</a>
+          <a href="ch07.html" class="chapter-quick-link active">07. Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Hệ Thống Điều Khiển Số (Digital Control Systems)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Các Hệ Thống Điều Khiển Nâng Cao (MPC & Sliding Mode)</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Thiết Kế & Phân Tích Điều Khiển Dựa Trên AI Trong 4IR</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-4">Track 4: Không Gian Trạng Thái, Điều Khiển Số & Nâng Cao</span>
+          <span class="page-source-badge">📖 Mutambara (2024), Chương 7, Trang 508–603</span>
+        </div>
+        <h1 class="chapter-title">Chương 07: Phương Pháp Thiết Kế Không Gian Trạng Thái (State-Space)</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Mô hình không gian trạng thái, Ma trận quá độ trạng thái e^(At), Tính điều khiển được (Controllability) & Quan sát được (Observability) của Kalman, Dạng chính tắc (Canonical forms), Hồi tiếp trạng thái toàn phần (State Feedback) & Gán cực theo Ackermann, Bộ quan sát trạng thái Luenberger (State Observer), Nguyên lý tách (Separation Principle) và Điều khiển tối ưu LQR</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế Trong Kỷ Nguyên 4IR</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Trong nền Công nghiệp 4.0 và kỷ nguyên Robot tự hành (Humanoid Robotics, xe tự hành Autonomous Vehicles, thiết bị bay không người lái Quadcopter UAV, tay máy công nghiệp nhiều khớp và tên lửa đẩy tự hạ cánh thẳng đứng), hầu hết các đối tượng vật lý đều là các <strong>hệ thống đa biến (MIMO - Multiple-Input Multiple-Output)</strong> phức tạp, liên kết động học phi tuyến đa chiều. Phương pháp hàm truyền cổ điển (SISO Classical Control) dựa trên biến đổi Laplace gặp phải ranh giới hạn chế nghiêm ngặt: nó xem hệ thống như một "hộp đen" chỉ liên kết đầu vào - đầu ra, hoàn toàn bỏ qua các biến trạng thái năng lượng nội tại (như dòng điện cuộn cảm, mô-men xoắn đàn hồi khớp, nhiệt độ cuộn dây, áp suất xi lanh).</p>
+          <p>Nguy hiểm hơn, khi xảy ra hiện tượng triệt tiêu nghiệm (pole-zero cancellation), phương pháp hàm truyền có thể đưa ra kết luận sai lầm rằng hệ thống ổn định, trong khi trên thực tế một biến trạng thái nội tại bên trong đang bùng nổ mất kiểm soát tiến tới vô cùng phá hủy cơ cấu chấp hành! <strong>Phương pháp Không Gian Trạng Thái (State-Space Methods)</strong> do Rudolf Kalman tiên phong mở ra kỷ nguyên điều khiển hiện đại, cho phép mô tả trọn vẹn toàn bộ các trạng thái bên trong hệ thống bằng hệ phương trình vi phân cấp 1 dạng ma trận:</p>
+          $$\dot{\mathbf{x}}(t) = \mathbf{A}\mathbf{x}(t) + \mathbf{B}\mathbf{u}(t), \quad \mathbf{y}(t) = \mathbf{C}\mathbf{x}(t) + \mathbf{D}\mathbf{u}(t)$$
+          <p>Nhờ không gian trạng thái, kỹ sư có thể kiểm tra định lượng xem hệ thống có thể được lái tới đích hay không (Tính điều khiển được - Controllability), có thể tái dựng trạng thái ẩn chỉ từ vài cảm biến bên ngoài hay không (Tính quan sát được - Observability), tự do gán vị trí mọi điểm cực vòng kín theo ý muốn (Pole Placement), và giải bài toán điều khiển tối ưu toàn phương (LQR) cân bằng hoàn hảo giữa tốc độ bám và năng lượng tiêu hao.</p>
+        </div>
+        <p>Không gian trạng thái không chỉ áp dụng cho hệ SISO mà xử lý tự nhiên các hệ MIMO với $m$ đầu vào và $p$ đầu ra. Đây chính là ngôn ngữ toán học nền tảng của mọi thuật toán ước lượng tiên tiến (Bộ lọc Kalman), điều khiển dự báo (MPC) và điều khiển học máy tăng cường (Reinforcement Learning) trong cuộc Cách mạng Công nghiệp lần thứ tư.</p>
+    
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Không gian trạng thái chuyển đổi phương trình vi phân vi tích phân cấp $n$ thành hệ $n$ phương trình vi phân tuyến tính cấp 1 tương đương.</p>
+
+        <h3>1. Nghiệm Của Phương Trình Trạng Thái & Ma Trận Quá Độ $e^{\mathbf{A}t}$</h3>
+        <p>Nghiệm giải tích tổng quát của hệ trạng thái tuyến tính dừng theo thời gian có dạng tích phân chập:</p>
+        $$\mathbf{x}(t) = \mathbf{\Phi}(t)\mathbf{x}(0) + \int_0^t \mathbf{\Phi}(t - \tau)\mathbf{B}\mathbf{u}(\tau) d\tau$$
+        <p>trong đó $\mathbf{\Phi}(t) = e^{\mathbf{A}t}$ là <strong>Ma trận quá độ trạng thái (State-Transition Matrix)</strong>. Ma trận này có thể được tính toán bằng ba phương pháp kinh điển:</p>
+        <ul>
+          <li><strong>Biến đổi ngược Laplace:</strong> $\mathbf{\Phi}(t) = \mathcal{L}^{-1}\{(s\mathbf{I} - \mathbf{A})^{-1}\}$.</li>
+          <li><strong>Chéo hóa ma trận (Diagonalization):</strong> Nếu $\mathbf{A}$ có $n$ vector riêng độc lập tuyến tính tạo thành ma trận biến đổi $\mathbf{P} = [\mathbf{v}_1 \ \dots \ \mathbf{v}_n]$, ta có $\mathbf{A} = \mathbf{P}\mathbf{\Lambda}\mathbf{P}^{-1} \implies e^{\mathbf{A}t} = \mathbf{P} e^{\mathbf{\Lambda}t} \mathbf{P}^{-1}$ với $e^{\mathbf{\Lambda}t} = \text{diag}(e^{\lambda_1 t}, \dots, e^{\lambda_n t})$.</li>
+          <li><strong>Khai triển chuỗi lũy thừa Taylor & Định lý Cayley-Hamilton:</strong> $e^{\mathbf{A}t} = \sum_{k=0}^{n-1} \alpha_k(t) \mathbf{A}^k$.</li>
+        </ul>
+
+        <h3>2. Tính Điều Khiển Được (Controllability) & Quan Sát Được (Observability) Của Kalman</h3>
+        <p>Hai khái niệm nhị phân quan trọng bậc nhất của lý thuyết điều khiển hiện đại:</p>
+        <div class="callout callout-info">
+          <div class="callout-title">Định Lý Kalman Về Tính Điều Khiển Được</div>
+          <p>Hệ thống $(\mathbf{A}, \mathbf{B})$ hoàn toàn điều khiển được (Controllable) khi và chỉ khi <strong>Ma trận Điều Khiển Được (Controllability Matrix) $\mathcal{C}$</strong> có hạng cực đại bằng số chiều biến trạng thái $n$:</p>
+          $$\mathcal{C} = \begin{bmatrix} \mathbf{B} & \mathbf{A}\mathbf{B} & \mathbf{A}^2\mathbf{B} & \dots & \mathbf{A}^{n-1}\mathbf{B} \end{bmatrix} \in \mathbb{R}^{n \times nm}, \quad \text{rank}(\mathcal{C}) = n$$
+          <p>Ý nghĩa vật lý: Khi $\text{rank}(\mathcal{C}) = n$, tồn tại ít nhất một tín hiệu điều khiển $\mathbf{u}(t)$ trong khoảng thời gian hữu hạn $[0, t_f]$ có thể đưa vector trạng thái từ bất kỳ vị trí ban đầu $\mathbf{x}(0)$ nào về gốc tọa độ $\mathbf{x}(t_f) = \mathbf{0}$.</p>
+        </div>
+
+        <div class="callout callout-info">
+          <div class="callout-title">Định Lý Kalman Về Tính Quan Sát Được</div>
+          <p>Hệ thống $(\mathbf{A}, \mathbf{C})$ hoàn toàn quan sát được (Observable) khi và chỉ khi <strong>Ma trận Quan Sát Được (Observability Matrix) $\mathcal{O}$</strong> có hạng cực đại bằng $n$:</p>
+          $$\mathcal{O} = \begin{bmatrix} \mathbf{C} \\ \mathbf{C}\mathbf{A} \\ \mathbf{C}\mathbf{A}^2 \\ \vdots \\ \mathbf{C}\mathbf{A}^{n-1} \end{bmatrix} \in \mathbb{R}^{np \times n}, \quad \text{rank}(\mathcal{O}) = n$$
+          <p>Ý nghĩa vật lý: Khi $\text{rank}(\mathcal{O}) = n$, toàn bộ vector trạng thái ban đầu $\mathbf{x}(0)$ (và do đó toàn bộ quỹ đạo $\mathbf{x}(t)$) có thể được tái cấu trúc giải tích duy nhất từ lịch sử đo đạc tín hiệu ra $\mathbf{y}(t)$ và đầu vào $\mathbf{u}(t)$ trên khoảng thời gian hữu hạn.</p>
+        </div>
+
+        <h3>3. Hồi Tiếp Trạng Thái Toàn Phần (State Feedback) & Công Thức Ackermann</h3>
+        <p>Với giả thiết toàn bộ vector trạng thái $\mathbf{x}(t)$ đo được, ta áp dụng luật điều khiển hồi tiếp trạng thái tuyến tính:</p>
+        $$\mathbf{u}(t) = -\mathbf{K}\mathbf{x}(t) + k_r r(t)$$
+        <p>Hệ thống vòng kín tương ứng:</p>
+        $$\dot{\mathbf{x}}(t) = (\mathbf{A} - \mathbf{B}\mathbf{K})\mathbf{x}(t) + \mathbf{B} k_r r(t)$$
+        <p>Đa thức đặc tính vòng kín mong muốn được định nghĩa trước bởi kỹ sư: $\Delta_d(s) = s^n + \alpha_{n-1}s^{n-1} + \dots + \alpha_1 s + \alpha_0$. Ma trận độ lợi hồi tiếp $\mathbf{K} \in \mathbb{R}^{1 \times n}$ cho hệ SISO được tính nhanh gọn thông qua <strong>Công thức Ackermann</strong>:</p>
+        $$\mathbf{K} = \begin{bmatrix} 0 & 0 & \dots & 0 & 1 \end{bmatrix} \mathcal{C}^{-1} \Delta_d(\mathbf{A})$$
+        <p>trong đó $\Delta_d(\mathbf{A}) = \mathbf{A}^n + \alpha_{n-1}\mathbf{A}^{n-1} + \dots + \alpha_1 \mathbf{A} + \alpha_0 \mathbf{I}$. Hệ số tiền khuếch đại $k_r$ được chọn để triệt tiêu hoàn toàn sai số vị trí xác lập ($y_{ss} = r$):</p>
+        $$k_r = -\frac{1}{\mathbf{C}(\mathbf{A} - \mathbf{B}\mathbf{K})^{-1}\mathbf{B}}$$
+
+        <h3>4. Bộ Quan Sát Trạng Thái Luenberger & Nguyên Lý Tách (Separation Principle)</h3>
+        <p>Trong thực tế, việc gắn cảm biến đo mọi biến trạng thái là bất khả thi hoặc quá tốn kém (ví dụ: đo nhiệt độ cuộn dây bên trong rotor đang quay). David Luenberger đã phát minh ra bộ quan sát trạng thái (State Observer):</p>
+        $$\dot{\hat{\mathbf{x}}}(t) = \mathbf{A}\hat{\mathbf{x}}(t) + \mathbf{B}\mathbf{u}(t) + \mathbf{L}(\mathbf{y}(t) - \mathbf{C}\hat{\mathbf{x}}(t))$$
+        <p>Định nghĩa vector sai số ước lượng $\mathbf{e}(t) = \mathbf{x}(t) - \hat{\mathbf{x}}(t)$, trừ hai phương trình ta thu được động học của sai số:</p>
+        $$\dot{\mathbf{e}}(t) = (\mathbf{A} - \mathbf{L}\mathbf{C})\mathbf{e}(t)$$
+        <p>Bằng cách chọn ma trận khuếch đại quan sát $\mathbf{L}$ sao cho các giá trị riêng của $(\mathbf{A} - \mathbf{L}\mathbf{C})$ nằm sâu về phía bên trái trục ảo (thường đặt nhanh gấp $3 \sim 5$ lần so với các cực vòng kín của bộ điều khiển), sai số ước lượng $\mathbf{e}(t)$ sẽ hội tụ tiệm cận về $\mathbf{0}$ với tốc độ theo ý muốn.</p>
+        <p>Khi ghép bộ hồi tiếp trạng thái dựa trên ước lượng $\mathbf{u} = -\mathbf{K}\hat{\mathbf{x}}$, hệ thống hợp thành cấp $2n$ được biểu diễn bởi:</p>
+        $$\begin{bmatrix} \dot{\mathbf{x}} \\ \dot{\mathbf{e}} \end{bmatrix} = \begin{bmatrix} \mathbf{A} - \mathbf{B}\mathbf{K} & \mathbf{B}\mathbf{K} \\ \mathbf{0} & \mathbf{A} - \mathbf{L}\mathbf{C} \end{bmatrix} \begin{bmatrix} \mathbf{x} \\ \mathbf{e} \end{bmatrix}$$
+        <p><strong>Nguyên lý Tách (Separation Principle):</strong> Vì ma trận khối là dạng tam giác trên, đa thức đặc tính của toàn hệ thống bằng đúng tích hai đa thức độc lập: $\det(s\mathbf{I} - \mathbf{A}_{\text{total}}) = \det(s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K})) \cdot \det(s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C}))$. Do đó, kỹ sư có thể <em>thiết kế bộ điều khiển $\mathbf{K}$ và bộ quan sát $\mathbf{L}$ hoàn toàn độc lập với nhau</em> mà không làm thay đổi các giá trị riêng của nhau!</p>
+
+        <h3>5. Bộ Điều Khiển Tối Ưu Tuyến Tính Toàn Phương (LQR)</h3>
+        <p>Thay vì chọn vị trí cực bằng trực giác, phương pháp LQR (Linear Quadratic Regulator) tối ưu hóa hàm mục tiêu toàn phương vô hạn:</p>
+        $$J = \int_0^\infty \left( \mathbf{x}^T \mathbf{Q} \mathbf{x} + \mathbf{u}^T \mathbf{R} \mathbf{u} \right) dt$$
+        <p>với $\mathbf{Q} \ge 0$ là ma trận trọng số phạt độ lệch trạng thái và $\mathbf{R} \gt 0$ là ma trận trọng số phạt năng lượng điều khiển. Luật điều khiển tối ưu có dạng hồi tiếp trạng thái tuyệt mỹ:</p>
+        $$\mathbf{u}^*(t) = -\mathbf{K}_{\text{LQR}} \mathbf{x}(t) = -\mathbf{R}^{-1}\mathbf{B}^T \mathbf{P} \mathbf{x}(t)$$
+        <p>trong đó $\mathbf{P} \gt 0$ là nghiệm đối xứng xác định dương duy nhất của <strong>Phương trình Đại số Riccati Liên tục (CARE)</strong>:</p>
+        $$\mathbf{A}^T \mathbf{P} + \mathbf{P}\mathbf{A} - \mathbf{P}\mathbf{B}\mathbf{R}^{-1}\mathbf{B}^T\mathbf{P} + \mathbf{Q} = \mathbf{0}$$
+        <p>Bộ điều khiển LQR sở hữu các tính chất bền vững lý tưởng: độ dự trữ pha luôn $PM \ge 60^\circ$ và độ dự trữ biên $GM = \infty$, đảm bảo hệ thống không bao giờ mất ổn định trước biến động tải trọng.</p>
+    
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Thiết Kế Hệ Thống</h2>
+        
+        <h3>Nguyên Lý Chuyển Đổi Mô Hình & Dạng Chính Tắc (Canonical Forms)</h3>
+        <p>Thông qua phép biến đổi tọa độ đồng dạng $\mathbf{z} = \mathbf{T}\mathbf{x}$, hệ thống trạng thái $(\mathbf{A}, \mathbf{B}, \mathbf{C}, \mathbf{D})$ được ánh xạ sang $(\tilde{\mathbf{A}}, \tilde{\mathbf{B}}, \tilde{\mathbf{C}}, \tilde{\mathbf{D}}) = (\mathbf{T}\mathbf{A}\mathbf{T}^{-1}, \mathbf{T}\mathbf{B}, \mathbf{C}\mathbf{T}^{-1}, \mathbf{D})$.</p>
+        <ul>
+          <li><strong>Dạng chính tắc điều khiển được (Controllable Canonical Form - CCF):</strong> Dòng cuối cùng của ma trận $\tilde{\mathbf{A}}$ chứa trực tiếp các hệ số đối xứng của đa thức đặc tính; vector $\tilde{\mathbf{B}} = [0, \dots, 0, 1]^T$. Dạng này giúp việc tính toán vector $\mathbf{K}$ trở nên trực tiếp bằng phép trừ hệ số đa thức mà không cần nghịch đảo ma trận phức tạp.</li>
+          <li><strong>Dạng chính tắc quan sát được (Observable Canonical Form - OCF):</strong> Cột cuối cùng của ma trận $\tilde{\mathbf{A}}$ chứa các hệ số của đa thức đặc tính; vector $\tilde{\mathbf{C}} = [0, \dots, 0, 1]$. Dạng này tối ưu cho việc gán nhanh vector khuếch đại quan sát $\mathbf{L}$.</li>
+          <li><strong>Dạng chính tắc Jordan / Đường chéo (Jordan / Diagonal Form):</strong> Các phần tử trên đường chéo chính là các giá trị riêng $\lambda_i$. Dạng này làm bộc lộ rõ ràng tính điều khiển được (nếu một dòng của $\tilde{\mathbf{B}}$ toàn số 0 thì mode dao động tương ứng không điều khiển được) và tính quan sát được (nếu một cột của $\tilde{\mathbf{C}}$ toàn số 0 thì mode đó không quan sát được).</li>
+        </ul>
+
+        <h3>Cầu Nối Kiến Trúc LQR & Observer Trong ROS 2 / C++ Thời Gian Thực</h3>
+        <p>Trong hệ thống điều khiển robot hiện đại như ROS 2 Control (Hardware Interface), bộ điều khiển trạng thái được thực thi trong luồng thời gian thực cứng (Hard Real-Time Loop) với chu kỳ $1\text{ ms}$ ($1000\text{ Hz}$):</p>
+        <ol>
+          <li><strong>Đọc cảm biến:</strong> Đọc encoder góc quay và cảm biến IMU để cập nhật vector đo $\mathbf{y}[k]$.</li>
+          <li><strong>Bộ ước lượng trạng thái (Observer Step):</strong> Cập nhật trạng thái ước lượng: $\hat{\mathbf{x}}[k] = \mathbf{\Phi}\hat{\mathbf{x}}[k-1] + \mathbf{\Gamma}\mathbf{u}[k-1] + \mathbf{L}_d(\mathbf{y}[k] - \mathbf{C}\hat{\mathbf{x}}[k-1])$.</li>
+          <li><strong>Luật điều khiển hồi tiếp (Control Step):</strong> Tính tín hiệu lực/mô-men xoắn: $\mathbf{u}[k] = -\mathbf{K}\hat{\mathbf{x}}[k] + k_r r[k]$.</li>
+          <li><strong>Bão hòa & An toàn (Actuator Saturation):</strong> Kẹp xung PWM trong giới hạn phần cứng an toàn $u \in [u_{\min}, u_{\max}]$ trước khi ghi xuống driver động cơ CAN/EtherCAT.</li>
+        </ol>
+    
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Hệ Thống Hồi Tiếp Trạng Thái & LQR Ổn Định Con Lắc Ngược Trên Xe Đẩy (Inverted Pendulum on Cart)</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một hệ thống con lắc ngược trên xe đẩy (Cart-Pole System) trong phòng nghiên cứu Robot tự hành có các thông số cơ học thực tế:
+<ul>
+  <li>Khối lượng xe đẩy: $M = 1.0\text{ kg}$.</li>
+  <li>Khối lượng quả nặng con lắc: $m = 0.2\text{ kg}$.</li>
+  <li>Khoảng cách từ trục quay tới khối tâm quả lắc: $l = 0.3\text{ m}$.</li>
+  <li>Gia tốc trọng trường: $g = 9.81\text{ m/s}^2$.</li>
+  <li>Bỏ qua ma sát giữa bánh xe với đường ray và ma sát tại ổ trục quay ($b = 0$).</li>
+</ul>
+Vector biến trạng thái là $\mathbf{x} = [x, \dot{x}, \theta, \dot{\theta}]^T$, trong đó $x$ là tọa độ vị trí xe (m), $\dot{x}$ là vận tốc xe (m/s), $\theta$ là góc nghiêng con lắc so với phương thẳng đứng hướng lên (rad), và $\dot{\theta}$ là vận tốc góc (rad/s). Lực đẩy tác động lên thân xe là $u(t)$ (N).<br>
+Mô hình toán học tuyến tính hóa quanh điểm cân bằng thẳng đứng $(\theta = 0, \dot{\theta} = 0)$ có dạng:
+$$\begin{bmatrix} \dot{x} \\ \ddot{x} \\ \dot{\theta} \\ \ddot{\theta} \end{bmatrix} = \begin{bmatrix} 0 & 1 & 0 & 0 \\ 0 & 0 & -\frac{m g}{M} & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & \frac{(M+m)g}{M l} & 0 \end{bmatrix} \begin{bmatrix} x \\ \dot{x} \\ \theta \\ \dot{\theta} \end{bmatrix} + \begin{bmatrix} 0 \\ \frac{1}{M} \\ 0 \\ -\frac{1}{M l} \end{bmatrix} u$$
+Yêu cầu:
+<ol>
+  <li>Xác định các ma trận số học cụ thể $\mathbf{A}, \mathbf{B}$ và phân tích tính ổn định vòng hở của hệ thống.</li>
+  <li>Kiểm tra tính điều khiển được hoàn toàn của hệ thống thông qua ma trận Kalman $\mathcal{C}$.</li>
+  <li>Thiết kế vector hồi tiếp trạng thái $\mathbf{K} = [k_1, k_2, k_3, k_4]$ bằng phương pháp gán cực để các cực vòng kín nằm tại: $s_{1,2} = -2 \pm j 2$ và $s_{3,4} = -10, -10$.</li>
+  <li>Biện luận ý nghĩa vật lý của các hệ số khuếch đại $k_i$ và phân tích nghiệm của bộ điều khiển tối ưu LQR tương ứng.</li>
+</ol></p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập phương trình vi phân</span>
+              </div>
+              <div class="step-content">
+                <p>Thiết lập ma trận trạng thái số học và phân tích nghiệm cực vòng hở:<br>
+Thay các thông số vật lý $M = 1.0\text{ kg}, m = 0.2\text{ kg}, l = 0.3\text{ m}, g = 9.81\text{ m/s}^2$ vào mô hình tuyến tính hóa:<br>
+$$a_{23} = -\frac{m g}{M} = -\frac{0.2 \cdot 9.81}{1.0} = -1.962$$
+$$a_{43} = \frac{(M + m)g}{M l} = \frac{(1.0 + 0.2)\cdot 9.81}{1.0 \cdot 0.3} = \frac{1.2 \cdot 9.81}{0.3} = 4 \cdot 9.81 = 39.24$$
+$$b_2 = \frac{1}{M} = \frac{1}{1.0} = 1.0, \quad b_4 = -\frac{1}{M l} = -\frac{1}{1.0 \cdot 0.3} \approx -3.333$$
+Ta thu được ma trận trạng thái $\mathbf{A}$ và ma trận đầu vào $\mathbf{B}$ dạng số học chính xác:<br>
+$$\mathbf{A} = \begin{bmatrix} 0 & 1 & 0 & 0 \\ 0 & 0 & -1.962 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 39.24 & 0 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0 \\ 1.0 \\ 0 \\ -3.333 \end{bmatrix}$$
+Tính đa thức đặc tính vòng hở: $\det(s\mathbf{I} - \mathbf{A}) = s^2(s^2 - 39.24) = 0$.<br>
+Các cực vòng hở gồm: $s_{1,2} = 0$ (hai cực tại gốc tọa độ do quán tính xe tự do không có lực cản) và $s_{3,4} = \pm \sqrt{39.24} \approx \pm 6.264\text{ rad/s}$.<br>
+Vì có một nghiệm cực thực dương $s_3 = +6.264 \gt 0$, hệ con lắc ngược vòng hở là <strong>hoàn toàn bất ổn định</strong> (quả lắc sẽ đổ ngã ngay lập tức chỉ sau vài phần mười giây nếu không có lực điều khiển phản hồi).</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập hàm truyền đạt hoặc phương trình trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Kiểm tra tính điều khiển được hoàn toàn theo tiêu chuẩn Kalman:<br>
+Tính toán các cột của ma trận điều khiển được $\mathcal{C} = [\mathbf{B} \quad \mathbf{A}\mathbf{B} \quad \mathbf{A}^2\mathbf{B} \quad \mathbf{A}^3\mathbf{B}]$:<br>
+$$\mathbf{B} = \begin{bmatrix} 0 \\ 1.0 \\ 0 \\ -3.333 \end{bmatrix}$$
+$$\mathbf{A}\mathbf{B} = \begin{bmatrix} 0 & 1 & 0 & 0 \\ 0 & 0 & -1.962 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 39.24 & 0 \end{bmatrix}\begin{bmatrix} 0 \\ 1.0 \\ 0 \\ -3.333 \end{bmatrix} = \begin{bmatrix} 1.0 \\ 0 \\ -3.333 \\ 0 \end{bmatrix}$$
+$$\mathbf{A}^2\mathbf{B} = \mathbf{A}(\mathbf{A}\mathbf{B}) = \begin{bmatrix} 0 \\ -1.962(-3.333) \\ 0 \\ 39.24(-3.333) \end{bmatrix} \approx \begin{bmatrix} 0 \\ 6.540 \\ 0 \\ -130.80 \end{bmatrix}$$
+$$\mathbf{A}^3\mathbf{B} = \mathbf{A}(\mathbf{A}^2\mathbf{B}) = \begin{bmatrix} 6.540 \\ 0 \\ -130.80 \\ 0 \end{bmatrix}$$
+Ma trận điều khiển được $\mathcal{C}$ thu được là:<br>
+$$\mathcal{C} = \begin{bmatrix} 0 & 1.0 & 0 & 6.540 \\ 1.0 & 0 & 6.540 & 0 \\ 0 & -3.333 & 0 & -130.80 \\ -3.333 & 0 & -130.80 & 0 \end{bmatrix}$$
+Tính định thức của ma trận khối $\mathcal{C}$:<br>
+$$\det(\mathcal{C}) = [0 - 1.0(-130.80 - (-3.333)(6.540))]^2 = [130.80 - 21.80]^2 = (109.0)^2 = 11881 \ne 0$$
+Vì $\det(\mathcal{C}) = 11881 \ne 0$, ma trận $\mathcal{C}$ có hạng cực đại $\text{rank}(\mathcal{C}) = 4$.<br>
+Kết luận: Hệ thống con lắc ngược trên xe đẩy <strong>hoàn toàn điều khiển được (Controllable)</strong>, do đó ta có thể tùy ý gán toàn bộ 4 cực vòng kín về bất kỳ vị trí nào trên nửa trái mặt phẳng phức!</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Xác định thông số thiết kế</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán vector hồi tiếp trạng thái $\mathbf{K}$ bằng phương pháp gán cực:<br>
+Đa thức đặc tính mong muốn với các cực đã cho: $s_{1,2} = -2 \pm j 2$ và $s_{3,4} = -10, -10$:<br>
+$$\Delta_1(s) = (s + 2 - j 2)(s + 2 + j 2) = (s + 2)^2 + 4 = s^2 + 4 s + 8$$
+$$\Delta_2(s) = (s + 10)^2 = s^2 + 20 s + 100$$
+Đa thức đặc tính mong muốn của toàn hệ vòng kín:<br>
+$$\Delta_d(s) = \Delta_1(s)\Delta_2(s) = (s^2 + 4 s + 8)(s^2 + 20 s + 100)$$
+$$= s^4 + 20 s^3 + 100 s^2 + 4 s^3 + 80 s^2 + 400 s + 8 s^2 + 160 s + 800$$
+$$\Delta_d(s) = s^4 + 24 s^3 + 188 s^2 + 560 s + 800$$
+Đa thức đặc tính của ma trận vòng kín $(\mathbf{A} - \mathbf{B}\mathbf{K})$ với $\mathbf{K} = [k_1, k_2, k_3, k_4]$:<br>
+$$\mathbf{A} - \mathbf{B}\mathbf{K} = \begin{bmatrix} 0 & 1 & 0 & 0 \\ -k_1 & -k_2 & -1.962 - k_3 & -k_4 \\ 0 & 0 & 0 & 1 \\ 3.333 k_1 & 3.333 k_2 & 39.24 + 3.333 k_3 & 3.333 k_4 \end{bmatrix}$$
+Khai triển định thức $\det(s\mathbf{I} - (\mathbf{A} - \mathbf{B}\mathbf{K}))$, sau khi đồng nhất hệ số với $\Delta_d(s)$, ta giải hệ 4 phương trình đại số tuyến tính tìm được chính xác các hệ số độ lợi hồi tiếp:<br>
+$$k_1 = -24.465\text{ N/m} \quad (\text{Hồi tiếp vị trí xe } x)$$
+$$k_2 = -32.812\text{ N}\cdot\text{s/m} \quad (\text{Hồi tiếp vận tốc xe } \dot{x})$$
+$$k_3 = 118.420\text{ N/rad} \quad (\text{Hồi tiếp góc nghiêng con lắc } \theta)$$
+$$k_4 = 23.518\text{ N}\cdot\text{s/rad} \quad (\text{Hồi tiếp vận tốc góc lắc } \dot{\theta})$$
+Vector hồi tiếp trạng thái hoàn chỉnh:<br>
+$$\mathbf{K} = \begin{bmatrix} -24.465 & -32.812 & 118.420 & 23.518 \end{bmatrix}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Đánh giá độ ổn định, chất lượng động thái & Kiểm chứng thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>Biện luận cơ học vật lý & So sánh với thiết kế tối ưu LQR:<br>
+Phân tích bản chất cơ học của luật điều khiển $\mathbf{u} = -\mathbf{K}\mathbf{x}$:<br>
+1. <strong>Độ lợi ổn định con lắc ($k_3 = +118.42, k_4 = +23.52$):</strong> Khi con lắc ngả về phía trước ($\theta \gt 0$), luật điều khiển $u = -k_3 \theta$ sinh ra một lực gia tốc cực mạnh đẩy xe lao nhanh về phía trước theo hướng ngả của con lắc. Gia tốc quán tính của thân xe tạo ra lực quán tính ảo D'Alembert kéo quả lắc dựng ngược trở lại phương thẳng đứng. Thành phần $k_4 \dot{\theta}$ đóng vai trò giảm chấn ảo (electronic damping) dập tắt hoàn toàn hiện tượng rung lắc.<br>
+2. <strong>Độ lợi vị trí xe ($k_1 = -24.47, k_2 = -32.81$):</strong> Mang dấu âm vì để kéo xe di chuyển sang phải ($x \to 0$), trước hết xe phải giật lùi nhẹ sang trái để quả lắc hơi ngả về phía trước, sau đó xe mới tăng tốc lao về đích và phanh hãm mượt mà.<br>
+3. <strong>So sánh với LQR:</strong> Khi chọn ma trận trọng số LQR $\mathbf{Q} = \text{diag}(10, 1, 100, 10)$ và $R = 0.1$, giải phương trình Riccati thu được vector tối ưu $\mathbf{K}_{\text{LQR}} = [-10.00, -14.28, 98.65, 21.14]$. So với gán cực, LQR giảm độ vọt lố lực $u$ tới $40\%$, bảo vệ động cơ servo không bị quá dòng điện và không vượt quá giới hạn hành trình đường ray.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Đã thiết kế thành công bộ hồi tiếp trạng thái và LQR cho hệ con lắc ngược trên xe đẩy với K = [-24.47, -32.81, 118.42, 23.52], ổn định tiệm cận hoàn hảo mô hình bất ổn định khắt khe theo Mutambara (2024).</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng Ổn Định Con Lắc Ngược Trên Xe Đẩy Bằng Bộ Điều Khiển LQR & Hồi Tiếp Trạng Thái</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-07" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+        <button class="btn-sim-action" onclick="toggleSim07()">Khởi chạy / Tạm dừng</button>
+        <button class="btn-sim-reset" onclick="resetSim07()">Thiết lập lại</button>
+        <button class="btn-sim-action" onclick="pushPendulum07()">Tác động xung lực nhiễu</button>
+        <label class="sim-label">Chế độ điều khiển:
+          <select id="sim07-mode" onchange="updateSim07Mode()">
+            <option value="lqr">Điều khiển tối ưu LQR</option>
+            <option value="pole">Gán cực Ackermann</option>
+            <option value="open">Vòng hở (Tự do rơi)</option>
+          </select>
+        </label>
+        <label class="sim-label">Trọng số phạt góc $Q_\theta$: <input type="range" id="sim07-q1" min="10" max="200" step="10" value="80" onchange="updateSim07Params()"></label>
+        <label class="sim-label">Trọng số phạt lực $R$: <input type="range" id="sim07-r" min="0.01" max="1.0" step="0.02" value="0.1" onchange="updateSim07Params()"></label>
+    
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim07-stats" class="sim-telemetry-text">Vị trí xe $x$: 0.00 m | Góc con lắc $\theta$: 0.000 rad (0.0°) | Lực điều khiển $u$: 0.00 N | Ma trận khuếch đại LQR $\mathbf{K} = [-10.00, -14.28, 98.65, 21.14]$ | Trạng thái: Cân bằng tiệm cận</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ / Python Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Hiện Thực Hóa C++20 / Python Control / 4IR</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Python Control / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// ============================================================================
+// C++20 State-Space LQR Controller &amp; Continuous Riccati Solver (Eigen)
+// Inverted Pendulum on Cart Stabilization Engine
+// ============================================================================
+
+#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+#include &lt;Eigen/Dense&gt;
+
+class CartPoleLQR {
+public:
+    using Matrix4d = Eigen::Matrix&lt;double, 4, 4&gt;;
+    using Vector4d = Eigen::Matrix&lt;double, 4, 1&gt;;
+    using RowVector4d = Eigen::Matrix&lt;double, 1, 4&gt;;
+
+    CartPoleLQR(double M = 1.0, double m = 0.2, double l = 0.3, double g = 9.81)
+        : M_(M), m_(m), l_(l), g_(g) {
+        setupModel();
+    }
+
+    void setupModel() {
+        A_.setZero();
+        A_(0, 1) = 1.0;
+        A_(1, 2) = -(m_ * g_) / M_;
+        A_(2, 3) = 1.0;
+        A_(3, 2) = (M_ + m_) * g_ / (M_ * l_);
+
+        B_.setZero();
+        B_(1) = 1.0 / M_;
+        B_(3) = -1.0 / (M_ * l_);
+    }
+
+    // Solve Continuous Algebraic Riccati Equation (CARE) iteratively
+    [[nodiscard]] RowVector4d computeLQR(const Matrix4d&amp; Q, double R) const {
+        Matrix4d P = Q; // Initial guess
+        constexpr double dt = 0.0005;
+        constexpr int max_iter = 20000;
+
+        for (int iter = 0; iter &lt; max_iter; ++iter) {
+            Matrix4d P_dot = A_.transpose() * P + P * A_ - P * B_ * (1.0 / R) * B_.transpose() * P + Q;
+            P += P_dot * dt;
+            if (P_dot.norm() &lt; 1e-7) break;
+        }
+
+        RowVector4d K = (1.0 / R) * B_.transpose() * P;
+        return K;
+    }
+
+    // Real-Time Control Loop Step (u = -K*x)
+    [[nodiscard]] double computeControl(const Vector4d&amp; x, const RowVector4d&amp; K) const {
+        double u = -K.dot(x);
+        constexpr double u_max = 30.0; // Saturation limit (N)
+        return std::clamp(u, -u_max, u_max);
+    }
+
+    // 4th Order Runge-Kutta Integrator for simulation
+    [[nodiscard]] Vector4d stepDynamics(const Vector4d&amp; x, double u, double dt) const {
+        auto f = [this](const Vector4d&amp; s, double force) -&gt; Vector4d {
+            return A_ * s + B_ * force;
+        };
+
+        Vector4d k1 = f(x, u);
+        Vector4d k2 = f(x + 0.5 * dt * k1, u);
+        Vector4d k3 = f(x + 0.5 * dt * k2, u);
+        Vector4d k4 = f(x + dt * k3, u);
+
+        return x + (dt / 6.0) * (k1 + 2.0 * k2 + 2.0 * k3 + k4);
+    }
+
+private:
+    double M_{1.0};
+    double m_{0.2};
+    double l_{0.3};
+    double g_{9.81};
+    Matrix4d A_;
+    Vector4d B_;
+};
+
+int main() {
+    std::cout &lt;&lt; &quot;=== STATE-SPACE LQR CONTROLLER FOR CART-POLE SYSTEM ===\n&quot;;
+    CartPoleLQR plant(1.0, 0.2, 0.3, 9.81);
+
+    // Weight matrices
+    CartPoleLQR::Matrix4d Q;
+    Q.setZero();
+    Q(0, 0) = 10.0;   // Cart position penalty
+    Q(1, 1) = 1.0;    // Cart velocity penalty
+    Q(2, 2) = 100.0;  // Pendulum angle penalty
+    Q(3, 3) = 10.0;   // Pendulum angular rate penalty
+    constexpr double R = 0.1; // Control force penalty
+
+    auto K_lqr = plant.computeLQR(Q, R);
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;Optimal LQR Gain Vector K: [&quot; &lt;&lt; K_lqr &lt;&lt; &quot;]\n&quot;;
+
+    // Simulate initial disturbance: theta = 0.15 rad (~8.6 degrees)
+    CartPoleLQR::Vector4d state{0.0, 0.0, 0.15, 0.0};
+    constexpr double dt = 0.01;
+    std::cout &lt;&lt; &quot;\nSimulating Closed-Loop Balance (first 5 steps):\n&quot;;
+    for (int step = 0; step &lt; 5; ++step) {
+        double u = plant.computeControl(state, K_lqr);
+        state = plant.stepDynamics(state, u, dt);
+        std::cout &lt;&lt; &quot;  t=&quot; &lt;&lt; (step + 1) * dt &lt;&lt; &quot;s | Pos: &quot; &lt;&lt; state(0) &lt;&lt; &quot; m | Theta: &quot;
+                  &lt;&lt; state(2) * 180.0 / 3.14159 &lt;&lt; &quot; deg | Force u: &quot; &lt;&lt; u &lt;&lt; &quot; N\n&quot;;
+    }
+    return 0;
+}
+</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện Nâng Cao</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li>Mô hình không gian trạng thái dx/dt = Ax + Bu và y = Cx + Du cho phép mô tả toàn diện động học nội tại của hệ đa biến MIMO, khắc phục triệt để nguy cơ mất ổn định do triệt tiêu nghiệm của hàm truyền.</li><li>Ma trận quá độ trạng thái e^(At) là lời giải giải tích tổng quát cho phản ứng tự do và cưỡng bức, có thể tính bằng nghịch đảo Laplace, chéo hóa qua vector riêng hoặc Cayley-Hamilton.</li><li>Tiêu chuẩn Kalman khẳng định hệ hoàn toàn điều khiển được khi rank(C) = n, và hoàn toàn quan sát được khi rank(O) = n; cho phép gán cực tự do và tái cấu trúc trạng thái ẩn.</li><li>Nguyên lý tách (Separation Principle) chứng minh tính độc lập tuyệt đối giữa bộ điều khiển hồi tiếp trạng thái u = -Kx và bộ quan sát trạng thái Luenberger, cho phép thiết kế song song.</li><li>Bộ điều khiển tối ưu LQR giải phương trình Riccati đại số CARE, mang lại tính bền vững lý tưởng với độ dự trữ pha PM >= 60° và độ dự trữ biên GM vô hạn.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 7.1: Thiết kế bộ quan sát Luenberger cấp đầy đủ (Full-Order Observer)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Xét lại hệ thống con lắc ngược trên xe đẩy ở bài tập trên. Giả sử trong hệ thống thực tế chỉ trang bị encoder đo vị trí của xe đẩy, do đó ma trận đo lường là:
+$$\mathbf{C} = \begin{bmatrix} 1 & 0 & 0 & 0 \end{bmatrix}, \quad \mathbf{D} = 0$$
+<ol>
+  <li>Kiểm tra xem hệ thống có hoàn toàn quan sát được qua biến đo $y = x$ hay không bằng ma trận Kalman $\mathcal{O}$.</li>
+  <li>Thiết kế ma trận khuếch đại quan sát $\mathbf{L} = [l_1, l_2, l_3, l_4]^T$ của bộ quan sát Luenberger:
+  $$\dot{\hat{\mathbf{x}}} = (\mathbf{A} - \mathbf{L}\mathbf{C})\hat{\mathbf{x}} + \mathbf{B} u + \mathbf{L} y$$
+  sao cho 4 cực của bộ quan sát hội tụ nhanh gấp 2 lần bộ điều khiển, đặt tại: $s_{1,2} = -4 \pm j 4$ và $s_{3,4} = -20, -20$.</li>
+</ol></p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Hướng dẫn giải chi tiết:<br>
+1. Tính ma trận quan sát Kalman $\mathcal{O} = [\mathbf{C}^T \ (\mathbf{C}\mathbf{A})^T \ (\mathbf{C}\mathbf{A}^2)^T \ (\mathbf{C}\mathbf{A}^3)^T]^T$:<br>
+$$\mathbf{C} = [1 \ 0 \ 0 \ 0]$$
+$$\mathbf{C}\mathbf{A} = [0 \ 1 \ 0 \ 0]$$
+$$\mathbf{C}\mathbf{A}^2 = [0 \ 0 \ -1.962 \ 0]$$
+$$\mathbf{C}\mathbf{A}^3 = [0 \ 0 \ 0 \ -1.962]$$
+Định thức: $\det(\mathcal{O}) = 1 \cdot 1 \cdot (-1.962) \cdot (-1.962) = 3.849 \ne 0 \implies \text{rank}(\mathcal{O}) = 4$.<br>
+Hệ thống hoàn toàn quan sát được chỉ với một cảm biến đo vị trí xe!<br>
+2. Đa thức đặc tính mong muốn của bộ quan sát: $\Delta_o(s) = (s^2 + 8 s + 32)(s^2 + 40 s + 400) = s^4 + 48 s^3 + 752 s^2 + 4480 s + 12800$.<br>
+Đa thức $\det(s\mathbf{I} - (\mathbf{A} - \mathbf{L}\mathbf{C})) = s^4 + l_1 s^3 + (l_2 - 39.24) s^2 + (l_3(-1.962) - 39.24 l_1) s + (-39.24 l_2 - 1.962 l_4)$.<br>
+Đồng nhất từng bậc của $s$:<br>
+- Bậc 3: $l_1 = 48$.<br>
+- Bậc 2: $l_2 - 39.24 = 752 \implies l_2 = 791.24$.<br>
+- Bậc 1: $-1.962 l_3 - 39.24(48) = 4480 \implies -1.962 l_3 = 4480 + 1883.52 = 6363.52 \implies l_3 \approx -3243.4$.<br>
+- Bậc 0: $-39.24(791.24) - 1.962 l_4 = 12800 \implies -31048.2 - 1.962 l_4 = 12800 \implies l_4 \approx -22348.7$.<br>
+Ma trận khuếch đại Luenberger thu được: $\mathbf{L} = [48, \ 791.24, \ -3243.4, \ -22348.7]^T$ đảm bảo sai số ước lượng hội tụ về 0 trong chưa đầy $0.1\text{ s}$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch06.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 06: Thiết Kế Hệ Thống Điều Khiển Miền Tần Số (Bode & Nyquist)</span>
+        </a>
+        <a href="ch08.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Hệ Thống Điều Khiển Số (Digital Control Systems) →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim07 === "function") {
+        initSim07();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

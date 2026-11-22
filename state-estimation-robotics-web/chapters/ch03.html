@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="vi" data-theme="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 03: Ước Lượng Tuyến Tính Gauss, Batch MAP &amp; RTS Smoother | State Estimation for Robotics</title>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Fira+Code:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body class="chapter-page">
+<header class="navbar">
+<div class="nav-container">
+<a class="nav-brand" href="../index.html">
+<span class="brand-icon">📐</span>
+<span class="brand-text">State Estimation for Robotics</span>
+</a>
+<div class="nav-actions">
+<button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối"><span class="icon-light">☀️</span><span class="icon-dark">🌙</span></button>
+<span class="track-badge badge-track-1">Track 1: Cơ Sở Xác Suất &amp; Tuyến Tính Gauss</span>
+<a class="btn btn-secondary" href="../index.html">← Trang Chủ Portal</a>
+</div>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container">
+<div class="sidebar-sticky">
+<div class="sidebar-header">
+<span class="sidebar-badge">Chương 03</span>
+<h3 class="sidebar-title">Ước Lượng Tuyến Tính Gauss, Batch MAP &amp; RTS Smoother</h3>
+</div>
+<nav class="sidebar-nav">
+<div class="nav-group-title">Mục Lục Chương</div>
+<ul class="sidebar-links">
+<li><a class="sidebar-link" href="#sec-1">1. Động Cơ Kỹ Thuật</a></li>
+<li><a class="sidebar-link" href="#sec-2">2. Lý Thuyết &amp; Công Thức</a></li>
+<li><a class="sidebar-link" href="#sec-3">3. Giải Phẫu &amp; Thuật Toán</a></li>
+<li><a class="sidebar-link" href="#sec-4">4. Bài Tập Ví Dụ &amp; Lời Giải</a></li>
+<li><a class="sidebar-link" href="#sec-5">5. Phòng Lab Mô Phỏng 60 FPS</a></li>
+<li><a class="sidebar-link" href="#sec-6">6. Cầu Nối C++ / ROS 2</a></li>
+<li><a class="sidebar-link" href="#sec-7">7. Tổng Kết &amp; Bài Học</a></li>
+</ul>
+</nav>
+<div class="sidebar-footer">
+<div class="progress-bar-container">
+<div class="progress-label">Tiến độ đọc</div>
+<div class="progress-track"><div class="progress-fill" id="reading-progress"></div></div>
+</div>
+</div>
+</div>
+</aside>
+<main class="main-content">
+<div class="chapter-hero">
+<div class="breadcrumb">Track 1 / Cơ Sở Xác Suất &amp; Tuyến Tính Gauss / Chương 03</div>
+<h1 class="chapter-main-title">Chương 03: Ước Lượng Tuyến Tính Gauss, Batch MAP &amp; RTS Smoother</h1>
+<p class="chapter-subtitle">Chuyên khảo học thuật chuyên sâu: Bóc tách nền tảng toán học, bài tập kỹ thuật có lời giải chi tiết, mô phỏng trực quan tương tác 60 FPS và cầu nối hệ thống robot thực tế.</p>
+<div class="chapter-meta-bar">
+<span class="meta-item">⏱️ Thời lượng đọc: 35 phút</span>
+<span class="meta-item">📚 Nguồn sách gốc: Prof. Timothy Barfoot (2nd Ed), Mục 2.3 &amp; 3.1–3.3 (Trang 36–68)</span>
+<span class="meta-item">🎯 Trọng tâm: Tối ưu hóa hàng loạt Batch MAP &amp; Làm mượt hai chiều Rauch-Tung-Striebel</span>
+</div>
+</div>
+<section class="content-section" id="sec-1">
+<h2>1. Động Cơ Kỹ Thuật: Tại Sao Phải Cần Khái Niệm Này?</h2>
+<div class="callout callout-info">
+<div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+<p>Trong điều khiển phản hồi thời gian thực, robot chỉ được phép dùng dữ liệu quá khứ đến hiện tại (Filtering). Nhưng khi lập bản đồ SLAM hoặc phân tích hậu kiểm quỹ đạo (Post-processing), ta sở hữu toàn bộ tập dữ liệu từ đầu đến cuối hành trình! <strong>RTS Smoother</strong> tận dụng thông tin tương lai để 'quay ngược thời gian', nắn chỉnh toàn bộ quỹ đạo quá khứ, loại bỏ hiện tượng trễ pha và giảm độ bất định xuống mức tối thiểu mà bộ lọc nhân quả không thể đạt được.</p>
+</div>
+<p>Batch MAP (Tối đa hóa hậu nghiệm hàng loạt) gom toàn bộ trạng thái qua mọi bước thời gian $\mathbf{x} = [\mathbf{x}_0^T, \mathbf{x}_1^T, \dots, \mathbf{x}_K^T]^T$ thành một bài toán bình phương tối thiểu khổng lồ. Nhờ mô hình Markov, ma trận Hessian của bài toán có cấu trúc <em>tam đường chéo khối (block-tridiagonal)</em>, cho phép giải chính xác trong độ phức tạp tuyến tính $O(K)$ thay vì $O(K^3)$.</p>
+</section>
+<section class="content-section" id="sec-2">
+<h2>2. Lý Thuyết Nền Tảng &amp; Hệ Thống Phương Trình Cốt Lõi</h2>
+<p>Xét hệ thống tuyến tính rời rạc qua các bước thời gian $k = 0, 1, \dots, K$:</p>
+        $$\begin{align}
+        \mathbf{x}_k &amp;= \mathbf{A}_{k-1} \mathbf{x}_{k-1} + \mathbf{v}_k + \mathbf{w}_k, \quad \mathbf{w}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{Q}_k) \\
+        \mathbf{y}_k &amp;= \mathbf{C}_k \mathbf{x}_k + \mathbf{n}_k, \quad \mathbf{n}_k \sim \mathcal{N}(\mathbf{0}, \mathbf{R}_k)
+        \end{align}$$
+        <p>Bài toán Batch MAP tương đương với cực tiểu hóa hàm mục tiêu bình phương tối thiểu có trọng số:</p>
+        $$\begin{equation}
+        J(\mathbf{x}) = \frac{1}{2}(\mathbf{x}_0 - \check{\mathbf{x}}_0)^T \check{\mathbf{P}}_0^{-1} (\mathbf{x}_0 - \check{\mathbf{x}}_0) + \frac{1}{2}\sum_{k=1}^K \mathbf{w}_k^T \mathbf{Q}_k^{-1} \mathbf{w}_k + \frac{1}{2}\sum_{k=0}^K (\mathbf{y}_k - \mathbf{C}_k \mathbf{x}_k)^T \mathbf{R}_k^{-1} (\mathbf{y}_k - \mathbf{C}_k \mathbf{x}_k)
+        \end{equation}$$
+        <p>Phương trình đạo hàm $\frac{\partial J}{\partial \mathbf{x}} = \mathbf{0}$ dẫn đến hệ phương trình chuẩn tuyến tính:</p>
+        $$\begin{equation}
+        (\mathbf{H}^T \mathbf{W}^{-1} \mathbf{H}) \hat{\mathbf{x}} = \mathbf{H}^T \mathbf{W}^{-1} \mathbf{z} \quad \Longleftrightarrow \quad \mathbf{A}_{sys} \hat{\mathbf{x}} = \mathbf{b}_{sys}
+        \end{equation}$$
+      </section>
+<section class="content-section" id="sec-3">
+<h2>3. Giải Phẫu Toán Học &amp; Phân Tích Thuật Toán</h2>
+<div class="formula-card">
+<div class="formula-header">Thuật Toán Làm Mượt Hai Chiều Rauch-Tung-Striebel (RTS Smoother)</div>
+          $$\begin{align}
+          \mathbf{K}_k &amp;= \hat{\mathbf{P}}_k \mathbf{A}_k^T (\check{\mathbf{P}}_{k+1})^{-1} \quad (\text{Smoother Gain}) \\
+          \mathbf{x}_k^s &amp;= \hat{\mathbf{x}}_k + \mathbf{K}_k (\mathbf{x}_{k+1}^s - \check{\mathbf{x}}_{k+1}) \\
+          \mathbf{P}_k^s &amp;= \hat{\mathbf{P}}_k + \mathbf{K}_k (\mathbf{P}_{k+1}^s - \check{\mathbf{P}}_{k+1}) \mathbf{K}_k^T
+          \end{align}$$
+        </div>
+<p>Quy trình RTS Smoother gồm 2 lượt quét:</p>
+<ol>
+<li><strong>Lượt tiến (Forward Pass):</strong> Chạy bộ lọc Kalman thông thường từ $k=0 \to K$, lưu lại chuỗi trạng thái và hiệp phương sai $\{\hat{\mathbf{x}}_k, \hat{\mathbf{P}}_k, \check{\mathbf{x}}_k, \check{\mathbf{P}}_k\}$.</li>
+<li><strong>Lượt lùi (Backward Pass):</strong> Khởi tạo tại bước cuối $\mathbf{x}_K^s = \hat{\mathbf{x}}_K, \mathbf{P}_K^s = \hat{\mathbf{P}}_K$, sau đó quét ngược từ $k = K-1 \to 0$ cập nhật trạng thái làm mượt.</li>
+</ol>
+</section>
+<section class="content-section" id="sec-4">
+<h2>4. Bài Tập Ví Dụ Chuyên Sâu &amp; Các Bước Giải Chi Tiết</h2>
+<div class="exercise-box">
+<div class="exercise-header">
+<div class="exercise-badge-group">
+<span class="exercise-badge">🎯 Bài Tập Trọng Tâm</span>
+<span class="exercise-badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; border-color: #059669;">Ứng Dụng Robot Thực Tế</span>
+</div>
+<span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Chuẩn 4 Bước Vàng</span>
+</div>
+<h3 class="exercise-title">Làm Mượt Quỹ Đạo Xe Tự Hành 1D Bằng RTS Smoother 3 Bước Thời Gian</h3>
+<div class="exercise-statement">
+<strong>Đề bài kỹ thuật:</strong> Một xe tự hành chuyển động 1D với mô hình $x_{k+1} = x_k + u_k + w_k$, $Q = 0.3\text{ m}^2$. Bộ lọc Kalman tiến (Forward KF) đã hoàn tất 2 bước đo với kết quả lưu trữ như sau:<br/>• Tại $k=1$: Hậu nghiệm $\hat{x}_1 = 2.00\text{ m}$, hiệp phương sai $P_1 = 0.50\text{ m}^2$. Lệnh điều khiển $u_1 = 1.00\text{ m}$.<br/>• Tại $k=2$: Tiên nghiệm dự đoán $\check{x}_2 = 3.00\text{ m}$, $\check{P}_2 = 0.80\text{ m}^2$. Sau khi nhận đo đạc GPS chính xác cao tại $k=2$, bộ lọc tính được hậu nghiệm $\hat{x}_2 = 3.20\text{ m}$, $P_2 = 0.40\text{ m}^2$.<br/>Yêu cầu: Hãy thực hiện lượt lùi RTS Smoother để tính trạng thái làm mượt $x_1^s$ và hiệp phương sai làm mượt $P_1^s$ tại thời điểm $k=1$.
+          </div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">1</span>
+<span>Bước 1: Mô hình hóa bài toán &amp; Thiết lập dữ liệu tham số</span>
+</div>
+<p>Xác định các tham số đầu vào cho lượt lùi từ $k=2$ về $k=1$:<br/>• Mô hình chuyển tiếp: $A_1 = 1$.<br/>• Trạng thái xuất phát của lượt lùi: $x_2^s = \hat{x}_2 = 3.20\text{ m}$, $P_2^s = P_2 = 0.40\text{ m}^2$.<br/>• Dữ liệu bước 1: $\hat{x}_1 = 2.00\text{ m}, P_1 = 0.50\text{ m}^2, \check{x}_2 = 3.00\text{ m}, \check{P}_2 = 0.80\text{ m}^2$.</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">2</span>
+<span>Bước 2: Dẫn xuất ma trận &amp; Tính toán đại số trung gian</span>
+</div>
+<p>Tính ma trận khuếch đại làm mượt (Smoother Gain) $K_1$:<br/>$$K_1 = P_1 A_1^T \check{P}_2^{-1} = \frac{0.50 \times 1}{0.80} = 0.625$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">3</span>
+<span>Bước 3: Ráp số vào công thức &amp; Tính toán ra đáp số cuối cùng</span>
+</div>
+<p>Cập nhật trạng thái và hiệp phương sai làm mượt tại $k=1$:<br/>• Sai lệch điều chỉnh từ tương lai: $\Delta x_2 = x_2^s - \check{x}_2 = 3.20 - 3.00 = +0.20\text{ m}$.<br/>• Trạng thái làm mượt: $x_1^s = \hat{x}_1 + K_1 (x_2^s - \check{x}_2) = 2.00 + 0.625 \times 0.20 = 2.00 + 0.125 = 2.125\text{ m}$.<br/>• Hiệp phương sai làm mượt:<br/>$$P_1^s = P_1 + K_1 (P_2^s - \check{P}_2) K_1^T = 0.50 + (0.625)^2 \times (0.40 - 0.80) = 0.50 + 0.3906 \times (-0.40) = 0.50 - 0.1562 = 0.3438\text{ m}^2$$</p>
+</div>
+<div class="solution-step">
+<div class="solution-step-header">
+<span class="step-num-badge">4</span>
+<span>Bước 4: Diễn giải ý nghĩa vật lý, kiểm tra độ nhạy &amp; Phân tích kỹ thuật</span>
+</div>
+<p>Diễn giải ý nghĩa: Nhờ có thông tin từ tương lai ($k=2$), ước lượng vị trí xe tại $k=1$ được hiệu chỉnh kéo từ $2.00\text{ m}$ lên $2.125\text{ m}$ (khớp với xu thế chuyển động). Đồng thời phương sai bất định $P_1$ giảm mạnh từ $0.50\text{ m}^2$ xuống $0.3438\text{ m}^2$ (giảm $31.24\%$), khẳng định độ chụm vượt trội của smoother so với filter.</p>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; BÀN LUẬN KỸ THUẬT</h4>
+<p>Thuật toán ước lượng trạng thái chứng minh sự suy giảm rõ rệt của độ bất định thông qua các phép cập nhật thông tin cảm biến, bảo đảm độ hội tụ và ổn định của nghiệm lọc.</p>
+</div></div>
+</div>
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">📝 Bài Tập Tự Luyện Rèn Luyện</span>
+<h4 class="practice-title">Bài tập tự luyện 3.1: Đo đạc RTK hoàn hảo</h4>
+</div>
+<div class="practice-statement">
+<strong>Yêu cầu:</strong> Nếu tại $k=2$, xe nhận tín hiệu từ trạm định vị mặt đất RTK-GPS với độ chính xác cực cao khiến $P_2 \approx 0.05\text{ m}^2$. Hãy tính lại phương sai làm mượt $P_1^s$ và so sánh mức độ giảm bất định.
+          </div>
+
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="practice-answer">
+<strong>💡 Gợi ý &amp; Đáp số đối chiếu:</strong> Sai lệch phương sai: $P_2^s - \check{P}_2 = 0.05 - 0.80 = -0.75\text{ m}^2$. Phương sai mới: $P_1^s = 0.50 + 0.3906 \times (-0.75) = 0.50 - 0.293 = 0.207\text{ m}^2$ (giảm tới $58.6\%$ độ bất định ban đầu)!
+          </div>
+</div>
+</details>
+</div>
+</section>
+<section class="content-section" id="sec-5">
+<h2>5. Phòng Lab Mô Phỏng Canvas 2D 60 FPS</h2>
+<div class="sim-container">
+<div class="sim-header">
+<h4>Mô Phỏng 03: So Sánh Trực Quan Quỹ Đạo Forward KF vs RTS Smoother</h4>
+<div class="sim-status"><span class="pulse-dot"></span> 60 FPS Tương Tác</div>
+</div>
+<canvas class="sim-canvas" height="380" id="sim-canvas-03" width="800"></canvas>
+<div class="sim-controls-grid">
+<div class="control-group">
+<label>Tỷ số nhiễu Q/R: <span id="sim03-qr-val">0.5</span></label>
+<input id="sim03-qr" max="2.0" min="0.1" step="0.1" type="range" value="0.5"/>
+</div>
+<div class="control-group">
+<label>Độ trễ pha quan sát: <span id="sim03-lag-val">Trung bình</span></label>
+<input id="sim03-lag" max="5" min="1" step="1" type="range" value="3"/>
+</div>
+</div>
+<div class="sim-stats-panel" id="sim03-stats">Quan sát đường xanh lục (RTS Smoother) uốn mượt mà và bám sát quỹ đạo thực hơn hẳn đường đỏ (Forward Filter).</div>
+</div>
+</section>
+<section class="content-section" id="sec-6">
+<h2>6. Cầu Nối Kiến Trúc Code C++ / ROS 2</h2>
+<p>Đoạn mã C++20 công nghiệp minh họa thuật toán lõi của chương, sẵn sàng tích hợp vào ROS 2 Nodes và các bộ giải chuyên dụng:</p>
+<pre><code class="language-cpp">// Rauch-Tung-Striebel (RTS) Smoother in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;Eigen/Dense&gt;
+
+struct FilterState {
+    double x_hat, P_hat;
+    double x_check, P_check;
+};
+
+std::vector&lt;double&gt; runRtsSmoother(
+    const std::vector&lt;FilterState&gt;&amp; forward_history,
+    double A = 1.0) 
+{
+    int K = forward_history.size();
+    std::vector&lt;double&gt; x_smooth(K);
+    std::vector&lt;double&gt; P_smooth(K);
+    
+    // Initialize with final forward state
+    x_smooth[K - 1] = forward_history[K - 1].x_hat;
+    P_smooth[K - 1] = forward_history[K - 1].P_hat;
+    
+    // Backward pass
+    for (int k = K - 2; k &gt;= 0; --k) {
+        double K_gain = forward_history[k].P_hat * A / forward_history[k + 1].P_check;
+        x_smooth[k] = forward_history[k].x_hat + K_gain * (x_smooth[k + 1] - forward_history[k + 1].x_check);
+        P_smooth[k] = forward_history[k].P_hat + K_gain * (P_smooth[k + 1] - forward_history[k + 1].P_check) * K_gain;
+    }
+    return x_smooth;
+}
+
+int main() {
+    std::vector&lt;FilterState&gt; history = {
+        {0.0, 1.0, 0.0, 1.0},
+        {2.0, 0.5, 1.0, 1.2},
+        {3.2, 0.4, 3.0, 0.8}
+    };
+    auto smoothed_traj = runRtsSmoother(history);
+    std::cout &lt;&lt; "Smoothed x_1 = " &lt;&lt; smoothed_traj[1] &lt;&lt; " m (Forward was 2.00 m)\n";
+    return 0;
+}</code></pre>
+</section>
+<section class="content-section" id="sec-7">
+<h2>7. Tổng Kết &amp; Bài Học Cốt Lõi</h2>
+<div class="summary-box">
+<ul>
+<li><strong>Filtering vs Smoothing:</strong> Lọc nhân quả chỉ nhìn về quá khứ; làm mượt khai thác toàn bộ chuỗi dữ liệu hai chiều thời gian.</li><li><strong>Tính thưa tam đường chéo (Tridiagonal):</strong> Bản chất Markov biến hệ Batch MAP đồ sộ thành bài toán giải được trong $O(K)$.</li><li><strong>Lượt lùi RTS Smoother:</strong> Thuật toán đệ quy ngược tinh gọn, triệt tiêu độ trễ pha và giảm đáng kể phương sai sai số.</li><li><strong>Nền móng Pose-Graph SLAM:</strong> Ý tưởng tối ưu hóa đồ thị hiện đại trong SLAM chính là sự kế thừa trực tiếp từ phương pháp Batch MAP.</li>
+</ul>
+</div>
+</section>
+<div class="chapter-navigation">
+<a class="btn-nav btn-prev" href="ch02.html">← Chương 02: Biến Ngẫu Nhiên Gauss</a>
+<a class="btn-nav btn-next" href="ch04.html">Chương tiếp theo: Bộ Lọc Kalman Rời Rạc &amp; Liên Tục →</a>
+</div>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

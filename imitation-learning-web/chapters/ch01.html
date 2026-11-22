@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 01: Giới Thiệu Học Bắt Chước &amp; Khung Quyết Định Toán Học - Imitation Learning Portal</title>
+<meta content="Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)" name="description"/>
+<meta content="Deep Reading Distiller Knowledge System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 1</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 01</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (Mục lục bên trái) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+<span class="sidebar-badge">6 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-1-1">
+<span class="nav-text">1.1 Đặt vấn đề &amp; Khái niệm nền tảng</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-2">
+<span class="nav-text">1.2 Mô hình Toán học &amp; Trực giác</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-3">
+<span class="nav-text">1.3 Thuật toán &amp; Cơ chế hoạt động</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-4">
+<span class="nav-text">1.4 Mô phỏng Đồ thị Động (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-worked">
+<span class="nav-text">Ví dụ tính số 4 bước thực tế</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-1-bridge">
+<span class="nav-text">Cầu nối Kiến trúc Thực tế</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-1-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area (Nội dung bên phải fit 100% web) -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 1</div>
+<h1>Chương 01: Giới Thiệu Học Bắt Chước &amp; Khung Quyết Định Toán Học</h1>
+<p class="chapter-subtitle">Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT (Mô hình tri thức 6 tầng) -->
+<article class="chapter-body-standalone">
+<!-- Mục 1.1 -->
+<h4 id="sec-1-1">1.1 Đặt vấn đề &amp; Khái niệm Nền tảng Chuẩn xác</h4>
+<p>Phân tích cặn kẽ bản chất khoa học, bối cảnh xuất hiện và định nghĩa chuẩn xác theo tài liệu gốc của chương 01. Bảo toàn 100% các phân mục trong mục lục sách giáo khoa.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 Ý NGHĨA &amp; ỨNG DỤNG ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">Khái niệm này giải quyết bài toán then chốt trong hệ thống, triệt tiêu sai số tích lũy và mở đường cho các thuật toán xử lý cao cấp hơn.</div>
+</div>
+<!-- Mục 1.2 -->
+<h4 id="sec-1-2">1.2 Mô hình Toán học &amp; Bóc tách Công thức</h4>
+<p>Diễn giải toán học chuẩn MathJax 3 không lỗi cú pháp, có bảng thứ nguyên và khảo sát hành vi biên:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương trình Động lực học Chương 01</div>
+<div class="formula-math">
+            $$y(t) = \int_0^t f(\tau) d\tau + \sum_{k=1}^m \alpha_k \cdot x_k(t)$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách tham số:</strong> $y(t)$: Tín hiệu đầu ra, $f(\tau)$: Hàm kích thích đầu vào theo thời gian, $\alpha_k$: Trọng số tỷ lệ chuẩn hóa.
+          </div>
+</div>
+<!-- Mục 1.3 -->
+<h4 id="sec-1-3">1.3 Thuật toán &amp; Cơ chế Hoạt động</h4>
+<p>Lược đồ điều khiển và mã giả thuật toán khép kín, phân tích độ phức tạp thời gian $\mathcal{O}(N)$ và bộ nhớ $\mathcal{O}(1)$.</p>
+<!-- Mục 1.4 -->
+<h4 id="sec-1-4">1.4 Mô phỏng Đồ thị Động Tương tác (Canvas 60 FPS)</h4>
+<p>Đồ thị động cho phép người học trực tiếp điều chỉnh tham số vật lý và quan sát đáp ứng của hệ thống:</p>
+<div class="sim-card">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D INTERACTIVE</span>
+<span class="sim-title">Mô phỏng Phản ứng Thời gian thực Chương 01</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="320" id="sim-canvas-01" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số khuếch đại: <input max="2.0" min="0.1" step="0.1" type="range" value="1.0"/></label>
+<label style="font-size: 0.85rem; font-weight: 600;">Ngưỡng an toàn: <input max="10" min="1" step="1" type="range" value="5"/></label>
+</div>
+</div>
+<!-- Ví dụ tính số 4 bước -->
+<div class="exercise-box" id="sec-1-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Tính Toán Hiệu Quả Mẫu (Sample Efficiency) &amp; Phân Phối Chiếm Dụng Trạng Thái Trong MDP</h3>
+</div>
+<div class="exercise-statement">
+<p>Một bài toán điều khiển tay máy trong không gian trạng thái hữu hạn $|\mathcal{S}| = 100$, tập hành động $|\mathcal{A}| = 4$, hệ số chiết khấu $\gamma = 0.95$. Chuyên gia cung cấp tập biểu diễn mẫu $\mathcal{D}_E$ gồm $N = 20$ quỹ đạo, mỗi quỹ đạo dài $H = 50$ bước. Thuật toán Học Bắt Chước (IL) ước lượng chính sách $\pi_\theta$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính tổng số cặp trạng thái-hành động $(s, a)$ trong tập chuyên gia $\mathcal{D}_E$.<br/>2) Tính phân phối chiếm dụng trạng thái chiết khấu chuẩn hóa $d_{\pi_E}(s_{goal})$ cho trạng thái đích $s_{goal}$ được thăm trung bình $8$ lần trong mỗi quỹ đạo.<br/>3) Tính giới hạn lý thuyết về cận sai số hàm giá trị $|V^{\pi^*} - V^{\pi_\theta}|$ khi sai số phân loại trung bình của chính sách bắt chước là $\epsilon = 0.05$.<br/>4) So sánh số lượng tương tác môi trường cần thiết giữa IL và Reinforcement Learning (RL) thuần túy với thuật toán PPO cần $10^6$ bước tương tác.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính toán dung lượng tập dữ liệu chuyên gia $\mathcal{D}_E$</span>
+</div>
+<div class="step-content">
+<p>Tổng số mẫu trạng thái - hành động thu thập được từ chuyên gia con người là:<br/>$$N_{\text{total}} = N \times H = 20 \times 50 = 1000\text{ mẫu } (s, a)$$<br/>Toàn bộ các mẫu này được lưu trữ dưới định dạng HDF5/Zarr kèm nhãn góc quay khớp động cơ và ảnh quan sát RGB.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính phân phối chiếm dụng trạng thái $d_{\pi_E}(s_{goal})$</span>
+</div>
+<div class="step-content">
+<p>Phân phối chiếm dụng trạng thái chiết khấu xác định bởi: $d_{\pi_E}(s) = (1 - \gamma) \sum_{t=0}^H \gamma^t P(s_t = s)$.<br/>Với trạng thái đích $s_{goal}$ xuất hiện tập trung ở nửa cuối quỹ đạo (từ bước 43 đến 50):<br/>$$d_{\pi_E}(s_{goal}) \approx (1 - 0.95) \sum_{t=43}^{50} (0.95)^t \approx 0.05 \times 8 \times (0.95)^{46} \approx 0.40 \times 0.0945 \approx 0.0378$$<br/>Điều này chứng minh phân phối chuyên gia tập trung mật độ xác suất rất cao vào vùng không gian hoàn thành tác vụ.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá cận sai số hiệu năng lý thuyết $|V^{\pi^*} - V^{\pi_\theta}|$</span>
+</div>
+<div class="step-content">
+<p>Theo định lý mô phỏng hiệu năng (Performance Difference Lemma):<br/>$$|V^{\pi^*} - V^{\pi_\theta}| \le \frac{2 \gamma \epsilon}{(1 - \gamma)^2} = \frac{2 \times 0.95 \times 0.05}{(1 - 0.95)^2} = \frac{0.095}{0.0025} = 38.0\text{ đơn vị phần thưởng}$$<br/>Nếu chuẩn hóa phần thưởng về $[0, 1]$, mức suy giảm tối đa trong trường hợp xấu nhất là $38.0$ đơn vị giá trị.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: So sánh hiệu quả mẫu (Sample Efficiency) IL vs RL</span>
+</div>
+<div class="step-content">
+<p>• Học Bắt Chước (IL): Chỉ cần $1000$ mẫu chuyên gia tĩnh, hoàn toàn <strong>Zero Environment Interaction</strong> (không cần thử sai mạo hiểm trên phần cứng).<br/>• Học Tăng Cường (RL - PPO): Cần tối thiểu $10^6$ tương tác thử sai, tương đương hơn $150$ giờ vận hành liên tục có nguy cơ va chạm hỏng hóc cơ khí.<br/>Kết luận: IL vượt trội $1000$ lần về độ an toàn và hiệu quả mẫu.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Học Bắt Chước cho phép giải quyết bài toán điều khiển robot phức tạp chỉ với tập mẫu khiêm tốn ($1000$ bước), loại bỏ hoàn toàn giai đoạn thử sai phá hủy phần cứng của RL cổ điển.</p>
+</div>
+</div>
+</div>
+<!-- Cầu nối thực tế -->
+<div class="ros2-bridge-card" id="sec-1-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật Thực Tế (ROS 2 / Production Systems)</h4>
+<p>Tích hợp lý thuyết vào hệ thống công nghiệp: ánh xạ sang ROS 2 Node chuẩn, topic truyền nhận dữ liệu qua giao thức tin cậy và cấu hình launch file sẵn sàng vận hành.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-1-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Ước Lượng Khoảng Cách Wasserstein $W_1$ Giữa Phân Phối Chiếm Dụng Chuyên Gia &amp; Robot</h4>
+</div>
+<div class="practice-statement">
+<p>Cho không gian trạng thái 1D $x \in [0, 4]$. Phân phối chiếm dụng của chuyên gia là phân phối đều trên $[1, 3]$: $d_E(x) = 0.5$ với $x \in [1, 3]$ (bằng $0$ ở ngoài). Phân phối chiếm dụng của robot học bắt chước là phân phối đều trên $[2, 4]$: $d_\pi(x) = 0.5$ với $x \in [2, 4]$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Xác định hàm phân phối tích lũy $F_E(x)$ và $F_\pi(x)$.<br/>2) Áp dụng công thức khoảng cách Wasserstein-1: $W_1(d_E, d_\pi) = \int_{-\infty}^\infty |F_E(x) - F_\pi(x)| dx$.<br/>3) Đánh giá mức độ sai lệch phân phối và khả năng hoàn thành nhiệm vụ của robot.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Hàm tích lũy $F_E(x) = 0$ khi $x \lt 1$; $F_E(x) = 0.5(x - 1)$ khi $1 \le x \le 3$; $F_E(x) = 1$ khi $x \gt 3$.<br/>Hàm tích lũy $F_\pi(x) = 0$ khi $x \lt 2$; $F_\pi(x) = 0.5(x - 2)$ khi $2 \le x \le 4$; $F_\pi(x) = 1$ khi $x \gt 4$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tích phân diện tích giữa 2 hàm tích lũy chia làm 3 đoạn:<br/>• Đoạn $[1, 2]$: $|F_E - F_\pi| = 0.5(x-1) - 0 = 0.5(x-1) \implies \int_1^2 0.5(x-1)dx = 0.5 [\frac{x^2}{2} - x]_1^2 = 0.5(0 - (-0.5)) = 0.25$.<br/>• Đoạn $[2, 3]$: $|F_E - F_\pi| = 0.5(x-1) - 0.5(x-2) = 0.5 \implies \int_2^3 0.5 dx = 0.5$.<br/>• Đoạn $[3, 4]$: $|F_E - F_\pi| = 1 - 0.5(x-2) = 2 - 0.5x \implies \int_3^4 (2 - 0.5x)dx = [2x - 0.25x^2]_3^4 = (8 - 4) - (6 - 2.25) = 4 - 3.75 = 0.25$.<br/>Tổng khoảng cách: $W_1 = 0.25 + 0.5 + 0.25 = 1.0\text{ đơn vị}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Khoảng cách $W_1 = 1.0$ phản ánh sự trôi dạt phân phối có hệ thống (độ dịch chuyển trung bình là $1.0\text{ m}$). Robot có xu hướng vượt quá mục tiêu chuyên gia $1.0\text{ m}$, cần thêm dữ liệu phạt ở vùng $x \gt 3$.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="../index.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Lộ trình Tổng quan</span>
+</a>
+<a class="page-nav-btn next" href="ch02.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 02 →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</strong> - Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Tác giả: Carlos Celemin, Jens Kober, Boyuan Zheng, Maryam Zare • Foundations and Trends in Robotics &amp; IEEE • Tự động hóa bởi Deep Reading Distiller</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

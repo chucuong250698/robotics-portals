@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 02: Nhân Bản Hành Vi (BC) &amp; Tích Lũy Sai Số Covariate Shift - Imitation Learning Portal</title>
+<meta content="Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)" name="description"/>
+<meta content="Deep Reading Distiller Knowledge System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 1</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 02</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (Mục lục bên trái) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+<span class="sidebar-badge">6 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-2-1">
+<span class="nav-text">2.1 Đặt vấn đề &amp; Khái niệm nền tảng</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-2">
+<span class="nav-text">2.2 Mô hình Toán học &amp; Trực giác</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-3">
+<span class="nav-text">2.3 Thuật toán &amp; Cơ chế hoạt động</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-4">
+<span class="nav-text">2.4 Mô phỏng Đồ thị Động (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-worked">
+<span class="nav-text">Ví dụ tính số 4 bước thực tế</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-bridge">
+<span class="nav-text">Cầu nối Kiến trúc Thực tế</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-2-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area (Nội dung bên phải fit 100% web) -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 1</div>
+<h1>Chương 02: Nhân Bản Hành Vi (BC) &amp; Tích Lũy Sai Số Covariate Shift</h1>
+<p class="chapter-subtitle">Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT (Mô hình tri thức 6 tầng) -->
+<article class="chapter-body-standalone">
+<!-- Mục 2.1 -->
+<h4 id="sec-2-1">2.1 Đặt vấn đề &amp; Khái niệm Nền tảng Chuẩn xác</h4>
+<p>Phân tích cặn kẽ bản chất khoa học, bối cảnh xuất hiện và định nghĩa chuẩn xác theo tài liệu gốc của chương 02. Bảo toàn 100% các phân mục trong mục lục sách giáo khoa.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 Ý NGHĨA &amp; ỨNG DỤNG ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">Khái niệm này giải quyết bài toán then chốt trong hệ thống, triệt tiêu sai số tích lũy và mở đường cho các thuật toán xử lý cao cấp hơn.</div>
+</div>
+<!-- Mục 2.2 -->
+<h4 id="sec-2-2">2.2 Mô hình Toán học &amp; Bóc tách Công thức</h4>
+<p>Diễn giải toán học chuẩn MathJax 3 không lỗi cú pháp, có bảng thứ nguyên và khảo sát hành vi biên:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương trình Động lực học Chương 02</div>
+<div class="formula-math">
+            $$y(t) = \int_0^t f(\tau) d\tau + \sum_{k=1}^m \alpha_k \cdot x_k(t)$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách tham số:</strong> $y(t)$: Tín hiệu đầu ra, $f(\tau)$: Hàm kích thích đầu vào theo thời gian, $\alpha_k$: Trọng số tỷ lệ chuẩn hóa.
+          </div>
+</div>
+<!-- Mục 2.3 -->
+<h4 id="sec-2-3">2.3 Thuật toán &amp; Cơ chế Hoạt động</h4>
+<p>Lược đồ điều khiển và mã giả thuật toán khép kín, phân tích độ phức tạp thời gian $\mathcal{O}(N)$ và bộ nhớ $\mathcal{O}(1)$.</p>
+<!-- Mục 2.4 -->
+<h4 id="sec-2-4">2.4 Mô phỏng Đồ thị Động Tương tác (Canvas 60 FPS)</h4>
+<p>Đồ thị động cho phép người học trực tiếp điều chỉnh tham số vật lý và quan sát đáp ứng của hệ thống:</p>
+<div class="sim-card">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D INTERACTIVE</span>
+<span class="sim-title">Mô phỏng Phản ứng Thời gian thực Chương 02</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="320" id="sim-canvas-02" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số khuếch đại: <input max="2.0" min="0.1" step="0.1" type="range" value="1.0"/></label>
+<label style="font-size: 0.85rem; font-weight: 600;">Ngưỡng an toàn: <input max="10" min="1" step="1" type="range" value="5"/></label>
+</div>
+</div>
+<!-- Ví dụ tính số 4 bước -->
+<div class="exercise-box" id="sec-2-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Chứng Minh Cận Sai Số Bậc Hai $O(T^2 \epsilon)$ Của Behavioral Cloning &amp; Ước Lượng Tích Lũy Lệch Quỹ Đạo</h3>
+</div>
+<div class="exercise-statement">
+<p>Xét một xe tự hành di chuyển trên làn đường trong thời gian $T = 100$ bước điều khiển. Chính sách nhân bản hành vi $\pi_{\text{BC}}$ được huấn luyện bằng hàm mất mát Cross-Entropy và đạt sai số dự đoán trung bình trên phân phối dữ liệu chuyên gia là $\epsilon = 0.02$ ($2\%$ xác suất đưa ra hành động sai lệch góc $\Delta \theta = 0.1\text{ rad}$).<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính xác suất robot đi trọn vẹn $T$ bước mà không mắc bất kỳ sai số nào.<br/>2) Tính số bước sai sót kỳ vọng dưới giả thiết phân phối độc lập (không lệch phân phối).<br/>3) Áp dụng định lý Ross &amp; Bagnell (2010) tính cận trên sai số tích lũy dưới hiện tượng Covariate Shift: $J(\pi_{\text{BC}}) - J(\pi_E) \le C \cdot T^2 \epsilon$.<br/>4) Phân tích định lượng độ lệch vị trí ngang cực đại khi sai số góc tích lũy bậc hai qua 100 bước với vận tốc $v = 1.0\text{ m/s}$ và chu kỳ $\Delta t = 0.1\text{ s}$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính xác suất hoàn thành hoàn hảo không sai số $P_{\text{perfect}}$</span>
+</div>
+<div class="step-content">
+<p>Giả sử tại mỗi bước thời gian, xác suất chọn đúng hành động chuyên gia là $1 - \epsilon = 0.98$:<br/>$$P_{\text{perfect}} = (1 - \epsilon)^T = (0.98)^{100} \approx 0.1326\text{ (chỉ } 13.26\%)$$<br/>Nghĩa là có tới $86.74\%$ khả năng robot sẽ phạm lỗi ít nhất một lần trong suốt hành trình 100 bước.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính số bước sai lệch kỳ vọng dưới giả thiết độc lập</span>
+</div>
+<div class="step-content">
+<p>Nếu các trạng thái độc lập (phân phối dữ liệu không thay đổi khi robot phạm lỗi):<br/>$$\mathbb{E}[N_{\text{errors}}] = T \times \epsilon = 100 \times 0.02 = 2\text{ bước sai sót}$$<br/>Tuy nhiên trong thực tế robot, một sai số nhỏ sẽ kéo theo robot sang trạng thái lệch lạc mới chưa từng thấy trong tập huấn luyện!</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính cận sai số tích lũy bậc hai $O(T^2 \epsilon)$ (Ross &amp; Bagnell)</span>
+</div>
+<div class="step-content">
+<p>Khi robot rẽ nhầm tại bước $t$, phân phối trạng thái bị trượt khỏi tập chuyên gia ($P_t(s) \neq P_E(s)$). Sai số tại bước $t$ sẽ lan truyền gây hậu quả trong toàn bộ $T - t$ bước còn lại:<br/>$$\text{Loss}_{\text{accum}} \le \sum_{t=1}^T (T - t + 1) \epsilon = \frac{T(T+1)}{2} \epsilon = \frac{100 \times 101}{2} \times 0.02 = 5050 \times 0.02 = 101.0\text{ đơn vị}$$<br/>Sai số tăng trưởng phi tuyến theo bình phương thời gian $O(T^2)$, là căn nguyên khiến xe tự hành lao xuống rãnh sau vài mét.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Ước lượng độ lệch ngang vật lý $\Delta y$</span>
+</div>
+<div class="step-content">
+<p>Nếu tại bước $t=20$ xe bị lệch một góc $\Delta\theta = 0.1\text{ rad}$ ($5.7^\circ$) và không tự sửa được trong $80$ bước còn lại ($8.0\text{ s}$):<br/>$$\Delta y \approx v \cdot \Delta t \cdot \sin(\Delta\theta) \times (100 - 20) = 1.0 \times 0.1 \times 0.1 \times 80 = 0.8\text{ m}$$<br/>Với làn đường tiêu chuẩn rộng $1.0\text{ m}$ (robot ở tim đường cánh biên $0.5\text{ m}$), độ lệch $0.8\text{ m}$ chắc chắn khiến robot văng hoàn toàn ra khỏi hành lang an toàn.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Behavioral Cloning thuần túy bị giới hạn bởi hiện tượng Covariate Shift bậc hai $O(T^2 \epsilon)$. Để khắc phục, cần can thiệp tương tác như DAgger hoặc mở rộng phân phối bằng Diffusion Policy.</p>
+</div>
+</div>
+</div>
+<!-- Cầu nối thực tế -->
+<div class="ros2-bridge-card" id="sec-2-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật Thực Tế (ROS 2 / Production Systems)</h4>
+<p>Tích hợp lý thuyết vào hệ thống công nghiệp: ánh xạ sang ROS 2 Node chuẩn, topic truyền nhận dữ liệu qua giao thức tin cậy và cấu hình launch file sẵn sàng vận hành.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-2-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Phân Tích Hiện Tượng Causal Confusion Do Đặc Trưng Tương Quan Giả Mạo</h4>
+</div>
+<div class="practice-statement">
+<p>Một xe tự hành học nhân bản hành vi dự đoán trạng thái phanh ($a \in \{0, 1\}$). Dữ liệu quan sát gồm 2 biến: $x_1$ (khoảng cách tới xe trước) và $x_2$ (đèn phanh hiển thị trên taplo xe mình, $x_2=1$ khi đang đạp phanh). Chuyên gia chỉ phanh khi $x_1 \le 5\text{ m}$. Tuy nhiên, trong tập dữ liệu $\mathcal{D}_E$, mỗi khi xe đạp phanh thì đèn $x_2$ luôn sáng đồng thời ($100\%$ tương quan). Mạng nơ-ron học trọng số $a = \sigma(w_1 x_1 + w_2 x_2 + b)$ với $w_1 = -0.1, w_2 = 5.0, b = -2.0$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính xác suất phanh khi xe đang chạy bình thường ($x_2 = 0$) và khoảng cách giảm xuống $x_1 = 3\text{ m}$ (nguy hiểm).<br/>2) Giải thích vì sao robot không đạp phanh kịp thời và chỉ ra căn nguyên Causal Confusion.<br/>3) Đề xuất giải pháp can thiệp can thiệp nhân quả (Interventional Policy) để loại bỏ $x_2$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Khi xe đang chạy bình thường, đèn taplo chưa sáng ($x_2 = 0$). Khoảng cách nguy hiểm $x_1 = 3\text{ m}$:<br/>Tín hiệu đầu vào: $z = w_1 x_1 + w_2 x_2 + b = (-0.1)(3) + 5.0(0) - 2.0 = -0.3 - 2.0 = -2.3$.<br/>Xác suất đạp phanh: $P(\text{brake}) = \sigma(-2.3) = \frac{1}{1 + e^{2.3}} = \frac{1}{1 + 9.974} \approx 0.091$ ($9.1\%$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Mặc dù khoảng cách chỉ còn $3\text{ m}$, xác suất phanh chỉ đạt $9.1\%$. Nguyên nhân: Mạng nơ-ron bị đánh lừa bởi tương quan giả mạo (Spurious Correlation). Trọng số $w_2 = 5.0$ quá lớn áp đảo $w_1 = -0.1$. Mạng chờ đèn phanh $x_2$ sáng rồi mới phanh, nhưng nếu mạng không phanh thì đèn không bao giờ sáng! Đây chính là bẫy Causal Confusion kinh điển của de Haan et al. (2019).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Giải pháp: 1) Triệt tiêu biến nguyên nhân giả bằng Dropout ngẫu nhiên trên biến quan sát trong quá trình huấn luyện; 2) Áp dụng can thiệp can thiệp phản thực tế (Counterfactual Data Augmentation) tạo ra các mẫu xe phanh nhưng đèn tắt; 3) Tốt nhất là loại bỏ hoàn toàn biến nội trạng thái hành động trước ra khỏi không gian quan sát của BC.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch01.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">Chương 01</span>
+</a>
+<a class="page-nav-btn next" href="ch03.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 03 →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</strong> - Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Tác giả: Carlos Celemin, Jens Kober, Boyuan Zheng, Maryam Zare • Foundations and Trends in Robotics &amp; IEEE • Tự động hóa bởi Deep Reading Distiller</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

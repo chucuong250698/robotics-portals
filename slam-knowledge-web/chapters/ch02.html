@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 02: Mô Hình Đo Cảm Biến Cự Ly &amp; Bản Đồ Lưới Chiếm Chỗ - SLAM &amp; Active Perception Portal</title>
+<meta content="Range Sensors &amp; Log-Odds Occupancy Grid Mapping" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 1: NỀN TẢNG ĐỘNG HỌC &amp; CẢM BIẾN</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 02</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-2-1">
+<span class="nav-text">2.1 Các Loại Cảm Biến Cự Ly &amp; Đặc Tính Đo</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-2">
+<span class="nav-text">2.2 Mô Hình Cảm Biến Nghịch Đảo (Inverse Sensor Model)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-3">
+<span class="nav-text">2.3 Biểu Diễn Log-Odds Của Bản Đồ Chiếm Chỗ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-4">
+<span class="nav-text">2.4 Thuật Toán Raycasting Bresenham</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-sim">
+<span class="nav-text">⚡ Mô Phỏng Lập Bản Đồ Log-Odds (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Cập Nhật Ô Lưới Chiếm Chỗ</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-2-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Node Tạo Occupancy Grid Từ LaserScan</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-2-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 1: NỀN TẢNG ĐỘNG HỌC &amp; CẢM BIẾN • CHƯƠNG 02</div>
+<h1 class="chapter-title">Mô Hình Đo Cảm Biến Cự Ly &amp; Bản Đồ Lưới Chiếm Chỗ</h1>
+<p class="chapter-subtitle">Range Sensors &amp; Log-Odds Occupancy Grid Mapping</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Mordechai Ben-Ari &amp; Francesco Mondada (Elements of Robotics, Springer)</strong></span>
+</div>
+</div>
+<!-- 2.1 -->
+<h2 id="sec-2-1">2.1 Các Loại Cảm Biến Đo Khoảng Cách &amp; Đặc Tính Kỹ Thuật</h2>
+<p>Bản đồ môi trường được xây dựng từ các quan sát cự ly đo được từ robot tới chướng ngại vật xung quanh:</p>
+<ul>
+<li><strong>LiDAR 2D/3D (Laser Scanner):</strong> Phát chùm tia laser và đo thời gian bay (Time of Flight - ToF). Độ chính xác cực cao ($\pm 1 - 2$ cm), tầm quét rộng ($360^\circ$, tầm xa $12 - 30$ m), đóng vai trò xương sống của SLAM 2D.</li>
+<li><strong>Cảm biến siêu âm (Sonar):</strong> Đo thời gian phản hồi của sóng âm. Búp sóng mở rộng ($15^\circ - 30^\circ$) gây hiện tượng phản xạ gương (Specular reflection), độ phân giải góc thấp.</li>
+<li><strong>Cảm biến quang học hồng ngoại (IR Triangulation):</strong> Sử dụng nguyên lý tam giác quang học. Rẻ tiền, tầm quét ngắn ($0.1 - 1.5$ m), nhạy cảm với ánh sáng mặt trời.</li>
+</ul>
+<!-- 2.2 -->
+<h2 id="sec-2-2">2.2 Mô Hình Cảm Biến Nghịch Đảo (Inverse Measurement Model)</h2>
+<p>Mô hình cảm biến thuận tính xác suất đo được $z$ khi biết trước bản đồ $p(z \mid m, x)$. Nhưng khi lập bản đồ, ta cần tính điều ngược lại: <em>"Biết vị trí robot $x$ và giá trị cảm biến đo được $z$, xác suất ô lưới $m_i$ bị chiếm chỗ là bao nhiêu?"</em></p>
+<!-- 2.3 -->
+<h2 id="sec-2-3">2.3 Biểu Diễn Log-Odds Của Bản Đồ Chiếm Chỗ (Occupancy Grid Mapping)</h2>
+<p>Không gian được chia thành một mạng lưới 2D gồm các ô vuông độc lập $m_i \in \{0, 1\}$ (0: Free, 1: Occupied). Để tránh việc nhân liên tiếp các số xác suất nhỏ gây tràn số dưới (Underflow), Moravec và Elfes đưa ra dạng biểu diễn <strong>Tỷ số chẵn lẻ Log-Odds</strong>:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương Trình Cập Nhật Lưới Chiếm Chỗ Dạng Log-Odds</div>
+<div class="formula-math">
+            $$l_t(m_i) = l_{t-1}(m_i) + \text{inv\_sensor}(m_i, x_t, z_t) - l_0$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách công thức:</strong>
+<br/>• $l_t(m_i) = \ln \frac{p(m_i \mid z_{1:t})}{1 - p(m_i \mid z_{1:t})}$: Tỷ số Log-Odds tại thời điểm $t$.
+            <br/>• $l_0 = \ln \frac{p(m_i)}{1 - p(m_i)}$: Tiền nghiệm ban đầu (khi chưa có thông tin $p(m_i) = 0.5 \Rightarrow l_0 = \ln(1) = 0$).
+            <br/>• $\text{inv\_sensor}(m_i, x_t, z_t)$: Trả về giá trị dương ($l_{\text{occ}} \gt 0$) nếu tia laser dừng tại ô đó, và trả về giá trị âm ($l_{\text{free}} \lt 0$) nếu tia laser xuyên qua ô đó.
+          </div>
+</div>
+<p>Chuyển đổi ngược lại từ Log-Odds $l$ sang xác suất phần trăm $p(m_i) \in [0, 1]$:</p>
+        $$p(m_i) = 1 - \frac{1}{1 + \exp(l_t(m_i))}$$
+
+        <!-- SIMULATOR -->
+<div class="sim-card" id="sec-2-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Lập Bản Đồ Bằng Tia Quét Laser Bresenham &amp; Log-Odds</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="320" id="sim-canvas-02" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-2-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Cập Nhật Xác Suất Ô Lưới Chiếm Chỗ Qua 3 Lần Quét LiDAR</h3>
+</div>
+<div class="exercise-statement">
+<p>Xét một ô lưới $m_i$ ban đầu chưa biết ($p_0 = 0.5 \Rightarrow l_0 = 0$). Cảm biến có tham số đo: khi tia xuyên qua trả về $l_{\text{free}} = -0.7$ ($p = 0.33$), khi tia chạm chướng ngại vật trả về $l_{\text{occ}} = +1.2$ ($p = 0.77$). Qua 3 lần robot quét cự ly liên tiếp:
+          <br/>• Lần 1: Tia xuyên qua ô lưới.
+          <br/>• Lần 2: Tia tiếp tục xuyên qua ô lưới.
+          <br/>• Lần 3: Tia chạm và kết thúc tại ô lưới.
+          Tính giá trị Log-Odds tích lũy $l_1, l_2, l_3$ và xác suất chiếm chỗ $p_3(m_i)$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Cập nhật sau lần quét 1 (Tia xuyên qua)</span>
+</div>
+<div class="step-content">
+<p>$$l_1 = l_0 + l_{\text{free}} - l_0 = 0 + (-0.7) - 0 = -0.7$$</p><p>Xác suất: $p_1 = 1 - \frac{1}{1 + e^{-0.7}} = 1 - \frac{1}{1 + 0.4966} = 1 - 0.6682 = 0.3318$ ($33.18\%$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Cập nhật sau lần quét 2 (Tia tiếp tục xuyên qua)</span>
+</div>
+<div class="step-content">
+<p>$$l_2 = l_1 + l_{\text{free}} - l_0 = -0.7 + (-0.7) - 0 = -1.4$$</p><p>Xác suất: $p_2 = 1 - \frac{1}{1 + e^{-1.4}} = 1 - \frac{1}{1 + 0.2466} \approx 0.1978$ ($19.78\%$).</p><p>Độ tin cậy ô trống tăng lên vững chắc.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Cập nhật sau lần quét 3 (Tia chạm chướng ngại vật)</span>
+</div>
+<div class="step-content">
+<p>$$l_3 = l_2 + l_{\text{occ}} - l_0 = -1.4 + (+1.2) - 0 = -0.2$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính xác suất cuối cùng $p_3$ &amp; Nhận định</span>
+</div>
+<div class="step-content">
+<p>$$p_3 = 1 - \frac{1}{1 + e^{-0.2}} = 1 - \frac{1}{1 + 0.8187} = 1 - 0.5498 = 0.4502\text{ (45.02\%) }$$</p><p>Nhận xét: Mặc dù lần 3 phát hiện vật cản, nhưng do 2 lần trước đã xác nhận ô trống nên xác suất chỉ tăng lên $45\%$, bảo vệ bản đồ khỏi các tia quét sai số ngẫu nhiên tức thời!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Quy tắc cập nhật log-odds cho thấy sức mạnh của mô hình cảm biến nghịch đảo: Mỗi tia quét laser bổ sung thêm bằng chứng xác thực giúp chuyển dần trạng thái từ hoàn toàn chưa biết ($p=0.5$) sang trạng thái tin cậy cao, đồng thời cho phép khử nhiễu tự nhiên.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-2-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Cấu Trúc Bản Đồ OccupancyGrid Trong ROS 2</h4>
+<p>Đoạn mã Python xuất bản mảng 2D biểu diễn bản đồ chướng ngại vật `nav_msgs/msg/OccupancyGrid`:</p>
+<div class="code-card">
+<div class="code-header">
+<span>occupancy_grid_publisher.py (ROS 2 / Python)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import OccupancyGrid
+import numpy as np
+
+class MapPublisher(Node):
+    def __init__(self):
+        super().__init__('occupancy_grid_publisher')
+        self.pub_map = self.create_publisher(OccupancyGrid, '/map', 1)
+        self.timer = self.create_timer(1.0, self.publish_map)
+        self.width = 100
+        self.height = 100
+        self.resolution = 0.05 # 5 cm / ô
+
+    def publish_map(self):
+        grid = OccupancyGrid()
+        grid.header.stamp = self.get_clock().now().to_msg()
+        grid.header.frame_id = "map"
+        grid.info.resolution = self.resolution
+        grid.info.width = self.width
+        grid.info.height = self.height
+        grid.info.origin.position.x = -2.5
+        grid.info.origin.position.y = -2.5
+
+        # Dữ liệu bản đồ: 0 (Free), 100 (Occupied), -1 (Unknown)
+        data = np.zeros((self.height, self.width), dtype=np.int8)
+        data[0, :] = 100 # Bức tường trên
+        data[-1, :] = 100 # Bức tường dưới
+        data[:, 0] = 100 # Bức tường trái
+        data[:, -1] = 100 # Bức tường phải
+
+        grid.data = data.flatten().tolist()
+        self.pub_map.publish(grid)</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-2-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Hợp Nhất Đa Cảm Biến Cự Ly Cho Ô Lưới Chiếm Chỗ Dưới Dạng Log-Odds</h4>
+</div>
+<div class="practice-statement">
+<p>Một ô lưới $m_j$ trong bản đồ ban đầu có xác suất chiếm chỗ tiên nghiệm $P(m_j) = 0.5$ ($l_0 = 0$). Hệ thống trang bị 2 cảm biến độc lập gồm LiDAR và Cảm biến siêu âm cùng quét vào ô lưới $m_j$ tại thời điểm $t$. Phép đo LiDAR cho xác suất chiếm chỗ $P(m_j | z_{\text{lidar}}) = 0.82$, trong khi cảm biến siêu âm do hiện tượng phản xạ góc cho xác suất $P(m_j | z_{\text{sonar}}) = 0.65$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Chuyển đổi các giá trị xác suất đo được sang biểu diễn log-odds $l_{\text{lidar}}$ và $l_{\text{sonar}}$.<br/>2) Áp dụng quy tắc cộng log-odds để tính giá trị log-odds tổng hợp $l_t(m_j)$.<br/>3) Khôi phục xác suất chiếm chỗ hậu nghiệm $P(m_j | z_{\text{lidar}}, z_{\text{sonar}})$ và đưa ra quyết định ô lưới là Trống (Free) hay Chiếm chỗ (Occupied) với ngưỡng $\tau = 0.75$.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Công thức chuyển đổi sang log-odds: $l(p) = \ln\left(\frac{p}{1-p}\right)$.<br/>• Với LiDAR: $l_{\text{lidar}} = \ln\left(\frac{0.82}{1 - 0.82}\right) = \ln\left(\frac{0.82}{0.18}\right) = \ln(4.556) \approx +1.516$.<br/>• Với Siêu âm: $l_{\text{sonar}} = \ln\left(\frac{0.65}{1 - 0.65}\right) = \ln\left(\frac{0.65}{0.35}\right) = \ln(1.857) \approx +0.619$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Do điều kiện tiên nghiệm $l_0 = 0$ ($P=0.5$), theo định lý Bayes dạng cộng log-odds cho các phép đo độc lập:<br/>$$l_t(m_j) = l_0 + l_{\text{lidar}} + l_{\text{sonar}} = 0 + 1.516 + 0.619 = +2.135$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Khôi phục xác suất hậu nghiệm: $P(m_j | z_{1:2}) = \frac{1}{1 + e^{-l_t}} = \frac{1}{1 + e^{-2.135}} = \frac{1}{1 + 0.1182} = \frac{1}{1.1182} \approx 0.8943$ ($89.43\%$).<br/>Vì $0.8943 \gt 0.75$, hệ thống tự động gán nhãn ô lưới là <strong>Occupied (Đã bị chiếm chỗ)</strong> với độ tin cậy rất cao.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch01.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 01: Động Học &amp; Dead Reckoning</span>
+</a>
+<a class="ch-nav-card next" href="ch03.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 03: Bộ Lọc Bayes &amp; EKF</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

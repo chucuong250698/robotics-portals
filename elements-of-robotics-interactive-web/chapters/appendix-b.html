@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Phụ lục B: Cầu nối Kiến trúc sang ROS 2 Humble / Jazzy - Elements of Robotics</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Phụ lục &amp; Bổ trợ</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Phụ lục B: Kiến trúc ROS 2</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC PHỤ LỤC B</span>
+<span class="sidebar-badge">4 PHẦN</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item"><a href="#sec-b-1"><span class="nav-text">B.1 Khung Kiến Trúc Node &amp; Topic ROS 2</span></a></div>
+<div class="nav-item"><a href="#sec-b-2"><span class="nav-text">B.2 Giao Thức Services &amp; Actions</span></a></div>
+<div class="nav-item"><a href="#sec-b-3"><span class="nav-text">B.3 Cây Tọa Độ TF2 &amp; Odometry Bridge</span></a></div>
+<div class="nav-item"><a href="#sec-b-4"><span class="nav-text">B.4 Tích Hợp URDF &amp; ros2_control</span></a></div>
+</nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+
+<main class="main-content" style="max-width: 1000px; margin: 0 auto; width: 100%; padding: 2rem 1rem 4rem;">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem; background: rgba(16, 185, 129, 0.12); color: #10b981;">PHỤ LỤC B • ROS 2 HUMBLE / JAZZY ARCHITECTURE</div>
+<h1>Cầu nối Kiến trúc sang Hệ điều hành ROS 2</h1>
+<p class="chapter-subtitle">Bản đồ đối chiếu toàn diện từ các thuật toán lý thuyết sách giáo khoa Elements of Robotics sang các gói phần mềm chuẩn của ROS 2 Humble / Jazzy.</p>
+</div>
+<article class="chapter-body-standalone">
+<div class="track-header">
+<span class="track-badge">PHỤ LỤC B</span>
+<h2>CẦU NỐI KIẾN TRÚC SANG HỆ ĐIỀU HÀNH ROS 2</h2>
+<p class="track-desc">Bản đồ đối chiếu toàn diện từ các thuật toán lý thuyết sách giáo khoa Elements of Robotics sang các gói phần mềm chuẩn của ROS 2 Humble / Jazzy.</p>
+</div>
+<article class="chapter-card">
+<div class="chapter-body">
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>Chủ đề Giáo trình (Elements of Robotics)</th>
+<th>Kiến trúc ROS 2 Tương ứng</th>
+<th>Package / Plugin Chuẩn</th>
+<th>Topic / Message Phổ biến</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ch. 1-2: Cảm biến &amp; Động cơ</strong></td>
+<td>Hardware Abstraction Layer</td>
+<td><code>ros2_control</code></td>
+<td><code>/sensor_msgs/msg/LaserScan</code>, <code>/sensor_msgs/msg/Range</code></td>
+</tr>
+<tr>
+<td><strong>Ch. 3-4: Phản xạ &amp; FSM</strong></td>
+<td>Decision &amp; Behavior Trees</td>
+<td><code>nav2_behavior_tree</code>, <code>SMACH</code></td>
+<td>BT Action Nodes, Lifecycle States</td>
+</tr>
+<tr>
+<td><strong>Ch. 5: Động học Vi sai &amp; Odometry</strong></td>
+<td>Kinematics &amp; TF2 Broadcast</td>
+<td><code>diff_drive_controller</code></td>
+<td><code>/cmd_vel</code> (Twist), <code>/odom</code> (Odometry), TF <code>odom-&gt;base_link</code></td>
+</tr>
+<tr>
+<td><strong>Ch. 6: Điều khiển Vòng kín PID</strong></td>
+<td>Closed-Loop Motor Control</td>
+<td><code>control_toolbox::Pid</code></td>
+<td>Parameters YAML: <code>p, i, d, antiwindup</code></td>
+</tr>
+<tr>
+<td><strong>Ch. 7-8: Định vị Xác suất Bayes</strong></td>
+<td>Probabilistic Localization</td>
+<td><code>nav2_amcl</code>, <code>robot_localization</code></td>
+<td><code>/initialpose</code>, <code>/amcl_pose</code>, Particle Cloud</td>
+</tr>
+<tr>
+<td><strong>Ch. 9: Bản đồ &amp; Nghịch lý SLAM</strong></td>
+<td>Simultaneous Localization &amp; Mapping</td>
+<td><code>slam_toolbox</code></td>
+<td><code>/map</code> (OccupancyGrid), <code>nav2_map_server</code></td>
+</tr>
+<tr>
+<td><strong>Ch. 10: Quy hoạch Đường đi A*</strong></td>
+<td>Global Navigation Planner</td>
+<td><code>nav2_smac_planner</code></td>
+<td><code>/plan</code> (nav_msgs/msg/Path), <code>global_costmap</code></td>
+</tr>
+<tr>
+<td><strong>Ch. 12: Thị giác Máy tính</strong></td>
+<td>Image Pipeline &amp; Vision</td>
+<td><code>image_transport</code>, <code>cv_bridge</code></td>
+<td><code>sensor_msgs/msg/Image</code>, OpenCV Mat</td>
+</tr>
+<tr>
+<td><strong>Ch. 15: Robot Bầy đàn</strong></td>
+<td>Multi-Robot Fleet Management</td>
+<td><code>zenoh_bridge_dds</code></td>
+<td>Namespaced topics: <code>/robot_N/cmd_vel</code></td>
+</tr>
+<tr>
+<td><strong>Ch. 16: Cánh tay Thao tác 3D</strong></td>
+<td>Motion Planning &amp; Inverse Kinematics</td>
+<td><code>MoveIt 2</code> (TRAC-IK, KDL)</td>
+<td><code>sensor_msgs/msg/JointState</code>, URDF Models</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Code snippet ROS 2 Launch -->
+<div class="code-card">
+<div class="code-header">
+<div class="window-dots">
+<span class="window-dot dot-red"></span>
+<span class="window-dot dot-yellow"></span>
+<span class="window-dot dot-green"></span>
+</div>
+<span class="code-lang-label">Python (ROS 2 Launch File Template)</span>
+<button class="copy-btn" onclick="copyCode(this)">Sao chép</button>
+</div>
+<pre><code class="language-python"># Mẫu Launch file khởi động trọn bộ Navigation 2 và SLAM Toolbox
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
+import os
+from ament_index_python.packages import get_package_share_directory
+
+def generate_launch_description():
+    pkg_nav2 = get_package_share_directory('nav2_bringup')
+    pkg_slam = get_package_share_directory('slam_toolbox')
+    
+    return LaunchDescription([
+        # 1. Khởi động SLAM Toolbox xây dựng bản đồ online
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_slam, 'launch', 'online_async_launch.py')
+            ),
+            launch_arguments={'use_sim_time': 'true'}.items()
+        ),
+        # 2. Khởi động Nav2 Stack (Global A* Planner + DWB Local Controller)
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_nav2, 'launch', 'navigation_launch.py')
+            ),
+            launch_arguments={'use_sim_time': 'true'}.items()
+        ),
+    ])</code></pre>
+</div>
+</div>
+</article>
+</article>
+<nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="appendix-a.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Phụ lục A: Nền tảng Toán học</span>
+</a>
+<a class="page-nav-btn next" href="../index.html">
+<span class="nav-direction">Hoàn tất Lộ trình</span>
+<span class="nav-title">Về Bảng Ma Trận Tổng quan →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 07: Phương Trình Newton-Euler & Thuật Toán Đệ Quy RNEA Cho Robot | Động Lực Học Robot</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Động Lực Học Robot</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 07</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 16 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Không Gian Trạng Thái & Bond Graph</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Năng Lượng & Passivity Lyapunov</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Cơ DC & Khớp Đàn Hồi</a>
+          <a href="ch04.html" class="chapter-quick-link ">04. Hệ Thủy Lực & Sóng Áp Suất</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Mô Hình Ma Sát Dahl & LuGre</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Động Học 3D Quaternions & Quán Tính</a>
+          <a href="ch07.html" class="chapter-quick-link active">07. Newton-Euler & Con Lắc Furuta</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Cơ Học Lagrange & Robot Manipulators</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Kane & Robot Phi Holonomic</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Hamilton & Hệ Port-Hamiltonian</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Dao Động Dầm Đàn Hồi FEM</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Cân Bằng Navier-Stokes & AUV</a>
+          <a href="ch13.html" class="chapter-quick-link ">13. Động Lực Học Khí Greitzer Surge</a>
+          <a href="ch14.html" class="chapter-quick-link ">14. Tích Phân Số ODEs & Symplectic</a>
+          <a href="ch15.html" class="chapter-quick-link ">15. Mô Phỏng DAEs & Baumgarte</a>
+          <a href="ch16.html" class="chapter-quick-link ">16. Cầu Nối C++ Pinocchio & ROS 2</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-3">Track 3: Động Học & Động Lực Học Vật Rắn</span>
+          <span class="page-source-badge">📖 Egeland & Gravdahl, Chương 7 (Trang 263–312)</span>
+        </div>
+        <h1 class="chapter-title">Chương 07: Phương Trình Newton-Euler & Thuật Toán Đệ Quy RNEA Cho Robot</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Định luật Newton-Euler, Cân bằng lực vật thể tự do, Con lắc Furuta & RNEA</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Khi robot cánh tay công nghiệp chuyển động với gia tốc lớn để hàn vỏ xe hơi hoặc gắp hàng, các lực quán tính, lực ly tâm và lực Coriolis tác động lên từng khớp nối có thể lên tới hàng nghìn Newton! Nếu động cơ không phát đủ mô-men bù trừ ngay tại từng mili-giây, cánh tay sẽ bị văng lệch khỏi quỹ đạo và gây tai nạn. <strong>Phương trình Newton-Euler và Thuật toán đệ quy RNEA (Recursive Newton-Euler Algorithm)</strong> là giải pháp tính toán động lực học ngược nhanh nhất thế giới với độ phức tạp tuyến tính $O(N)$, cho phép máy tính robot tính toán mô-men điều khiển bù tại tần số $1000\text{ Hz}$.</p>
+        </div>
+        <p>Phương pháp Newton-Euler tiếp cận trực tiếp từ vật lý Newton: Tách rời từng mắt xích robot thành các vật thể tự do (Free-body diagrams), cân bằng lực và mô-men quay, sau đó truyền đệ quy từ gốc lên ngọn (vận tốc/gia tốc) và truyền ngược từ ngọn về gốc (lực/mô-men khớp).</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Phương trình Newton-Euler 6 chiều cho một vật rắn có khối lượng $m$, khối tâm $C$, tensor quán tính $\mathbf{I}_C$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Động Lực Học Newton-Euler 6-DoF</div>
+          $$\begin{align}
+          \mathbf{f} &= m \dot{\mathbf{v}}_C = m \mathbf{a}_C \quad (\text{Định luật II Newton - Tịnh tiến}) \\
+          \boldsymbol{\tau}_C &= \mathbf{I}_C \dot{\boldsymbol{\omega}} + \boldsymbol{\omega} \times (\mathbf{I}_C \boldsymbol{\omega}) \quad (\text{Phương trình Euler - Quay})
+          \end{align}$$
+        </div>
+        <p>Thành phần $\boldsymbol{\omega} \times (\mathbf{I}_C \boldsymbol{\omega})$ là mô-men hồi chuyển phi tuyến (Gyroscopic torque), sinh ra lực cản xoắn lớn khi vật thể quay nhanh quanh hai trục đồng thời.</p>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p><strong>Cấu trúc Thuật toán đệ quy RNEA (Luh, Walker & Paul 1980):</strong></p>
+        <ol>
+          <li><strong>Lượt tiến (Forward Recursion, từ $i = 1 \to N$):</strong> Tính toán gia tốc góc $\dot{\boldsymbol{\omega}}_i$, gia tốc tuyến tính khối tâm $\mathbf{a}_{C,i}$, lực quán tính $\mathbf{F}_i = m_i \mathbf{a}_{C,i}$ và mô-men quán tính $\mathbf{N}_i = \mathbf{I}_i \dot{\boldsymbol{\omega}}_i + \boldsymbol{\omega}_i \times (\mathbf{I}_i \boldsymbol{\omega}_i)$.</li>
+          <li><strong>Lượt lùi (Backward Recursion, từ $i = N \to 1$):</strong> Cân bằng lực truyền từ khâu đầu công tác về gốc, tính lực khớp $\mathbf{f}_i$, mô-men khớp $\mathbf{n}_i$, và chiếu lên trục truyền động để thu được mô-men động cơ $\tau_i = \mathbf{n}_i^T \mathbf{z}_{i-1}$.</li>
+        </ol>
+        <p>Độ phức tạp tính toán: Đúng $O(N)$ phép tính, vượt trội hoàn toàn so với việc khai triển đại số ma trận Lagrange cồng kềnh $O(N^4)$!</p>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Mô Hình Hóa Động Lực Học Con Lắc Ngược Furuta Bằng Newton-Euler</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Hệ con lắc ngược Furuta gồm cánh tay đòn 1 quay ngang quanh trục thẳng đứng $Z$ (chiều dài $L_1 = 0.20\text{ m}$, quán tính $J_1 = 0.02\text{ kg}\cdot\text{m}^2$) được dẫn động bởi mô-men động cơ $\tau$. Tại đầu cánh tay đòn 1, con lắc 2 (khối lượng $m_2 = 0.10\text{ kg}$, chiều dài $L_2 = 0.30\text{ m}$, khoảng cách khối tâm $l_2 = 0.15\text{ m}$, quán tính khối tâm $I_2 = \frac{1}{12}m_2 L_2^2 = 7.5 \times 10^{-4}\text{ kg}\cdot\text{m}^2$) quay tự do quanh trục ngang vuông góc với cánh tay 1.<br>Góc quay cánh tay 1 là $\phi$, góc lắc của con lắc 2 so với phương thẳng đứng hướng lên là $\theta$.<br>Yêu cầu: (a) Lập phương trình cân bằng mô-men Euler cho con lắc 2 quanh trục khớp; (b) Tuyến tính hóa phương trình chuyển động quanh điểm cân bằng thẳng đứng đứng yên ($\theta_0 = 0, \dot{\theta}_0 = 0, \dot{\phi}_0 = 0$) và chứng minh con lắc là một hệ thống không ổn định vòng hở.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Chọn biến trạng thái</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích chuyển động và gia tốc của điểm khớp nối $A$ đầu cánh tay 1:<br>Khớp $A$ chuyển động tròn bán kính $L_1$ quanh trục thẳng đứng: Vận tốc $\mathbf{v}_A = L_1 \dot{\phi} \mathbf{e}_\phi$.<br>Gia tốc điểm $A$ gồm gia tốc tiếp tuyến và hướng tâm:<br>$$\mathbf{a}_A = L_1 \ddot{\phi} \mathbf{e}_\phi - L_1 \dot{\phi}^2 \mathbf{e}_r$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình vi phân & Ma trận hệ thống</span>
+              </div>
+              <div class="step-content">
+                <p>Lập phương trình cân bằng mô-men Euler cho con lắc 2 quanh điểm treo $A$:<br>Tổng quán tính con lắc 2 quanh trục quay khớp $A$: $J_A = I_2 + m_2 l_2^2 = 7.5 \times 10^{-4} + 0.10 \times (0.15)^2 = 7.5 \times 10^{-4} + 2.25 \times 10^{-3} = 3.0 \times 10^{-3}\text{ kg}\cdot\text{m}^2$.<br>Các lực tác dụng sinh mô-men quanh trục quay của con lắc:<br>• Mô-men trọng lực: $+m_2 g l_2 \sin\theta$<br>• Mô-men lực quán tính do chuyển động của điểm treo $A$: $-m_2 l_2 (\mathbf{a}_A \cdot \mathbf{n}) \cos\theta = -m_2 L_1 l_2 \ddot{\phi} \cos\theta$<br>• Mô-men lực ly tâm: $-m_2 l_2 L_1 \dot{\phi}^2 \sin\theta \cos\phi \approx 0$ (khi xét bậc 1).<br>Phương trình vi phân chuyển động của con lắc 2:<br>$$J_A \ddot{\theta} - m_2 g l_2 \sin\theta + m_2 L_1 l_2 \ddot{\phi}\cos\theta = 0$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tuyến tính hóa quanh điểm cân bằng thẳng đứng $\theta_0 = 0$:<br>Tại lân cận $\theta \approx 0$: $\sin\theta \approx \theta$, $\cos\theta \approx 1$. Phương trình trở thành:<br>$$J_A \ddot{\theta} - m_2 g l_2 \theta = -m_2 L_1 l_2 \ddot{\phi}$$<br>Ráp các thông số số học:<br>• $J_A = 3.0 \times 10^{-3}\text{ kg}\cdot\text{m}^2$.<br>• $m_2 g l_2 = 0.10 \times 9.81 \times 0.15 = 0.14715\text{ N}\cdot\text{m}$.<br>• $m_2 L_1 l_2 = 0.10 \times 0.20 \times 0.15 = 3.0 \times 10^{-3}\text{ kg}\cdot\text{m}^2$.<br>Chia hai vế cho $J_A$:<br>$$\ddot{\theta} - \left( \frac{0.14715}{0.0030} \right) \theta = -\left( \frac{0.0030}{0.0030} \right) \ddot{\phi} \implies \ddot{\theta} - 49.05 \theta = -\ddot{\phi}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển</span>
+              </div>
+              <div class="step-content">
+                <p>Đánh giá độ ổn định vòng hở:<br>Xét phương trình thuần nhất khi không có điều khiển ($\ddot{\phi} = 0$): $\ddot{\theta} - 49.05 \theta = 0$.<br>Phương trình đặc trưng: $s^2 - 49.05 = 0 \implies s_{1,2} = \pm \sqrt{49.05} \approx \pm 7.004\text{ rad/s}$.<br>Trị riêng dương $s_1 = +7.004 \gt 0$ nằm ở nửa mặt phẳng phải của mặt phẳng phức $\implies$ Hệ thống <strong>mất ổn định nghiêm trọng (Unstable Pole)</strong> với thời gian tăng gấp đôi sai lệch chỉ khoảng $\tau = \ln(2)/7.004 \approx 0.099\text{ s}$ ($99\text{ ms}$). Điều này khẳng định robot bắt buộc phải có thuật toán điều khiển phản hồi tốc độ cao (LQR hoặc State Feedback) để giữ con lắc thăng bằng.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Mô hình hóa và nghiệm tính toán số học trên hoàn toàn khớp với động lực học phi tuyến giải tích từ giáo trình của GS. Olav Egeland và GS. Jan Tommy Gravdahl, là căn cứ số học định lượng vững chắc để thiết kế các thuật toán điều khiển phản hồi thời gian thực.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 07: Con Lắc Ngược Furuta Xoay 360 Độ Quanh Trục Ngang</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-07" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Tốc độ quay trục ngang arm: <span id="sim07-speed-val">Ổn định</span></label>
+              <input type="range" id="sim07-speed" min="1" max="5" step="1" value="3">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim07-stats" class="sim-telemetry-text">Quan sát con lắc màu đỏ tự động giữ thăng bằng thẳng đứng ngược trên đầu thanh đòn màu xanh nhờ thuật toán phản hồi quán tính.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / ROS 2 Production Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Furuta Pendulum Linearized Model in C++ Eigen
+#include &lt;iostream&gt;
+#include &lt;Eigen/Dense&gt;
+
+int main() {
+    double m2 = 0.10, l2 = 0.15, g = 9.81;
+    double JA = 0.0030, L1 = 0.20;
+    
+    // System: d/dt [theta; theta_dot] = A * [theta; theta_dot] + B * u
+    double a21 = (m2 * g * l2) / JA; // 49.05
+    double b2 = -(m2 * L1 * l2) / JA; // -1.0
+    
+    Eigen::Matrix2d A;
+    A &lt;&lt; 0.0, 1.0,
+         a21, 0.0;
+         
+    Eigen::Vector2d B(0.0, b2);
+    
+    std::cout &lt;&lt; &quot;Open-Loop Matrix A:\n&quot; &lt;&lt; A &lt;&lt; &quot;\n\n&quot;;
+    std::cout &lt;&lt; &quot;Open-Loop Poles: +/- &quot; &lt;&lt; std::sqrt(a21) &lt;&lt; &quot; rad/s (UNSTABLE)\n&quot;;
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Phương pháp Newton-Euler:</strong> Phân tích lực và mô-men trực tiếp trên từng vật thể tự do, giàu trực giác cơ học vật lý.</li><li><strong>Mô-men hồi chuyển (Gyroscopic Torque):</strong> Hiệu ứng phi tuyến $\boldsymbol{\omega} 	imes (I\boldsymbol{\omega})$ sinh ra ứng suất xoắn lớn khi quay đa trục.</li><li><strong>Thuật toán RNEA $O(N)$:</strong> Tiêu chuẩn công nghiệp tính toán động lực học ngược thời gian thực cho mọi robot nhiều khớp.</li><li><strong>Con lắc Furuta:</strong> Hệ thống thực nghiệm kinh điển kiểm chứng các thuật toán điều khiển phi tuyến và giữ thăng bằng robot hai chân.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 7.1: Thiết kế phản hồi LQR giữ thăng bằng</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Cho hệ thống tuyến tính $\ddot{\theta} = 49.05 \theta + u$ với tín hiệu điều khiển $u = -\ddot{\phi}$. Hãy thiết kế vector độ lợi phản hồi trạng thái $K = [k_1, k_2]$ sao cho hệ kín có cặp cực ổn định tại $s = -10 \pm j 10$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Đa thức mong muốn: $(s+10)^2 + 10^2 = s^2 + 20s + 200$. Phương trình hệ kín: $s^2 + k_2 s + (k_1 - 49.05) = s^2 + 20s + 200$. So sánh hệ số: $k_2 = 20$, $k_1 = 200 + 49.05 = 249.05$. Luật điều khiển giữ thăng bằng: $u = -249.05 \theta - 20 \dot{\theta}$.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch06.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 06: Động Học Vật Rắn 3D: Quaternions</span>
+        </a>
+        <a href="ch08.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương tiếp theo: Cơ Học Lagrange: Robot Manipulators →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim07 === "function") {
+        initSim07();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

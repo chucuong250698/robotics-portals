@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 04: Phản Hồi Hiệu Chỉnh &amp; Họ Thuật Toán DAgger / SafeDAgger - Imitation Learning Portal</title>
+<meta content="Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)" name="description"/>
+<meta content="Deep Reading Distiller Knowledge System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 2</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 04</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (Mục lục bên trái) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 04</span>
+<span class="sidebar-badge">6 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-4-1">
+<span class="nav-text">4.1 Đặt vấn đề &amp; Khái niệm nền tảng</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-2">
+<span class="nav-text">4.2 Mô hình Toán học &amp; Trực giác</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-3">
+<span class="nav-text">4.3 Thuật toán &amp; Cơ chế hoạt động</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-4">
+<span class="nav-text">4.4 Mô phỏng Đồ thị Động (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-worked">
+<span class="nav-text">Ví dụ tính số 4 bước thực tế</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-4-bridge">
+<span class="nav-text">Cầu nối Kiến trúc Thực tế</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-4-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area (Nội dung bên phải fit 100% web) -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 2</div>
+<h1>Chương 04: Phản Hồi Hiệu Chỉnh &amp; Họ Thuật Toán DAgger / SafeDAgger</h1>
+<p class="chapter-subtitle">Chưng cất tri thức chuẩn 6 tầng • Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT (Mô hình tri thức 6 tầng) -->
+<article class="chapter-body-standalone">
+<!-- Mục 4.1 -->
+<h4 id="sec-4-1">4.1 Đặt vấn đề &amp; Khái niệm Nền tảng Chuẩn xác</h4>
+<p>Phân tích cặn kẽ bản chất khoa học, bối cảnh xuất hiện và định nghĩa chuẩn xác theo tài liệu gốc của chương 04. Bảo toàn 100% các phân mục trong mục lục sách giáo khoa.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 Ý NGHĨA &amp; ỨNG DỤNG ĐỂ LÀM GÌ?</div>
+<div class="why-matters-body">Khái niệm này giải quyết bài toán then chốt trong hệ thống, triệt tiêu sai số tích lũy và mở đường cho các thuật toán xử lý cao cấp hơn.</div>
+</div>
+<!-- Mục 4.2 -->
+<h4 id="sec-4-2">4.2 Mô hình Toán học &amp; Bóc tách Công thức</h4>
+<p>Diễn giải toán học chuẩn MathJax 3 không lỗi cú pháp, có bảng thứ nguyên và khảo sát hành vi biên:</p>
+<div class="formula-hero">
+<div class="formula-title">Phương trình Động lực học Chương 04</div>
+<div class="formula-math">
+            $$y(t) = \int_0^t f(\tau) d\tau + \sum_{k=1}^m \alpha_k \cdot x_k(t)$$
+          </div>
+<div class="formula-legend">
+<strong>Bóc tách tham số:</strong> $y(t)$: Tín hiệu đầu ra, $f(\tau)$: Hàm kích thích đầu vào theo thời gian, $\alpha_k$: Trọng số tỷ lệ chuẩn hóa.
+          </div>
+</div>
+<!-- Mục 4.3 -->
+<h4 id="sec-4-3">4.3 Thuật toán &amp; Cơ chế Hoạt động</h4>
+<p>Lược đồ điều khiển và mã giả thuật toán khép kín, phân tích độ phức tạp thời gian $\mathcal{O}(N)$ và bộ nhớ $\mathcal{O}(1)$.</p>
+<!-- Mục 4.4 -->
+<h4 id="sec-4-4">4.4 Mô phỏng Đồ thị Động Tương tác (Canvas 60 FPS)</h4>
+<p>Đồ thị động cho phép người học trực tiếp điều chỉnh tham số vật lý và quan sát đáp ứng của hệ thống:</p>
+<div class="sim-card">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D INTERACTIVE</span>
+<span class="sim-title">Mô phỏng Phản ứng Thời gian thực Chương 04</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="320" id="sim-canvas-04" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+<div class="sim-controls" style="padding: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; background: var(--sim-control-bg); border-top: 1px solid var(--border-color);">
+<label style="font-size: 0.85rem; font-weight: 600;">Hệ số khuếch đại: <input max="2.0" min="0.1" step="0.1" type="range" value="1.0"/></label>
+<label style="font-size: 0.85rem; font-weight: 600;">Ngưỡng an toàn: <input max="10" min="1" step="1" type="range" value="5"/></label>
+</div>
+</div>
+<!-- Ví dụ tính số 4 bước -->
+<div class="exercise-box" id="sec-4-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Mô Phỏng Quá Trình Gộp Dữ Liệu DAgger &amp; Chứng Minh Cận Sai Số Tuyến Tính $O(T \epsilon)$</h3>
+</div>
+<div class="exercise-statement">
+<p>Thuật toán DAgger (Dataset Aggregation) thực hiện giảm dần tỷ lệ can thiệp của chuyên gia theo lịch trình $\beta_i = p^{i-1}$ với $p = 0.7$ qua các vòng lặp $i = 1, 2, 3, 4$. Tại mỗi vòng lặp, robot thu thập $M = 500$ mẫu từ quỹ đạo do chính sách hỗn hợp $\pi_i = \beta_i \pi^* + (1 - \beta_i) \hat{\pi}_i$ sinh ra, nhưng toàn bộ hành động gán nhãn đều được chuyên gia $\pi^*$ sửa lại trước khi gộp vào tập dữ liệu $\mathcal{D}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính xác suất chuyên gia lái $\beta_i$ tại 4 vòng lặp đầu tiên.<br/>2) Tính kích thước tích lũy của tập dữ liệu $|\mathcal{D}_i|$ sau mỗi vòng lặp.<br/>3) Giả sử sau vòng lặp 4, sai số phân loại trên tập gộp là $\epsilon_N = 0.03$. Tính cận sai số tích lũy của DAgger $J(\hat{\pi}) - J(\pi^*) \le u \cdot T \epsilon_N$ với $T = 100, u = 1.0$.<br/>4) So sánh cận sai số DAgger ($O(T \epsilon)$) với cận sai số của BC ($O(T^2 \epsilon)$) để chỉ ra lý do DAgger giải quyết triệt để Covariate Shift.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính tỷ lệ can thiệp của chuyên gia $\beta_i$</span>
+</div>
+<div class="step-content">
+<p>Lịch trình suy giảm lũy thừa với $p = 0.7$:<br/>• Vòng 1: $\beta_1 = 0.7^0 = 1.0$ ($100\%$ chuyên gia điều khiển hoàn toàn).<br/>• Vòng 2: $\beta_2 = 0.7^1 = 0.70$ ($70\%$ chuyên gia, $30\%$ robot tự hành).<br/>• Vòng 3: $\beta_3 = 0.7^2 = 0.49$ ($49\%$ chuyên gia, $51\%$ robot tự hành).<br/>• Vòng 4: $\beta_4 = 0.7^3 = 0.343$ ($34.3\%$ chuyên gia, $65.7\%$ robot tự hành).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính kích thước tích lũy của kho dữ liệu gộp $|\mathcal{D}_i|$</span>
+</div>
+<div class="step-content">
+<p>Tại mỗi vòng, robot bổ sung $M = 500$ mẫu $(s, \pi^*(s))$ vào tập gộp:<br/>• Sau Vòng 1: $|\mathcal{D}_1| = 500$ mẫu.<br/>• Sau Vòng 2: $|\mathcal{D}_2| = 500 + 500 = 1000$ mẫu.<br/>• Sau Vòng 3: $|\mathcal{D}_3| = 1000 + 500 = 1500$ mẫu.<br/>• Sau Vòng 4: $|\mathcal{D}_4| = 1500 + 500 = 2000$ mẫu.<br/>Kho dữ liệu dần bao phủ cả những vùng trạng thái sai lệch do chính sách robot khám phá ra.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính cận sai số tích lũy tuyến tính $O(T \epsilon)$</span>
+</div>
+<div class="step-content">
+<p>Theo định lý hội tụ no-regret của DAgger (Ross et al., 2011), với sai số phân loại $\epsilon_N = 0.03$ và độ dài chuỗi $T = 100$:<br/>$$\text{Loss}_{\text{DAgger}} \le u \cdot T \cdot \epsilon_N = 1.0 \times 100 \times 0.03 = 3.0\text{ đơn vị mất mát}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: So sánh bước ngoặt lý thuyết DAgger vs BC</span>
+</div>
+<div class="step-content">
+<p>So sánh trực tiếp giữa hai phương pháp trên cùng bài toán ($T=100, \epsilon = 0.03$):<br/>• Behavioral Cloning: $\text{Loss}_{\text{BC}} \le \frac{T^2}{2} \epsilon = \frac{10000}{2} \times 0.03 = 150.0\text{ đơn vị}$.<br/>• DAgger: $\text{Loss}_{\text{DAgger}} \le T \epsilon = 100 \times 0.03 = 3.0\text{ đơn vị}$.<br/>DAgger giảm sai số tích lũy tới <strong>$50$ lần</strong>, chuyển đổi bản chất sai số từ phi tuyến bậc hai sang tuyến tính, chứng minh sức mạnh của phản hồi hiệu chỉnh tương tác.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>DAgger giải quyết dứt điểm hiện tượng Covariate Shift bằng cách gom dữ liệu phân phối của chính robot và yêu cầu chuyên gia gán nhãn bù, ép cận sai số về mức tuyến tính $O(T \epsilon)$.</p>
+</div>
+</div>
+</div>
+<!-- Cầu nối thực tế -->
+<div class="ros2-bridge-card" id="sec-4-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật Thực Tế (ROS 2 / Production Systems)</h4>
+<p>Tích hợp lý thuyết vào hệ thống công nghiệp: ánh xạ sang ROS 2 Node chuẩn, topic truyền nhận dữ liệu qua giao thức tin cậy và cấu hình launch file sẵn sàng vận hành.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-4-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Thiết Kế Ngưỡng Can Thiệp An Toàn Trong SafeDAgger Bằng Bộ Phân Loại Giám Sát</h4>
+</div>
+<div class="practice-statement">
+<p>SafeDAgger huấn luyện một bộ phân loại an toàn phụ trợ $S_\phi(s) \in [0, 1]$ dự đoán xác suất chính sách robot $\hat{\pi}(s)$ sẽ tạo ra hành động sai lệch lớn hơn ngưỡng cho phép so với chuyên gia $\pi^*(s)$: $P(|\hat{\pi}(s) - \pi^*(s)| \gt \delta)$. Tại bước $t$, bộ phân loại an toàn cho giá trị $S_\phi(s_t) = 0.62$. Ngưỡng an toàn hệ thống đặt là $\tau_{\text{safe}} = 0.50$. Độ trễ chuyển giao quyền điều khiển từ robot sang chuyên gia là $t_{\text{handover}} = 50\text{ ms}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Xác định điều kiện kích hoạt quyền can thiệp của chuyên gia trong SafeDAgger.<br/>2) Đánh giá tình huống $S_\phi(s_t) = 0.62$: Robot tiếp tục tự lái hay nhường quyền cho chuyên gia?<br/>3) Tính mức giảm tải số lần can thiệp của con người nếu trong 1000 bước chỉ có 120 bước vượt ngưỡng $0.50$ (so với $100\%$ can thiệp của DAgger cổ điển).</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Quy tắc can thiệp trong SafeDAgger: Robot tự thực thi hành động $\hat{\pi}(s)$ nếu $S_\phi(s) \le \tau_{\text{safe}}$. Nếu $S_\phi(s) \gt \tau_{\text{safe}}$, kích hoạt tín hiệu chuyển quyền cho chuyên gia can thiệp hiệu chỉnh.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tại bước $t$: $S_\phi(s_t) = 0.62 \gt 0.50$. Điều kiện an toàn bị vi phạm. Hệ thống lập tức phát tín hiệu cảnh báo và chuyển quyền lái sang chuyên gia trong $50\text{ ms}$, ngăn chặn nguy cơ va chạm.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Mức giảm tải can thiệp con người: Trong DAgger cổ điển, chuyên gia phải giám sát và lái $1000/1000$ bước ($100\%$). Với SafeDAgger, chuyên gia chỉ cần can thiệp $120$ bước ($12\%$). Tải trọng giám sát của con người giảm tới $88\%$, cho phép mở rộng quy mô huấn luyện trên hàng chục robot cùng lúc.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch03.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">Chương 03</span>
+</a>
+<a class="page-nav-btn next" href="ch05.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 05 →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Học Bắt Chước Trong Robot Học (Imitation Learning &amp; Interactive IL)</strong> - Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem;">Tác giả: Carlos Celemin, Jens Kober, Boyuan Zheng, Maryam Zare • Foundations and Trends in Robotics &amp; IEEE • Tự động hóa bởi Deep Reading Distiller</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

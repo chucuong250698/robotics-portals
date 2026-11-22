@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 14: Bộ Phân Loại Fisher LDA &amp; Trực Giác Học Tăng Cường (Q-Learning) - Elements of Robotics</title>
+<meta content="Nhận dạng mẫu trong luồng cảm biến, phân tích phân biệt tuyến tính Fisher LDA tối đa hóa phân tách lớp, học tăng cường Reinforcement Learning và bảng Q-Table." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 6: Trí tuệ Nhân tạo &amp; Học máy</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 14</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 14</span>
+<span class="sidebar-badge">6 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-14-1">
+<span class="nav-text">14.1 Nhận dạng Mẫu Cảm biến</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-2">
+<span class="nav-text">14.2 Phân tích Phân biệt Tuyến tính Fisher LDA</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-3">
+<span class="nav-text">14.3 Học có Giám sát vs Không Giám sát</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-4">
+<span class="nav-text">14.4 Trực giác Học Tăng cường &amp; Phương trình Bellman</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-worked">
+<span class="nav-text">Ví dụ tính số: Cập nhật giá trị Bellman Q-Learning</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-14-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (Gym-Gazebo / Isaac Sim)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-14-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 6: TRÍ TUỆ NHÂN TẠO &amp; HỌC MÁY</div>
+<h1>Chương 14: Bộ Phân Loại Fisher LDA &amp; Trực Giác Học Tăng Cường (Q-Learning)</h1>
+<p class="chapter-subtitle">Nhận dạng mẫu trong luồng cảm biến, phân tích phân biệt tuyến tính Fisher LDA tối đa hóa phân tách lớp, học tăng cường Reinforcement Learning và bảng Q-Table.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 14.1 & 14.2 -->
+<h4 id="sec-14-1">14.1 Nhận dạng Mẫu Cảm biến &amp; Phân tích Fisher LDA</h4>
+<p>Để robot tự động phân biệt được loại mặt sàn (ví dụ: gạch hoa vs thảm cỏ) từ dữ liệu cảm biến đa chiều, thuật toán <strong>Fisher's Linear Discriminant Analysis (LDA)</strong> tìm kiếm một hướng chiếu tối ưu $w$ sao cho: <em>khoảng cách giữa các lớp là lớn nhất đồng thời độ tán xạ nội bộ của mỗi lớp là nhỏ nhất</em>:</p>
+<div class="formula-hero">
+<div class="formula-title">TIÊU CHUẨN TỐI ƯU HÓA FISHER LDA</div>
+<div class="formula-math">
+                $$J(w) = \frac{w^T S_B w}{w^T S_W w} \implies w \propto S_W^{-1} (\mu_1 - \mu_2)$$
+              </div>
+<div class="formula-legend">
+                $S_B = (\mu_1 - \mu_2)(\mu_1 - \mu_2)^T$ là ma trận tán xạ giữa các lớp (Between-class scatter).<br/>
+                $S_W = \Sigma_1 + \Sigma_2$ là ma trận tán xạ nội tại trong lớp (Within-class scatter).
+              </div>
+</div>
+<!-- Mục 14.3 & 14.4 -->
+<h4 id="sec-14-3">14.3 Trực giác Học Tăng cường (Reinforcement Learning) &amp; Bảng Q-Table</h4>
+<p>Khác với học có giám sát cần con người gán nhãn, Học tăng cường (RL) để robot tự trải nghiệm bằng cách tương tác với môi trường: nhận thưởng (Reward $r \gt 0$) khi tiến gần đích và bị phạt ($r \lt 0$) khi đâm va vật cản. Thuật toán kinh điển <strong>Q-Learning</strong> cập nhật giá trị hàm chất lượng $Q(s, a)$ dựa trên phương trình Bellman:</p>
+<p>$$Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right]$$</p>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-14-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 MỘT BƯỚC CẬP NHẬT PHƯƠNG TRÌNH BELLMAN Q-LEARNING</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Robot đang ở trạng thái $s_1$, chọn hành động $a = \text{"Tiến thẳng"}$. Hệ số học $\alpha = 0.5$, hệ số chiết khấu tương lai $\gamma = 0.8$. Giá trị cũ $Q(s_1, \text{Tiến}) = 2.0$. Robot chuyển sang trạng thái mới $s_2$, nhận phần thưởng $r = +5.0$. Tại $s_2$, các giá trị hành động tương lai là: $Q(s_2, \text{Tiến}) = 6.0$, $Q(s_2, \text{Rẽ}) = 4.0$. Hãy tính $Q(s_1, \text{Tiến})$ mới.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tìm Hành Động Tương Lai Tối Ưu</span>
+</div>
+<div class="step-content">
+<p>$\max_{a'} Q(s_2, a') = \max(6.0, 4.0) = 6.0$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Mục Tiêu Cập Nhật TD Target</span>
+</div>
+<div class="step-content">
+<p>$\text{TD Target} = r + \gamma \max_{a'} Q(s', a') = 5.0 + 0.8 \times 6.0 = 5.0 + 4.8 = 9.8$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Sai Số Khác Biệt Thời Gian TD Error</span>
+</div>
+<div class="step-content">
+<p>$\text{TD Error} = \text{Target} - Q_{old} = 9.8 - 2.0 = +7.8$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Cập Nhật Giá Trị $Q$ Mới</span>
+</div>
+<div class="step-content">
+<p>$Q_{new} = Q_{old} + \alpha \cdot (\text{TD Error}) = 2.0 + 0.5 \times 7.8 = 2.0 + 3.9 = 5.9$.<br/>
+                  Hành động tiến thẳng tại $s_1$ đã được học là một quyết định rất giá trị!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Phân tích biệt thức tuyến tính Fisher LDA tìm ra trục chiếu tối ưu tối đa hóa khoảng cách giữa các lớp và tối thiểu hóa phương sai nội lớp, tạo ra bộ phân loại bề mặt sàn hoạt động ổn định và tin cậy cao.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-14-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Môi trường huấn luyện Reinforcement Learning cho ROS 2 thường được xây dựng dựa trên giao diện <code>gym-gazebo</code> hoặc NVIDIA Isaac Sim (Isaac Gym). Agent quan sát trạng thái laser/odometry qua ROS 2 subscription và xuất bản hành động vận tốc bánh xe qua cơ chế đồng bộ bước mô phỏng (lock-step clock).</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-14-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Chiếu Tối Ưu Bằng Phân Tích Biệt Thức Tuyến Tính Fisher LDA</h4>
+</div>
+<div class="practice-statement">
+<p>Robot phân loại 2 bề mặt sàn (Gỗ vs Thảm) bằng 2 cảm biến (độ rung $x_1$ và dòng tải $x_2$). Lớp 1 (Gỗ) có vector kỳ vọng $\mathbf{m}_1 = [2.0, 1.0]^T$. Lớp 2 (Thảm) có $\mathbf{m}_2 = [4.0, 3.0]^T$. Ma trận phân tán trong lớp gộp (Within-Class Scatter Matrix) là $\mathbf{S}_W = \begin{bmatrix} 2.0 &amp; 0.5 \\ 0.5 &amp; 1.0 \end{bmatrix}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính vector chênh lệch kỳ vọng $\Delta\mathbf{m} = \mathbf{m}_1 - \mathbf{m}_2$.<br/>2) Tính định thức và ma trận nghịch đảo $\mathbf{S}_W^{-1}$.<br/>3) Tính vector chiếu tối ưu Fisher $\mathbf{w} = \mathbf{S}_W^{-1} (\mathbf{m}_1 - \mathbf{m}_2)$ giúp tối đa hóa tỷ số Rayleigh.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Hiệu kỳ vọng: $\Delta\mathbf{m} = \mathbf{m}_1 - \mathbf{m}_2 = \begin{bmatrix} 2.0 - 4.0 \\ 1.0 - 3.0 \end{bmatrix} = \begin{bmatrix} -2.0 \\ -2.0 \end{bmatrix}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Nghịch đảo ma trận $\mathbf{S}_W$:<br/>$\det(\mathbf{S}_W) = (2.0)(1.0) - (0.5)(0.5) = 2.0 - 0.25 = 1.75 = \frac{7}{4}$.<br/>$$\mathbf{S}_W^{-1} = \frac{1}{1.75} \begin{bmatrix} 1.0 &amp; -0.5 \\ -0.5 &amp; 2.0 \end{bmatrix} = \begin{bmatrix} 0.5714 &amp; -0.2857 \\ -0.2857 &amp; 1.1429 \end{bmatrix}$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Vector chiếu tối ưu Fisher:<br/>$$\mathbf{w} = \begin{bmatrix} 0.5714 &amp; -0.2857 \\ -0.2857 &amp; 1.1429 \end{bmatrix} \begin{bmatrix} -2.0 \\ -2.0 \end{bmatrix} = \begin{bmatrix} -1.1428 + 0.5714 \\ 0.5714 - 2.2858 \end{bmatrix} = \begin{bmatrix} -0.5714 \\ -1.7144 \end{bmatrix}$$<br/>Chuẩn hóa theo thành phần đầu: $\mathbf{w}^* \propto [1.0, 3.0]^T$. Chiếu dữ liệu lên trục này giúp tách biệt tối đa giữa sàn Gỗ và Thảm, giảm thiểu tối đa chồng lấn phân phối.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch13.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 13: Mạng Nơ-ron &amp; Học Máy Lấy Cảm Hứ...</span>
+</a>
+<a class="page-nav-btn next" href="ch15.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 15: Robot Bầy Đàn &amp; Thuật Toán Tụ Hộ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

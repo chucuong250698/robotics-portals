@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 05: Động học Robot Vi sai &amp; Định vị Tích lũy Odometry - Elements of Robotics</title>
+<meta content="Hình học vi sai, tâm quay tức thời ICC, động học thuận/nghịch, tích lũy dead reckoning, sai số hệ thống vs ngẫu nhiên và elip lan truyền bất định." name="description"/>
+<meta content="Antigravity Knowledge Distillation System" name="author"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Chapter Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">Track 3: Động học &amp; Điều khiển Vòng kín PID</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 05</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sidebar TOC -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+<span class="sidebar-badge">10 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-5-1">
+<span class="nav-text">5.1 Hình học Robot Vi sai (Differential Drive)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-2">
+<span class="nav-text">5.2 Tâm quay Tức thời ICC &amp; Bán kính quay R</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sim-diff">
+<span class="nav-text">⚡ Mô phỏng Động học Vi sai &amp; Quỹ đạo ICC</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-3">
+<span class="nav-text">5.3 Động học Thuận &amp; Ma trận Chuyển vị</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-4">
+<span class="nav-text">5.4 Động học Ngược (Inverse Kinematics)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-5">
+<span class="nav-text">5.5 Tích lũy Odometry từ Xung Encoder</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-6">
+<span class="nav-text">5.6 Phân tích Sai số Trôi (Odometry Drift)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-7">
+<span class="nav-text">5.7 Lan truyền Sai số &amp; Elip Bất định</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-worked">
+<span class="nav-text">Ví dụ tính số: Cập nhật tọa độ Odometry</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-5-ros2">
+<span class="nav-text">Cầu nối Kiến trúc ROS 2 (diff_drive_controller)</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-5-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border-color);">
+<a class="control-btn secondary" href="../index.html" style="width: 100%; text-align: center; display: block; text-decoration: none; font-size: 0.85rem;">← Về Lộ trình Tổng quan</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="main-content" id="main-content">
+<div class="chapter-hero">
+<div class="card-track-badge" style="display: inline-block; margin-bottom: 0.5rem;">TRACK 3: ĐỘNG HỌC &amp; ĐIỀU KHIỂN VÒNG KÍN PID</div>
+<h1>Chương 05: Động học Robot Vi sai &amp; Định vị Tích lũy Odometry</h1>
+<p class="chapter-subtitle">Hình học vi sai, tâm quay tức thời ICC, động học thuận/nghịch, tích lũy dead reckoning, sai số hệ thống vs ngẫu nhiên và elip lan truyền bất định.</p>
+</div>
+<!-- 100% EXHAUSTIVE CHAPTER CONTENT -->
+<article class="chapter-body-standalone">
+<!-- Mục 5.1 & 5.2 -->
+<h4 id="sec-5-1">5.1 Hình học Robot Vi sai (Differential Drive)</h4>
+<p>Robot dẫn động vi sai (Differential Drive Robot) là kiến trúc phổ biến nhất trong robot học di động. Robot gồm hai bánh xe dẫn động độc lập gắn trên một trục chung với khoảng cách cơ sở $b$ (track width), và một hoặc hai bánh xe đỡ tự do (caster wheels). Mỗi bánh xe có bán kính $r$, quay với vận tốc góc tương ứng $\omega_r$ và $\omega_l$, tạo ra các vận tốc dài tiếp tuyến $v_r = r \cdot \omega_r$ và $v_l = r \cdot \omega_l$.</p>
+<h4 id="sec-5-2">5.2 Tâm quay Tức thời (Instantaneous Center of Curvature - ICC)</h4>
+<p>Do giả thiết bánh xe lăn thuần túy không trượt theo phương ngang (Non-holonomic constraint), quỹ đạo chuyển động tức thời của robot là một cung tròn quay quanh <strong>Tâm quay tức thời ICC</strong>:</p>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ hình học Động học Robot Vi sai và Tâm quay ICC" src="../assets/images/diff_drive.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 5.1:</strong> Sơ đồ Động học Robot Vi sai (Differential Drive Kinematics). Vận tốc dài robot $v$, vận tốc góc $\omega$, và bán kính quay $R$ được xác định từ tốc độ của hai bánh xe $v_r, v_l$.
+              </div>
+</div>
+<div class="formula-hero">
+<div class="formula-title">HỆ PHƯƠNG TRÌNH ĐỘNG HỌC VI SAI &amp; ICC</div>
+<div class="formula-math">
+                $$v = \frac{v_r + v_l}{2}, \quad \omega = \frac{v_r - v_l}{b}, \quad R = \frac{b}{2} \frac{v_r + v_l}{v_r - v_l}$$
+              </div>
+<div class="formula-legend">
+                Toạ độ tâm quay tức thời trong hệ quy chiếu toàn cục: $\text{ICC} = [x - R\sin\theta, \; y + R\cos\theta]^T$. Khi $v_r = v_l$, $R \to \infty$ và $\omega = 0$ (robot tiến thẳng); khi $v_r = -v_l$, $R = 0$ và robot quay tại chỗ quanh trung điểm trục bánh xe.
+              </div>
+</div>
+<!-- SIMULATOR CONTAINER: DIFF DRIVE -->
+<div class="simulator-wrapper" id="sim-diff">
+<div class="simulator-header">
+<div class="sim-title">
+<span class="sim-icon">⚡</span>
+<span>MÔ PHỎNG TƯƠNG TÁC 04: ĐỘNG HỌC ROBOT VI SAI &amp; QUỸ ĐẠO ICC</span>
+</div>
+<span class="sim-badge">Real-Time Vector Trajectory</span>
+</div>
+<div class="simulator-body">
+<canvas class="sim-canvas" height="320" id="diff-canvas" width="700"></canvas>
+<div class="sim-telemetry-bar">
+<div class="telemetry-item">
+<span class="telemetry-label">VẬN TỐC DÀI $v$:</span>
+<span class="telemetry-val" id="diff-metric-v">0.30 m/s</span>
+</div>
+<div class="telemetry-item">
+<span class="telemetry-label">VẬN TỐC GÓC $\omega$:</span>
+<span class="telemetry-val" id="diff-metric-omega">0.50 rad/s</span>
+</div>
+<div class="telemetry-item">
+<span class="telemetry-label">BÁN KÍNH QUAY $R$:</span>
+<span class="telemetry-val" id="diff-metric-rc">0.60 m</span>
+</div>
+</div>
+<div class="sim-controls-panel">
+<div class="control-group">
+<label class="control-label">Vận tốc bánh trái $v_l$: <span id="diff-vl-val">0.25</span> m/s</label>
+<input class="control-slider" id="diff-vl" max="0.6" min="-0.6" step="0.02" type="range" value="0.25"/>
+</div>
+<div class="control-group">
+<label class="control-label">Vận tốc bánh phải $v_r$: <span id="diff-vr-val">0.35</span> m/s</label>
+<input class="control-slider" id="diff-vr" max="0.6" min="-0.6" step="0.02" type="range" value="0.35"/>
+</div>
+<div class="control-group">
+<label class="control-label">Khoảng cách cơ sở $b$: <span id="diff-b-val">0.20</span> m</label>
+<input class="control-slider" id="diff-b" max="0.40" min="0.10" step="0.02" type="range" value="0.20"/>
+</div>
+<div class="control-group" style="flex: 0 0 auto; display: flex; gap: 0.5rem;">
+<button class="control-btn primary" id="diff-play">Tạm dừng</button>
+<button class="control-btn secondary" id="diff-reset">Xóa vệt</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Mục 5.3 & 5.4 -->
+<h4 id="sec-5-3">5.3 Động học Thuận (Forward Kinematics) &amp; Tích phân Quỹ đạo</h4>
+<p>Từ trạng thái $[x_t, y_t, \theta_t]^T$, sau khoảng thời gian ngắn $\Delta t$ với vận tốc góc $\omega \ne 0$, trạng thái mới được tính toán chính xác bằng phép quay quanh ICC:</p>
+<p>$$\begin{bmatrix} x_{t+\Delta t} \\ y_{t+\Delta t} \\ \theta_{t+\Delta t} \end{bmatrix} = \begin{bmatrix} \cos(\omega \Delta t) &amp; -\sin(\omega \Delta t) &amp; 0 \\ \sin(\omega \Delta t) &amp; \cos(\omega \Delta t) &amp; 0 \\ 0 &amp; 0 &amp; 1 \end{bmatrix} \begin{bmatrix} x_t - \text{ICC}_x \\ y_t - \text{ICC}_y \\ 0 \end{bmatrix} + \begin{bmatrix} \text{ICC}_x \\ \text{ICC}_y \\ \omega \Delta t \end{bmatrix}$$</p>
+<h4 id="sec-5-4">5.4 Động học Ngược (Inverse Kinematics)</h4>
+<p>Khi thuật toán quy hoạch quỹ đạo yêu cầu robot di chuyển với vận tốc dài mong muốn $v$ và vận tốc góc bẻ lái $\omega$, bộ điều khiển động học ngược biến đổi ngược thành lệnh vận tốc góc của từng bánh xe:</p>
+<p>$$\omega_r = \frac{2v + \omega \cdot b}{2r}, \quad \omega_l = \frac{2v - \omega \cdot b}{2r}$$</p>
+<!-- Mục 5.5, 5.6 & 5.7 -->
+<h4 id="sec-5-5">5.5 Tích lũy Odometry (Dead Reckoning) từ Xung Encoder</h4>
+<p>Trong thực tế, vi điều khiển đọc số xung đếm $\Delta N_r, \Delta N_l$ từ encoder trong chu kỳ $\Delta t$. Quãng đường lăn của từng bánh xe là $\Delta s_r = 2\pi r \frac{\Delta N_r}{TPR}$ và $\Delta s_l = 2\pi r \frac{\Delta N_l}{TPR}$. Quãng đường trung bình và độ lệch hướng:</p>
+<p>$$\Delta s = \frac{\Delta s_r + \Delta s_l}{2}, \quad \Delta \theta = \frac{\Delta s_r - \Delta s_l}{b}$$</p>
+<p>Cập nhật vị trí bằng phép xấp xỉ bậc hai Runge-Kutta 2 (góc hướng trung bình):</p>
+<p>$$x_{t+1} = x_t + \Delta s \cos\left(\theta_t + \frac{\Delta \theta}{2}\right), \quad y_{t+1} = y_t + \Delta s \sin\left(\theta_t + \frac{\Delta \theta}{2}\right), \quad \theta_{t+1} = \theta_t + \Delta \theta$$</p>
+<h4 id="sec-5-6">5.6 Phân tích Sai số Trôi (Odometry Drift): Hệ thống vs Ngẫu nhiên</h4>
+<div class="figure-container">
+<div class="figure-svg-wrapper">
+<img alt="Sơ đồ phân tích sai số Odometry Drift và Elip bất định" src="../assets/images/odometry_drift.svg"/>
+</div>
+<div class="figure-caption">
+<strong>Hình 5.2:</strong> Hiện tượng trôi sai số tích lũy (Odometry Drift). Sai số góc ban đầu dù rất nhỏ sẽ bị khuếch đại thành sai lệch vị trí khổng lồ theo thời gian ($O(t^2)$); elip hiệp phương sai bất định mở rộng dần.
+              </div>
+</div>
+<!-- 5-Layer: Worked Example -->
+<div class="exercise-box" id="sec-5-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 TÍNH TOÁN CẬP NHẬT TỌA ĐỘ ODOMETRY TỪ TÍN HIỆU ENCODER</h3>
+</div>
+<div class="exercise-statement">
+<p><strong>Bài toán:</strong> Robot vi sai có khoảng cách 2 bánh xe $b = 0.20\text{ m}$, bán kính bánh xe $r = 0.04\text{ m}$. Encoder có độ phân giải $TPR = 1000\text{ xung/vòng}$. Robot đang ở tọa độ $(x_0, y_0, \theta_0) = (1.50\text{ m}, 2.00\text{ m}, 0.0\text{ rad})$. Trong khoảng thời gian $\Delta t = 0.1\text{ s}$, vi điều khiển đọc được $\Delta N_r = 50\text{ xung}$ và $\Delta N_l = 30\text{ xung}$. Hãy tính vị trí và góc hướng mới của robot.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính Quãng Đường Di Chuyển Từng Bánh</span>
+</div>
+<div class="step-content">
+<p>$\Delta s_r = 2\pi (0.04) \times \frac{50}{1000} = 0.2513 \times 0.05 = 0.01257\text{ m}$<br/>
+                  $\Delta s_l = 2\pi (0.04) \times \frac{30}{1000} = 0.2513 \times 0.03 = 0.00754\text{ m}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính Quãng Đường Trung Bình &amp; Độ Lệch Góc</span>
+</div>
+<div class="step-content">
+<p>$\Delta s = \frac{0.01257 + 0.00754}{2} = 0.01005\text{ m} = 10.05\text{ mm}$<br/>
+                  $\Delta \theta = \frac{0.01257 - 0.00754}{0.20} = \frac{0.00503}{0.20} = 0.02515\text{ rad} \approx 1.44^\circ$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính Vị Trí Mới $(x_1, y_1)$</span>
+</div>
+<div class="step-content">
+<p>Góc định hướng trung bình: $\theta_{mid} = 0.0 + \frac{0.02515}{2} = 0.01258\text{ rad}$<br/>
+                  $x_1 = 1.50 + 0.01005 \times \cos(0.01258) = 1.50 + 0.01005 \times 0.9999 = 1.5100\text{ m}$<br/>
+                  $y_1 = 2.00 + 0.01005 \times \sin(0.01258) = 2.00 + 0.01005 \times 0.01258 = 2.0001\text{ m}$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Cập Nhật Góc Hướng Toàn Cục $\theta_1$</span>
+</div>
+<div class="step-content">
+<p>$\theta_1 = \theta_0 + \Delta \theta = 0.0 + 0.02515 = 0.02515\text{ rad}$<br/>
+                  Vận tốc tức thời: $v = \frac{\Delta s}{\Delta t} = 0.1005\text{ m/s}$, $\omega = \frac{\Delta \theta}{\Delta t} = 0.2515\text{ rad/s}$.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Phương pháp tích phân Runge-Kutta bậc 2 từ dữ liệu encoder bánh xe mang lại ước lượng vị trí chính xác hơn hẳn phép xấp xỉ Euler bậc 1, giảm thiểu sai số tích lũy của mô hình động học vi sai trong chu kỳ ngắn.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 Bridge -->
+<div class="ros2-bridge-card" id="sec-5-ros2">
+<h4>🛠️ CẦU NỐI KIẾN TRÚC ROS 2</h4>
+<p>Động học vi sai được chuẩn hóa bằng package <code>diff_drive_controller</code> trong <code>ros2_control</code>. Node này nhận lệnh vận tốc từ topic <code>/cmd_vel</code> (kiểu <code>geometry_msgs/msg/Twist</code>), tính động học ngược điều khiển bánh xe, đồng thời xuất bản dữ liệu odometry lên <code>/odom</code> (kiểu <code>nav_msgs/msg/Odometry</code>) và phát sóng khung biến đổi TF2 <code>odom -&gt; base_link</code>.</p>
+</div>
+</article>
+<!-- Chapter Navigation: Previous & Next Chapter -->
+<section class="chapter-summary-section" id="sec-5-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Cập Nhật Odometry Từ Số Xung Bộ Giải Mã Optical Encoder</h4>
+</div>
+<div class="practice-statement">
+<p>Robot vi sai có bán kính bánh xe $R = 0.05\text{ m}$, khoảng cách 2 bánh $b = 0.30\text{ m}$, bộ giải mã encoder có độ phân giải $N = 360\text{ xung/vòng}$. Robot xuất phát tại tư thế ban đầu $(x_0=0, y_0=0, \theta_0=0)$. Trong chu kỳ lấy mẫu $\Delta t = 0.1\text{ s}$, số xung đọc được từ bánh phải là $\Delta n_R = 72\text{ xung}$, bánh trái là $\Delta n_L = 54\text{ xung}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính quãng đường lăn của bánh phải $\Delta s_R$ và bánh trái $\Delta s_L$.<br/>2) Tính quãng đường tịnh tiến $\Delta s$ và góc quay $\Delta \theta$ của robot.<br/>3) Cập nhật tư thế mới $(x_1, y_1, \theta_1)$ của robot theo phương pháp Runge-Kutta bậc 2.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Quãng đường mỗi xung: $c = \frac{2\pi R}{N} = \frac{2 \pi \times 0.05}{360} = \frac{0.31416}{360} \approx 8.7266 \times 10^{-4}\text{ m/xung}$.<br/>• Bánh phải: $\Delta s_R = 72 \times 8.7266 \times 10^{-4} = 0.06283\text{ m} = 6.283\text{ cm}$.<br/>• Bánh trái: $\Delta s_L = 54 \times 8.7266 \times 10^{-4} = 0.04712\text{ m} = 4.712\text{ cm}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Quãng đường tịnh tiến trung tâm: $\Delta s = \frac{\Delta s_R + \Delta s_L}{2} = \frac{0.06283 + 0.04712}{2} = 0.05498\text{ m}$.<br/>Góc quay: $\Delta\theta = \frac{\Delta s_R - \Delta s_L}{b} = \frac{0.06283 - 0.04712}{0.30} = \frac{0.01571}{0.30} = 0.05236\text{ rad}$ ($3.00^\circ$).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Cập nhật Runge-Kutta bậc 2 (dùng góc hướng trung bình $\theta_{mid} = \theta_0 + \frac{\Delta\theta}{2} = 0.02618\text{ rad}$):<br/>• $x_1 = x_0 + \Delta s \cos(\theta_{mid}) = 0 + 0.05498 \cos(0.02618) \approx 0.05496\text{ m}$.<br/>• $y_1 = y_0 + \Delta s \sin(\theta_{mid}) = 0 + 0.05498 \sin(0.02618) \approx 0.00144\text{ m}$.<br/>• $\theta_1 = \theta_0 + \Delta\theta = 0.05236\text{ rad}$. Robot đạt tư thế $(5.50\text{ cm}, 0.14\text{ cm}, 3.0^\circ)$.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><nav class="chapter-pagination">
+<a class="page-nav-btn prev" href="ch04.html">
+<span class="nav-direction">Trang trước</span>
+<span class="nav-title">← Chương 04: Máy trạng thái hữu hạn &amp; Vùng tr...</span>
+</a>
+<a class="page-nav-btn next" href="ch06.html">
+<span class="nav-direction">Trang sau</span>
+<span class="nav-title">Chương 06: Điều khiển Vòng kín PID &amp; Chống ... →</span>
+</a>
+</nav>
+<footer class="site-footer" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
+<p><strong>Elements of Robotics</strong> - Giáo trình Chuẩn Quốc tế Springer Open</p>
+<p style="color: var(--text-muted); font-size: 0.85rem;">Tác giả: GS. Mordechai Ben-Ari &amp; GS. Francesco Mondada • Nền tảng Chưng cất Tri thức Đa tầng</p>
+<p style="margin-top: 0.5rem;"><a href="../index.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">← Quay lại Bảng Ma Trận Lộ Trình</a></p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/simulators.js"></script>
+<script src="../assets/js/app.js"></script>
+</body>
+</html>

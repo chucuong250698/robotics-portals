@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 10: Học Từ Chuyên Gia Lỗi &amp; Ngoại Suy Phần Thưởng (T-REX &amp; D-REX) - Imitation Learning in Robotics</title>
+<meta content="Reward Extrapolation from Suboptimal Demonstrations" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 5: QUAN SÁT &amp; CHÊNH LỆCH MIỀN</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 10</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 10</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-10-1">
+<span class="nav-text">10.1 Giới Hạn Của Giả Định Chuyên Gia Hoàn Hảo</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-2">
+<span class="nav-text">10.2 Mô Hình Xếp Hạng Quỹ Đạo Bradley-Terry</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-3">
+<span class="nav-text">10.3 Thuật Toán T-REX &amp; D-REX Tạo Quỹ Đạo Suy Biến</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-4">
+<span class="nav-text">10.4 Hiện Tượng Ngoại Suy Vượt Trần (Super-Human)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-sim">
+<span class="nav-text">⚡ Mô Phỏng Ngoại Suy Phần Thưởng T-REX (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Cập Nhật Loss Bradley-Terry</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-bridge">
+<span class="nav-text">🛠️ Cầu Nối Kỹ Thuật: Loss Function Xếp Hạng Quỹ Đạo</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-10-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 5: QUAN SÁT &amp; CHÊNH LỆCH MIỀN • CHƯƠNG 10</div>
+<h1 class="chapter-title">Học Từ Chuyên Gia Lỗi &amp; Ngoại Suy Phần Thưởng (T-REX &amp; D-REX)</h1>
+<p class="chapter-subtitle">Reward Extrapolation from Suboptimal Demonstrations</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Boyuan Zheng et al. (UTS 2021) &amp; Carlos Celemin et al. (2022)</strong></span>
+</div>
+</div>
+<!-- 10.1 -->
+<h2 id="sec-10-1">10.1 Thực Tế Khốc Liệt: Con Người Luôn Mắc Sai Lầm &amp; Dữ Liệu Biểu Diễn Kém Hoàn Hảo</h2>
+<p>Hầu hết các lý thuyết IL đều giả định tập dữ liệu $\mathcal{D}_E$ được cung cấp bởi một chuyên gia tối ưu toàn diện (Optimal Oracle). Nhưng trong thực tế triển khai robot:</p>
+<ul>
+<li>Người điều khiển từ xa bị rung tay, mỏi mắt, hoặc phản xạ chậm.</li>
+<li>Dữ liệu thị phạm thu được từ nhiều người với trình độ và phong cách không đồng nhất (Suboptimal / Noisy Demonstrations).</li>
+<li>Nếu áp dụng Behavioral Cloning thuần túy, robot sẽ "sao chép trọn gói" cả các thói quen xấu và sai lầm chết người của người điều khiển.</li>
+</ul>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 T-REX &amp; D-REX GIẢI QUYẾT BÀI TOÁN NÀY NHƯ THẾ NÀO?</div>
+<div class="why-matters-body">
+            Phát minh đột phá của Daniel Brown et al. (ICML 2019) chứng minh rằng: <strong>Con người có thể làm mẫu dở, nhưng lại cực kỳ xuất sắc trong việc phân xử xem "quỹ đạo nào tốt hơn quỹ đạo nào".</strong>
+<br/>Thay vì cố bắt chước trực tiếp các thao tác dở dang, thuật toán <strong>T-REX (Trajectory-ranked Reward EXtrapolation)</strong> chỉ cần danh sách xếp hạng chất lượng quỹ đạo $\tau_1 \prec \tau_2 \prec \dots \prec \tau_K$ để khôi phục hàm thưởng tiềm ẩn, và đặc biệt là có khả năng <em>ngoại suy (Extrapolate)</em> để huấn luyện robot đạt hiệu năng vượt xa chính người làm mẫu (Super-Human Performance)!
+          </div>
+</div>
+<!-- 10.2 -->
+<h2 id="sec-10-2">10.2 Mô Hình Xác Suất Xếp Hạng Quỹ Đạo Bradley-Terry / Luce-Shepard</h2>
+<p>Giả sử ta có mạng nơ-ron tham số hóa hàm phần thưởng trạng thái $\hat{R}_\theta(s)$. Phần thưởng tích lũy của một quỹ đạo $\tau = (s_0, s_1, \dots, s_T)$ là:</p>
+        $$\hat{R}_\theta(\tau) = \sum_{t=0}^T \hat{R}_\theta(s_t)$$
+        <p>Theo mô hình lựa chọn xác suất Bradley-Terry, khi đem so sánh hai quỹ đạo $\tau_i$ và $\tau_j$, xác suất để chuyên gia đánh giá quỹ đạo $\tau_i$ vượt trội hơn $\tau_j$ ($\tau_i \succ \tau_j$) được biểu diễn bằng hàm Softmax mũ:</p>
+<div class="formula-hero">
+<div class="formula-title">Xác Suất Ưu Tiên Cặp Quỹ Đạo (Pairwise Preference)</div>
+<div class="formula-math">
+            $$P(\tau_i \succ \tau_j \mid \theta) = \frac{\exp\left( \hat{R}_\theta(\tau_i) \right)}{\exp\left( \hat{R}_\theta(\tau_i) \right) + \exp\left( \hat{R}_\theta(\tau_j) \right)} = \frac{1}{1 + \exp\left( \hat{R}_\theta(\tau_j) - \hat{R}_\theta(\tau_i) \right)}$$
+          </div>
+<div class="formula-legend">
+<strong>Hàm mất mát Binary Cross Entropy trên toàn bộ các cặp xếp hạng $\mathcal{P}$:</strong>
+            $$\mathcal{L}(\theta) = -\sum_{(\tau_i \succ \tau_j) \in \mathcal{P}} \log P(\tau_i \succ \tau_j \mid \theta)$$
+          </div>
+</div>
+<!-- 10.3 -->
+<h2 id="sec-10-3">10.3 Thuật Toán D-REX: Tự Sinh Chuỗi Suy Biến Bằng Nhiễu Động Không Cần Người Gán Nhãn</h2>
+<p>Nếu việc nhờ con người ngồi chấm điểm xếp hạng hàng ngàn cặp quỹ đạo vẫn còn tốn công sức, <strong>D-REX (Disturbance-based Reward EXtrapolation)</strong> tự động hóa hoàn toàn quá trình này:</p>
+<p>1. Lấy một vài quỹ đạo thị phạm sẵn có (dù chất lượng chỉ ở mức trung bình).</p>
+<p>2. Thêm dần các mức độ nhiễu Gauss $\epsilon \sim \mathcal{N}(0, \sigma_k^2 \mathbf{I})$ vào chính sách điều khiển với độ lệch chuẩn tăng dần: $\sigma_0 \lt \sigma_1 \lt \sigma_2 \lt \dots \lt \sigma_M$.</p>
+<p>3. Dễ dàng suy ra định đề hiển nhiên: Quỹ đạo bị nhiễu ít hơn chắc chắn sẽ tốt hơn quỹ đạo bị phá hoại bởi mức nhiễu lớn hơn:</p>
+        $$\tau_{\sigma_M} \prec \dots \prec \tau_{\sigma_2} \prec \tau_{\sigma_1} \prec \tau_{\sigma_0}$$
+        <p>Nhờ vậy, thuật toán tự động sinh ra hàng vạn cặp dữ liệu xếp hạng mà không cần con người can thiệp dù chỉ một giây!</p>
+<!-- 10.4 -->
+<h2 id="sec-10-4">10.4 Hiện Tượng Ngoại Suy Phần Thưởng Siêu Phàm (Super-Human Extrapolation)</h2>
+<p>Hàm phần thưởng $\hat{R}_\theta(s)$ học được từ mạng T-REX là một hàm tuyến tính hoặc phi tuyến trơn tru trong không gian trạng thái. Khi chạy RL tối ưu hóa hàm thưởng này, robot không bị chặn trần bởi quỹ đạo mẫu tốt nhất của chuyên gia, mà tiếp tục đẩy các trạng thái tích cực lên giá trị cực hạn, đạt điểm số cao hơn chuyên gia con người từ 150% đến 300% trên các môi trường thử nghiệm khắt khe.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-10-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Đường Ngoại Suy Phần Thưởng Vượt Trần Chuyên Gia (T-REX)</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="280" id="sim-canvas-10" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-10-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">🔢 Tính Xác Suất Ưu Tiên &amp; Gradient Cập Nhật Mạng Thưởng T-REX</h3>
+</div>
+<div class="exercise-statement">
+<p>Cho cặp quỹ đạo gồm $\tau_1$ (chuyên gia làm mẫu khá tốt) và $\tau_2$ (chuyên gia mắc lỗi trượt tay), với thứ bậc đã biết là $\tau_1 \succ \tau_2$. Mạng phần thưởng hiện tại ước lượng tổng điểm thưởng của hai quỹ đạo là $\hat{R}(\tau_1) = 4.2$ và $\hat{R}(\tau_2) = 3.0$. Vector đặc trưng tích lũy của hai quỹ đạo là $\Phi(\tau_1) = [6.0, 2.0]^T$ và $\Phi(\tau_2) = [4.0, 5.0]^T$. Tính xác suất ưu tiên $P(\tau_1 \succ \tau_2)$, tổn thất Cross-Entropy $\mathcal{L}$, và gradient cập nhật trọng số thưởng $\nabla_\theta \mathcal{L}$.</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Tính hiệu số phần thưởng ước lượng</span>
+</div>
+<div class="step-content">
+<p>$$\Delta R = \hat{R}(\tau_1) - \hat{R}(\tau_2) = 4.2 - 3.0 = +1.2$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Tính xác suất dự đoán theo hàm Sigmoid</span>
+</div>
+<div class="step-content">
+<p>$$P = \sigma(\Delta R) = \frac{1}{1 + e^{-1.2}} = \frac{1}{1 + 0.3012} = \frac{1}{1.3012} \approx 0.7685$$</p><p>Mạng hiện tại đánh giá xác suất $\tau_1 \succ \tau_2$ đạt $76.85\%$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Tính hàm tổn thất Binary Cross Entropy</span>
+</div>
+<div class="step-content">
+<p>$$\mathcal{L} = -\ln P = -\ln(0.7685) \approx 0.2633$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính gradient lan truyền ngược để cập nhật mạng thưởng</span>
+</div>
+<div class="step-content">
+<p>Đạo hàm tổn thất theo tham số thưởng (với mô hình tuyến tính $\hat{R} = \theta^T \Phi$):</p><p>$$\nabla_\theta \mathcal{L} = -(1 - P) \cdot (\Phi(\tau_1) - \Phi(\tau_2))$$</p><p>• Hiệu đặc trưng: $\Phi(\tau_1) - \Phi(\tau_2) = [6.0 - 4.0, 2.0 - 5.0]^T = [2.0, -3.0]^T$</p><p>• Sai số xác suất: $1 - P = 1 - 0.7685 = 0.2315$</p><p>$$\nabla_\theta \mathcal{L} = -0.2315 \times [2.0, -3.0]^T = [-0.463, +0.695]^T$$</p><p>Cập nhật Gradient Descent: $\theta \leftarrow \theta - \eta \nabla \mathcal{L}$ sẽ tăng trọng số đặc trưng thứ nhất và giảm đặc trưng thứ hai.</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Thuật toán T-REX tối ưu hóa hàm mất mát Bradley-Terry dựa trên các cặp quỹ đạo xếp hạng: Cho phép robot ngoại suy xu hướng tối ưu để đạt hiệu năng vượt trội hơn cả chuyên gia làm mẫu.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-10-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Cài Đặt Hàm Mất Mát Xếp Hạng Quỹ Đạo Trong PyTorch</h4>
+<p>Đoạn mã tinh gọn thực thi tính toán Loss Function Bradley-Terry trên GPU:</p>
+<div class="code-card">
+<div class="code-header">
+<span>trex_ranking_loss.py (PyTorch)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>import torch
+import torch.nn as nn
+
+class TREXRewardLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, reward_net, traj_better, traj_worse):
+        # traj_better: Tensor [B, T, obs_dim]
+        # traj_worse: Tensor [B, T, obs_dim]
+        r_better = torch.sum(reward_net(traj_better), dim=1) # [B, 1]
+        r_worse = torch.sum(reward_net(traj_worse), dim=1)   # [B, 1]
+        
+        # Binary Cross Entropy Loss qua Sigmoid(r_better - r_worse)
+        diff = r_better - r_worse
+        loss = -torch.mean(torch.log(torch.sigmoid(diff) + 1e-8))
+        return loss</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-10-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Học Phần Thưởng Ngoại Suy Từ Chuyên Gia Lỗi Bằng Bradley-Terry Trong T-REX</h4>
+</div>
+<div class="practice-statement">
+<p>Thuật toán T-REX nhận 2 quỹ đạo biểu diễn lỗi của con người: Quỹ đạo $\tau_1$ (chất lượng tốt hơn, xếp hạng 1) và Quỹ đạo $\tau_2$ (chất lượng kém hơn, xếp hạng 2): $\tau_1 \succ \tau_2$. Mạng phần thưởng dự đoán tổng điểm tích lũy: $\hat{R}(\tau_1) = 4.5$ và $\hat{R}(\tau_2) = 2.5$. Mô hình lựa chọn nhị phân Bradley-Terry gán xác suất $\tau_1$ được chọn là $P(\tau_1 \succ \tau_2) = \frac{\exp(\hat{R}(\tau_1))}{\exp(\hat{R}(\tau_1)) + \exp(\hat{R}(\tau_2))}$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Tính hiệu số phần thưởng $\Delta R = \hat{R}(\tau_1) - \hat{R}(\tau_2)$ và xác suất $P(\tau_1 \succ \tau_2)$.<br/>2) Tính hàm mất mát Cross-Entropy Loss: $\mathcal{L}(\theta) = -\ln P(\tau_1 \succ \tau_2)$.<br/>3) Giải thích cơ chế vì sao T-REX có thể huấn luyện robot đạt hiệu năng vượt trội hơn cả chuyên gia làm mẫu (Super-Human Performance).</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Hiệu số phần thưởng: $\Delta R = 4.5 - 2.5 = 2.0$.<br/>Xác suất theo mô hình Bradley-Terry:<br/>$$P(\tau_1 \succ \tau_2) = \frac{1}{1 + e^{-\Delta R}} = \sigma(2.0) = \frac{1}{1 + e^{-2.0}} = \frac{1}{1 + 0.1353} \approx 0.8808\text{ (} 88.08\%)$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Hàm mất mát Ranking Loss:<br/>$$\mathcal{L}(\theta) = -\ln(0.8808) \approx 0.1269$$</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>Cơ chế siêu việt: Khác với BC cố gắng sao chép từng hành động (kể cả thao tác run tay, lỗi ngớ ngẩn của con người), T-REX chỉ học vector hướng cải thiện phần thưởng từ các cặp xếp hạng. Mạng nơ-ron ngoại suy xu hướng tối ưu tuyến tính/phi tuyến vượt qua giới hạn của mẫu thử, giúp robot đạt hiệu năng cao hơn mọi quỹ đạo con người từng cung cấp.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch09.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 09: Học Bắt Chước Từ Quan Sát</span>
+</a>
+<a class="ch-nav-card next" href="ch11.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 11: Bất Đồng Hình Thái &amp; Sim-to-Real</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Học Bắt Chước Trong Robot Học • Hệ Thống Chưng Cất Tri Thức SOTA</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>

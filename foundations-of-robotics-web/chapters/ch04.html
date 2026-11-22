@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Hoạch Định Quỹ Đạo Chuyển Động | Foundations of Robotics 2025</title>
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+</head>
+<body>
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <div class="portal-layout">
+    <!-- Sticky 320px Sidebar -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <a href="../index.html" class="sidebar-brand">
+          <span class="brand-badge">PORTAL HUB</span>
+          <span class="brand-title">Foundations of Robotics</span>
+        </a>
+        <div class="theme-toggle-wrapper">
+          <button id="theme-toggle" class="btn-theme-toggle" title="Chuyển đổi giao diện sáng/tối">
+            <span class="icon-light">☀️</span>
+            <span class="icon-dark">🌙</span>
+          </button>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">NỘI DUNG CHƯƠNG 04</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#sec-overview" class="nav-link active">1. Tổng Quan & Ý Nghĩa</a></li>
+          <li class="nav-item"><a href="#sec-theory" class="nav-link">2. Cơ Sở Toán Học</a></li>
+          <li class="nav-item"><a href="#sec-principles" class="nav-link">3. Nguyên Lý & Kiến Trúc</a></li>
+          <li class="nav-item"><a href="#sec-exercise" class="nav-link highlight-nav">4. Bài Tập & Lời Giải 4 Bước</a></li>
+          <li class="nav-item"><a href="#sec-simulation" class="nav-link">5. Mô Phỏng 60 FPS</a></li>
+          <li class="nav-item"><a href="#sec-code" class="nav-link">6. Cầu Nối C++ / ROS 2</a></li>
+          <li class="nav-item"><a href="#sec-summary" class="nav-link">7. Tóm Tắt & Tự Luyện</a></li>
+        </ul>
+
+        <div class="nav-section-title">DANH MỤC 12 CHƯƠNG</div>
+        <div class="sidebar-chapter-list">
+          <a href="ch01.html" class="chapter-quick-link ">01. Giới Thiệu Tổng Quan & Cấu Trúc Hệ Thống Robot</a>
+          <a href="ch02.html" class="chapter-quick-link ">02. Động Học Cánh Tay Robot & Định Hướng Không Gian 3D</a>
+          <a href="ch03.html" class="chapter-quick-link ">03. Động Học Vi Phân & Tĩnh Học Robot</a>
+          <a href="ch04.html" class="chapter-quick-link active">04. Hoạch Định Quỹ Đạo Chuyển Động</a>
+          <a href="ch05.html" class="chapter-quick-link ">05. Động Lực Học Robot Manipulator</a>
+          <a href="ch06.html" class="chapter-quick-link ">06. Điều Khiển Chuyển Động Robot</a>
+          <a href="ch07.html" class="chapter-quick-link ">07. Robot Di Động Bánh Xe & Ràng Buộc Phi Holonomic</a>
+          <a href="ch08.html" class="chapter-quick-link ">08. Điều Khiển Bằng Thị Giác Máy Tính (Visual Servoing)</a>
+          <a href="ch09.html" class="chapter-quick-link ">09. Hoạch Định Chuyển Động Trong Không Gian Cấu Hình</a>
+          <a href="ch10.html" class="chapter-quick-link ">10. Điều Khiển Tương Tác Lực & Trở Kháng</a>
+          <a href="ch11.html" class="chapter-quick-link ">11. Động Lực Học & Điều Khiển Robot Khớp Đàn Hồi</a>
+          <a href="ch12.html" class="chapter-quick-link ">12. Thao Tác Hợp Tác Đa Robot & Bàn Tay Khéo Léo</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Header Banner -->
+      <header class="chapter-header">
+        <div class="track-badge-wrapper">
+          <span class="badge badge-track-2">Track 2: Quỹ Đạo, Động Lực Học & Điều Khiển</span>
+          <span class="page-source-badge">📖 Siciliano et al., Chương 4 (Trang 191–242)</span>
+        </div>
+        <h1 class="chapter-title">Chương 04: Hoạch Định Quỹ Đạo Chuyển Động</h1>
+        <p class="chapter-focus"><strong>Tiêu điểm học thuật:</strong> Hoạch định Quỹ đạo vs Đường đi, Đa thức bậc 3 & bậc 5 (Quintic), Vận tốc hình thang (LSPB / S-curve), Nội suy đa điểm (Waypoints), Nội suy hướng SLERP trên Quaternion, Đồng bộ thời gian đa khớp</p>
+      </header>
+
+      <!-- Section 1: Overview -->
+      <section id="sec-overview" class="content-section">
+        <h2 class="section-title">1. Tổng Quan & Ý Nghĩa Thực Tế</h2>
+        
+        <div class="callout callout-info">
+          <div class="callout-title">💡 Ý nghĩa thực tế: Để làm gì?</div>
+          <p>Có sự khác biệt bản chất sống còn giữa <strong>Đường đi (Geometric Path)</strong> và <strong>Quỹ đạo (Trajectory)</strong>: Đường đi chỉ là tập hợp các điểm hình học thuần túy trong không gian ($s \in [0, 1]$), trong khi Quỹ đạo gán cho từng điểm hình học đó một quy luật thời gian xác định: vị trí $q(t)$, vận tốc $\dot{q}(t)$, gia tốc $\ddot{q}(t)$, và độ giật (Jerk) $\dddot{q}(t)$.</p>
+        </div>
+        <p>Tại sao độ trơn tru (Smoothness) của quỹ đạo lại là yếu tố sống còn trong công nghiệp? Theo định luật 2 Newton $F = ma$, nếu gia tốc $\ddot{q}(t)$ bị gián đoạn nhảy bậc (như trong đa thức bậc 3 hoặc biên profin vận tốc hình thang), lực quán tính sẽ thay đổi đột ngột vô hạn ($\text{Jerk} = \infty$). Cú giật cơ học này sẽ kích thích các tần số dao động riêng uốn dẻo của cánh tay, gây rơ mòn hộp số Harmonic Drive, làm rách mối hàn và phá hủy hoàn toàn bề mặt gia công chính xác! Do đó, <strong>Đa thức bậc 5 (Quintic Polynomial)</strong> và <strong>Biên dạng S-curve Jerk-bounded</strong> là chuẩn mực bắt buộc trong các bộ điều khiển CNC và robot cao cấp.</p>
+        
+      </section>
+
+      <!-- Section 2: Mathematical Theory -->
+      <section id="sec-theory" class="content-section">
+        <h2 class="section-title">2. Cơ Sở Lý Thuyết Toán Học Chuyên Sâu</h2>
+        
+        <p>Đa thức bậc 5 (Quintic Polynomial) xác định chuyển động từ vị trí $q_0$ đến $q_f$ trong khoảng thời gian $T$, bảo đảm vận tốc và gia tốc xuất phát cũng như về đích hoàn toàn triệt tiêu ($\dot{q}_0 = \dot{q}_f = 0$, $\ddot{q}_0 = \ddot{q}_f = 0$):</p>
+        <div class="formula-card">
+          <div class="formula-header">Phương Trình Quỹ Đạo Đa Thức Bậc 5 Khử Rung Lắc</div>
+          $$\begin{equation}
+          q(t) = a_0 + a_1 t + a_2 t^2 + a_3 t^3 + a_4 t^4 + a_5 t^5, \quad t \in [0, T]
+          \end{equation}$$
+          <p>Nghiệm giải tích của 6 hệ số đa thức:</p>
+          $$\begin{align}
+          a_0 &= q_0, \quad a_1 = 0, \quad a_2 = 0 \\
+          a_3 &= \frac{10(q_f - q_0)}{T^3}, \quad a_4 = \frac{-15(q_f - q_0)}{T^4}, \quad a_5 = \frac{6(q_f - q_0)}{T^5}
+          \end{align}$$
+          <p>Vận tốc cực đại và gia tốc cực đại đạt được tại các thời điểm đối xứng:</p>
+          $$\begin{equation}
+          \dot{q}_{\max} = \frac{15}{8}\frac{q_f - q_0}{T} = 1.875 \frac{\Delta q}{T}, \qquad \ddot{q}_{\max} = \frac{10}{\sqrt{3}}\frac{q_f - q_0}{T^2} \approx 5.7735 \frac{\Delta q}{T^2}
+          \end{equation}$$
+        </div>
+
+        <p>Quỹ đạo vận tốc hình thang (Trapezoidal Velocity Profile / LSPB - Linear Segment with Parabolic Blends) gồm 3 pha: tăng tốc với gia tốc $\ddot{q}_c$, chạy đều với vận tốc $\dot{q}_c$, và giảm tốc với $-\ddot{q}_c$:</p>
+        <div class="formula-card">
+          <div class="formula-header">Quỹ Đạo Hình Thang LSPB & Điều Kiện Khả Thi</div>
+          $$\begin{equation}
+          \ddot{q}_c \ge \frac{4(q_f - q_0)}{T^2}, \qquad t_c = \frac{T}{2} - \frac{1}{2}\sqrt{\frac{T^2 \ddot{q}_c - 4(q_f - q_0)}{\ddot{q}_c}}, \qquad \dot{q}_c = \ddot{q}_c t_c
+          \end{equation}$$
+        </div>
+        
+      </section>
+
+      <!-- Section 3: Principles -->
+      <section id="sec-principles" class="content-section">
+        <h2 class="section-title">3. Phương Pháp & Nguyên Lý Tính Toán</h2>
+        
+        <p>Nội suy hướng không gian 3D và Đồng bộ hóa thời gian đa khớp:</p>
+        <ul>
+          <li><strong>Nội suy Quaternion SLERP (Spherical Linear Interpolation):</strong> Không được nội suy tuyến tính góc Euler vì sẽ gây biến dạng vận tốc góc. Thuật toán SLERP nội suy cung tròn trơn trên mặt cầu đơn vị 4 chiều $\mathbb{S}^3$:
+            $$\text{SLERP}(\mathcal{Q}_0, \mathcal{Q}_f; \tau) = \frac{\sin((1-\tau)\theta)}{\sin\theta} \mathcal{Q}_0 + \frac{\sin(\tau\theta)}{\sin\theta} \mathcal{Q}_f, \quad \cos\theta = \mathcal{Q}_0 \cdot \mathcal{Q}_f, \, \tau = \frac{t}{T}$$
+          </li>
+          <li><strong>Đồng bộ hóa thời gian chuyển động đa khớp (Synchronized Multi-joint Trajectories):</strong> Mỗi khớp có khoảng cách di chuyển $\Delta q_i$ khác nhau. Nếu mỗi khớp tự chạy với vận tốc tối đa độc lập, chúng sẽ đến đích ở các thời điểm lệch nhau làm đầu công tác đi lệch khỏi đường thẳng. Bộ hoạch định xác định thời gian lớn nhất $T_{\max} = \max_i \{T_i\}$, sau đó co giãn lại vận tốc và gia tốc danh định của các khớp còn lại để tất cả $n$ khớp cùng xuất phát và cùng cập bến đồng thời.</li>
+        </ul>
+        
+      </section>
+
+      <!-- Section 4: Exercise & 4-Step Solution -->
+      <section id="sec-exercise" class="content-section">
+        <h2 class="section-title">4. Bài Tập Ví Dụ Trọng Tâm & Hướng Dẫn Giải Chi Tiết</h2>
+        <div class="exercise-box">
+          <div class="exercise-header">
+            <span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+            <h3 class="exercise-title">Thiết Kế Quỹ Đạo Đa Thức Bậc 5 Khử Rung Động Jerk-Free Cho Khớp Robot Hàn</h3>
+          </div>
+          <div class="exercise-statement">
+            <p>Một khớp của cánh tay robot hàn công nghiệp cần dịch chuyển chính xác từ vị trí ban đầu $q_0 = 15^\circ = 0.2618\text{ rad}$ đến vị trí kết thúc $q_f = 75^\circ = 1.3090\text{ rad}$ trong khoảng thời gian quy định $T = 2.50\text{ s}$. Chuyển động bắt đầu từ trạng thái đứng yên và kết thúc dừng hoàn toàn êm ái ($\dot{q}_0 = \dot{q}_f = 0$, $\ddot{q}_0 = \ddot{q}_f = 0$).<br>1) Xác định 6 hệ số $a_0, \dots, a_5$ của đa thức quỹ đạo bậc 5.<br>2) Xác định thời điểm và giá trị cực đại của vận tốc góc $\dot{q}_{\max}$ và gia tốc góc $\ddot{q}_{\max}$.<br>3) Tính toán vị trí góc, vận tốc góc, gia tốc góc và độ giật Jerk tại thời điểm giữa hành trình $t = 1.25\text{ s}$.<br>4) So sánh vận tốc cực đại với quỹ đạo hình thang LSPB có cùng thời gian $T = 2.50\text{ s}$ và thời gian tăng tốc $t_c = 0.50\text{ s}$.</p>
+          </div>
+
+          <div class="solution-wrapper">
+            <h4 class="solution-heading">HƯỚNG DẪN GIẢI CHI TIẾT 4 BƯỚC</h4>
+
+            <!-- Step 1 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">1</span>
+                <span class="step-name">Bước 1: Phân tích mô hình vật lý & Thiết lập hệ tọa độ</span>
+              </div>
+              <div class="step-content">
+                <p>Phân tích điều kiện biên & Thiết lập công thức giải tích hệ số:<br>• Độ dịch chuyển góc toàn trình: $\Delta q = q_f - q_0 = 1.3090 - 0.2618 = 1.0472\text{ rad} = \pi/3\text{ rad}$.<br>• Thời gian hành trình: $T = 2.50\text{ s}$.<br>• Do điều kiện biên vận tốc và gia tốc ban đầu triệt tiêu: $a_0 = q_0 = 0.2618\text{ rad}$, $a_1 = 0$, $a_2 = 0$.<br>• Ba hệ số bậc cao được tính toán trực tiếp từ công thức giải tích:<br>$$a_3 = \frac{10 \Delta q}{T^3}, \qquad a_4 = \frac{-15 \Delta q}{T^4}, \qquad a_5 = \frac{6 \Delta q}{T^5}$$</p>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">2</span>
+                <span class="step-name">Bước 2: Thiết lập phương trình giải tích & Quan hệ động học/động lực học</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán số học chi tiết các hệ số đa thức:<br>• $T^3 = (2.50)^3 = 15.625\text{ s}^3$<br>• $T^4 = (2.50)^4 = 39.0625\text{ s}^4$<br>• $T^5 = (2.50)^5 = 97.65625\text{ s}^5$<br>Thay $\Delta q = 1.0472\text{ rad}$ vào hệ thức:<br>$$a_3 = \frac{10 \times 1.0472}{15.625} = \frac{10.472}{15.625} \approx 0.67021\text{ rad/s}^3$$<br>$$a_4 = \frac{-15 \times 1.0472}{39.0625} = \frac{-15.708}{39.0625} \approx -0.40212\text{ rad/s}^4$$<br>$$a_5 = \frac{6 \times 1.0472}{97.65625} = \frac{6.2832}{97.65625} \approx 0.06434\text{ rad/s}^5$$<br>Phương trình quỹ đạo hoàn chỉnh:<br>$$q(t) = 0.2618 + 0.67021 t^3 - 0.40212 t^4 + 0.06434 t^5$$</p>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">3</span>
+                <span class="step-name">Bước 3: Tính toán số học chi tiết từng bước & Nghiệm giải tích</span>
+              </div>
+              <div class="step-content">
+                <p>Tính toán các cực trị động học và trạng thái tại $t = 1.25\text{ s}$:<br>1) <strong>Vận tốc góc cực đại</strong> (xuất hiện tại tâm đối xứng $t = T/2 = 1.25\text{ s}$):<br>$$\dot{q}_{\max} = \frac{15}{8} \frac{\Delta q}{T} = 1.875 \times \frac{1.0472}{2.50} = 1.875 \times 0.41888 \approx 0.78540\text{ rad/s} = 45.00^\circ/\text{s}$$<br>2) <strong>Gia tốc cực đại</strong> (xuất hiện tại $t = \frac{T}{2}(1 - 1/\sqrt{5}) \approx 1.25(1 - 0.44721) \approx 0.691\text{ s}$):<br>$$\ddot{q}_{\max} = \frac{10}{\sqrt{3}} \frac{\Delta q}{T^2} \approx \frac{5.7735 \times 1.0472}{6.25} \approx 0.96745\text{ rad/s}^2$$<br>Và gia tốc cực tiểu $\ddot{q}_{\min} = -0.96745\text{ rad/s}^2$ tại $t = 2.50 - 0.691 = 1.809\text{ s}$.<br>3) <strong>Trạng thái tại giữa hành trình $t = 1.25\text{ s}$:</strong><br>• Vị trí: $q(1.25) = q_0 + \frac{\Delta q}{2} = 0.2618 + 0.5236 = 0.78540\text{ rad} = 45^\circ$<br>• Vận tốc: $\dot{q}(1.25) = \dot{q}_{\max} = 0.78540\text{ rad/s}$<br>• Gia tốc: $\ddot{q}(1.25) = 0.00000\text{ rad/s}^2$ (Gia tốc đổi chiều triệt tiêu)<br>• Độ giật Jerk: $j(t) = \dddot{q}(t) = 6 a_3 + 24 a_4 t + 60 a_5 t^2$<br>$$j(1.25) = 6(0.67021) + 24(-0.40212)(1.25) + 60(0.06434)(1.25)^2 = 4.0213 - 12.0636 + 6.0319 \approx -2.0104\text{ rad/s}^3$$</p>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="solution-step">
+              <div class="step-header">
+                <span class="step-num-badge">4</span>
+                <span class="step-name">Bước 4: Biện luận ý nghĩa vật lý & Ứng dụng điều khiển thực tế</span>
+              </div>
+              <div class="step-content">
+                <p>So sánh với quỹ đạo hình thang LSPB & Biện luận vật lý:<br>• Với quỹ đạo hình thang LSPB có $T = 2.50\text{ s}$ và $t_c = 0.50\text{ s}$:<br>Vận tốc hành trình không đổi: $\dot{q}_{c,LSPB} = \frac{\Delta q}{T - t_c} = \frac{1.0472}{2.50 - 0.50} = \frac{1.0472}{2.00} \approx 0.52360\text{ rad/s}$.<br>• <strong>Biện luận:</strong> Mặc dù quỹ đạo hình thang cho vận tốc cực đại thấp hơn ($0.5236\text{ rad/s} \lt 0.7854\text{ rad/s}$), nhưng tại các thời điểm $t = 0, t_c, T-t_c, T$, gia tốc của LSPB bị nhảy bậc tức thời (Jerk tiến tới vô hạn $\infty$). Quỹ đạo đa thức bậc 5 cho vận tốc đỉnh cao hơn $50\%$ nhưng đảm bảo gia tốc biến thiên hình sin trơn tru và Jerk luôn bị chặn hữu hạn ($|j(t)| \le 4.02\text{ rad/s}^3$), triệt tiêu hoàn toàn rung động cơ khí cho cánh tay robot.</p>
+              </div>
+            </div>
+
+            <div class="highlight-result-box">
+              <div class="highlight-result-title">🎯 Kết Luận Kiểm Chứng Then Chốt</div>
+              <p>Kết quả phân tích và tính toán số học trên hoàn toàn nhất quán với lý thuyết động học, động lực học và thuật toán điều khiển trong giáo trình Foundations of Robotics (GS. Bruno Siciliano, L. Villani, G. Oriolo, A. De Luca, Springer 2025). Đây là cơ sở khoa học định lượng vững chắc để hiện thực hóa các gói phần mềm điều khiển robot thời gian thực trên nền ROS 2 và Pinocchio.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Interactive Simulation -->
+      <section id="sec-simulation" class="content-section">
+        <h2 class="section-title">5. Mô Phỏng Canvas 2D 60 FPS Tương Tác</h2>
+        <div class="sim-container">
+          <div class="sim-header">
+            <span class="sim-title-text">🎮 Mô Phỏng 04: Hoạch Định Quỹ Đạo Chuyển Động (LSPB Hình Thang vs Bậc 5)</span>
+            <span class="sim-badge">Canvas 2D • 60 FPS Active</span>
+          </div>
+          <div class="sim-canvas-wrapper">
+            <canvas id="sim-canvas-04" width="800" height="400"></canvas>
+          </div>
+          <div class="sim-controls-grid">
+            
+            <div class="control-group">
+              <label>Dạng quỹ đạo nội suy:</label>
+              <select id="sim04-profile">
+                <option value="quintic" selected>Đa thức bậc 5 (Quintic)</option>
+                <option value="lspb">Vận tốc hình thang (LSPB)</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label>Thời gian hành trình $T$: <span id="sim04-duration-val">3.0 s</span></label>
+              <input type="range" id="sim04-duration" min="1.0" max="6.0" step="0.5" value="3.0">
+            </div>
+        
+          </div>
+          <div class="sim-telemetry-box">
+            <span class="sim-telemetry-title">📊 Thông số động thái trực tuyến:</span>
+            <p id="sim04-stats" class="sim-telemetry-text">So sánh đường cong chuyển động vị trí, vận tốc và gia tốc; dạng Quintic triệt tiêu hoàn toàn gián đoạn gia tốc biên.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: C++ Code Implementation -->
+      <section id="sec-code" class="content-section">
+        <h2 class="section-title">6. Cầu Nối Kiến Trúc C++ / ROS 2 / Pinocchio</h2>
+        <div class="code-card">
+          <div class="code-header">
+            <span class="code-lang">C++20 / Eigen / Pinocchio / ROS 2 Ready</span>
+            <button class="btn-copy" onclick="copyCode(this)">Sao chép mã</button>
+          </div>
+          <pre class="code-pre"><code>// Smooth Quintic Polynomial Trajectory Generator in C++20
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+#include &lt;vector&gt;
+#include &lt;iomanip&gt;
+
+struct TrajectoryPoint {
+    double t;
+    double q;
+    double q_dot;
+    double q_ddot;
+    double jerk;
+};
+
+class QuinticTrajectory {
+public:
+    QuinticTrajectory(double q0, double qf, double T) : q0_(q0), qf_(qf), T_(T) {
+        double dq = qf - q0;
+        double T3 = std::pow(T, 3);
+        double T4 = T3 * T;
+        double T5 = T4 * T;
+
+        a0_ = q0;
+        a1_ = 0.0;
+        a2_ = 0.0;
+        a3_ = 10.0 * dq / T3;
+        a4_ = -15.0 * dq / T4;
+        a5_ = 6.0 * dq / T5;
+    }
+
+    TrajectoryPoint evaluate(double t) const {
+        t = std::clamp(t, 0.0, T_);
+        double t2 = t * t, t3 = t2 * t, t4 = t3 * t, t5 = t4 * t;
+        double q = a0_ + a3_ * t3 + a4_ * t4 + a5_ * t5;
+        double q_dot = 3.0 * a3_ * t2 + 4.0 * a4_ * t3 + 5.0 * a5_ * t4;
+        double q_ddot = 6.0 * a3_ * t + 12.0 * a4_ * t2 + 20.0 * a5_ * t3;
+        double jerk = 6.0 * a3_ + 24.0 * a4_ * t + 60.0 * a5_ * t2;
+        return TrajectoryPoint{t, q, q_dot, q_ddot, jerk};
+    }
+
+private:
+    double q0_, qf_, T_;
+    double a0_, a1_, a2_, a3_, a4_, a5_;
+};
+
+int main() {
+    QuinticTrajectory traj(0.2618, 1.3090, 2.50);
+    std::cout &lt;&lt; std::fixed &lt;&lt; std::setprecision(4);
+    std::cout &lt;&lt; &quot;t(s)\t q(rad)\t q_dot(rad/s)\t q_ddot(rad/s^2)\t jerk(rad/s^3)\n&quot;;
+    for (double t = 0.0; t &lt;= 2.50; t += 0.50) {
+        TrajectoryPoint p = traj.evaluate(t);
+        std::cout &lt;&lt; p.t &lt;&lt; &quot;\t &quot; &lt;&lt; p.q &lt;&lt; &quot;\t &quot; &lt;&lt; p.q_dot &lt;&lt; &quot;\t\t &quot; &lt;&lt; p.q_ddot &lt;&lt; &quot;\t\t &quot; &lt;&lt; p.jerk &lt;&lt; &quot;\n&quot;;
+    }
+    return 0;
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- Section 7: Key Takeaways & Practice Exercise -->
+      <section id="sec-summary" class="content-section">
+        <h2 class="section-title">7. Tóm Tắt & Bài Tập Tự Luyện</h2>
+        <div class="summary-box">
+          <div class="summary-title">📌 ĐIỂM CỐT LÕI CẦN GHI NHỚ</div>
+          <ul class="summary-list">
+            <li><strong>Đường đi vs Quỹ đạo:</strong> Quỹ đạo là đường đi hình học kết hợp quy luật biến thiên theo thời gian của vị trí, vận tốc, gia tốc và Jerk.</li><li><strong>Khử rung động Jerk-free:</strong> Đa thức bậc 5 đảm bảo điều kiện biên gia tốc triệt tiêu, giữ Jerk hữu hạn liên tục và triệt tiêu rung lắc cơ khí.</li><li><strong>Quỹ đạo hình thang LSPB:</strong> Đạt vận tốc đỉnh thấp nhưng gia tốc nhảy bậc đột ngột gây xung kích cơ học.</li><li><strong>Nội suy SLERP & Đồng bộ đa khớp:</strong> SLERP nội suy hướng Quaternion mượt mà; đồng bộ hóa thời gian co giãn vận tốc khớp chậm nhất làm cơ sở.</li>
+          </ul>
+        </div>
+
+        <div class="practice-box">
+          <div class="practice-header">
+            <span class="practice-badge">BÀI TẬP TỰ LUYỆN NÂNG CAO</span>
+            <h4 class="practice-title">Bài tập tự luyện 4.1: Tính toán quỹ đạo đa thức bậc 3 (Cubic Spline)</h4>
+          </div>
+          <div class="practice-statement">
+            <p>Nếu sử dụng đa thức bậc 3 $q(t) = c_0 + c_1 t + c_2 t^2 + c_3 t^3$ cho cùng bài toán trên với $q(0) = 0.2618, q(2.5) = 1.3090, \dot{q}(0) = \dot{q}(2.5) = 0$, hãy tính các hệ số $c_i$ và xác định bước nhảy gia tốc tại thời điểm ban đầu $t = 0$.</p>
+          </div>
+          <details class="practice-details">
+            <summary class="practice-summary-btn">💡 Xem đáp số & hướng dẫn giải chi tiết</summary>
+            <div class="practice-answer">
+              <p>Với đa thức bậc 3: $c_0 = q_0 = 0.2618$, $c_1 = \dot{q}_0 = 0$. Hai hệ số còn lại: $c_2 = \frac{3 \Delta q}{T^2} = \frac{3(1.0472)}{6.25} \approx 0.50266\text{ rad/s}^2$ và $c_3 = \frac{-2 \Delta q}{T^3} = \frac{-2(1.0472)}{15.625} \approx -0.13404\text{ rad/s}^3$. Tại thời điểm $t = 0^+$, gia tốc nhảy vọt từ 0 lên $\ddot{q}(0^+) = 2 c_2 = 1.0053\text{ rad/s}^2$. Bước nhảy gián đoạn này chứng minh đa thức bậc 3 sinh xung lực va đập cơ khí rất mạnh lên hộp số.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- Chapter Footer Navigation -->
+      <footer class="chapter-navigation">
+        <a href="ch03.html" class="btn-nav btn-prev">
+          <span class="nav-dir">Quay lại</span>
+          <span class="nav-label">← Chương 03: Động Học Vi Phân & Tĩnh Học Robot</span>
+        </a>
+        <a href="ch05.html" class="btn-nav btn-next">
+          <span class="nav-dir">Tiếp theo</span>
+          <span class="nav-label">Chương 05: Động Lực Học Robot Manipulator →</span>
+        </a>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof initSim04 === "function") {
+        initSim04();
+      }
+    });
+    function copyCode(btn) {
+      const code = btn.closest('.code-card').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const oldText = btn.innerText;
+        btn.innerText = "Đã chép!";
+        setTimeout(() => { btn.innerText = oldText; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

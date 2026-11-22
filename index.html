@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động | Master Knowledge Gateway</title>
+  <meta name="description" content="Cổng thông tin chưng cất tri thức học thuật chuyên sâu về Robotics, Động lực học, Ước lượng trạng thái, SLAM và Điều khiển hiện đại 4.0.">
+  <link rel="stylesheet" href="assets/css/master.css?v=20261122">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="hub-body">
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <span class="brand-icon">🤖</span>
+        <div style="display: flex; flex-direction: column;">
+          <span class="brand-text" style="font-size: 1.05rem;">ROBOTICS & CONTROL SYSTEMS PORTAL</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Viện Tri Thức Chuyên Khảo Học Thuật Tương Tác 4.0</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <span class="badge badge-edition">SOTA Academic 2026</span>
+        <button id="theme-toggle" class="btn btn-secondary btn-theme-toggle" aria-label="Toggle Theme" title="Chuyển đổi giao diện sáng/tối">
+          <span class="icon-light">☀️</span>
+          <span class="icon-dark">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="master-gateway-hero">
+    <div class="master-hero-container">
+      <div class="master-brand-pill">
+        <span>🎓</span>
+        <span>HỆ THỐNG CHƯNG CẤT TRI THỨC KHOA HỌC ĐA PHƯƠNG THỨC</span>
+      </div>
+      <h1 class="master-title">Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động</h1>
+      <p class="master-subtitle">
+        Cổng thông tin chuyển giao toàn diện 7 bộ chuyên khảo kinh điển thế giới (Springer, Cambridge University Press, CRC Press): Giải phẫu tri thức 6 tầng, 106 bài tập tính số thực tế 4 bước, 106 phòng lab mô phỏng Canvas 2D tương tác 60 FPS và cầu nối kiến trúc C++ / ROS 2 chuẩn công nghiệp.
+      </p>
+
+      <!-- Key Stats Bar -->
+      <div class="master-stats-row">
+        <div class="master-stat-box">
+          <span class="master-stat-val">7</span>
+          <span class="master-stat-lbl">Siêu Chuyên Khảo Kinh Điển</span>
+        </div>
+        <div class="master-stat-box">
+          <span class="master-stat-val">106</span>
+          <span class="master-stat-lbl">Chương Học Thuật 6 Tầng</span>
+        </div>
+        <div class="master-stat-box">
+          <span class="master-stat-val">106</span>
+          <span class="master-stat-lbl">Bài Tập Số Học Lời Giải 4 Bước</span>
+        </div>
+        <div class="master-stat-box">
+          <span class="master-stat-val">106</span>
+          <span class="master-stat-lbl">Mô Phỏng Canvas 2D 60 FPS</span>
+        </div>
+        <div class="master-stat-box">
+          <span class="master-stat-val">100%</span>
+          <span class="master-stat-lbl">Zero-Error MathJax 3 & C++</span>
+        </div>
+      </div>
+
+      <!-- Live Search & Category Filter Toolbar -->
+      <div class="hub-search-wrapper" style="max-width: 980px;">
+        <div class="search-input-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="master-search-input" placeholder="Tìm kiếm nhanh chuyên khảo, tác giả, thuật toán (PID, Kalman, SLAM, DAgger, LQR, Euler-Lagrange...)... (Ctrl + K)">
+          <span class="search-shortcut">Ctrl+K</span>
+        </div>
+        <div class="filter-pills-row">
+          <button class="filter-pill active" data-filter="all">Tất Cả (7 Chuyên Khảo)</button>
+          <button class="filter-pill" data-filter="control">Điều Khiển Tự Động (Control)</button>
+          <button class="filter-pill" data-filter="mechanics">Cơ Học & Động Lực Robot (Mechanics)</button>
+          <button class="filter-pill" data-filter="estimation">Ước Lượng & SLAM (Estimation)</button>
+          <button class="filter-pill" data-filter="ai">AI & Học Bắt Chước (Learning)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main 7 Portals Grid -->
+  <main class="hub-main-container" style="max-width: 1380px;">
+    <div class="portal-grid-7" id="portal-grid">
+
+      <!-- Portal 1: Control Systems Mutambara -->
+      <article class="portal-master-card" data-category="control" data-keywords="thiết kế phân tích hệ thống điều khiển mutambara pid root locus bode nyquist state-space lqr smc fuzzy mpc 4ir">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #2563eb; background: rgba(37,99,235,0.1);">⚙️</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-1">Track: Control</span>
+              <span class="badge badge-alt">10 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Thiết Kế & Phân Tích Hệ Thống Điều Khiển 4IR</h2>
+          <span class="portal-card-author">Tác giả: GS. Arthur G.O. Mutambara (CRC Press, 795 trang)</span>
+          <p class="portal-card-desc">
+            Toàn diện lý thuyết điều khiển từ cổ điển đến hiện đại: Hàm truyền, Quỹ đạo nghiệm Root Locus, Biểu đồ Bode/Nyquist kép, Không gian trạng thái, Luenberger Observer, LQR, Điều khiển trượt bền vững SMC, Hệ thống số rời rạc và Điều khiển thông minh AI / Logic mờ.
+          </p>
+          <ul class="portal-features-list">
+            <li>10 Chương học thuật cấu trúc 6 tầng chuẩn hóa</li>
+            <li>10 Bài tập số học 4 bước & kết luận kiểm chứng</li>
+            <li>10 Mô phỏng Canvas 2D 60 FPS (Cruise Control, Cart-Pole, Bode)</li>
+            <li>Cầu nối mã nguồn C++ và giải thuật điều khiển số</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="control-systems-design-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="control-systems-design-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 2: Foundations of Robotics Siciliano -->
+      <article class="portal-master-card" data-category="mechanics" data-keywords="nền tảng robot học foundations of robotics siciliano kinematics jacobian dynamics trajectory control lực">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #7c3aed; background: rgba(124,58,237,0.1);">🦾</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-2">Track: Mechanics</span>
+              <span class="badge badge-alt">12 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Nền Tảng Robot Học: Cơ Học & Điều Khiển</h2>
+          <span class="portal-card-author">Tác giả: GS. Bruno Siciliano et al. (Springer 2025, 737 trang)</span>
+          <p class="portal-card-desc">
+            Giáo trình kinh điển thế giới về tay máy robot: Biểu diễn vị trí và hướng không gian, Quy ước Denavit-Hartenberg (DH), Động học vi sai và Ma trận Jacobian, Động lực học Euler-Lagrange, Lập kế hoạch quỹ đạo không gian khớp/thao tác, và Điều khiển tương tác lực.
+          </p>
+          <ul class="portal-features-list">
+            <li>12 Chương chuyên sâu 4 Master Tracks</li>
+            <li>12 Bài tập giải 4 bước (Bậc tự do, Vận tốc, Mô-men)</li>
+            <li>12 Mô phỏng Canvas 2D 60 FPS động học & quỹ đạo</li>
+            <li>Hiện thực hóa thuật toán C++ và tích hợp Robot Kinematics</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="foundations-of-robotics-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="foundations-of-robotics-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 3: State Estimation Barfoot -->
+      <article class="portal-master-card" data-category="estimation" data-keywords="ước lượng trạng thái state estimation barfoot kalman ekf ukf lie group so3 se3 imu preintegration steam bundle adjustment">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #059669; background: rgba(5,150,105,0.1);">📐</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-3">Track: Estimation</span>
+              <span class="badge badge-alt">14 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Ước Lượng Trạng Thái Cho Robot</h2>
+          <span class="portal-card-author">Tác giả: Prof. Timothy D. Barfoot (Cambridge Univ. Press, 580 trang)</span>
+          <p class="portal-card-desc">
+            Siêu chuyên khảo định vị và SLAM hiện đại: Biến ngẫu nhiên Gauss, Chặn dưới Cramér-Rao, Bộ lọc Kalman (KF/EKF/UKF), Tối ưu hóa trên đa tạp nhóm Lie ma trận SO(3)/SE(3), Tiền tích phân IMU trên nhóm Lie, Bundle Adjustment và Ước lượng quỹ đạo thời gian liên tục STEAM.
+          </p>
+          <ul class="portal-features-list">
+            <li>14 Chương học thuật 5 Master Tracks chuyên sâu</li>
+            <li>14 Bài tập giải 4 bước định vị không chệch</li>
+            <li>14 Phòng lab mô phỏng 60 FPS (CRLB, EKF, Lie, IMU)</li>
+            <li>Cầu nối ROS 2 & C++ Eigen3 tối ưu hóa Hessian</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="state-estimation-robotics-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="state-estimation-robotics-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 4: Robot Dynamics Modeling Siciliano -->
+      <article class="portal-master-card" data-category="mechanics" data-keywords="mô hình hóa mô phỏng động lực học robot manipulators siciliano euler-lagrange newton-euler ma trận quán tính coriolis">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #d97706; background: rgba(217,119,6,0.1);">⚡</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-4">Track: Dynamics</span>
+              <span class="badge badge-alt">16 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Mô Hình Hóa & Mô Phỏng Động Lực Học Robot</h2>
+          <span class="portal-card-author">Tác giả: GS. Bruno Siciliano et al. (Springer / CRC Press)</span>
+          <p class="portal-card-desc">
+            Chuyên khảo khoa học về thiết lập phương trình vi phân chuyển động: Phương pháp Năng lượng Euler-Lagrange, Thuật toán Newton-Euler đệ quy, Ma trận quán tính đối xứng $M(q)$, Ma trận lực Coriolis và ly tâm $C(q,\dot{q})$, Điều khiển bù trọng trường và bù ma sát.
+          </p>
+          <ul class="portal-features-list">
+            <li>16 Chương chuyên khảo 6 Master Tracks</li>
+            <li>16 Bài tập giải 4 bước tính toán mô-men khớp</li>
+            <li>16 Mô phỏng Canvas 2D 60 FPS phản hồi động lực học</li>
+            <li>Cầu nối vật lý C++ mô phỏng số Runge-Kutta 4</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="robot-dynamics-modeling-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="robot-dynamics-modeling-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 5: Elements of Robotics Ben-Ari -->
+      <article class="portal-master-card" data-category="mechanics" data-keywords="yếu tố cốt lõi robot học ben-ari mondada braitenberg cảm biến ir siêu âm vi sai fsm bám vạch">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #0891b2; background: rgba(8,145,178,0.1);">🕹️</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-5">Track: Foundations</span>
+              <span class="badge badge-alt">18 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Các Yếu Tố Cốt Lõi Của Robot Học Tương Tác</h2>
+          <span class="portal-card-author">Tác giả: GS. Mordechai Ben-Ari & Francesco Mondada (Springer Open)</span>
+          <p class="portal-card-desc">
+            Bộ môn nhập môn robot học tương tác xuất sắc nhất: Cảm biến tiệm cận hồng ngoại, siêu âm, cảm biến màu sắc, động học xe hai bánh vi sai, phương tiện hành vi Braitenberg Vehicles, máy trạng thái hữu hạn FSM, và thuật toán bám vạch Line-Following.
+          </p>
+          <ul class="portal-features-list">
+            <li>18 Chương và Phụ lục học thuật hoàn chỉnh</li>
+            <li>18 Bài tập kỹ thuật giải chi tiết 4 bước</li>
+            <li>18 Mô phỏng Canvas 2D 60 FPS xe Thymio & e-puck</li>
+            <li>Cầu nối lập trình điều khiển nhúng C++ / Arduino</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="elements-of-robotics-interactive-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="elements-of-robotics-interactive-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 6: Imitation Learning Celemin -->
+      <article class="portal-master-card" data-category="ai" data-keywords="học bắt chước imitation learning celemin behavioral cloning dagger covariate shift irl rlhf tamer coach">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #e11d48; background: rgba(225,29,72,0.1);">🧠</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-6">Track: Robot AI</span>
+              <span class="badge badge-alt">14 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Học Bắt Chước Trong Robot Học Hiện Đại</h2>
+          <span class="portal-card-author">Tác giả: GS. Carlos Celemin et al. (Frontiers / Springer SOTA)</span>
+          <p class="portal-card-desc">
+            Chuyên khảo hàng đầu về Trí tuệ nhân tạo điều khiển robot: Nhân bản hành vi (Behavioral Cloning), Vấn đề trượt phân phối xác suất Covariate Shift, Giải thuật gộp mẫu DAgger, Học tăng cường nghịch đảo (Inverse RL), và Học từ phản hồi con người (RLHF, COACH, TAMER).
+          </p>
+          <ul class="portal-features-list">
+            <li>14 Chương học thuật giải mã AI Robot hiện đại</li>
+            <li>14 Bài tập số học 4 bước định lượng phân phối</li>
+            <li>14 Mô phỏng tương tác 60 FPS (DAgger, Policy Shift)</li>
+            <li>Cầu nối PyTorch & ROS 2 Policy Deployment</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="imitation-learning-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="imitation-learning-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 7: SLAM Knowledge Web -->
+      <article class="portal-master-card" data-category="estimation" data-keywords="slam simultaneous localization mapping lidar orb loop closure g2o fastslam ekf-slam occupancy grid">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #059669; background: rgba(5,150,105,0.1);">🗺️</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-3">Track: SLAM & Vision</span>
+              <span class="badge badge-alt">14 Chương</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Định Vị & Lập Bản Đồ Đồng Thời (SLAM)</h2>
+          <span class="portal-card-author">Tác giả: Chuyên gia Robotics Quốc Tế (Springer SOTA Edition)</span>
+          <p class="portal-card-desc">
+            Bản đồ định vị cốt lõi của xe tự hành và robot di động: EKF-SLAM, FastSLAM hạt phân bố, Graph-SLAM tối ưu hóa đồ thị bằng g2o, Trích xuất đặc trưng hình ảnh ORB-SLAM, Phát hiện đóng vòng lặp Loop Closure và Bản đồ lưới chiếm giữ Occupancy Grid Map 2D/3D.
+          </p>
+          <ul class="portal-features-list">
+            <li>14 Chương chuyên khảo công nghệ xe tự hành</li>
+            <li>14 Bài tập số học 4 bước hiệp phương sai sai số</li>
+            <li>14 Mô phỏng Canvas 2D 60 FPS (Quét LiDAR, Pose-Graph)</li>
+            <li>Cầu nối ROS 2 Nav2 & slam_toolbox thực tế</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="slam-knowledge-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="slam-knowledge-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- Academic Footer -->
+  <footer class="hub-footer">
+    <div class="footer-container">
+      <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
+          Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động 4.0
+        </h3>
+        <p class="footer-sub">
+          Dự án chưng cất tri thức học thuật đỉnh cao phục vụ giáo dục, nghiên cứu khoa học và phát triển công nghệ cao. Hệ thống tương thích 100% với Google Sites, GitHub Pages và các nền tảng LMS hiện đại.
+        </p>
+      </div>
+      <div class="footer-bottom">
+        <span style="font-size: 0.82rem; color: var(--text-subtle);">
+          © 2026 Academic Knowledge Distillation Hub | Powered by HTML5 Canvas, MathJax 3 & Web Components
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/master.js?v=20261122"></script>
+</body>
+</html>

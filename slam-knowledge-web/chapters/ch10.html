@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chương 10: Khung Toán Học Active SLAM &amp; Không Gian Hành Động Ứng Viên - SLAM &amp; Active Perception Portal</title>
+<meta content="Active SLAM 3-Stage Formulation &amp; Frontier Exploration" name="description"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="../assets/css/style.css?v=20261122" rel="stylesheet"/>
+<script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+<script async="" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+<div id="reading-progress"></div>
+<!-- Global Header with Breadcrumbs -->
+<header class="site-header">
+<div class="header-left">
+<nav class="breadcrumb-nav">
+<a class="breadcrumb-item" href="../index.html">🏠 Lộ trình Tổng quan</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item">TRACK 5: SLAM CHỦ ĐỘNG &amp; RA QUYẾT ĐỊNH</span>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-item current">Chương 10</span>
+</nav>
+</div>
+<div class="header-right">
+<a class="book-badge" href="../index.html" style="text-decoration: none; color: inherit;">
+<span class="badge-icon">🗺️</span> Bảng Ma Trận
+      </a>
+<button aria-label="Toggle Theme" class="theme-toggle-btn" id="theme-btn">
+<span id="theme-icon">☀️</span>
+<span id="theme-text">Chế độ sáng</span>
+</button>
+</div>
+</header>
+<div class="app-layout">
+<!-- Chapter Specific Sticky Tag Bar Sidebar (320px) -->
+<aside class="sidebar-container" id="sidebar">
+<div class="sidebar-header">
+<span class="sidebar-title">MỤC LỤC CHƯƠNG 10</span>
+<span class="sidebar-badge">7 MỤC</span>
+</div>
+<nav class="sidebar-nav" id="sidebar-nav">
+<div class="nav-item">
+<a href="#sec-10-1">
+<span class="nav-text">10.1 Định Nghĩa Bài Toán Active SLAM (A-SLAM)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-2">
+<span class="nav-text">10.2 Khung Phân Rã 3 Giai Đoạn Chuẩn</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-3">
+<span class="nav-text">10.3 Nhận Diện Điểm Đích: Frontier-Based Exploration</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-4">
+<span class="nav-text">10.4 Sinh Quỹ Đạo Bằng Cây Mở Rộng RRT &amp; NBV</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-sim">
+<span class="nav-text">⚡ Mô Phỏng Nhận Diện Biên Giới Frontier &amp; RRT (Canvas)</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-worked">
+<span class="nav-text">📐 Ví Dụ Tính Số 4 Bước Thuật Toán Wavefront WFD</span>
+</a>
+</div>
+<div class="nav-item">
+<a href="#sec-10-bridge">
+<span class="nav-text">🛠️ Cầu Nối ROS 2: Node Frontier Exploration C++ Nav2</span>
+</a>
+</div>
+<div class="nav-item"><a href="#sec-10-summary"><span class="nav-text">📝 Tóm Tắt &amp; Bài Tập Tự Luyện</span></a></div></nav>
+<div class="sidebar-footer">
+<a class="sidebar-back-btn" href="../index.html">
+<span>←</span> Về Trang Tổng Quan
+        </a>
+</div>
+</aside>
+<!-- Main Content Container (Fit Web) -->
+<main class="main-content" id="main-content">
+<article class="chapter-article">
+<div class="article-header">
+<div class="chapter-meta-pill">TRACK 5: SLAM CHỦ ĐỘNG &amp; RA QUYẾT ĐỊNH • CHƯƠNG 10</div>
+<h1 class="chapter-title">Khung Toán Học Active SLAM &amp; Không Gian Hành Động Ứng Viên</h1>
+<p class="chapter-subtitle">Active SLAM 3-Stage Formulation &amp; Frontier Exploration</p>
+<div class="article-source-bar">
+<span>📚 Nguồn tài liệu: <strong>Julio A. Placed et al. (IEEE T-RO 2023) &amp; Thanh Nguyen Canh et al. (2021)</strong></span>
+</div>
+</div>
+<!-- 10.1 -->
+<h2 id="sec-10-1">10.1 Định Nghĩa Bài Toán Active SLAM (A-SLAM)</h2>
+<p>Hầu hết các hệ thống SLAM cổ điển là hệ thống <strong>thụ động (Passive SLAM)</strong>: Robot nhận quỹ đạo do con người điều khiển từ xa hoặc do bộ lập kế hoạch đường đi định sẵn, nhiệm vụ của SLAM chỉ là quan sát và xây bản đồ theo sau.</p>
+<div class="why-matters-box">
+<div class="why-matters-header">💡 ACTIVE SLAM LÀ GÌ VÀ TẠI SAO CẦN THIẾT?</div>
+<div class="why-matters-body">
+            Theo khảo cứu toàn diện của Julio A. Placed, Luca Carlone et al. (IEEE T-RO 2023), <strong>Active SLAM (A-SLAM)</strong> trao quyền tự chủ tuyệt đối cho robot: Robot tự mình tính toán, ra quyết định chọn hành động di chuyển tiếp theo sao cho:
+            <br/>1. <strong>Tối đa hóa thông tin thu được để mở rộng bản đồ</strong> (khám phá khu vực chưa biết).
+            <br/>2. <strong>Tối thiểu hóa độ bất định hiệp phương sai</strong> của cả quỹ đạo di chuyển lẫn bản đồ.
+            <br/>Nhờ Active SLAM, một robot cứu hộ thả vào tòa nhà sập có thể tự động thám hiểm và quét sạch bản đồ toàn khu vực mà không cần một người điều khiển nào!
+          </div>
+</div>
+<!-- 10.2 -->
+<h2 id="sec-10-2">10.2 Khung Phân Rã 3 Giai Đoạn Chuẩn Trong Active SLAM</h2>
+<p>Để giải quyết bài toán tối ưu hóa phức tạp trong thời gian thực, hệ thống A-SLAM phân rã thành 3 giai đoạn nối tiếp:</p>
+<p>• <strong>Giai đoạn 1 (Candidate Identification):</strong> Sinh tập hợp các điểm đến tiềm năng $\mathcal{A}_{\text{cand}}$ từ bản đồ hiện tại (biên giới, tư thế quan sát Next-Best-View).</p>
+<p>• <strong>Giai đoạn 2 (Utility Computation):</strong> Đánh giá hàm thỏa dụng thông tin $\mathcal{U}(a)$ cho từng ứng viên dựa trên lý thuyết thông tin và thiết kế thực nghiệm tối ưu (TOED).</p>
+<p>• <strong>Giai đoạn 3 (Action Selection &amp; Execution):</strong> Chọn hành động $a^* = \arg\max \mathcal{U}(a)$, lập đường đi tránh va chạm và gửi lệnh điều khiển xuống động cơ.</p>
+<!-- 10.3 -->
+<h2 id="sec-10-3">10.3 Kỹ Thuật Nhận Diện Biên Giới Khám Phá (Frontier-Based Exploration)</h2>
+<p>Brian Yamauchi (1997) đưa ra nguyên lý kinh điển: <em>"Biên giới (Frontier) là ranh giới phân tách giữa các ô đã biết là trống (Free) và các ô chưa từng được quét tới (Unknown)".</em> Khi robot di chuyển tới biên giới, nó đảm bảo chắc chắn sẽ mở rộng thêm các khoảng không gian mới chưa từng biết.</p>
+<!-- SIMULATOR -->
+<div class="sim-card" id="sec-10-sim">
+<div class="sim-header">
+<span class="sim-badge">CANVAS 2D 60 FPS</span>
+<span class="sim-title">Khảo Sát Tương Tác: Nhận Diện Biên Giới (Frontier) &amp; Cây Khám Phá RRT</span>
+</div>
+<div class="sim-canvas-wrapper" style="text-align: center; padding: 1rem; background: var(--sim-bg);">
+<canvas height="300" id="sim-canvas-10" style="max-width: 100%; border-radius: 8px; border: 1px solid var(--sim-border);" width="700"></canvas>
+</div>
+</div>
+<!-- 4-STEP WORKED EXAMPLE -->
+<div class="exercise-box" id="sec-10-worked">
+<div class="exercise-header">
+<span class="exercise-badge">BÀI TẬP VÍ DỤ TRỌNG TÂM</span>
+<h3 class="exercise-title">📐 Thuật Toán Wavefront Frontier Detection (WFD) Phân Nhóm Biên Giới Trên Lưới</h3>
+</div>
+<div class="exercise-statement">
+<p>Cho ma trận bản đồ $4 \times 4$ với các mã: `0` (Free Space), `-1` (Unknown), `100` (Wall). 
+          <br/>Hàng 1: `[ 0,  0, -1, -1]`
+          <br/>Hàng 2: `[ 0,  0, -1, -1]`
+          <br/>Hàng 3: `[ 0, 100, -1, -1]`
+          <br/>Hàng 4: `[100, 100, -1, -1]`
+          Áp dụng định nghĩa: Một ô là Frontier khi và chỉ khi nó là ô `0` (Free) và có ít nhất một ô láng giềng 4 hướng là ô `-1` (Unknown). Xác định tất cả các ô Frontier và tính tọa độ tâm cụm (Centroid).</p>
+</div>
+<div class="solution-wrapper">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Quét các ô Free (giá trị 0)</span>
+</div>
+<div class="step-content">
+<p>Danh sách các ô giá trị 0: $(1,1), (1,2), (2,1), (2,2), (3,1)$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Kiểm tra láng giềng 4 hướng (Trên, Dưới, Trái, Phải)</span>
+</div>
+<div class="step-content">
+<p>• Ô $(1,1)$: Phải là $(1,2)$ (0), Dưới là $(2,1)$ (0) $\Rightarrow$ Không có láng giềng `-1`.</p><p>• Ô $(1,2)$: Phải là $(1,3)$ (`-1`!) $\Rightarrow$ <strong>Là Frontier $F_1$</strong>.</p><p>• Ô $(2,1)$: Phải là $(2,2)$ (0), Dưới là $(3,1)$ (0) $\Rightarrow$ Không có láng giềng `-1`.</p><p>• Ô $(2,2)$: Phải là $(2,3)$ (`-1`!) $\Rightarrow$ <strong>Là Frontier $F_2$</strong>.</p><p>• Ô $(3,1)$: Phải là $(3,2)$ (`100` Wall), Dưới là $(4,1)$ (`100` Wall) $\Rightarrow$ Không có láng giềng `-1`.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Gom nhóm các ô Frontier liền kề</span>
+</div>
+<div class="step-content">
+<p>Cụm biên giới gồm 2 ô kề nhau: $F = \{(1, 2), (2, 2)\}$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">4</span>
+<span class="step-name">Bước 4: Tính tọa độ đích đến tâm cụm (Goal Centroid)</span>
+</div>
+<div class="step-content">
+<p>$$x_{\text{goal}} = \frac{1 + 2}{2} = 1.5, \quad y_{\text{goal}} = \frac{2 + 2}{2} = 2.0$$</p><p>Tọa độ đích $(1.5, 2.0)$ được đưa vào danh sách ứng viên điều hướng của Active SLAM!</p>
+</div>
+</div>
+
+<div class="highlight-result-box">
+<h4>📌 KẾT LUẬN &amp; ĐÁNH GIÁ KỸ THUẬT</h4>
+<p>Hàm tiện ích Active SLAM kết hợp tối ưu giữa giảm entropy bản đồ và giảm độ bất định quỹ đạo: Robot chủ động cân nhắc giữa việc khám phá vùng biên giới mới (Frontier) và quay lại các mốc cũ để khép vòng lặp.</p>
+</div>
+</div>
+</div>
+<!-- ROS 2 BRIDGE -->
+<div class="ros2-bridge-card" id="sec-10-bridge" style="margin-top: 2.5rem;">
+<h4>🛠️ Cầu Nối Kiến Trúc Kỹ Thuật: Node Tìm Biên Giới Frontier Bằng C++ Cho Nav2</h4>
+<p>Mã nguồn C++ quét bản đồ `OccupancyGrid` và xuất bản danh sách các điểm mục tiêu thám hiểm:</p>
+<div class="code-card">
+<div class="code-header">
+<span>frontier_detector_node.cpp (ROS 2 / C++)</span>
+<button class="copy-btn">Copy</button>
+</div>
+<pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;nav_msgs/msg/occupancy_grid.hpp&gt;
+#include &lt;geometry_msgs/msg/point.hpp&gt;
+#include &lt;vector&gt;
+
+class FrontierDetector : public rclcpp::Node {
+public:
+  FrontierDetector() : Node("frontier_detector") {
+    map_sub_ = this-&gt;create_subscription&lt;nav_msgs::msg::OccupancyGrid&gt;(
+      "/map", 1, std::bind(&amp;FrontierDetector::mapCallback, this, std::placeholders::_1));
+  }
+
+private:
+  void mapCallback(const nav_msgs::msg::OccupancyGrid::SharedPtr msg) {
+    int w = msg-&gt;info.width;
+    int h = msg-&gt;info.height;
+    std::vector&lt;geometry_msgs::msg::Point&gt; frontiers;
+
+    for (int y = 1; y \lt h - 1; ++y) {
+      for (int x = 1; x \lt w - 1; ++x) {
+        int idx = y * w + x;
+        if (msg-&gt;data[idx] == 0) { // Ô Free
+          // Kiểm tra xem có láng giềng nào là Unknown (-1) không
+          if (msg-&gt;data[idx + 1] == -1 || msg-&gt;data[idx - 1] == -1 ||
+              msg-&gt;data[idx + w] == -1 || msg-&gt;data[idx - w] == -1) {
+            geometry_msgs::msg::Point pt;
+            pt.x = msg-&gt;info.origin.position.x + x * msg-&gt;info.resolution;
+            pt.y = msg-&gt;info.origin.position.y + y * msg-&gt;info.resolution;
+            frontiers.push_back(pt);
+          }
+        }
+      }
+    }
+    RCLCPP_INFO(this-&gt;get_logger(), "Detected %zu frontier points.", frontiers.size());
+  }
+  rclcpp::Subscription&lt;nav_msgs::msg::OccupancyGrid&gt;::SharedPtr map_sub_;
+};</code></pre>
+</div>
+</div>
+<!-- Pagination Footer -->
+<section class="chapter-summary-section" id="sec-10-summary" style="margin-top: 3rem;">
+<div class="practice-box">
+<div class="practice-header">
+<span class="practice-badge">BÀI TẬP TỰ LUYỆN</span>
+<h4 class="practice-title">Tính Độ Lợi Thông Tin Mutual Information Trong Active SLAM</h4>
+</div>
+<div class="practice-statement">
+<p>Robot đang ở tư thế $x_t$ và cần lựa chọn giữa 2 mục tiêu di chuyển ứng viên: Điểm $A$ (vùng biên giới chưa khám phá - Frontier) và Điểm $B$ (khu vực có nhiều mốc đặc trưng nhưng cần khép vòng lặp - Loop Closure). Phân tích cho thấy: Đến $A$ giảm entropy bản đồ $\Delta H_{\text{map}} = 4.2\text{ nats}$, nhưng làm tăng độ bất định quỹ đạo $\Delta H_{\text{traj}} = +1.8\text{ nats}$, chi phí di chuyển $C_A = 3.0$. Đến $B$ giảm entropy bản đồ $\Delta H_{\text{map}} = 0.5\text{ nats}$, giảm mạnh độ bất định quỹ đạo $\Delta H_{\text{traj}} = -3.2\text{ nats}$, chi phí di chuyển $C_B = 2.0$.<br/><br/><strong>Yêu cầu:</strong><br/>1) Định nghĩa hàm mục tiêu thỏa hiệp $U(goal) = \Delta H_{\text{map}} - \alpha \Delta H_{\text{traj}} - \beta C$.<br/>2) Tính hàm tiện ích với trọng số cân bằng $\alpha = 1.0, \beta = 0.5$.<br/>3) Quyết định robot nên khám phá vùng mới hay khép vòng lặp.</p>
+</div>
+<details class="practice-solution">
+<summary>Xem Hướng Dẫn Giải Chi Tiết</summary>
+<div class="practice-solution-body">
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">1</span>
+<span class="step-name">Bước 1: Thiết lập mô hình &amp; Cơ sở lý thuyết</span>
+</div>
+<div class="step-content">
+<p>Độ lợi thông tin tổng thể trong Active SLAM kết hợp giữa việc mở rộng bản đồ và duy trì định vị chuẩn xác: $U(g) = \Delta H_{\text{map}} - \alpha \Delta H_{\text{traj}} - \beta C(g)$. Lưu ý rằng $\Delta H_{\text{traj}}$ âm nghĩa là độ bất định quỹ đạo giảm (tốt cho hệ thống).</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">2</span>
+<span class="step-name">Bước 2: Thay số &amp; Tính toán đại số chi tiết</span>
+</div>
+<div class="step-content">
+<p>Tính toán tiện ích:<br/>• Với điểm $A$: $U(A) = 4.2 - 1.0(1.8) - 0.5(3.0) = 4.2 - 1.8 - 1.5 = +0.90$.<br/>• Với điểm $B$: $U(B) = 0.5 - 1.0(-3.2) - 0.5(2.0) = 0.5 + 3.2 - 1.0 = +2.70$.</p>
+</div>
+</div>
+<div class="solution-step">
+<div class="step-header">
+<span class="step-num-badge">3</span>
+<span class="step-name">Bước 3: Đánh giá &amp; Rút ra kết luận kỹ thuật</span>
+</div>
+<div class="step-content">
+<p>So sánh: $U(B) = 2.70 \gt U(A) = 0.90$. Robot chủ động chọn di chuyển đến điểm $B$ để thực hiện khép vòng lặp (Loop Closure), làm giảm mạnh sự trôi dạt của toàn bộ bản đồ trước khi tiếp tục thám hiểm các vùng xa xôi.</p>
+</div>
+</div>
+</div>
+</details>
+</div>
+</section><div class="chapter-nav-cards">
+<a class="ch-nav-card prev" href="ch09.html">
+<span class="nav-direction">← CHƯƠNG TRƯỚC</span>
+<span class="nav-ch-title">Chương 09: Liên Kết Dữ Liệu Ngữ Nghĩa</span>
+</a>
+<a class="ch-nav-card next" href="ch11.html">
+<span class="nav-direction">CHƯƠNG TIẾP THEO →</span>
+<span class="nav-ch-title">Chương 11: Đo Lường Thông Tin Toán Học TOED</span>
+</a>
+</div>
+</article>
+<footer class="site-footer">
+<p>Hệ Thống Tri Thức SLAM &amp; Active Perception • SOTA Pedagogical Portal</p>
+<p class="footer-meta">Biên soạn tự động theo chuẩn Deep Reading Distiller • Sẵn sàng chạy offline 100% &amp; GitHub Pages</p>
+</footer>
+</main>
+</div>
+<script src="../assets/js/app.js"></script>
+<script src="../assets/js/simulators.js"></script>
+</body>
+</html>
