@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Các Bộ Lọc Phi Tham Số: Histogram, Binary Bayes & Particle Filter | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Robot Học Xác Suất</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 04</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 04</span>
+        <span class="sidebar-badge">14 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-4-1">
+            <span class="nav-text">4.1 Bộ Lọc Lược Đồ (Histogram Filter)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-1-1">
+            <span class="nav-text">4.1.1 Thuật Toán Bayes Rời Rạc</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-1-2">
+            <span class="nav-text">4.1.2 Xấp Xỉ Không Gian Trạng Thái Liên Tục</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-1-4">
+            <span class="nav-text">4.1.4 Kỹ Thuật Phân Rã Cây Đa Tầng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-2">
+            <span class="nav-text">4.2 Bộ Lọc Bayes Nhị Phân Trạng Thái Tĩnh (Log-Odds)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-3">
+            <span class="nav-text">4.3 Bộ Lọc Hạt (The Particle Filter)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-1">
+            <span class="nav-text">4.3.1 Thuật Toán Lọc Hạt Cơ Bản</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-2">
+            <span class="nav-text">4.3.2 Kỹ Thuật Lấy Mẫu Tầm Quan Trọng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-3">
+            <span class="nav-text">4.3.3 Dẫn Xuất Toán Học Particle Filter</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-4">
+            <span class="nav-text">4.3.4 Thoái Hóa Hạt & Thuật Toán Lấy Mẫu Lại Phương Sai Thấp</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-4">
+            <span class="nav-text">4.4 Tóm Tắt & So Sánh Tham Số vs Phi Tham Số</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Bánh Xe Lấy Mẫu Lại Hạt</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Low-Variance Resampling Wheel</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Tối Ưu Đa Luồng OpenMP Trong Particle Filter</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ ROBOT HỌC XÁC SUẤT</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 04</span>
+        </div>
+        <h1 class="chapter-title">Các Bộ Lọc Phi Tham Số: Histogram, Binary Bayes & Particle Filter</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-4-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO BỘ LỌC PHI THAM SỐ GIẢI ĐƯỢC NHỮNG BÀI TOÁN MÀ KALMAN BẤT LỰC?</div>
+        <p>
+          Điểm yếu chí mạng của họ bộ lọc Gauss (Kalman, EKF, UKF) là <strong>tính đơn đỉnh (Unimodality)</strong>: nó chỉ có thể bám theo một giả thiết vị trí duy nhất. Trong bài toán <em>Định vị toàn cục (Global Localization)</em> hoặc <em>Sự cố bắt cóc robot (Kidnapped Robot Problem)</em>:
+        </p>
+        <ul>
+          <li>Robot không biết mình ở phòng nào trong 10 căn phòng giống hệt nhau trên sơ đồ hành lang.</li>
+          <li>Phân bố niềm tin thực tế là <strong>đa đỉnh (Multimodal Distribution)</strong> với 10 đỉnh nhọn có xác suất tương đương nhau.</li>
+          <li>Nếu ép phân bố đa đỉnh này thành một phân bố Gauss, vector kỳ vọng $\boldsymbol{\mu}$ sẽ rơi vào bức tường ở giữa - một vị trí hoàn toàn vô nghĩa và sai lệch thảm họa!</li>
+        </ul>
+        <p>
+          <strong>Bộ lọc phi tham số (Nonparametric Filters)</strong> không áp đặt bất kỳ dạng hàm giải tích cứng nhắc nào lên niềm tin $\text{bel}(x)$. Chúng xấp xỉ xác suất bằng các mẫu rời rạc (Histogram) hoặc hàng nghìn hạt ngẫu nhiên (Particles). Nhờ đó, chúng có thể biểu diễn tự nhiên mọi hình dạng phân bố kỳ dị, đa đỉnh, bất đối xứng và tự động chia tách/hội tụ linh hoạt.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-4-1" class="content-block">
+        <h2>4.1 Bộ Lọc Lược Đồ (The Histogram Filter)</h2>
+        <p>
+          Bộ lọc lược đồ phân rã không gian trạng thái liên tục thành hữu hạn các vùng phân hoạch rời rạc (bins/cells) $\text{dom}(x) = \bigcup_k \mathbf{x}_k$:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">XẤP XỈ RỜI RẠC KHÔNG GIAN LIÊN TỤC</div>
+          $$p_k(t) = \text{Pr}(x_t \in \mathbf{x}_k)$$
+          $$\overline{p}_k(t) = \sum_i p(\mathbf{x}_k \mid u_t, \mathbf{x}_i) \, p_i(t-1)$$
+          $$p_k(t) = \eta \, p(z_t \mid \mathbf{x}_k) \, \overline{p}_k(t)$$
+        </div>
+        <p>
+          <strong>Hạn chế:</strong> Bộ nhớ và tính toán tăng theo cấp số mũ với số chiều trạng thái $\mathcal{O}(B^n)$ (Lời nguyền số chiều - Curse of Dimensionality). Thường chỉ áp dụng hiệu quả cho không gian $1\text{D} \to 3\text{D}$.
+        </p>
+      </section>
+
+      <section id="sec-4-2" class="content-block">
+        <h2>4.2 Bộ Lọc Bayes Nhị Phân Trạng Thái Tĩnh (Binary Bayes Filters with Static State)</h2>
+        <p>
+          Khi trạng thái chỉ nhận 2 giá trị nhị phân $x \in \{A, \neg A\}$ và không thay đổi theo thời gian, việc sử dụng trực tiếp xác suất $p_t$ gặp vấn đề mất ổn định số học khi $p \to 0$ hoặc $p \to 1$.
+        </p>
+        <p>
+          Thrun và các tác giả chuyển đổi sang dạng <strong>Log-Odds</strong> (tỷ số logarit cơ số tự nhiên):
+        </p>
+        <div class="formula-hero">
+          $$l_t = \log \frac{p(x \mid z_{1:t})}{1 - p(x \mid z_{1:t})}$$
+          $$l_t = l_{t-1} + \log \frac{p(x \mid z_t)}{1 - p(x \mid z_t)} - \log \frac{p(x)}{1 - p(x)}$$
+        </div>
+        <p>
+          <strong>Ý nghĩa vượt bậc:</strong> Phép cập nhật tích số nhân phức tạp của Bayes biến thành <strong>phép cộng số học đơn giản</strong>:
+          $$l_t = l_{t-1} + \text{inv\_sensor}(z_t) - l_0$$
+          Khi cần khôi phục lại xác suất thực:
+          $$p_t = 1 - \frac{1}{1 + \exp(l_t)}$$
+          Đây chính là phương trình cốt lõi được sử dụng trong toàn bộ thuật toán Occupancy Grid Mapping ở Chương 9.
+        </p>
+      </section>
+
+      <section id="sec-4-3" class="content-block">
+        <h2>4.3 Bộ Lọc Hạt (The Particle Filter / Sequential Monte Carlo)</h2>
+        <h3 id="sec-4-3-1">4.3.1 Biểu Diễn Trạng Thái Qua Tập Hạt</h3>
+        <p>
+          Niềm tin $\text{bel}(x_t)$ được xấp xỉ bằng một tập gồm $M$ hạt ngẫu nhiên:
+          $$\mathcal{X}_t = \{ \langle x_t^{[m]}, w_t^{[m]} \rangle \}_{m=1}^M$$
+          Mỗi hạt $x_t^{[m]}$ là một trạng thái cụ thể; $w_t^{[m]}$ là trọng số tầm quan trọng (importance factor) với $\sum_m w_t^{[m]} = 1$.
+        </p>
+
+        <h3 id="sec-4-3-2">4.3.2 Thuật Toán Particle Filter Tiêu Chuẩn</h3>
+        <div class="pipeline-card">
+          <strong>Bước 1: Lấy Mẫu Lan Truyền (Sampling / Prediction):</strong><br>
+          Lấy mẫu hạt mới $x_t^{[m]} \sim p(x_t \mid u_t, x_{t-1}^{[m]})$.<br><br>
+          <strong>Bước 2: Tính Trọng Số Tầm Quan Trọng (Importance Weighting):</strong><br>
+          Gán trọng số đo lường: $w_t^{[m]} = p(z_t \mid x_t^{[m]})$.<br><br>
+          <strong>Bước 3: Lấy Mẫu Lại (Resampling / Selection):</strong><br>
+          Rút thăm có hoàn lại $M$ hạt mới từ tập hiện tại với xác suất tỉ lệ thuận với trọng số $w_t^{[m]}$. Các hạt có trọng số cao được nhân bản, hạt có trọng số thấp bị tiêu diệt.
+        </div>
+
+        <h3 id="sec-4-3-4">4.3.4 Bánh Xe Lấy Mẫu Lại Phương Sai Thấp (Low-Variance Resampling)</h3>
+        <p>
+          Thuật toán lấy mẫu thông thường tốn $\mathcal{O}(M \log M)$ và có phương sai lớn. Thrun đề xuất thuật toán <strong>Low-Variance Sampler</strong> chạy trong thời gian tuyến tính $\mathcal{O}(M)$ với nguyên lý <em>bánh xe roulette có $M$ con trỏ cách đều nhau</em>:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">BÁNH XE LẤY MẪU PHƯƠNG SAI THẤP O(M)</div>
+          $$r \in [0, M^{-1}], \quad U = r + (m-1) M^{-1}, \quad m = 1, \dots, M$$
+        </div>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-4-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Lấy Mẫu Lại Phương Sai Thấp Cho 5 Hạt</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Trọng Số Tập Hạt Ban Đầu</div>
+            <p>
+              Giả sử hệ thống có $M = 5$ hạt với trọng số chuẩn hóa sau bước đo lường:
+              $$w_1 = 0.10, \quad w_2 = 0.50, \quad w_3 = 0.05, \quad w_4 = 0.25, \quad w_5 = 0.10$$
+              Kiểm tra tổng: $\sum_{m=1}^5 w_m = 1.0$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tính Tổng Tích Lũy (CDF) & Chọn Con Trỏ Ngẫu Nhiên</div>
+            <p>
+              Mảng tổng tích lũy $C = [c_1, c_2, c_3, c_4, c_5]$:
+              $$c_1 = 0.10, \quad c_2 = 0.60, \quad c_3 = 0.65, \quad c_4 = 0.90, \quad c_5 = 1.00$$
+              Khoảng cách bước nhảy: $\Delta = 1 / M = 1 / 5 = 0.20$.<br>
+              Gieo ngẫu nhiên một số thực duy nhất: $r \in [0, 0.20)$. Giả sử chọn $r = 0.08$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Xác Định 5 Vị Trí Kim Chỉ & Trích Chọn Hạt</div>
+            <p>
+              5 vị trí kim chỉ $U_m = r + (m-1) \times 0.20$:
+              <ul>
+                <li>$U_1 = 0.08$: So sánh với $C \implies U_1 \le c_1 (0.10) \implies$ <strong>Chọn Hạt 1</strong>.</li>
+                <li>$U_2 = 0.28$: So sánh với $C \implies c_1 \lt U_2 \le c_2 (0.60) \implies$ <strong>Chọn Hạt 2</strong>.</li>
+                <li>$U_3 = 0.48$: So sánh với $C \implies c_1 \lt U_3 \le c_2 (0.60) \implies$ <strong>Chọn Hạt 2</strong>.</li>
+                <li>$U_4 = 0.68$: So sánh với $C \implies c_3 (0.65) \lt U_4 \le c_4 (0.90) \implies$ <strong>Chọn Hạt 4</strong>.</li>
+                <li>$U_5 = 0.88$: So sánh với $C \implies c_3 \lt U_5 \le c_4 (0.90) \implies$ <strong>Chọn Hạt 4</strong>.</li>
+              </ul>
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Tập Hạt Mới Sau Lấy Mẫu Lại</div>
+            <p>
+              Tập hạt mới $\mathcal{X}_{t} = \{x_1, x_2, x_2, x_4, x_4\}$ với trọng số đều lại bằng $1/5 = 0.20$.<br>
+              <strong>Nhận xét:</strong> Hạt 2 (50%) được nhân đôi, Hạt 4 (25%) được nhân đôi, Hạt 1 (10%) giữ nguyên 1 bản, Hạt 3 (5%) và Hạt 5 (10%) bị loại bỏ. Thuật toán quét tuần tự chỉ trong 1 vòng lặp duy nhất $\mathcal{O}(M)$.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-4-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Bánh Xe Lấy Mẫu Lại Phương Sai Thấp</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch04"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch04-btn-spin" class="btn btn-primary">Quay Bánh Xe Roulette (Gieo r ngẫu nhiên mới)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-4-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Đa Luồng Hóa Particle Filter C++</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">C++ HIGH PERFORMANCE COMPUTING</span>
+            <span class="bridge-file">src/particle_filter_openmp.cpp</span>
+          </div>
+          <p>
+            Khi số lượng hạt lên tới hàng chục nghìn hạt ($M \ge 20,000$), việc tính trọng số đo lường ray-casting cho từng hạt là điểm nghẽn CPU nặng nhất. Sử dụng OpenMP đa luồng để tận dụng toàn bộ số nhân của vi xử lý:
+          </p>
+          <pre><code>#include &lt;vector&gt;
+#include &lt;omp.h&gt;
+#include &lt;cmath&gt;
+
+struct Particle {
+  double x, y, theta;
+  double weight;
+};
+
+void updateWeightsParallel(std::vector&lt;Particle&gt;&amp; particles, const std::vector&lt;double&gt;&amp; scan_ranges) {
+  const int M = static_cast&lt;int&gt;(particles.size());
+  double total_weight = 0.0;
+
+  // Song song hoa buoc danh gia trong so tren toan bo tap hat
+  #pragma omp parallel for reduction(+:total_weight) schedule(static)
+  for (int i = 0; i &lt; M; ++i) {
+    double likelihood = computeLikelihoodField(particles[i], scan_ranges);
+    particles[i].weight = likelihood;
+    total_weight += likelihood;
+  }
+
+  // Chuan hoa trong so
+  if (total_weight &gt; 1e-9) {
+    const double inv_total = 1.0 / total_weight;
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i &lt; M; ++i) {
+      particles[i].weight *= inv_total;
+    }
+  }
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch03.html" class="btn btn-secondary">← Chương 03</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch05.html" class="btn btn-primary">Chương 05 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

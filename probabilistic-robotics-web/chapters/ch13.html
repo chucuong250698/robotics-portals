@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 13: Thuật Toán FastSLAM: Rao-Blackwellization & Bản Đồ Lưới Gmapping | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Lập Bản Đồ & SLAM</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 13</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 13</span>
+        <span class="sidebar-badge">14 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-13-1">
+            <span class="nav-text">13.1 Mở Đầu Về FastSLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-2">
+            <span class="nav-text">13.2 Nhân Tử Hóa Phân Bố SLAM (Rao-Blackwellization)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-13-2-1">
+            <span class="nav-text">13.2.1 Dẫn Xuất Toán Học Tách Biệt Quỹ Đạo & Bản Đồ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-3">
+            <span class="nav-text">13.3 Thuật Toán FastSLAM 1.0</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-4">
+            <span class="nav-text">13.4 FastSLAM 2.0: Cải Tiến Phân Bố Đề Xuất</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-13-4-1">
+            <span class="nav-text">13.4.1 Tích Hợp Đo Lường z_t Vào Sinh Mẫu Tư Thế</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-13-4-3">
+            <span class="nav-text">13.4.3 Tính Trọng Số Tầm Quan Trọng Chuẩn Xác</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-8">
+            <span class="nav-text">13.8 Cấu Trúc Cây Nhị Phân Cân Bằng O(M log N)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-10">
+            <span class="nav-text">13.10 Grid-Based FastSLAM (Thuật Toán Gmapping)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-13-10-1">
+            <span class="nav-text">13.10.1 Lập Bản Đồ Lưới Bằng Rao-Blackwellized PF</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-11">
+            <span class="nav-text">13.11 Tóm Tắt & Tầm Vóc Lịch Sử Của FastSLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Tính Trọng Số Hạt FastSLAM 2.0</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Đa Giả Thiết Quỹ Đạo FastSLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-13-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Thuật Toán Gmapping Trong openslam_gmapping</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: LẬP BẢN ĐỒ & SLAM</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 13</span>
+        </div>
+        <h1 class="chapter-title">Thuật Toán FastSLAM: Rao-Blackwellization & Bản Đồ Lưới Gmapping</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-13-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO FASTSLAM ĐƯỢC COI LÀ ĐỈNH CAO NGHỆ THUẬT KẾT HỢP GIỮA HẠT VÀ KALMAN?</div>
+        <p>
+          Trước FastSLAM, các nhà khoa học đối mặt với thế tiến thoái lưỡng nan:
+        </p>
+        <ul>
+          <li><strong>Dùng Particle Filter thuần túy:</strong> Không thể áp dụng vì không gian trạng thái của bản đồ có hàng trăm nghìn chiều (cần hàng triệu tỷ hạt $\to$ bất khả thi).</li>
+          <li><strong>Dùng EKF SLAM thuần túy:</strong> Bị giới hạn trong giả định Gauss đơn đỉnh, không thể giải quyết tương ứng mốc mơ hồ và độ phức tạp $\mathcal{O}(N^2)$ quá nặng.</li>
+        </ul>
+        <p>
+          Montemerlo, Thrun, Koller và Wegbreit đã tìm ra lời giải thông minh tuyệt đỉnh mang tên <strong>Rao-Blackwellized Particle Filter (FastSLAM)</strong>:
+          <em>Tách bài toán làm hai phần:</em> Dùng hạt ngẫu nhiên để theo dõi quỹ đạo robot $x_{1:t}$ (xử lý phi tuyến và đa đỉnh), và với mỗi hạt cụ thể, dùng $N$ bộ lọc Kalman độc lập kích thước $2 \times 2$ cực nhỏ để ước lượng các mốc bản đồ!
+          Nhờ cấu trúc cây nhị phân chia sẻ bộ nhớ, FastSLAM giảm độ phức tạp xuống chỉ còn $\mathcal{O}(M \log N)$, mở đường cho sự bùng nổ của robot thương mại toàn cầu.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-13-1" class="content-block">
+        <h2>13.1 Mở Đầu Về FastSLAM (Introduction)</h2>
+        <p>
+          FastSLAM là thuật toán SLAM đầu tiên kết hợp thành công bộ lọc hạt phi tham số và bộ lọc Gauss tham số.
+        </p>
+      </section>
+
+      <section id="sec-13-2" class="content-block">
+        <h2>13.2 Phân Tích Nhân Tử Phân Bố SLAM (Rao-Blackwellization)</h2>
+        <p>
+          Khám phá toán học cốt lõi của Rao-Blackwellization: Nếu biết chính xác toàn bộ đường đi của robot $x_{1:t}$, thì <strong>các mốc bản đồ trở nên độc lập có điều kiện với nhau</strong>:
+        </p>
+        <div class="formula-hero">
+          $$p(x_{1:t}, m \mid z_{1:t}, u_{1:t}) = p(x_{1:t} \mid z_{1:t}, u_{1:t}) \prod_{n=1}^N p(m_n \mid x_{1:t}, z_{1:t})$$
+        </div>
+        <p>
+          Do đó, thay vì giải một ma trận khổng lồ $(2N) \times (2N)$, FastSLAM phân rã bản đồ thành $N$ ma trận độc lập $2 \times 2$ siêu nhỏ!
+        </p>
+        <p>
+          Cấu trúc của mỗi hạt $m$ trong FastSLAM:
+        </p>
+        $$\mathcal{X}_t^{[m]} = \left\langle x_t^{[m]}, \, \mu_{1,t}^{[m]}, \Sigma_{1,t}^{[m]}, \, \mu_{2,t}^{[m]}, \Sigma_{2,t}^{[m]}, \, \dots, \, \mu_{N,t}^{[m]}, \Sigma_{N,t}^{[m]} \right\rangle$$
+      </section>
+
+      <section id="sec-13-4" class="content-block">
+        <h2>13.4 FastSLAM 2.0: Cải Tiến Phân Bố Đề Xuất (Proposal Distribution)</h2>
+        <h3 id="sec-13-4-1">13.4.1 Hạn Chế Của FastSLAM 1.0 & Giải Pháp Của FastSLAM 2.0</h3>
+        <p>
+          Trong FastSLAM 1.0, các hạt tư thế được sinh ra chỉ dựa trên mô hình chuyển động odometry $p(x_t \mid u_t, x_{t-1})$. Nếu cảm biến odometry bị trượt nhiều, phần lớn các hạt sẽ rơi vào vùng có xác suất đo lường bằng $0$, dẫn đến hiện tượng thoái hóa hạt nghiêm trọng.
+        </p>
+        <p>
+          <strong>FastSLAM 2.0</strong> giải quyết bằng cách tích hợp trực tiếp phép đo mới nhất $z_t$ vào phân bố đề xuất (Proposal Distribution) trước khi lấy mẫu hạt:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">PHÂN BỐ ĐỀ XUẤT FASTSLAM 2.0</div>
+          $$x_t^{[m]} \sim p(x_t \mid x_{1:t-1}^{[m]}, u_{1:t}, z_{1:t}) \propto p(z_t \mid x_t, m_{\theta_t}^{[m]}) \, p(x_t \mid u_t, x_{t-1}^{[m]})$$
+        </div>
+        <p>
+          Nhờ đó, các hạt luôn được sinh ra ngay tại vùng giao nhau tối ưu giữa chuyển động và quan sát, giúp FastSLAM 2.0 hoạt động hoàn hảo chỉ với <strong>1 đến 5 hạt</strong> cho các bài toán mà FastSLAM 1.0 cần hàng trăm hạt!
+        </p>
+      </section>
+
+      <section id="sec-13-10" class="content-block">
+        <h2>13.10 Grid-Based FastSLAM & Thuật Toán Gmapping Huyền Thoại</h2>
+        <p>
+          Grisetti, Stachniss và Burgard đã mở rộng FastSLAM 2.0 cho bản đồ lưới chiếm chỗ (Occupancy Grid Map), khai sinh ra thuật toán <strong>Gmapping</strong>:
+        </p>
+        <ul>
+          <li>Mỗi hạt mang một bản đồ lưới riêng hoàn chỉnh.</li>
+          <li>Sử dụng phương pháp quét khớp scan (Scan matching) để tinh chỉnh phân bố đề xuất của từng hạt.</li>
+          <li>Chỉ tính toán lại bản đồ lưới khi cần thiết thông qua cơ chế cây nhị phân (Binary Tree with Copy-on-Write).</li>
+        </ul>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-13-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Cập Nhật EKF Landmark Con Trong Một Hạt</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Tư Thế Hạt & Ước Lượng Mốc Cũ Của Hạt</div>
+            <p>
+              Hạt thứ $m$ lấy mẫu được tư thế $x = (0.0\text{ m}, 0.0\text{ m}, 0.0\text{ rad})^T$.<br>
+              Trong hạt $m$, mốc $j$ đang có ước lượng:
+              $$\mu_j = (5.0\text{ m}, 0.0\text{ m})^T, \quad \Sigma_j = \begin{bmatrix} 0.2 & 0 \\ 0 & 0.2 \end{bmatrix}$$
+              Phép đo thực tế từ cảm biến robot: cự ly $r = 4.8$ m, góc hướng $\phi = 0.0$ rad.<br>
+              Nhiễu cảm biến: $Q = \text{diag}(0.1, 0.05)$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Dự Đoán Đo Lường & Sai Lệch Đổi Mới</div>
+            <p>
+              Dự đoán đo mốc: $\hat{r} = \sqrt{5.0^2 + 0.0^2} = 5.0$ m; $\hat{\phi} = 0.0$ rad.<br>
+              Sai lệch đo lường:
+              $$\nu = z - \hat{z} = \begin{bmatrix} 4.8 - 5.0 \\ 0.0 - 0.0 \end{bmatrix} = \begin{bmatrix} \mathbf{-0.2\text{ m}} \\ \mathbf{0.0\text{ rad}} \end{bmatrix}$$
+              Ma trận Jacobian đo theo tọa độ mốc $H_m$:
+              $$H_m = \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 0.2 \end{bmatrix}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Kalman Gain $K$ & Hiệp Phương Sai Đổi Mới $Q_e$</div>
+            <p>
+              Hiệp phương sai đổi mới cục bộ kích thước $2 \times 2$:
+              $$Q_e = H_m \Sigma_j H_m^T + Q = \begin{bmatrix} 1 & 0 \\ 0 & 0.2 \end{bmatrix} \begin{bmatrix} 0.2 & 0 \\ 0 & 0.2 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0.2 \end{bmatrix} + \begin{bmatrix} 0.1 & 0 \\ 0 & 0.05 \end{bmatrix}$$
+              $$Q_e = \begin{bmatrix} 0.2 + 0.1 & 0 \\ 0 & 0.008 + 0.05 \end{bmatrix} = \begin{bmatrix} \mathbf{0.3} & 0 \\ 0 & \mathbf{0.058} \end{bmatrix}$$
+              Kalman Gain:
+              $$K = \Sigma_j H_m^T Q_e^{-1} = \begin{bmatrix} 0.2 & 0 \\ 0 & 0.2 \end{bmatrix} \begin{bmatrix} 1 & 0 \\ 0 & 0.2 \end{bmatrix} \begin{bmatrix} 1/0.3 & 0 \\ 0 & 1/0.058 \end{bmatrix} = \begin{bmatrix} \mathbf{0.667} & 0 \\ 0 & \mathbf{0.690} \end{bmatrix}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Cập Nhật Mốc Bản Đồ & Trọng Số Hạt</div>
+            <p>
+              Tọa độ mốc mới trong hạt $m$:
+              $$\mu_j^{\text{new}} = \begin{bmatrix} 5.0 \\ 0.0 \end{bmatrix} + \begin{bmatrix} 0.667 & 0 \\ 0 & 0.690 \end{bmatrix} \begin{bmatrix} -0.2 \\ 0.0 \end{bmatrix} = \begin{bmatrix} 5.0 - 0.133 \\ 0.0 \end{bmatrix} = \begin{bmatrix} \mathbf{4.867\text{ m}} \\ \mathbf{0.0\text{ m}} \end{bmatrix}$$
+              Phương sai mốc mới:
+              $$\Sigma_j^{\text{new}} = (I - K H_m) \Sigma_j = (1 - 0.667) \times 0.2 = \mathbf{0.0667\text{ m}^2}$$
+              Trọng số tầm quan trọng của hạt $w^{[m]}$ tỉ lệ với mật độ Gauss tại $\nu$:
+              $$w^{[m]} = |2\pi Q_e|^{-\frac{1}{2}} \exp\left( -\frac{1}{2} \nu^T Q_e^{-1} \nu \right) \approx \frac{1}{\sqrt{2\pi \times 0.0174}} e^{-\frac{1}{2} \frac{0.04}{0.3}} \approx \mathbf{2.83}$$
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-13-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Đa Giả Thiết Quỹ Đạo FastSLAM 60 FPS</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch13"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-13-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Gói openslam_gmapping Trong Hệ Sinh Thái ROS</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 OPEN SOURCE CLASSIC</span>
+            <span class="bridge-file">src/gmapping_scan_matcher.cpp</span>
+          </div>
+          <p>
+            Mã nguồn cốt lõi tính toán phân bố đề xuất cải tiến trong gói Gmapping huyền thoại:
+          </p>
+          <pre><code>// Trich doan ma nguon kinh dien tu openslam_gmapping:
+void GridFastSLAM::scanMatch(const double* plainReading) {
+  // Voi moi hat trong quan the M hat:
+  for (ParticleVector::iterator it = m_particles.begin(); it != m_particles.end(); it++) {
+    OrientedPoint currentPose = it-&gt;pose;
+    OrientedPoint bestPose;
+    
+    // Tinh chinh vi tri hat bang cach khop tia laser voi luoi ban do rieng cua hat do
+    double score = m_matcher.optimize(bestPose, it-&gt;map, currentPose, plainReading);
+    
+    if (score &gt; m_minimumScore) {
+      it-&gt;pose = bestPose; // Gan vi tri toi uu theo FastSLAM 2.0
+    }
+    
+    // Tinh trong so tam quan trong w
+    double w = m_matcher.likelihoodAndScore(it-&gt;map, it-&gt;pose, plainReading);
+    it-&gt;weight *= w;
+  }
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch12.html" class="btn btn-secondary">← Chương 12</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch14.html" class="btn btn-primary">Chương 14 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

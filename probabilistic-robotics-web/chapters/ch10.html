@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 10: Định Vị & Lập Bản Đồ Đồng Thời Với EKF (EKF SLAM) | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Lập Bản Đồ & SLAM</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 10</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 10</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-10-1">
+            <span class="nav-text">10.1 Mở Đầu Về Vấn Đề Nghịch Nghịch SLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-2">
+            <span class="nav-text">10.2 SLAM Với Extended Kalman Filters</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-2-1">
+            <span class="nav-text">10.2.1 Thiết Lập & Vector Trạng Thái Mở Rộng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-2-2">
+            <span class="nav-text">10.2.2 Thuật Toán EKF SLAM Đã Biết Tương Ứng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-2-3">
+            <span class="nav-text">10.2.3 Dẫn Xuất Toán Học & Tương Quan Chéo</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-3">
+            <span class="nav-text">10.3 EKF SLAM Với Tương Ứng Chưa Biết</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-3-1">
+            <span class="nav-text">10.3.1 Thuật Toán Tổng Quát & Gating</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-3-3">
+            <span class="nav-text">10.3.3 Quản Lý Bản Đồ & Khởi Tạo Mốc Mới</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-4">
+            <span class="nav-text">10.4 Tóm Tắt & Điểm Nghẽn Độ Phức Tạp O(N^2)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Thêm Mốc & Cập Nhật Ma Trận</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Mô Phỏng EKF Landmark SLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Kiến Trúc Node EKF SLAM & Bộ Nhớ</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: LẬP BẢN ĐỒ & SLAM</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 10</span>
+        </div>
+        <h1 class="chapter-title">Định Vị & Lập Bản Đồ Đồng Thời Với EKF (EKF SLAM)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-10-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO SLAM LÀ BÀI TOÁN "CON GÀ VÀ QUẢ TRỨNG" KINH ĐIỂN CỦA ROBOT HỌC?</div>
+        <p>
+          Thách thức lớn nhất trong robot học tự hành là:
+        </p>
+        <ul>
+          <li>Để định vị chính xác vị trí của mình $\to$ Robot cần có một <strong>bản đồ chính xác</strong>.</li>
+          <li>Để vẽ được một bản đồ chính xác $\to$ Robot bắt buộc phải biết <strong>tọa độ chính xác của mình</strong> khi quét cảm biến.</li>
+        </ul>
+        <p>
+          Khi robot thả vào một môi trường hoàn toàn xa lạ mà không có cả hai: bài toán trở thành <strong>Simultaneous Localization and Mapping (SLAM)</strong>.
+          Smith, Self và Cheeseman (được Thrun và các đồng nghiệp hệ thống hóa trong chương này) đã chứng minh rằng: bằng cách ghép chung tọa độ robot và tọa độ của toàn bộ các mốc bản đồ vào <strong>một vector trạng thái thống nhất</strong>, mối tương quan chéo (Cross-correlation) trong ma trận hiệp phương sai sẽ tự động liên kết các mốc lại với nhau như một mạng lưới lò xo ảo, giúp bản đồ và tư thế robot cùng hội tụ về trạng thái tối ưu!
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-10-1" class="content-block">
+        <h2>10.1 Mở Đầu Về Bài Toán SLAM (Introduction)</h2>
+        <p>
+          Trong SLAM trực tuyến (Online SLAM), robot đồng thời ước lượng tư thế hiện tại $x_t$ và toàn bộ bản đồ $m$ từ lịch sử đo lường và điều khiển:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">PHÂN BỐ HẬU NGHIỆM ONLINE SLAM</div>
+          $$p(x_t, m \mid z_{1:t}, u_{1:t})$$
+        </div>
+      </section>
+
+      <section id="sec-10-2" class="content-block">
+        <h2>10.2 SLAM Với Extended Kalman Filters (EKF SLAM)</h2>
+        <h3 id="sec-10-2-1">10.2.1 Vector Trạng Thái Mở Rộng & Ma Trận Hiệp Phương Sai</h3>
+        <p>
+          Vector trạng thái liên hợp có kích thước $(3 + 2N) \times 1$:
+        </p>
+        $$y_t = \begin{bmatrix} x_t \\ m \end{bmatrix} = \begin{bmatrix} x \\ y \\ \theta \\ m_{1,x} \\ m_{1,y} \\ \vdots \\ m_{N,x} \\ m_{N,y} \end{bmatrix}$$
+        <p>
+          Ma trận hiệp phương sai toàn phần có kích thước $(3 + 2N) \times (3 + 2N)$:
+        </p>
+        <div class="formula-hero">
+          $$\boldsymbol{\Sigma}_t = \begin{bmatrix} \boldsymbol{\Sigma}_{xx} & \boldsymbol{\Sigma}_{xm_1} & \cdots & \boldsymbol{\Sigma}_{xm_N} \\ \boldsymbol{\Sigma}_{m_1x} & \boldsymbol{\Sigma}_{m_1m_1} & \cdots & \boldsymbol{\Sigma}_{m_1m_N} \\ \vdots & \vdots & \ddots & \vdots \\ \boldsymbol{\Sigma}_{m_Nx} & \boldsymbol{\Sigma}_{m_Nm_1} & \cdots & \boldsymbol{\Sigma}_{m_Nm_N} \end{bmatrix}$$
+        </div>
+        <p>
+          <strong>Khám phá then chốt:</strong> Các phần tử ngoài đường chéo chính $\boldsymbol{\Sigma}_{xm_i}$ và $\boldsymbol{\Sigma}_{m_im_j}$ (ma trận tương quan chéo) <strong>không bao giờ bằng 0</strong>. Khi robot di chuyển và quan sát lại một mốc cũ (Loop Closure), việc hiệu chỉnh mốc đó sẽ lập tức lan truyền qua các phần tử tương quan chéo để nắn thẳng lại toàn bộ các mốc khác trên đường đi!
+        </p>
+
+        <h3 id="sec-10-2-2">10.2.2 Cập Nhật Dự Đoán & Hiệu Chỉnh</h3>
+        <p>
+          Vì các mốc địa vật là tĩnh (không di chuyển), bước dự đoán chuyển động chỉ làm thay đổi phần tư thế robot:
+        </p>
+        $$\bar{\boldsymbol{\mu}}_t = \boldsymbol{\mu}_{t-1} + F_x^T \begin{bmatrix} v \Delta t \cos\theta \\ v \Delta t \sin\theta \\ \omega \Delta t \end{bmatrix}$$
+        $$\bar{\boldsymbol{\Sigma}}_t = G_t \boldsymbol{\Sigma}_{t-1} G_t^T + F_x^T R_t F_x$$
+        Trong đó $F_x = \begin{bmatrix} I_{3 \times 3} & 0_{3 \times 2N} \end{bmatrix}$ là ma trận chiếu từ không gian mở rộng về không gian robot.
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-10-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Khởi Tạo Mốc Mới & Tương Quan Chéo</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Tư Thế Robot Ban Đầu & Phép Đo Mốc Mới</div>
+            <p>
+              Robot tại gốc: $\boldsymbol{\mu}_R = (0.0\text{ m}, 0.0\text{ m}, 0.0\text{ rad})^T$.<br>
+              Hiệp phương sai robot: $\boldsymbol{\Sigma}_{xx} = \text{diag}(0.04, 0.04, 0.01)$. Bản đồ ban đầu rỗng ($N=0$).<br>
+              Robot phát hiện mốc đầu tiên $m_1$ với cự ly $r = 5.0$ m, góc hướng $\phi = 0.0$ rad.<br>
+              Nhiễu cảm biến: $Q = \text{diag}(0.01\text{ m}^2, 0.005\text{ rad}^2)$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tính Tọa Độ Mốc & Mở Rộng Vector Trạng Thái</div>
+            <p>
+              Tọa độ mốc trong hệ toàn cục:
+              $$m_{1,x} = x + r \cos(\theta + \phi) = 0.0 + 5.0 \cos(0) = \mathbf{5.0\text{ m}}$$
+              $$m_{1,y} = y + r \sin(\theta + \phi) = 0.0 + 5.0 \sin(0) = \mathbf{0.0\text{ m}}$$
+              Vector trạng thái mở rộng lên $5 \times 1$:
+              $$\boldsymbol{\mu} = [x, y, \theta, m_{1,x}, m_{1,y}]^T = [\mathbf{0.0}, \, \mathbf{0.0}, \, \mathbf{0.0}, \, \mathbf{5.0}, \, \mathbf{0.0}]^T$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Ma Trận Jacobian Phép Chiếu Mốc Mới</div>
+            <p>
+              Đạo hàm tọa độ mốc theo tư thế robot $G_R$ và theo phép đo $G_z$:
+              $$G_R = \begin{bmatrix} 1 & 0 & -r\sin(\theta+\phi) \\ 0 & 1 & r\cos(\theta+\phi) \end{bmatrix} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1 & 5.0 \end{bmatrix}$$
+              $$G_z = \begin{bmatrix} \cos(\theta+\phi) & -r\sin(\theta+\phi) \\ \sin(\theta+\phi) & r\cos(\theta+\phi) \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 5.0 \end{bmatrix}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Khởi Tạo Ma Trận Hiệp Phương Sai & Tương Quan Chéo</div>
+            <p>
+              Hiệp phương sai của mốc $m_1$:
+              $$\boldsymbol{\Sigma}_{m_1m_1} = G_R \boldsymbol{\Sigma}_{xx} G_R^T + G_z Q G_z^T$$
+              $$G_R \boldsymbol{\Sigma}_{xx} G_R^T = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.04 + 25 \times 0.01 \end{bmatrix} = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.29 \end{bmatrix}$$
+              $$G_z Q G_z^T = \begin{bmatrix} 0.01 & 0 \\ 0 & 25 \times 0.005 \end{bmatrix} = \begin{bmatrix} 0.01 & 0 \\ 0 & 0.125 \end{bmatrix}$$
+              $$\implies \boldsymbol{\Sigma}_{m_1m_1} = \begin{bmatrix} \mathbf{0.05} & 0 \\ 0 & \mathbf{0.415} \end{bmatrix}$$
+              Tương quan chéo giữa robot và mốc:
+              $$\boldsymbol{\Sigma}_{xm_1} = \boldsymbol{\Sigma}_{xx} G_R^T = \begin{bmatrix} 0.04 & 0 \\ 0 & 0.04 \\ 0 & 0.05 \end{bmatrix} \ne \mathbf{0}$$
+              Ma trận tương quan chéo chính thức hình thành, gắn kết vĩnh viễn mốc $m_1$ vào số phận chuyển động của robot!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-10-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Mô Phỏng EKF Landmark SLAM 60 FPS</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch10"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-10-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Điểm Nghẽn Độ Phức Tạp O(N^2) Trong ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">SLAM ALGORITHM COMPLEXITY</span>
+            <span class="bridge-file">docs/ekf_slam_limitations.md</span>
+          </div>
+          <p>
+            Mặc dù thanh lịch về mặt toán học, EKF SLAM có một tử huyệt khiến nó không thể dùng cho các bản đồ lớn:
+          </p>
+          <ul>
+            <li><strong>Bộ nhớ $\mathcal{O}(N^2)$</strong>: Với $N = 10,000$ mốc, ma trận hiệp phương sai có kích thước $20,003 \times 20,003 \approx 400$ triệu số thực ($3.2$ GB RAM).</li>
+            <li><strong>Thời gian tính toán $\mathcal{O}(N^2)$</strong> mỗi chu kỳ đo lường: Mọi phần tử trong ma trận đều phải được cập nhật, làm tê liệt CPU thời gian thực.</li>
+          </ul>
+          <p>
+            Chính hạn chế này đã thúc đẩy sự ra đời của các phương pháp tối ưu hóa đồ thị hiện đại (<strong>GraphSLAM</strong> ở Chương 11) và phân rã hạt (<strong>FastSLAM</strong> ở Chương 13).
+          </p>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch09.html" class="btn btn-secondary">← Chương 09</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch11.html" class="btn btn-primary">Chương 11 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

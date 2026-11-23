@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Probabilistic Robotics: State Estimation, Localization, SLAM & POMDP - Portal Hub</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <a href="../index.html" class="brand-logo">
+        <span class="logo-icon">🌐</span>
+        <span class="logo-text">Master Robotics Portals</span>
+      </a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Probabilistic Robotics Portal Hub</span>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">🏛️ Viện Tri Thức Robotics</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="portal-hero">
+    <div class="portal-hero-inner">
+      <div class="hero-badge-row">
+        <span class="hero-badge badge-primary">THE MIT PRESS INTELLIGENT ROBOTICS SERIES</span>
+        <span class="hero-badge badge-accent">SIÊU CHUYÊN KHẢO #10</span>
+      </div>
+      <h1 class="hero-title">Robot Học Xác Suất: Ước Lượng Trạng Thái, Định Vị, SLAM & POMDP</h1>
+      <p class="hero-subtitle">
+        Khám phá toàn diện giáo trình kinh điển thế giới <em>Probabilistic Robotics</em> (GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox, The MIT Press, 668 trang). 
+        Hệ thống hóa toàn bộ lý thuyết lọc Bayes, bộ lọc Gauss EKF/UKF, bộ lọc hạt Particle Filter, định vị AMCL, lập bản đồ Occupancy Grid, các trường phái SLAM (EKF, GraphSLAM, SEIF, FastSLAM) và ra quyết định tối ưu dưới bất định MDP/POMDP.
+      </p>
+
+      <!-- Key Portal Stats -->
+      <div class="portal-stats-row">
+        <div class="stat-box">
+          <span class="stat-value">17</span>
+          <span class="stat-label">Chương Học Thuật 6 Tầng</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">17</span>
+          <span class="stat-label">Mô Phỏng Canvas 60 FPS</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">17</span>
+          <span class="stat-label">Bài Tập Số Học 4 Bước</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">100%</span>
+          <span class="stat-label">Zero-Error MathJax 3 & C++</span>
+        </div>
+      </div>
+
+      <!-- Live Search & Track Filter Toolbar -->
+      <div class="hub-search-wrapper">
+        <div class="search-input-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Tìm kiếm nhanh chương, thuật toán (Bayes, Kalman, Particle, AMCL, GraphSLAM, FastSLAM, POMDP, Frontiers...)... (Ctrl + K)">
+          <span class="search-shortcut">Ctrl+K</span>
+        </div>
+        <div class="filter-pills-row">
+          <button class="filter-pill active" data-filter="all">Tất Cả (17 Chương)</button>
+          <button class="filter-pill" data-filter="track-1">Track 1: Cơ Sở & Lọc Đệ Quy (Ch. 1-6)</button>
+          <button class="filter-pill" data-filter="track-2">Track 2: Định Vị Robot (Ch. 7-8)</button>
+          <button class="filter-pill" data-filter="track-3">Track 3: Lập Bản Đồ & SLAM (Ch. 9-13)</button>
+          <button class="filter-pill" data-filter="track-4">Track 4: Lập Kế Hoạch & POMDP (Ch. 14-17)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 Matrix Cards Grid -->
+  <main class="hub-main-container">
+    <div class="matrix-grid">
+
+      <!-- Card Ch 01 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 01</span>
+        </div>
+        <h3 class="card-title">Giới Thiệu & Triết Lý Xác Suất Trong Robot Học</h3>
+        <p class="card-desc">
+          Nguồn gốc bất định trong cảm biến, cơ cấu chấp hành và môi trường. Triết lý duy trì phân bố niềm tin bel(x), so sánh với mô hình tất định cổ điển và ý nghĩa kỹ thuật thực tiễn.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Bất Định Robot</span>
+          <span class="tag-chip">Niềm Tin bel(x)</span>
+          <span class="tag-chip">Mô Hình Xác Suất</span>
+          <span class="tag-chip">Hàm Khả Dĩ</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch01.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch01.html#sec-1-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 02 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 02</span>
+        </div>
+        <h3 class="card-title">Ước Lượng Trạng Thái Đệ Quy & Bộ Lọc Bayes</h3>
+        <p class="card-desc">
+          Không gian trạng thái hoàn chỉnh, quy luật sinh xác suất p(x_t|u_t, x_{t-1}) và p(z_t|x_t). Dẫn xuất toán học hai bước Dự đoán - Hiệu chỉnh của bộ lọc Bayes đệ quy và giả định Markov.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Bayes Filter</span>
+          <span class="tag-chip">Giả Định Markov</span>
+          <span class="tag-chip">Prediction & Correction</span>
+          <span class="tag-chip">O(1) Recursive</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch02.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch02.html#sec-2-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 03 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 03</span>
+        </div>
+        <h3 class="card-title">Các Bộ Lọc Gauss: Kalman, EKF, UKF & Information Filter</h3>
+        <p class="card-desc">
+          Bộ lọc Kalman cho hệ tuyến tính Gauss. Tuyến tính hóa Taylor bậc 1 trong EKF và tính ma trận Jacobian. Biến đổi Unscented Sigma Points trong UKF. Biểu diễn chính tắc ma trận thông tin Omega.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Kalman Filter</span>
+          <span class="tag-chip">EKF Jacobian</span>
+          <span class="tag-chip">UKF Sigma Points</span>
+          <span class="tag-chip">Information Matrix</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch03.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch03.html#sec-3-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 04 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 04</span>
+        </div>
+        <h3 class="card-title">Các Bộ Lọc Phi Tham Số: Histogram, Binary Bayes & Particle Filter</h3>
+        <p class="card-desc">
+          Phân rã không gian liên tục bằng bộ lọc lược đồ. Dạng Log-Odds trong bộ lọc Bayes nhị phân. Thuật toán lọc hạt Particle Filter (SMC), lấy mẫu tầm quan trọng và bánh xe lấy mẫu lại phương sai thấp O(M).
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Particle Filter</span>
+          <span class="tag-chip">Log-Odds</span>
+          <span class="tag-chip">Importance Sampling</span>
+          <span class="tag-chip">Low-Variance Sampler</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch04.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch04.html#sec-4-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 05 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 05</span>
+        </div>
+        <h3 class="card-title">Mô Hình Chuyển Động Robot Di Động: Vận Tốc & Odometry</h3>
+        <p class="card-desc">
+          Động học xác suất không gian SE(2). Mô hình chuyển động vận tốc (Velocity Model) với 4 tham số nhiễu alpha_1 -> alpha_4 và tâm quay ICC. Mô hình Odometry phân rã 3 bước Quay - Tịnh Tiến - Quay.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Động Học Xác Suất</span>
+          <span class="tag-chip">Velocity Model</span>
+          <span class="tag-chip">Odometry Model</span>
+          <span class="tag-chip">Banana-Shaped Cloud</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch05.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch05.html#sec-5-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 06 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 06</span>
+        </div>
+        <h3 class="card-title">Mô Hình Cảm Biến Nhận Thức: Chùm Tia & Trường Khả Dĩ</h3>
+        <p class="card-desc">
+          Mô hình chùm tia (Beam-based Model) với 4 thành phần sai số p_hit, p_short, p_max, p_rand. Mô hình trường khả dĩ (Likelihood Fields) biến đổi khoảng cách Euclidean EDT và mô hình đặc trưng Landmark.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Beam Model</span>
+          <span class="tag-chip">Likelihood Fields</span>
+          <span class="tag-chip">Euclidean Distance</span>
+          <span class="tag-chip">Landmark Range-Bearing</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch06.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch06.html#sec-6-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 07 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 07</span>
+        </div>
+        <h3 class="card-title">Định Vị Robot Di Động: Định Vị Markov & Bộ Lọc Gauss</h3>
+        <p class="card-desc">
+          Phân loại các bài toán định vị (bám vị trí, định vị toàn cục, bắt cóc robot). Thuật toán EKF Localization với các mốc bản đồ đã biết. Ghép cặp liên kết dữ liệu cực đại hợp lý ML và khoảng cách Mahalanobis.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">EKF Localization</span>
+          <span class="tag-chip">Markov Localization</span>
+          <span class="tag-chip">Mahalanobis Distance</span>
+          <span class="tag-chip">Data Association</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch07.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch07.html#sec-7-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 08 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 08</span>
+        </div>
+        <h3 class="card-title">Định Vị Robot Di Động: Định Vị Lưới & Monte Carlo (MCL)</h3>
+        <p class="card-desc">
+          Định vị lưới đa tầng Grid Localization. Thuật toán Monte Carlo Localization (MCL). Cơ chế Augmented MCL (w_fast, w_slow) tự hồi phục khi bị bắt cóc. KLD-Sampling thích ứng động số lượng hạt theo độ bất định.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">AMCL (Nav2)</span>
+          <span class="tag-chip">Kidnapped Robot</span>
+          <span class="tag-chip">Augmented MCL</span>
+          <span class="tag-chip">KLD-Sampling</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch08.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch08.html#sec-8-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 09 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 09</span>
+        </div>
+        <h3 class="card-title">Lập Bản Đồ Lưới Chiếm Chỗ (Occupancy Grid Mapping)</h3>
+        <p class="card-desc">
+          Biểu diễn môi trường bằng ma trận ô lưới nhị phân độc lập. Cập nhật đệ quy siêu tốc dạng Log-Odds l_t = l_{t-1} + inv_sensor - l_0. Học mô hình cảm biến nghịch đảo và lập bản đồ cực đại hậu nghiệm MAP.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Occupancy Grid</span>
+          <span class="tag-chip">Log-Odds Mapping</span>
+          <span class="tag-chip">Inverse Sensor Model</span>
+          <span class="tag-chip">nav_msgs/OccupancyGrid</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch09.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch09.html#sec-9-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 10 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 10</span>
+        </div>
+        <h3 class="card-title">Định Vị & Lập Bản Đồ Đồng Thời Với EKF (EKF SLAM)</h3>
+        <p class="card-desc">
+          Bài toán con gà và quả trứng trong SLAM. Vector trạng thái mở rộng (3 + 2N) kết hợp robot và mốc. Ma trận hiệp phương sai liên hợp toàn phần, hiện tượng tương quan chéo và điểm nghẽn bộ nhớ O(N^2).
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">EKF SLAM</span>
+          <span class="tag-chip">Full Covariance</span>
+          <span class="tag-chip">Cross-Correlations</span>
+          <span class="tag-chip">O(N^2) Bottleneck</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch10.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch10.html#sec-10-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 11 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 11</span>
+        </div>
+        <h3 class="card-title">Thuật Toán GraphSLAM: Tối Ưu Hóa Đồ Thị Ràng Buộc</h3>
+        <p class="card-desc">
+          Mô hình đồ thị Pose Graph đàn hồi lò xo. Xây dựng ma trận thông tin thưa Omega và vector xi. Khử ẩn biến bản đồ bằng phần bù Schur (Schur Complement). Khép vòng lặp Loop Closure tối ưu hóa toàn bộ quỹ đạo.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">GraphSLAM</span>
+          <span class="tag-chip">Pose Graph</span>
+          <span class="tag-chip">Schur Complement</span>
+          <span class="tag-chip">slam_toolbox (Ceres)</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch11.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch11.html#sec-11-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 12 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 12</span>
+        </div>
+        <h3 class="card-title">Bộ Lọc Thông Tin Mở Rộng Thưa (SEIF SLAM) & Multi-Robot</h3>
+        <p class="card-desc">
+          Khám phá tính thưa tự nhiên của ma trận thông tin. Kỹ thuật thưa hóa (Sparsification) ngắt liên kết mốc xa để đạt tốc độ cập nhật O(1) thời gian thực. Hợp nhất bản đồ đa robot (Multi-Robot SLAM) bằng phép cộng.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">SEIF SLAM</span>
+          <span class="tag-chip">Sparsification</span>
+          <span class="tag-chip">O(1) Updates</span>
+          <span class="tag-chip">Multi-Robot Fleet</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch12.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch12.html#sec-12-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 13 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 13</span>
+        </div>
+        <h3 class="card-title">Thuật Toán FastSLAM: Rao-Blackwellization & Gmapping</h3>
+        <p class="card-desc">
+          Nhân tử hóa phân bố SLAM tách biệt hạt quỹ đạo và N bộ lọc Kalman mốc độc lập. FastSLAM 1.0 vs FastSLAM 2.0 tích hợp phép đo vào phân bố đề xuất. Cấu trúc cây nhị phân O(M log N) và thuật toán Gmapping.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">FastSLAM 2.0</span>
+          <span class="tag-chip">Rao-Blackwellized PF</span>
+          <span class="tag-chip">Gmapping Algorithm</span>
+          <span class="tag-chip">Binary Tree Maps</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch13.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch13.html#sec-13-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 14 -->
+      <article class="chapter-card" data-track="track-4">
+        <div class="card-head">
+          <span class="badge badge-track-4">TRACK 4</span>
+          <span class="card-ch-num">CHƯƠNG 14</span>
+        </div>
+        <h3 class="card-title">Quá Trình Quyết Định Markov (MDPs) & Lập Kế Hoạch Tối Ưu</h3>
+        <p class="card-desc">
+          Ra quyết định dưới bất định hành vi chuyển động. Hàm phần thưởng và hệ số chiết khấu gamma. Phương trình tối ưu Bellman, thuật toán lặp giá trị Value Iteration và chính sách điều khiển tối ưu pi*(s).
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">MDP Planning</span>
+          <span class="tag-chip">Bellman Optimality</span>
+          <span class="tag-chip">Value Iteration</span>
+          <span class="tag-chip">Optimal Policy pi*</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch14.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch14.html#sec-14-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 15 -->
+      <article class="chapter-card" data-track="track-4">
+        <div class="card-head">
+          <span class="badge badge-track-4">TRACK 4</span>
+          <span class="card-ch-num">CHƯƠNG 15</span>
+        </div>
+        <h3 class="card-title">Quá Trình Quyết Định Markov Quan Sát Một Phần (POMDPs)</h3>
+        <p class="card-desc">
+          Lập kế hoạch trong không gian niềm tin liên tục (Belief Space). Hành động thu thập thông tin (Information Gathering). Tính chất hàm giá trị lồi tuyến tính từng đoạn (PWLC) và biểu diễn bằng các siêu phẳng alpha-vectors.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">POMDP</span>
+          <span class="tag-chip">Belief Space</span>
+          <span class="tag-chip">PWLC Value Function</span>
+          <span class="tag-chip">Alpha-Vectors</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch15.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch15.html#sec-15-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 16 -->
+      <article class="chapter-card" data-track="track-4">
+        <div class="card-head">
+          <span class="badge badge-track-4">TRACK 4</span>
+          <span class="card-ch-num">CHƯƠNG 16</span>
+        </div>
+        <h3 class="card-title">Các Kỹ Thuật POMDP Xấp Xỉ: QMDP, Augmented MDP & Monte Carlo</h3>
+        <p class="card-desc">
+          Phá vỡ lời nguyền số chiều của POMDP. Thuật toán QMDP heuristic nhanh. Augmented MDP (AMDP) mở rộng không gian trạng thái với Entropy Shannon H(b). Monte Carlo POMDP (MC-POMDP) trên tập hạt ngẫu nhiên.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">QMDP Heuristic</span>
+          <span class="tag-chip">Augmented MDP (AMDP)</span>
+          <span class="tag-chip">Entropy State</span>
+          <span class="tag-chip">MC-POMDP</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch16.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch16.html#sec-16-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 17 -->
+      <article class="chapter-card" data-track="track-4">
+        <div class="card-head">
+          <span class="badge badge-track-4">TRACK 4</span>
+          <span class="card-ch-num">CHƯƠNG 17</span>
+        </div>
+        <h3 class="card-title">Khám Phá Môi Trường Chủ Động & Lợi Ích Thông Tin (Exploration)</h3>
+        <p class="card-desc">
+          Đo lường lợi ích thông tin (Information Gain) bằng độ sụt giảm Entropy Shannon. Thuật toán khám phá biên giới (Frontier-based Exploration). Cân bằng giữa khám phá vùng mới và quay lại khép vòng lặp trong Active SLAM.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Active Exploration</span>
+          <span class="tag-chip">Frontier-Based</span>
+          <span class="tag-chip">Information Gain</span>
+          <span class="tag-chip">Active SLAM</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch17.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch17.html#sec-17-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+    </div>
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>
+        <strong>Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động 4.0</strong> — Dự án Chưng Cất Tri Thức Học Thuật Đỉnh Cao.
+      </p>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+        Dựa trên chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) của Sebastian Thrun, Wolfram Burgard và Dieter Fox. Thiết kế tối ưu cho nghiên cứu sinh cao học và kỹ sư phát triển ROS 2.
+      </p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Giới Thiệu & Triết Lý Xác Suất Trong Robot Học | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Robot Học Xác Suất</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 01</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+        <span class="sidebar-badge">13 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-1-1">
+            <span class="nav-text">1.1 Bất Định Trong Robot Học</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-1">
+            <span class="nav-text">1.1.1 Bất Định Cảm Biến & Cơ Cấu</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-2">
+            <span class="nav-text">1.1.2 Bất Định Môi Trường & Mô Hình</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-2">
+            <span class="nav-text">1.2 Triết Lý Robot Học Xác Suất</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-1">
+            <span class="nav-text">1.2.1 Biểu Diễn Niềm Tin bel(x)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-2-2">
+            <span class="nav-text">1.2.2 So Sánh Với Phương Pháp Cổ Điển</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-3">
+            <span class="nav-text">1.3 Các Ý Nghĩa Kỹ Thuật</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-4">
+            <span class="nav-text">1.4 Lộ Trình Chuyên Khảo</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-5">
+            <span class="nav-text">1.5 Hướng Dẫn Nghiên Cứu & Giảng Dạy</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-6">
+            <span class="nav-text">1.6 Ghi Chú Lịch Sử & Tài Liệu</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Suy Diễn Bayes Nhị Phân</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Suy Diễn Bayes Tương Tác</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Covariance Trong Sensor Messages</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ ROBOT HỌC XÁC SUẤT</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 01</span>
+        </div>
+        <h1 class="chapter-title">Giới Thiệu & Triết Lý Xác Suất Trong Robot Học</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-1-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO TRIẾT LÝ XÁC SUẤT ĐỊNH HÌNH TOÀN BỘ ROBOT HỌC HIỆN ĐẠI?</div>
+        <p>
+          Trong suốt nhiều thập kỷ của thế kỷ 20, robot học truyền thống dựa trên giả định tiền đề <em>"mô hình thế giới tất định" (deterministic world model)</em>: robot luôn biết chính xác tọa độ $(x, y, \theta)$, cảm biến đo không nhiễu, và cơ cấu chấp hành di chuyển chuẩn xác tuyệt đối. Khi đưa ra thế giới thực đầy biến động, các hệ thống tất định lập tức sụp đổ vì:
+        </p>
+        <ul>
+          <li><strong>Cảm biến luôn có nhiễu (Sensor Noise):</strong> Lidar phản xạ bề mặt gương/kính, sonar bị phản xạ đa đường (multipath), IMU bị trôi dạt tích phân (bias drift).</li>
+          <li><strong>Hành động không hoàn hảo (Actuator Inaccuracy):</strong> Bánh xe bị trượt (wheel slippage), áp suất lốp thay đổi, động cơ trễ đáp ứng tải trọng.</li>
+          <li><strong>Môi trường động không thể dự đoán:</strong> Con người di chuyển, cửa đóng/mở, ánh sáng thay đổi.</li>
+          <li><strong>Xấp xỉ mô hình phần mềm:</strong> Không có bất kỳ mô hình toán học nào phản ánh hoàn hảo 100% vật lý thực tại.</li>
+        </ul>
+        <p>
+          <strong>Cách mạng của Robot học Xác suất (Probabilistic Robotics):</strong> Thay vì tìm kiếm một trạng thái duy nhất $\hat{x}$, robot duy trì một <strong>phân bố xác suất (Probability Distribution / Belief)</strong> $\text{bel}(x)$ trên toàn bộ không gian trạng thái. Mọi quyết định điều khiển đều được tính toán dựa trên mức độ tin cậy và chấp nhận sống chung với bất định.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-1-1" class="content-block">
+        <h2>1.1 Bất Định Trong Robot Học (Uncertainty in Robotics)</h2>
+        <p>
+          Bất định là thuộc tính tự nhiên và không thể tránh khỏi trong mọi hệ thống tự hành ngoài đời thực. Thrun, Burgard và Fox phân rã 5 nguồn gốc bất định nền tảng:
+        </p>
+
+        <h3 id="sec-1-1-1">1.1.1 Bất Định Cảm Biến & Cơ Cấu Chấp Hành</h3>
+        <p>
+          Mọi phép đo cảm biến $z_t$ chỉ cung cấp thông tin cục bộ và gián tiếp về trạng thái $x_t$. Độ phân giải hữu hạn, nhiễu điện từ, và sai số chế tạo biến mọi giá trị đo thành một biến ngẫu nhiên tuân theo phân bố có điều kiện $p(z_t \mid x_t)$.
+        </p>
+        <p>
+          Cơ cấu chấp hành cũng chịu nhiễu tương tự: gửi lệnh vận tốc $u_t = (v, \omega)^T$ không bao giờ tạo ra chuyển động hình học hoàn hảo mà sinh ra phân bố chuyển tiếp trạng thái $p(x_t \mid u_t, x_{t-1})$.
+        </p>
+
+        <h3 id="sec-1-1-2">1.1.2 Bất Định Môi Trường & Giới Hạn Mô Hình Hóa</h3>
+        <p>
+          Không gian làm việc của robot liên tục biến đổi. Hơn nữa, việc tính toán thời gian thực đòi hỏi mô hình hình học và động học phải được giản lược hóa (ví dụ: coi bánh xe là tiếp xúc điểm lý tưởng, bỏ qua biến dạng lốp cao su).
+        </p>
+      </section>
+
+      <section id="sec-1-2" class="content-block">
+        <h2>1.2 Triết Lý Robot Học Xác Suất (The Probabilistic Paradigm)</h2>
+        
+        <h3 id="sec-1-2-1">1.2.1 Biểu Diễn Niềm Tin: $\text{bel}(x_t)$ và $\overline{\text{bel}}(x_t)$</h3>
+        <p>
+          Trọng tâm của robot học xác suất là đại lượng <strong>Niềm tin (Belief)</strong>, ký hiệu là $\text{bel}(x_t)$:
+        </p>
+
+        <div class="formula-hero">
+          $$\text{bel}(x_t) = p(x_t \mid z_{1:t}, u_{1:t})$$
+          $$\overline{\text{bel}}(x_t) = p(x_t \mid z_{1:t-1}, u_{1:t})$$
+        </div>
+        <p>
+          Trong đó:
+        </p>
+        <ul>
+          <li>$\overline{\text{bel}}(x_t)$ là niềm tin <strong>tiên nghiệm (prediction)</strong> ngay sau khi robot thực hiện hành động $u_t$ nhưng trước khi nhận dữ liệu cảm biến mới $z_t$.</li>
+          <li>$\text{bel}(x_t)$ là niềm tin <strong>hậu nghiệm (correction)</strong> sau khi đã tích hợp phép đo mới $z_t$.</li>
+          <li>$z_{1:t} = \{z_1, z_2, \dots, z_t\}$ là toàn bộ lịch sử dữ liệu cảm biến từ thời điểm $1$ đến $t$.</li>
+          <li>$u_{1:t} = \{u_1, u_2, \dots, u_t\}$ là toàn bộ lịch sử lệnh điều khiển.</li>
+        </ul>
+
+        <h3 id="sec-1-2-2">1.2.2 So Sánh Mô Hình Tất Định vs Xác Suất</h3>
+        <div class="table-responsive">
+          <table class="styled-table">
+            <thead>
+              <tr>
+                <th>Tiêu Chí Kỹ Thuật</th>
+                <th>Mô Hình Tất Định Cổ Điển</th>
+                <th>Triết Lý Robot Học Xác Suất</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Biểu diễn trạng thái</strong></td>
+                <td>Vector điểm duy nhất: $x \in \mathbb{R}^n$</td>
+                <td>Hàm mật độ xác suất: $p(x)$ (Gauss, Hạt, Lưới)</td>
+              </tr>
+              <tr>
+                <td><strong>Xử lý nhiễu cảm biến</strong></td>
+                <td>Lọc trung bình trượt / Bỏ qua nhiễu</td>
+                <td>Mô hình hóa hàm hợp lý: $p(z \mid x)$</td>
+              </tr>
+              <tr>
+                <td><strong>Độ bền vững (Robustness)</strong></td>
+                <td>Dễ đổ vỡ khi sai số tích lũy lớn</td>
+                <td>Tự phục hồi nhờ cơ chế dung hòa xác suất</td>
+              </tr>
+              <tr>
+                <td><strong>Khả năng ra quyết định</strong></td>
+                <td>Lập kế hoạch trong không gian hình học</td>
+                <td>Lập kế hoạch trong không gian niềm tin (POMDP)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="sec-1-3" class="content-block">
+        <h2>1.3 Các Ý Nghĩa Kỹ Thuật & Tác Động Thực Tiễn</h2>
+        <p>
+          Việc chuyển đổi sang tư duy xác suất mang lại 3 ưu thế có tính chất cách mạng:
+        </p>
+        <ol>
+          <li><strong>Dung sai phần cứng cao hơn:</strong> Robot không bắt buộc phải trang bị cảm biến đắt tiền hàng chục nghìn USD để hoạt động. Bằng cách hợp nhất nhiều cảm biến giá rẻ nhiễu cao thông qua bộ lọc Bayes, robot vẫn đạt độ chính xác tương đương.</li>
+          <li><strong>Định lượng mức độ tự tin:</strong> Robot biết rõ khi nào nó "tự tin" và khi nào nó "lạc đường" thông qua ma trận hiệp phương sai hoặc độ tán xạ của các hạt.</li>
+          <li><strong>Hành động chủ động giảm bất định (Active Sensing):</strong> Robot có thể chọn đi vòng qua vùng có nhiều mốc đặc trưng để định vị lại mình trước khi thực hiện nhiệm vụ rủi ro.</li>
+        </ol>
+      </section>
+
+      <section id="sec-1-4" class="content-block">
+        <h2>1.4 Lộ Trình Chuyên Khảo (Road Map)</h2>
+        <p>
+          Toàn bộ cuốn sách gồm 17 chương chia làm 4 trụ cột mạch lạc:
+        </p>
+        <div class="pipeline-card">
+          <strong>Trụ Cột 1: Cơ Sở (Ch. 1 - 6):</strong> Ước lượng trạng thái đệ quy, Bộ lọc Kalman/EKF/UKF, Bộ lọc Hạt, Mô hình chuyển động và cảm biến.<br>
+          <strong>Trụ Cột 2: Định Vị (Ch. 7 - 8):</strong> Định vị Markov, Định vị EKF/UKF, Định vị Monte Carlo (AMCL), KLD-Sampling.<br>
+          <strong>Trụ Cột 3: Lập Bản Đồ & SLAM (Ch. 9 - 13):</strong> Bản đồ Occupancy Grid, EKF SLAM, GraphSLAM, SEIF SLAM, FastSLAM.<br>
+          <strong>Trụ Cột 4: Lập Kế Hoạch & Điều Khiển (Ch. 14 - 17):</strong> MDP, POMDP, Phương pháp xấp xỉ QMDP/AMDP, Khám phá biên giới (Frontier Exploration).
+        </div>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-1-worked" class="content-block">
+        <h2>Ví Dụ Tính Toán Số 4 Bước: Cập Nhật Suy Diễn Bayes Nhị Phân</h2>
+        <p>
+          Xét bài toán kinh điển trong sách: Robot sử dụng cảm biến để nhận biết trạng thái cánh cửa $x \in \{open, closed\}$.
+        </p>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Tham Số & Tiên Nghiệm</div>
+            <p>
+              Giả sử ban đầu robot hoàn toàn chưa có thông tin về cánh cửa (phân bố đều):
+              $$\text{bel}(x_0 = open) = 0.5, \quad \text{bel}(x_0 = closed) = 0.5$$
+              Đặc tính kỹ thuật của cảm biến được kiểm định từ trước:
+              $$p(z = open \mid x = open) = 0.8 \quad \implies p(z = closed \mid x = open) = 0.2$$
+              $$p(z = open \mid x = closed) = 0.3 \quad \implies p(z = closed \mid x = closed) = 0.7$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Quan Sát Lần 1: Cảm Biến Báo $z_1 = open$</div>
+            <p>
+              Tính tử số theo định lý Bayes:
+              $$\text{Tử số}(open) = p(z_1 = open \mid open) \cdot \text{bel}(x_0 = open) = 0.8 \times 0.5 = 0.40$$
+              $$\text{Tử số}(closed) = p(z_1 = open \mid closed) \cdot \text{bel}(x_0 = closed) = 0.3 \times 0.5 = 0.15$$
+              Hệ số chuẩn hóa mẫu số:
+              $$\eta_1 = \frac{1}{0.40 + 0.15} = \frac{1}{0.55} \approx 1.8182$$
+              Cập nhật niềm tin hậu nghiệm lần 1:
+              $$\text{bel}(x_1 = open) = 1.8182 \times 0.40 \approx \mathbf{0.7273} \quad (72.73\%)$$
+              $$\text{bel}(x_1 = closed) = 1.8182 \times 0.15 \approx \mathbf{0.2727} \quad (27.27\%)$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Quan Sát Lần 2: Cảm Biến Tiếp Tục Báo $z_2 = open$</div>
+            <p>
+              Lấy $\text{bel}(x_1)$ làm tiên nghiệm mới cho lần cập nhật 2:
+              $$\text{Tử số}(open) = 0.8 \times 0.7273 \approx 0.5818$$
+              $$\text{Tử số}(closed) = 0.3 \times 0.2727 \approx 0.0818$$
+              Hệ số chuẩn hóa mẫu số:
+              $$\eta_2 = \frac{1}{0.5818 + 0.0818} = \frac{1}{0.6636} \approx 1.5069$$
+              Cập nhật niềm tin hậu nghiệm lần 2:
+              $$\text{bel}(x_2 = open) = 1.5069 \times 0.5818 \approx \mathbf{0.8767} \quad (87.67\%)$$
+              $$\text{bel}(x_2 = closed) = 1.5069 \times 0.0818 \approx \mathbf{0.1233} \quad (12.33\%)$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Ý Nghĩa Kỹ Thuật & Phân Tích Độ Nhạy</div>
+            <p>
+              Hai phép đo cảm biến nhiễu liên tiếp cùng chỉ ra $open$ đã đưa mức độ tin cậy của robot từ trạng thái mơ hồ $50\%$ lên đến $87.67\%$. Nếu phép đo thứ ba báo $z_3 = closed$ (nhiễu xung), niềm tin $\text{bel}(open)$ sẽ tự động điều chỉnh giảm xuống khoảng $58\%$, chứng minh tính bền vững tự nhiên của lọc Bayes.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-1-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Suy Diễn Bayes Nhị Phân 60 FPS</h2>
+        <p>
+          Thử nghiệm tương tác: Bấm nút để mô phỏng nhận tín hiệu cảm biến hoặc điều chỉnh xác suất tiên nghiệm ban đầu.
+        </p>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch01"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch01-btn-open" class="btn btn-primary">Phép đo: CỬA MỞ (Open)</button>
+            <button id="ch01-btn-closed" class="btn btn-secondary">Phép đo: CỬA ĐÓNG (Closed)</button>
+            <button id="ch01-btn-reset" class="btn btn-outline">Đặt Lại Ban Đầu</button>
+            <div class="control-group" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+              <label for="ch01-slider-prior" style="font-size: 0.85rem; color: var(--text-muted);">Tiên nghiệm bel(open):</label>
+              <input type="range" id="ch01-slider-prior" min="0.1" max="0.9" step="0.05" value="0.5">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Architecture Bridge -->
+      <section id="sec-1-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Ma Trận Hiệp Phương Sai Trong ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 SENSOR & ODOMETRY MESSAGES</span>
+            <span class="bridge-file">geometry_msgs/msg/PoseWithCovariance.msg & nav_msgs/msg/Odometry.msg</span>
+          </div>
+          <p>
+            Trong ROS 2, triết lý robot học xác suất được thể hiện qua mảng cố định 36 phần tử <code>covariance[36]</code> đại diện cho ma trận hiệp phương sai kích thước $6 \times 6$ của tư thế 3D $(x, y, z, \text{roll}, \text{pitch}, \text{yaw})$:
+          </p>
+          <pre><code>// Định nghĩa PoseWithCovariance trong ROS 2 Humble/Jazzy:
+# geometry_msgs/msg/Pose pose
+# float64[36] covariance  // Ma trận hiệp phương sai 6x6 lưu theo hàng (Row-major)
+// [ var(x)   cov(x,y)   cov(x,z)   cov(x,R)   cov(x,P)   cov(x,Y) ]
+// [ cov(y,x) var(y)     cov(y,z)   cov(y,R)   cov(y,P)   cov(y,Y) ]
+// [ ...                                                            ]
+
+#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;geometry_msgs/msg/pose_with_covariance_stamped.hpp&gt;
+
+class ProbabilisticPosePublisher : public rclcpp::Node {
+public:
+  ProbabilisticPosePublisher() : Node("prob_pose_pub") {
+    pub_ = create_publisher&lt;geometry_msgs::msg::PoseWithCovarianceStamped&gt;("robot_pose_prob", 10);
+    timer_ = create_wall_timer(std::chrono::milliseconds(50), [this]() {
+      geometry_msgs::msg::PoseWithCovarianceStamped msg;
+      msg.header.stamp = now();
+      msg.header.frame_id = "map";
+      msg.pose.pose.position.x = 2.45;
+      msg.pose.pose.position.y = 1.12;
+
+      // Khởi tạo ma trận hiệp phương sai bất định:
+      // Sai số phương sai tọa độ x là (0.05m)^2, y là (0.05m)^2, yaw là (0.02rad)^2
+      msg.pose.covariance[0]  = 0.0025; // Var(x)
+      msg.pose.covariance[7]  = 0.0025; // Var(y)
+      msg.pose.covariance[35] = 0.0004; // Var(yaw)
+
+      pub_-&gt;publish(msg);
+    });
+  }
+private:
+  rclcpp::Publisher&lt;geometry_msgs::msg::PoseWithCovarianceStamped&gt;::SharedPtr pub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <span class="btn btn-secondary disabled">← Bắt đầu</span>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch02.html" class="btn btn-primary">Chương 02 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

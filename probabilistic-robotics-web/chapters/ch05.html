@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Mô Hình Chuyển Động Robot Di Động: Vận Tốc & Odometry | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Robot Học Xác Suất</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 05</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+        <span class="sidebar-badge">17 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-5-1">
+            <span class="nav-text">5.1 Mở Đầu Về Chuyển Động Robot</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-2">
+            <span class="nav-text">5.2 Cơ Sở Động Học Xác Suất</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-2-1">
+            <span class="nav-text">5.2.1 Không Gian Cấu Hình (x, y, theta)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-2-2">
+            <span class="nav-text">5.2.2 Động Học Xác Suất p(x_t | u_t, x_{t-1})</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-3">
+            <span class="nav-text">5.3 Mô Hình Chuyển Động Vận Tốc (Velocity Model)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-3-1">
+            <span class="nav-text">5.3.1 Công Thức Tính Dạng Kín Giải Tích</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-3-2">
+            <span class="nav-text">5.3.2 Thuật Toán Lấy Mẫu Hạt (Sampling)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-3-3">
+            <span class="nav-text">5.3.3 Dẫn Xuất Toán Học & Tâm Quay ICC</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-4">
+            <span class="nav-text">5.4 Mô Hình Chuyển Động Odometry (Odometry Model)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-4-1">
+            <span class="nav-text">5.4.1 Ba Bước: Quay - Tịnh Tiến - Quay</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-4-2">
+            <span class="nav-text">5.4.2 Thuật Toán Lấy Mẫu Odometry</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-4-3">
+            <span class="nav-text">5.4.3 Dẫn Xuất Toán Học Mô Hình Odometry</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-5">
+            <span class="nav-text">5.5 Tương Tác Giữa Chuyển Động & Bản Đồ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-6">
+            <span class="nav-text">5.6 Tóm Tắt & So Sánh Vận Tốc vs Odometry</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Tính Xác Suất Chuyển Động Vận Tốc</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Đám Mây Tư Thế Hình Quả Chuối</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Phát Tán Odometry & Broadcast Cây TF</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ ROBOT HỌC XÁC SUẤT</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 05</span>
+        </div>
+        <h1 class="chapter-title">Mô Hình Chuyển Động Robot Di Động: Vận Tốc & Odometry</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-5-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO KHÔNG THỂ DÙNG ĐỘNG HỌC HÌNH HỌC THUẦN TÚY CHO ROBOT DI ĐỘNG?</div>
+        <p>
+          Trong sách giáo khoa cơ học cổ điển, khi gửi lệnh vận tốc dài $v$ và vận tốc góc $\omega$ trong thời gian $\Delta t$, robot di chuyển hoàn hảo trên một cung tròn bán kính $r = v / \omega$.
+        </p>
+        <p>
+          Trong thế giới thực:
+        </p>
+        <ul>
+          <li>Bánh xe bên trái trượt nhiều hơn bên phải $2\%$, robot rẽ lệch quỹ đạo.</li>
+          <li>Gờ sàn nhỏ làm robot nảy nhẹ, sai số góc hướng $\Delta \theta$ lập tức khuếch đại sai số vị trí $(x, y)$ theo thời gian.</li>
+          <li>Chỉ sau 10 mét chạy thẳng, ước lượng hình học thuần túy có thể lệch hàng mét và quay sai hướng $30^\circ$.</li>
+        </ul>
+        <p>
+          <strong>Mô hình động học xác suất (Probabilistic Kinematics)</strong> giải quyết bài toán này bằng cách mô hình hóa chuyển động như một quá trình ngẫu nhiên: mọi hành động đều làm <em>phát tán và uốn cong</em> đám mây bất định thành <strong>phân bố hình quả chuối (Banana-shaped distribution)</strong> phản ánh trung thực vật lý của bánh xe.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-5-1" class="content-block">
+        <h2>5.1 Mở Đầu Về Chuyển Động Robot Di Động (Introduction)</h2>
+        <p>
+          Chuyển động của robot di động phẳng được đặc trưng bởi tư thế 3 bậc tự do $x = (x, y, \theta)^T \in \text{SE}(2)$.
+        </p>
+      </section>
+
+      <section id="sec-5-2" class="content-block">
+        <h2>5.2 Cơ Sở Động Học Xác Suất (Probabilistic Kinematics)</h2>
+        <p>
+          Mô hình chuyển động xác định mật độ xác suất chuyển tiếp:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">XÁC SUẤT CHUYỂN TIẾP TRẠNG THÁI</div>
+          $$p(x_t \mid u_t, x_{t-1})$$
+        </div>
+        <p>
+          Thrun, Burgard và Fox phân loại 2 hướng tiếp cận mô hình hóa chuyển động:
+        </p>
+        <ol>
+          <li><strong>Mô hình vận tốc (Velocity Motion Model):</strong> Dựa trên lệnh điều khiển $u_t = (v, \omega)^T$ gửi tới động cơ. Dùng cho bài toán lập kế hoạch (planning).</li>
+          <li><strong>Mô hình Odometry (Odometry Motion Model):</strong> Dựa trên dữ liệu cảm biến đo vòng quay bánh xe (wheel encoders). Dùng cho bài toán ước lượng trạng thái và định vị (estimation & localization).</li>
+        </ol>
+      </section>
+
+      <section id="sec-5-3" class="content-block">
+        <h2>5.3 Mô Hình Chuyển Động Vận Tốc (Velocity Motion Model)</h2>
+        <h3 id="sec-5-3-1">5.3.1 Công Thức Dạng Kín Giải Tích</h3>
+        <p>
+          Giả sử robot di chuyển với vận tốc dài $v$ và vận tốc góc $\omega$ trong khoảng thời gian $\Delta t$. Tâm quay tức thời (Instantaneous Center of Curvature - ICC) có tọa độ:
+        </p>
+        $$x_c = x - \frac{v}{\omega} \sin\theta, \quad y_c = y + \frac{v}{\omega} \cos\theta$$
+        <p>
+          Để giải quyết nhiễu thực tế, mô hình đưa vào 4 tham số sai số động học $\alpha_1, \alpha_2, \alpha_3, \alpha_4$:
+        </p>
+        <div class="formula-hero">
+          $$\hat{v} = v + \epsilon(\alpha_1 v^2 + \alpha_2 \omega^2)$$
+          $$\hat{\omega} = \omega + \epsilon(\alpha_3 v^2 + \alpha_4 \omega^2)$$
+          $$\hat{\gamma} = \epsilon(\alpha_5 v^2 + \alpha_6 \omega^2) \quad \text{(Góc hướng cuối cùng)}$$
+        </div>
+      </section>
+
+      <section id="sec-5-4" class="content-block">
+        <h2>5.4 Mô Hình Chuyển Động Odometry (Odometry Motion Model)</h2>
+        <h3 id="sec-5-4-1">5.4.1 Phân Rã 3 Bước: Quay $\to$ Tịnh Tiến $\to$ Quay</h3>
+        <p>
+          Cảm biến odometry cung cấp tư thế ước tính của bánh xe $\bar{x}_{t-1} = (\bar{x}, \bar{y}, \bar{\theta})^T$ và $\bar{x}_t = (\bar{x}', \bar{y}', \bar{\theta}')^T$. Bất kỳ chuyển động phẳng nào giữa hai thời điểm đều được phân rã chính xác thành:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">BA BƯỚC PHÂN RÃ CHUYỂN ĐỘNG ODOMETRY</div>
+          $$\delta_{\text{rot1}} = \text{atan2}(\bar{y}' - \bar{y}, \bar{x}' - \bar{x}) - \bar{\theta}$$
+          $$\delta_{\text{trans}} = \sqrt{(\bar{x}' - \bar{x})^2 + (\bar{y}' - \bar{y})^2}$$
+          $$\delta_{\text{rot2}} = \bar{\theta}' - \bar{\theta} - \delta_{\text{rot1}}$$
+        </div>
+
+        <h3 id="sec-5-4-2">5.4.2 Thuật Toán Lấy Mẫu Hạt Odometry</h3>
+        <p>
+          Khi phát tán các hạt trong bộ lọc Particle Filter, mỗi hạt $x_{t-1}^{[m]} = (x, y, \theta)^T$ được cập nhật theo:
+        </p>
+        $$\hat{\delta}_{\text{rot1}} = \delta_{\text{rot1}} - \text{sample}(\alpha_1 \delta_{\text{rot1}}^2 + \alpha_2 \delta_{\text{trans}}^2)$$
+        $$\hat{\delta}_{\text{trans}} = \delta_{\text{trans}} - \text{sample}(\alpha_3 \delta_{\text{trans}}^2 + \alpha_4 \delta_{\text{rot1}}^2 + \alpha_4 \delta_{\text{rot2}}^2)$$
+        $$\hat{\delta}_{\text{rot2}} = \delta_{\text{rot2}} - \text{sample}(\alpha_1 \delta_{\text{rot2}}^2 + \alpha_2 \delta_{\text{trans}}^2)$$
+        $$x' = x + \hat{\delta}_{\text{trans}} \cos(\theta + \hat{\delta}_{\text{rot1}})$$
+        $$y' = y + \hat{\delta}_{\text{trans}} \sin(\theta + \hat{\delta}_{\text{rot1}})$$
+        $$\theta' = \theta + \hat{\delta}_{\text{rot1}} + \hat{\delta}_{\text{rot2}}$$
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-5-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Phân Rã Chuyển Động Odometry & Lấy Mẫu</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Dữ Liệu Đo Odometry Đầu Vào</div>
+            <p>
+              Tư thế odometry trước: $\bar{x}_{t-1} = (2.0\text{ m}, 3.0\text{ m}, 0.0\text{ rad})^T$.<br>
+              Tư thế odometry sau: $\bar{x}_t = (4.0\text{ m}, 5.0\text{ m}, \pi/4\text{ rad})^T$.<br>
+              Các tham số nhiễu: $\alpha_1 = 0.05$, $\alpha_2 = 0.01$, $\alpha_3 = 0.05$, $\alpha_4 = 0.01$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tính 3 Đại Lượng Động Học Phân Rã</div>
+            <p>
+              Độ dời vị trí: $\Delta x = 4.0 - 2.0 = 2.0$ m; $\Delta y = 5.0 - 3.0 = 2.0$ m.<br>
+              Khoảng cách tịnh tiến:
+              $$\delta_{\text{trans}} = \sqrt{2.0^2 + 2.0^2} = \sqrt{8} \approx \mathbf{2.8284\text{ m}}$$
+              Góc quay bước 1:
+              $$\delta_{\text{rot1}} = \text{atan2}(2.0, 2.0) - 0.0 = \frac{\pi}{4} \approx \mathbf{0.7854\text{ rad}} \quad (45^\circ)$$
+              Góc quay bước 2:
+              $$\delta_{\text{rot2}} = \frac{\pi}{4} - 0.0 - \frac{\pi}{4} = \mathbf{0.0\text{ rad}}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Phương Sai Nhiễu & Gieo Mẫu Hạt</div>
+            <p>
+              Phương sai tịnh tiến:
+              $$\sigma_{\text{trans}}^2 = \alpha_3 \delta_{\text{trans}}^2 + \alpha_4 (\delta_{\text{rot1}}^2 + \delta_{\text{rot2}}^2) = 0.05 \times 8 + 0.01 \times (0.7854^2 + 0) = 0.406\text{ m}^2$$
+              $\implies \sigma_{\text{trans}} \approx 0.637$ m.<br>
+              Phương sai quay 1:
+              $$\sigma_{\text{rot1}}^2 = \alpha_1 \delta_{\text{rot1}}^2 + \alpha_2 \delta_{\text{trans}}^2 = 0.05 \times 0.617 + 0.01 \times 8 = 0.111 \implies \sigma_{\text{rot1}} \approx 0.333\text{ rad}$$
+              Giả sử rút mẫu ngẫu nhiên: $\epsilon_{\text{trans}} = +0.10$ m, $\epsilon_{\text{rot1}} = -0.05$ rad, $\epsilon_{\text{rot2}} = +0.02$ rad.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Tư Thế Hạt Sau Khi Chuyển Động</div>
+            <p>
+              Giả sử hạt bắt đầu từ $x = (2.1, 2.9, 0.05)^T$:
+              $$\hat{\delta}_{\text{trans}} = 2.8284 + 0.10 = 2.9284\text{ m}$$
+              $$\hat{\delta}_{\text{rot1}} = 0.7854 - 0.05 = 0.7354\text{ rad}$$
+              $$x' = 2.1 + 2.9284 \times \cos(0.05 + 0.7354) \approx \mathbf{4.17\text{ m}}$$
+              $$y' = 2.9 + 2.9284 \times \sin(0.05 + 0.7354) \approx \mathbf{4.97\text{ m}}$$
+              $$\theta' = 0.05 + 0.7354 + 0.02 \approx \mathbf{0.805\text{ rad}} \quad (46.1^\circ)$$
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-5-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Đám Mây Tư Thế Hình Quả Chuối 60 FPS</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch05"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group" style="display: flex; align-items: center; gap: 8px;">
+              <label for="ch05-slider-alpha" style="font-size: 0.85rem; color: var(--text-muted);">Hệ số nhiễu động học α:</label>
+              <input type="range" id="ch05-slider-alpha" min="0.01" max="0.15" step="0.01" value="0.05">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-5-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Node Phát Tán Odometry & Cây TF Trong ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 NAVIGATION TRANSFORM & ODOMETRY</span>
+            <span class="bridge-file">src/diff_drive_odometry_publisher.cpp</span>
+          </div>
+          <p>
+            Quy ước cấu trúc cây tọa độ tiêu chuẩn trong ROS 2 Nav2: <code>map -&gt; odom -&gt; base_footprint -&gt; base_link</code>. Node odometry chịu trách nhiệm tính toán tích phân góc và xuất bản cả topic lẫn broadcast TF:
+          </p>
+          <pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;nav_msgs/msg/odometry.hpp&gt;
+#include &lt;tf2_ros/transform_broadcaster.h&gt;
+#include &lt;geometry_msgs/msg/transform_stamped.hpp&gt;
+
+class OdometryPublisher : public rclcpp::Node {
+public:
+  OdometryPublisher() : Node("odometry_publisher") {
+    odom_pub_ = create_publisher&lt;nav_msgs::msg::Odometry&gt;("odom", 50);
+    tf_broadcaster_ = std::make_unique&lt;tf2_ros::TransformBroadcaster&gt;(*this);
+  }
+
+  void updateOdometry(double dt, double v, double w) {
+    // Tich phan vi tri Runge-Kutta 2
+    double delta_theta = w * dt;
+    double delta_x = v * std::cos(theta_ + delta_theta / 2.0) * dt;
+    double delta_y = v * std::sin(theta_ + delta_theta / 2.0) * dt;
+
+    x_ += delta_x;
+    y_ += delta_y;
+    theta_ += delta_theta;
+
+    // 1. Broadcast TF: odom -&gt; base_footprint
+    geometry_msgs::msg::TransformStamped tf_msg;
+    tf_msg.header.stamp = now();
+    tf_msg.header.frame_id = "odom";
+    tf_msg.child_frame_id = "base_footprint";
+    tf_msg.transform.translation.x = x_;
+    tf_msg.transform.translation.y = y_;
+    tf_msg.transform.translation.z = 0.0;
+    tf_msg.transform.rotation.z = std::sin(theta_ / 2.0);
+    tf_msg.transform.rotation.w = std::cos(theta_ / 2.0);
+    tf_broadcaster_-&gt;sendTransform(tf_msg);
+
+    // 2. Publish nav_msgs/msg/Odometry
+    nav_msgs::msg::Odometry odom;
+    odom.header = tf_msg.header;
+    odom.child_frame_id = "base_footprint";
+    odom.pose.pose.position.x = x_;
+    odom.pose.pose.position.y = y_;
+    odom.twist.twist.linear.x = v;
+    odom.twist.twist.angular.z = w;
+    odom_pub_-&gt;publish(odom);
+  }
+
+private:
+  double x_ = 0.0, y_ = 0.0, theta_ = 0.0;
+  rclcpp::Publisher&lt;nav_msgs::msg::Odometry&gt;::SharedPtr odom_pub_;
+  std::unique_ptr&lt;tf2_ros::TransformBroadcaster&gt; tf_broadcaster_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch04.html" class="btn btn-secondary">← Chương 04</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch06.html" class="btn btn-primary">Chương 06 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

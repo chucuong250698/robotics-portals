@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 11: Thuật Toán GraphSLAM: Tối Ưu Hóa Đồ Thị Ràng Buộc & Khép Vòng Lặp | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Lập Bản Đồ & SLAM</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 11</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 11</span>
+        <span class="sidebar-badge">16 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-11-1">
+            <span class="nav-text">11.1 Mở Đầu Về GraphSLAM & Bài Toán Full SLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-2">
+            <span class="nav-text">11.2 Mô Tả Trực Quan & Mô Hình Đàn Hồi Lò Xo</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-2-1">
+            <span class="nav-text">11.2.1 Xây Dựng Đồ Thị Pose Graph</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-2-2">
+            <span class="nav-text">11.2.2 Suy Diễn Như Hệ Thống Lực Kéo Đàn Hồi</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-3">
+            <span class="nav-text">11.3 Thuật Toán GraphSLAM Cốt Lõi</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-4">
+            <span class="nav-text">11.4 Dẫn Xuất Toán Học GraphSLAM</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-4-1">
+            <span class="nav-text">11.4.1 Phân Bố Hậu Nghiệm Đầy Đủ (Full SLAM)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-4-4">
+            <span class="nav-text">11.4.4 Xây Dựng Ma Trận Thông Tin Omega & Vector Xi</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-4-5">
+            <span class="nav-text">11.4.5 Rút Gọn Schur Complement Khử Ẩn Biến Bản Đồ</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-4-6">
+            <span class="nav-text">11.4.6 Khôi Phục Toàn Diện Quỹ Đạo & Bản Đồ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-5">
+            <span class="nav-text">11.5 Liên Kết Dữ Liệu & Khép Vòng Lặp (Loop Closure)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-8">
+            <span class="nav-text">11.8 Kỹ Thuật Tối Ưu Hóa Hiện Đại (Gauss-Newton, Ceres, g2o)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-9">
+            <span class="nav-text">11.9 Tóm Tắt & Cuộc Cách Mạng Graph-Based SLAM</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Xây Dựng Hệ Thông Tin & Khử Mốc</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Tối Ưu Hóa Pose Graph & Loop Closure</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Kiến Trúc slam_toolbox & Ceres Solver</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: LẬP BẢN ĐỒ & SLAM</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 11</span>
+        </div>
+        <h1 class="chapter-title">Thuật Toán GraphSLAM: Tối Ưu Hóa Đồ Thị Ràng Buộc & Khép Vòng Lặp</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-11-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO GRAPHSLAM THAY THẾ HOÀN TOÀN EKF SLAM ĐỂ TRỞ THÀNH SOTA HIỆN ĐẠI?</div>
+        <p>
+          Trong khi EKF SLAM phải duy trì một ma trận hiệp phương sai đặc quánh $\mathcal{O}(N^2)$ và bị mất vĩnh viễn dữ liệu quá khứ sau mỗi bước lọc, <strong>GraphSLAM</strong> (đồ thị ràng buộc tư thế) thay đổi hoàn toàn cách giải quyết:
+        </p>
+        <ul>
+          <li><strong>Biểu diễn đồ thị trực quan (Pose Graph):</strong> Mỗi tư thế của robot là một nút (node); mỗi phép đo chuyển động odometry và đo lường cảm biến là một <em>sợi dây lò xo đàn hồi (constraint edge)</em> nối các nút với nhau.</li>
+          <li><strong>Ma trận thông tin thưa $\Omega$ (Sparse Information Matrix):</strong> Do một tư thế chỉ kết nối với tư thế liền kề và các mốc nhìn thấy tức thời, ma trận $\Omega$ thưa đến $99.9\%$. Việc cập nhật dữ liệu chỉ tốn $\mathcal{O}(1)$!</li>
+          <li><strong>Khép vòng lặp thần kỳ (Loop Closure):</strong> Khi robot đi một vòng 500 mét và quay lại điểm xuất phát, một cạnh ràng buộc mới được tạo ra. Toàn bộ đồ thị được kéo dãn tối ưu hóa đồng thời, triệt tiêu sạch sẽ mọi sai số tích lũy của toàn bộ hành trình!</li>
+        </ul>
+        <p>
+          Toàn bộ các gói SLAM công nghiệp mạnh nhất hiện nay như <code>slam_toolbox</code>, <code>cartographer_ros</code>, <code>g2o</code>, và <code>GTSAM</code> đều được xây dựng trực tiếp trên nền tảng lý thuyết của GraphSLAM.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-11-1" class="content-block">
+        <h2>11.1 Mở Đầu Về GraphSLAM & Bài Toán Full SLAM</h2>
+        <p>
+          GraphSLAM giải quyết bài toán <strong>Full SLAM</strong>: ước lượng toàn bộ quỹ đạo của robot $x_{1:t}$ cùng toàn bộ bản đồ $m$:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">HÀM MẬT ĐỘ HẬU NGHIỆM FULL SLAM</div>
+          $$p(x_{1:t}, m \mid z_{1:t}, u_{1:t}) \propto p(x_0) \prod_t p(x_t \mid u_t, x_{t-1}) \prod_t p(z_t \mid x_t, m)$$
+        </div>
+      </section>
+
+      <section id="sec-11-4" class="content-block">
+        <h2>11.4 Dẫn Xuất Toán Học GraphSLAM</h2>
+        <h3 id="sec-11-4-1">11.4.1 Hàm Negative Log-Posterior & Bình Phương Tối Thiểu</h3>
+        <p>
+          Lấy trừ logarit tự nhiên của hàm mật độ hậu nghiệm, bài toán tìm cực đại xác suất (MAP) trở thành bài toán cực tiểu hóa tổng bình phương phần dư phi tuyến:
+        </p>
+        $$J_{\text{GraphSLAM}}(x_{1:t}, m) = \frac{1}{2} \sum_t (x_t - g(u_t, x_{t-1}))^T R_t^{-1} (x_t - g(u_t, x_{t-1})) + \frac{1}{2} \sum_t (z_t - h(x_t, m))^T Q_t^{-1} (z_t - h(x_t, m))$$
+
+        <h3 id="sec-11-4-4">11.4.4 Xây Dựng Hệ Thông Tin Tuyến Tính: $\Omega x = \xi$</h3>
+        <p>
+          Khai triển Taylor quanh điểm xấp xỉ quỹ đạo hiện tại biến bài toán thành giải hệ phương trình tuyến tính đối xứng xác định dương:
+        </p>
+        <div class="formula-hero">
+          $$\Omega x = \xi$$
+        </div>
+        <p>
+          Mỗi ràng buộc đo lường giữa tư thế $x_t$ và mốc $m_j$ chỉ đóng góp vào 4 khối con cục bộ trong ma trận $\Omega$:
+        </p>
+        $$\Omega \leftarrow \Omega + \begin{bmatrix} H_{x_t}^T Q^{-1} H_{x_t} & H_{x_t}^T Q^{-1} H_{m_j} \\ H_{m_j}^T Q^{-1} H_{x_t} & H_{m_j}^T Q^{-1} H_{m_j} \end{bmatrix}$$
+        $$\xi \leftarrow \xi + \begin{bmatrix} H_{x_t}^T Q^{-1} (z - \hat{z}) \\ H_{m_j}^T Q^{-1} (z - \hat{z}) \end{bmatrix}$$
+
+        <h3 id="sec-11-4-5">11.4.5 Rút Gọn Dạng Thông Tin Bằng Schur Complement</h3>
+        <p>
+          Phân chia vector biến số thành phần tư thế robot $x$ và phần tọa độ bản đồ $m$:
+        </p>
+        $$\begin{bmatrix} \Omega_{xx} & \Omega_{xm} \\ \Omega_{mx} & \Omega_{mm} \end{bmatrix} \begin{bmatrix} x \\ m \end{bmatrix} = \begin{bmatrix} \xi_x \\ \xi_m \end{bmatrix}$$
+        <p>
+          Vì các mốc địa vật không kết nối trực tiếp với nhau, khối ma trận $\Omega_{mm}$ có dạng <strong>đường chéo khối (Block-Diagonal)</strong>, việc đảo ngược nó cực kỳ nhanh chóng $\mathcal{O}(N)$. Áp dụng phần bù Schur (Schur Complement), ta khử hoàn toàn biến bản đồ $m$ để thu được hệ phương trình chỉ còn chứa tư thế robot:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">HỆ PHƯƠNG TRÌNH RÚT GỌN SCHUR COMPLEMENT</div>
+          $$\tilde{\Omega}_{xx} = \Omega_{xx} - \Omega_{xm} \Omega_{mm}^{-1} \Omega_{mx}$$
+          $$\tilde{\xi}_x = \xi_x - \Omega_{xm} \Omega_{mm}^{-1} \xi_m$$
+          $$\tilde{\Omega}_{xx} x = \tilde{\xi}_x \implies x = \tilde{\Omega}_{xx}^{-1} \tilde{\xi}_x$$
+        </div>
+        <p>
+          Sau khi tìm được toàn bộ tư thế robot $x$, tọa độ từng mốc bản đồ được giải quyết độc lập tức thời:
+          $$m = \Omega_{mm}^{-1} (\xi_m - \Omega_{mx} x)$$
+        </p>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-11-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Xây Dựng Hệ Thông Tin 1D & Khử Ẩn Biến</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Đồ Thị 2 Tư Thế & 1 Mốc Bản Đồ</div>
+            <p>
+              Xét đồ thị 1D: Robot có 2 tư thế $x_0, x_1$ và 1 mốc bản đồ $m_1$.<br>
+              1. Nút gốc: Neo $x_0 = 0$ với độ tin cậy $\Omega_0 = 100 \implies \Omega(x_0, x_0) = 100, \xi(x_0) = 0$.<br>
+              2. Cạnh chuyển động odometry: Robot đi từ $x_0 \to x_1$ đoạn $d = 2.0$ m, phương sai $R = 1.0 \implies \text{weight} = 1.0$.<br>
+              3. Cạnh đo lường: Tại $x_1$, đo cự ly tới mốc $m_1$ là $z = 3.0$ m, phương sai $Q = 1.0 \implies \text{weight} = 1.0$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Lắp Ráp Hệ Ma Trận Thông Tin Toàn Phần $\Omega$ và $\xi$</div>
+            <p>
+              Vector biến: $[x_0, x_1, m_1]^T$.<br>
+              Ràng buộc chuyển động $x_1 - x_0 = 2.0$:
+              $$\Delta \Omega = \begin{bmatrix} 1 & -1 & 0 \\ -1 & 1 & 0 \\ 0 & 0 & 0 \end{bmatrix}, \quad \Delta \xi = \begin{bmatrix} -2.0 \\ +2.0 \\ 0 \end{bmatrix}$$
+              Ràng buộc đo lường $m_1 - x_1 = 3.0$:
+              $$\Delta \Omega = \begin{bmatrix} 0 & 0 & 0 \\ 0 & 1 & -1 \\ 0 & -1 & 1 \end{bmatrix}, \quad \Delta \xi = \begin{bmatrix} 0 \\ -3.0 \\ +3.0 \end{bmatrix}$$
+              Tổng hợp lại:
+              $$\Omega = \begin{bmatrix} 101 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 1 \end{bmatrix}, \quad \xi = \begin{bmatrix} -2.0 \\ -1.0 \\ +3.0 \end{bmatrix}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Khử Mốc Bản Đồ $m_1$ Bằng Schur Complement</div>
+            <p>
+              Tách khối robot $x = [x_0, x_1]^T$ và mốc $m = [m_1]$:
+              $$\Omega_{xx} = \begin{bmatrix} 101 & -1 \\ -1 & 2 \end{bmatrix}, \quad \Omega_{xm} = \begin{bmatrix} 0 \\ -1 \end{bmatrix}, \quad \Omega_{mm} = [1], \quad \Omega_{mm}^{-1} = [1]$$
+              $$\tilde{\Omega}_{xx} = \Omega_{xx} - \Omega_{xm} \Omega_{mm}^{-1} \Omega_{mx} = \begin{bmatrix} 101 & -1 \\ -1 & 2 \end{bmatrix} - \begin{bmatrix} 0 \\ -1 \end{bmatrix} [1] \begin{bmatrix} 0 & -1 \end{bmatrix} = \begin{bmatrix} 101 & -1 \\ -1 & 2 - 1 \end{bmatrix} = \begin{bmatrix} \mathbf{101} & \mathbf{-1} \\ \mathbf{-1} & \mathbf{1} \end{bmatrix}$$
+              $$\tilde{\xi}_x = \xi_x - \Omega_{xm} \Omega_{mm}^{-1} \xi_m = \begin{bmatrix} -2.0 \\ -1.0 \end{bmatrix} - \begin{bmatrix} 0 \\ -1 \end{bmatrix} [1] [3.0] = \begin{bmatrix} -2.0 \\ -1.0 + 3.0 \end{bmatrix} = \begin{bmatrix} \mathbf{-2.0} \\ \mathbf{+2.0} \end{bmatrix}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Giải Hệ & Khôi Phục Tọa Độ Bản Đồ</div>
+            <p>
+              Giải hệ $\tilde{\Omega}_{xx} x = \tilde{\xi}_x$:
+              $$\begin{bmatrix} 101 & -1 \\ -1 & 1 \end{bmatrix} \begin{bmatrix} x_0 \\ x_1 \end{bmatrix} = \begin{bmatrix} -2.0 \\ 2.0 \end{bmatrix} \implies 101 x_0 - x_1 = -2.0 \quad \text{và} \quad -x_0 + x_1 = 2.0$$
+              Cộng hai phương trình: $100 x_0 = 0.0 \implies x_0 = \mathbf{0.00\text{ m}}$.<br>
+              Thay vào: $x_1 = 2.0 + x_0 = \mathbf{2.00\text{ m}}$.<br>
+              Khôi phục mốc $m_1$:
+              $$m_1 = \Omega_{mm}^{-1} (\xi_m - \Omega_{mx} x) = 1.0 \times (3.0 - (0 \cdot x_0 + (-1) \cdot 2.0)) = 3.0 - (-2.0) = \mathbf{5.00\text{ m}}$$
+              Kết quả chuẩn xác tuyệt đối với độ phức tạp tối ưu!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-11-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Tối Ưu Hóa Pose Graph & Loop Closure</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch11"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch11-btn-optimize" class="btn btn-primary">Giải Tối Ưu Hóa Đồ Thị (Gauss-Newton Relaxation)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-11-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Gói slam_toolbox Trong ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 SOTA GRAPH SLAM</span>
+            <span class="bridge-file">config/slam_toolbox_params.yaml</span>
+          </div>
+          <p>
+            <code>slam_toolbox</code> là bộ giải pháp SLAM đồ thị hiện đại nhất cho các robot dịch vụ và tự hành trong ROS 2, sử dụng Ceres Solver để tối ưu hóa đồ thị phi tuyến thời gian thực:
+          </p>
+          <pre><code>slam_toolbox:
+  ros__parameters:
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    
+    # Ranh gioi do thi Pose Graph
+    max_laser_range: 20.0
+    minimum_time_interval: 0.5
+    transform_timeout: 0.2
+    
+    # Khep vong lap (Loop Closure Detection)
+    do_loop_closing: true
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.35
+    loop_search_maximum_distance: 3.0     # Ban kinh tim kiem khep vong lap 3m</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch10.html" class="btn btn-secondary">← Chương 10</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch12.html" class="btn btn-primary">Chương 12 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

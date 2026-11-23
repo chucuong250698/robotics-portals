@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 06: Mô Hình Cảm Biến Nhận Thức: Chùm Tia, Trường Khả Dĩ & Đặc Trưng | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Robot Học Xác Suất</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 06</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+        <span class="sidebar-badge">18 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-6-1">
+            <span class="nav-text">6.1 Mở Đầu Về Nhận Thức Robot</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-2">
+            <span class="nav-text">6.2 Các Dạng Biểu Diễn Bản Đồ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-3">
+            <span class="nav-text">6.3 Mô Hình Chùm Tia (Beam Models)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-3-1">
+            <span class="nav-text">6.3.1 Thuật Toán Đo Lường Chùm Tia</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-3-2">
+            <span class="nav-text">6.3.2 Bốn Thành Phần Sai Số Đo Lường</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-3-3">
+            <span class="nav-text">6.3.3 Dẫn Xuất Toán Học & Tối Ưu Tham Số</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-3-5">
+            <span class="nav-text">6.3.5 Hạn Chế Của Mô Hình Chùm Tia</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-4">
+            <span class="nav-text">6.4 Mô Hình Trường Khả Dĩ (Likelihood Fields)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-4-1">
+            <span class="nav-text">6.4.1 Thuật Toán Trường Khả Dĩ Cốt Lõi</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-4-2">
+            <span class="nav-text">6.4.2 Biến Đổi Khoảng Cách Euclidean (EDT)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-5">
+            <span class="nav-text">6.5 Mô Hình Đo Dựa Trên Tương Quan</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-6">
+            <span class="nav-text">6.6 Mô Hình Dựa Trên Đặc Trưng (Features & Landmarks)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-6-2">
+            <span class="nav-text">6.6.2 Đo Lường Mốc Cự Ly - Góc Hướng (r, phi)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-7">
+            <span class="nav-text">6.7 Cân Nhắc Thực Tế & Lọc Nhiễu</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-8">
+            <span class="nav-text">6.8 Tóm Tắt & So Sánh Beam vs Likelihood</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Tính Xác Suất Đo Lường Beam Model</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: So Sánh Beam Model vs Likelihood Field</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: LaserScan Sensor Model Trong AMCL</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ ROBOT HỌC XÁC SUẤT</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 06</span>
+        </div>
+        <h1 class="chapter-title">Mô Hình Cảm Biến Nhận Thức: Chùm Tia, Trường Khả Dĩ & Đặc Trưng</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-6-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO MÔ HÌNH HÓA CẢM BIẾN LÀ KHÂU KHÓ NHẤT TRONG ƯỚC LƯỢNG TRẠNG THÁI?</div>
+        <p>
+          Trong bước hiệu chỉnh của bộ lọc Bayes: $\text{bel}(x_t) = \eta \, p(z_t \mid x_t, m) \, \overline{\text{bel}}(x_t)$, hàm $p(z_t \mid x_t, m)$ đóng vai trò quyết định liệu một ước lượng vị trí có được chấp nhận hay bị loại bỏ.
+        </p>
+        <p>
+          Một tia laser Lidar hoặc sóng siêu âm Sonar khi phát ra không gian gặp phải vô vàn hiện tượng vật lý phức tạp:
+        </p>
+        <ul>
+          <li>Tia phản xạ đúng bề mặt vật cản $\to$ Nhiễu Gauss chuẩn xác ($p_{hit}$).</li>
+          <li>Người hoặc động vật bất ngờ cắt ngang tia $\to$ Đọc ngắn bất ngờ theo phân bố mũ ($p_{short}$).</li>
+          <li>Tia bắn vào cửa kính trong suốt hoặc góc vát làm phản xạ tán xạ $\to$ Trả về giá trị cực đại vô tận ($p_{max}$).</li>
+          <li>Nhiễu điện từ vi mạch $\to$ Phân bố đều ngẫu nhiên ($p_{rand}$).</li>
+        </ul>
+        <p>
+          Chương 6 cung cấp hai công cụ toán học vĩ đại: <strong>Beam Model</strong> (mô phỏng chi tiết đường truyền vật lý của từng photon) và <strong>Likelihood Fields</strong> (mô hình trường thế năng khoảng cách phẳng mịn màng, chạy cực nhanh và chịu lỗi tốt).
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-6-1" class="content-block">
+        <h2>6.1 Mở Đầu Về Nhận Thức Robot (Robot Perception)</h2>
+        <p>
+          Mô hình cảm biến xác định xác suất quan sát được vector đo lường $z_t$ khi robot ở tư thế $x_t$ trong bản đồ $m$:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">HÀM KHẢ DĨ ĐO LƯỜNG</div>
+          $$p(z_t \mid x_t, m)$$
+        </div>
+      </section>
+
+      <section id="sec-6-3" class="content-block">
+        <h2>6.3 Mô Hình Chùm Tia Cho Cảm Biến Đo Cự Ly (Beam Models)</h2>
+        <h3 id="sec-6-3-2">6.3.2 Bốn Thành Phần Sai Số Đo Lường Cốt Lõi</h3>
+        <p>
+          Hàm mật độ xác suất của một tia đo đơn lẻ $z_t^k$ được phân rã thành tổ hợp tuyến tính lồi của 4 phân bố xác suất:
+        </p>
+
+        <div class="formula-hero">
+          $$p(z_t^k \mid x_t, m) = z_{\text{hit}} \, p_{\text{hit}}(z_t^k) + z_{\text{short}} \, p_{\text{short}}(z_t^k) + z_{\text{max}} \, p_{\text{max}}(z_t^k) + z_{\text{rand}} \, p_{\text{rand}}(z_t^k)$$
+          $$\text{với} \quad z_{\text{hit}} + z_{\text{short}} + z_{\text{max}} + z_{\text{rand}} = 1$$
+        </div>
+
+        <p>
+          Trong đó:
+        </p>
+        <ol>
+          <li><strong>Đo đúng vật cản ($p_{\text{hit}}$):</strong> Phân bố chuẩn chặt góc quanh khoảng cách chuẩn $z_t^{k*}$:
+            $$p_{\text{hit}}(z_t^k) = \eta \, \frac{1}{\sqrt{2\pi \sigma_{\text{hit}}^2}} \exp\left( -\frac{(z_t^k - z_t^{k*})^2}{2\sigma_{\text{hit}}^2} \right)$$
+          </li>
+          <li><strong>Vật cản bất ngờ ($p_{\text{short}}$):</strong> Phân bố mũ suy giảm dần từ $0$ đến $z_t^{k*}$:
+            $$p_{\text{short}}(z_t^k) = \eta \, \lambda_{\text{short}} \exp(-\lambda_{\text{short}} z_t^k)$$
+          </li>
+          <li><strong>Thất bại đo / Vượt ngưỡng ($p_{\text{max}}$):</strong> Hàm xung Dirac tại $z_{\text{max}}$:
+            $$p_{\text{max}}(z_t^k) = I(z_t^k = z_{\text{max}})$$
+          </li>
+          <li><strong>Nhiễu ngẫu nhiên bí ẩn ($p_{\text{rand}}$):</strong> Phân bố đều trên toàn dải đo $[0, z_{\text{max}}]$:
+            $$p_{\text{rand}}(z_t^k) = \frac{1}{z_{\text{max}}}$$
+          </li>
+        </ol>
+      </section>
+
+      <section id="sec-6-4" class="content-block">
+        <h2>6.4 Mô Hình Trường Khả Dĩ (Likelihood Fields for Range Finders)</h2>
+        <h3 id="sec-6-4-1">6.4.1 Thuật Toán Trường Khả Dĩ & Khoảng Cách Gần Nhất</h3>
+        <p>
+          Beam Model có nhược điểm lớn: thiếu tính trơn tru vi phân và tốn CPU vì phải thực hiện dò tia (ray-tracing). Thrun đề xuất <strong>Likelihood Fields</strong>:
+        </p>
+        <div class="pipeline-card">
+          1. Chiếu điểm đo laser $(x_{z_t}, y_{z_t})$ lên hệ tọa độ bản đồ toàn cục thông qua tư thế robot $(x, y, \theta)$ và góc tia $\theta + \theta_{\text{sensor}, k}$.<br>
+          2. Tìm khoảng cách Euclidean $d$ từ điểm đo tới <strong>vật cản gần nhất trên bản đồ</strong>.<br>
+          3. Tính xác suất đo theo phân bố Gauss của khoảng cách sai lệch $d$:
+          $$p(z_t^k \mid x_t, m) = z_{\text{hit}} \cdot \frac{1}{\sqrt{2\pi\sigma_{\text{hit}}^2}} \exp\left( -\frac{d^2}{2\sigma_{\text{hit}}^2} \right) + \frac{z_{\text{rand}}}{z_{\text{max}}}$$
+        </div>
+        <p>
+          Bằng cách tính toán trước <strong>Bản đồ biến đổi khoảng cách (Euclidean Distance Transform - EDT)</strong> một lần duy nhất, việc tra cứu $d$ đạt tốc độ ánh sáng $\mathcal{O}(1)$ sau mỗi phép đo!
+        </p>
+      </section>
+
+      <section id="sec-6-6" class="content-block">
+        <h2>6.6 Mô Hình Dựa Trên Đặc Trưng (Feature-Based Measurement Models)</h2>
+        <p>
+          Thay vì xử lý toàn bộ đám mây điểm hàng nghìn tia, robot trích xuất các mốc đặc trưng hình học (cây cột, góc tường, biển hiệu) thành vector đo cự ly - góc hướng (Range-Bearing):
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">MÔ HÌNH ĐO LƯỜNG MỐC CỰ LY - GÓC HƯỚNG</div>
+          $$f_t^i = \begin{bmatrix} r_t^i \\ \phi_t^i \end{bmatrix} = \begin{bmatrix} \sqrt{(m_{j,x} - x)^2 + (m_{j,y} - y)^2} \\ \text{atan2}(m_{j,y} - y, m_{j,x} - x) - \theta \end{bmatrix} + \begin{bmatrix} \epsilon_r \\ \epsilon_\phi \end{bmatrix}$$
+        </div>
+        <p>
+          Mô hình này là tiền đề nền tảng cho EKF Localization và EKF SLAM ở các chương tiếp theo.
+        </p>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-6-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Đánh Giá Xác Suất Chùm Tia Laser</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Tham Số Cảm Biến Lidar</div>
+            <p>
+              Tầm xa cực đại: $z_{\text{max}} = 10.0$ m; Độ lệch chuẩn nhiễu: $\sigma_{\text{hit}} = 0.2$ m.<br>
+              Trọng số kết hợp: $z_{\text{hit}} = 0.75$, $z_{\text{short}} = 0.10$, $z_{\text{max}} = 0.05$, $z_{\text{rand}} = 0.10$.<br>
+              Hệ số mũ: $\lambda_{\text{short}} = 0.5$ $\text{m}^{-1}$.<br>
+              Khoảng cách chuẩn từ bản đồ: $z^* = 4.0$ m; Dữ liệu đo thực tế: $z = 4.15$ m.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tính Toán Từng Thành Phần Riêng Biệt</div>
+            <p>
+              1. Thành phần đo đúng $p_{\text{hit}}$:
+              $$\Delta z = 4.15 - 4.0 = 0.15\text{ m} \implies \frac{\Delta z^2}{2\sigma_{\text{hit}}^2} = \frac{0.0225}{2 \times 0.04} = 0.28125$$
+              $$p_{\text{hit}} \approx \frac{1}{\sqrt{2\pi \times 0.04}} e^{-0.28125} \approx \frac{1}{0.5013} \times 0.7548 \approx \mathbf{1.5057}$$
+              2. Thành phần vật cản bất ngờ $p_{\text{short}}$: Vì $z \gt z^*$, $p_{\text{short}} = \mathbf{0.0}$.<br>
+              3. Thành phần cực đại $p_{\text{max}}$: Vì $z \lt z_{\text{max}}$, $p_{\text{max}} = \mathbf{0.0}$.<br>
+              4. Thành phần ngẫu nhiên $p_{\text{rand}}$:
+              $$p_{\text{rand}} = \frac{1}{z_{\text{max}}} = \frac{1}{10.0} = \mathbf{0.1000}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Ráp Số Tổ Hợp Tuyến Tính Khả Dĩ</div>
+            <p>
+              $$p(z \mid x, m) = 0.75 \times 1.5057 + 0.10 \times 0 + 0.05 \times 0 + 0.10 \times 0.1000$$
+              $$p(z \mid x, m) = 1.1293 + 0 + 0 + 0.0100 = \mathbf{1.1393}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Diễn Giải Ý Nghĩa Kỹ Thuật</div>
+            <p>
+              Giá trị mật độ xác suất cao ($1.1393 \gt 1$) cho thấy giả thiết tư thế robot $x$ rất ăn khớp với bản đồ. Đóng góp $99.1\%$ khả dĩ đến từ thành phần $p_{\text{hit}}$. Thành phần $p_{\text{rand}}$ đảm bảo xác suất không bao giờ bị rơi về $0$ tuyệt đối, ngăn chặn hiện tượng bộ lọc Bayes bị tê liệt khi gặp vật cản lạ không có trong bản đồ.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-6-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: So Sánh Beam Model vs Likelihood Field</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch06"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch06-btn-toggle" class="btn btn-primary">Chuyển Đổi Mô Hình Cảm Biến</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-6-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Cấu Hình Sensor Model Trong Nav2 AMCL</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">NAV2 SENSOR MODEL PLUGIN</span>
+            <span class="bridge-file">config/amcl_sensor_params.yaml</span>
+          </div>
+          <p>
+            Trong bộ điều hướng Nav2 của ROS 2, thuật toán AMCL hỗ trợ cả 2 mô hình cảm biến: <code>likelihood_field</code> (mặc định tối ưu hiệu năng) và <code>beam</code>:
+          </p>
+          <pre><code>amcl:
+  ros__parameters:
+    laser_model_type: "likelihood_field" # Chon "likelihood_field" hoac "beam"
+    laser_min_range: 0.1
+    laser_max_range: 12.0
+    max_beams: 60                        # Giam so luong tia de tiet kiem CPU
+    
+    # 4 He so sai so do luong trong chuong 6:
+    z_hit: 0.75
+    z_short: 0.10
+    z_max: 0.05
+    z_rand: 0.10
+    
+    sigma_hit: 0.2
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0       # Ban kinh tim kiem khoang cach EDT toi vat can</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch05.html" class="btn btn-secondary">← Chương 05</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch07.html" class="btn btn-primary">Chương 07 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

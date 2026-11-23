@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 16: Các Kỹ Thuật POMDP Xấp Xỉ: QMDP, Augmented MDP & Monte Carlo | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 4: Lập Kế Hoạch & Điều Khiển Dưới Bất Định</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 16</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 16</span>
+        <span class="sidebar-badge">15 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-16-1">
+            <span class="nav-text">16.1 Động Lực: Phá Vỡ Điểm Nghẽn Tính Toán POMDP</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-2">
+            <span class="nav-text">16.2 Thuật Toán QMDP (Fast Heuristic)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-2-1">
+            <span class="nav-text">16.2.1 Giả Định Biến Mất Bất Định Sau Bước 1</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-2-2">
+            <span class="nav-text">16.2.2 Ưu Điểm Tốc Độ & Hạn Chế Của QMDP</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-3">
+            <span class="nav-text">16.3 MDP Tăng Cường (Augmented MDP - AMDP)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-3-1">
+            <span class="nav-text">16.3.1 Không Gian Trạng Thái Mở Rộng Kèm Entropy</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-3-2">
+            <span class="nav-text">16.3.2 Thuật Toán AMDP & Dẫn Xuất Toán Học</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-3-4">
+            <span class="nav-text">16.3.4 Ứng Dụng Trong Dẫn Đường Robot Tự Hành</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-4">
+            <span class="nav-text">16.4 Monte Carlo POMDP (MC-POMDP)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-4-1">
+            <span class="nav-text">16.4.1 Biểu Diễn Bằng Tập Hạt Ngẫu Nhiên</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-16-4-2">
+            <span class="nav-text">16.4.2 Thuật Toán MC-POMDP</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-5">
+            <span class="nav-text">16.5 Tóm Tắt & Bảng So Sánh Các Phương Pháp Xấp Xỉ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: So Sánh Hành Động QMDP vs AMDP</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: So Sánh Dẫn Đường QMDP vs AMDP</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-16-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Nav2 Active Uncertainty-Aware Controller</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 4: LẬP KẾ HOẠCH & ĐIỀU KHIỂN DƯỚI BẤT ĐỊNH</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 16</span>
+        </div>
+        <h1 class="chapter-title">Các Kỹ Thuật POMDP Xấp Xỉ: QMDP, Augmented MDP & Monte Carlo</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-16-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO CÁC PHƯƠNG PHÁP POMDP XẤP XỈ LÀ CHÌA KHÓA ĐƯA LÝ THUYẾT VÀO ĐỜI THỰC?</div>
+        <p>
+          Mặc dù POMDP chính xác (Chương 15) là khung lý thuyết hoàn hảo nhất, nó mắc phải bài toán nan giải: <strong>Lời nguyền số chiều (Curse of Dimensionality)</strong> và <strong>Lời nguyền lịch sử (Curse of History)</strong>. Việc giải chính xác một bài toán POMDP chỉ có thể thực hiện trên những bài toán đồ chơi với ít hơn $10$ trạng thái!
+        </p>
+        <p>
+          Trong một nhà máy hay đường phố thực tế với hàng triệu vị trí, làm thế nào để robot vẫn có được sự thông minh biết "chủ động thu thập thông tin"?
+        </p>
+        <ul>
+          <li><strong>QMDP:</strong> Giải một bài toán MDP chuẩn cực nhanh (chưa tới vài phần nghìn giây), sau đó tính trung bình trọng số theo niềm tin hiện tại.</li>
+          <li><strong>Augmented MDP (AMDP):</strong> Một phát minh thiên tài của Roy, Gordon và Thrun: Ghép thêm chỉ số <strong>Entropy thông tin $H(b)$</strong> vào vector trạng thái $\bar{s} = (x, y, \theta, H)^T$. Nhờ đó, robot tự động học được hành vi: <em>"Khi thấy mình đang có Entropy cao (lạc đường), hãy chủ động đi vòng qua trạm phát sóng để định vị lại mình trước khi tiến về đích!"</em>.</li>
+        </ul>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-16-1" class="content-block">
+        <h2>16.1 Động Lực: Phá Vỡ Điểm Nghẽn Tính Toán POMDP (Motivation)</h2>
+        <p>
+          Để robot có thể tính toán thời gian thực ở tần số $10\text{ Hz} \to 50\text{ Hz}$, các phương pháp xấp xỉ đưa ra các giả định thông minh nhằm thu hẹp không gian tìm kiếm.
+        </p>
+      </section>
+
+      <section id="sec-16-2" class="content-block">
+        <h2>16.2 Thuật Toán QMDP (The QMDP Value Approximation)</h2>
+        <h3 id="sec-16-2-1">16.2.1 Giả Định Biến Mất Bất Định Sau Bước 1</h3>
+        <p>
+          QMDP đưa ra giả định đơn giản hóa: Sau hành động đầu tiên, robot sẽ biết chính xác $100\%$ trạng thái thực tế của mình (bất định biến mất hoàn toàn).
+        </p>
+        <p>
+          Trước hết, giải bài toán MDP quan sát toàn phần thông thường để thu được hàm giá trị hành động $Q_{\text{MDP}}(s, a)$:
+        </p>
+        $$Q_{\text{MDP}}(s, a) = \sum_{s'} p(s' \mid s, a) \left[ \mathcal{R}(s, a, s') + \gamma V_{\text{MDP}}^*(s') \right]$$
+        <p>
+          Sau đó, với bất kỳ niềm tin $b$ nào trong không gian niềm tin, giá trị $Q_{\text{QMDP}}(b, a)$ chỉ là trung bình có trọng số tuyến tính:
+        </p>
+        <div class="formula-hero">
+          $$Q_{\text{QMDP}}(b, a) = \sum_{s \in \mathcal{S}} b(s) \, Q_{\text{MDP}}(s, a)$$
+          $$\pi_{\text{QMDP}}(b) = \arg\max_{a \in \mathcal{A}} Q_{\text{QMDP}}(b, a)$$
+        </div>
+        <p>
+          <strong>Hạn chế:</strong> Do giả định bất định sẽ biến mất trong tương lai, QMDP <em>hoàn toàn không có khả năng thực hiện các hành vi chủ động thu thập thông tin</em> (Active Information Gathering). Nó sẽ không bao giờ dừng lại quan sát nếu hành động đó không trực tiếp mang lại phần thưởng cơ học!
+        </p>
+      </section>
+
+      <section id="sec-16-3" class="content-block">
+        <h2>16.3 MDP Tăng Cường (Augmented Markov Decision Processes - AMDP)</h2>
+        <h3 id="sec-16-3-1">16.3.1 Không Gian Trạng Thái Mở Rộng Kèm Entropy $H(b)$</h3>
+        <p>
+          Roy và Thrun khắc phục nhược điểm của QMDP bằng cách đưa độ bất định vào thẳng không gian trạng thái thông qua <strong>Entropy Shannon</strong> của niềm tin:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">ENTROPY BẤT ĐỊNH SHANNON</div>
+          $$H(b) = -\sum_{s \in \mathcal{S}} b(s) \log b(s)$$
+        </div>
+        <p>
+          Trạng thái mở rộng (Augmented State):
+        </p>
+        $$\bar{s} = \langle \bar{x}, H \rangle$$
+        <p>
+          Trong đó $\bar{x} = \arg\max_s b(s)$ là trạng thái có khả năng cao nhất, và $H = H(b)$ là mức độ bất định hiện tại. Bằng cách gán phần thưởng phạt khi trạng thái có $H$ lớn, thuật toán MDP chuẩn sẽ tự động tìm ra đường đi <strong>chủ động bám theo các vùng giàu thông tin cảm biến</strong> để duy trì $H$ ở mức thấp nhất có thể.
+        </p>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-16-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: So Sánh Lựa Chọn Hành Động QMDP vs AMDP</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Không Gian & Niềm Tin Ban Đầu</div>
+            <p>
+              Xét robot có 2 trạng thái vị trí: $s_1$ (bên trái) và $s_2$ (bên phải).<br>
+              Niềm tin hiện tại đang rất mơ hồ: $b = [0.5, 0.5]^T \implies H(b) = -\log(0.5) \approx \mathbf{0.693\text{ nats}}$.<br>
+              Robot có 2 hành động:
+              <ul>
+                <li>$a_{\text{goal}}$: Đi thẳng về đích. Nếu ở $s_1$ thì thành công nhận $+10$; nếu ở $s_2$ thì đâm tường phạt $-20$.</li>
+                <li>$a_{\text{sense}}$: Bật đèn quét cảm biến để xác định rõ vị trí. Chi phí bước đi $-1.0$.</li>
+              </ul>
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tính Giá Trị Theo QMDP</div>
+            <p>
+              Giải bảng giá trị MDP lý tưởng:
+              <ul>
+                <li>Nếu biết chắc ở $s_1$: Chọn $a_{\text{goal}} \implies Q_{\text{MDP}}(s_1, \text{goal}) = +10.0$.</li>
+                <li>Nếu biết chắc ở $s_2$: Robot sẽ đi vòng sang $s_1$ rồi về đích $\implies Q_{\text{MDP}}(s_2, \text{goal}) = -20.0$. Hành động tốt nhất của nó là rẽ trước $\implies Q_{\text{MDP}}(s_2, \text{turn}) = +8.0$.</li>
+              </ul>
+              Kỳ vọng QMDP khi niềm tin là $[0.5, 0.5]^T$:
+              $$Q_{\text{QMDP}}(b, \text{goal}) = 0.5 \times (+10.0) + 0.5 \times (-20.0) = \mathbf{-5.0}$$
+              $$Q_{\text{QMDP}}(b, \text{sense}) = -1.0 + 0.5(10) + 0.5(8) = \mathbf{+8.0}$$
+              QMDP có thể chọn đúng trong trường hợp này, nhưng nếu chi phí đo lường hơi cao, QMDP sẽ chọn sai vì coi thường giá trị của việc giảm bất định.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Giá Trị Theo AMDP (Bao Gồm Phạt Entropy)</div>
+            <p>
+              Trong AMDP, hàm phần thưởng tích hợp chi phí bất định:
+              $$\mathcal{R}_{\text{AMDP}}(\bar{s}, a) = \mathcal{R}(s, a) - \lambda H(b), \quad \text{với } \lambda = 5.0$$
+              Nếu chọn $a_{\text{goal}}$ khi đang mù ($H = 0.693$):
+              $$\mathcal{R}_{\text{AMDP}} = -5.0 - 5.0 \times 0.693 = -5.0 - 3.465 = \mathbf{-8.465}$$
+              Nếu chọn $a_{\text{sense}}$: Sau khi bật đèn, robot biết chắc $100\%$ vị trí của mình $\implies H_{\text{new}} = 0.0$!
+              $$\mathcal{R}_{\text{AMDP}} = -1.0 - 5.0 \times 0.0 + \gamma V_{\text{MDP}} = -1.0 + 0.9 \times 10.0 = \mathbf{+8.0}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Kết Luận Kỹ Thuật Về Hành Vi Chủ Động</div>
+            <p>
+              AMDP tạo ra một lực đẩy mạnh mẽ hướng về hành động $a_{\text{sense}}$ ($+8.0 \gg -8.465$) nhờ khả năng triệt tiêu hoàn toàn thành phần phạt Entropy. Robot tự giác "bật đèn nhìn đường" để thoát khỏi tình trạng mù quáng trước khi thực hiện hành động nguy hiểm.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-16-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: So Sánh Dẫn Đường QMDP vs AMDP</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch16"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-16-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Nav2 Active Uncertainty-Aware Controller</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">NAV2 ACTIVE CONTROL PLUGIN</span>
+            <span class="bridge-file">src/uncertainty_aware_controller.cpp</span>
+          </div>
+          <p>
+            Plugin bộ điều khiển bám quỹ đạo Nav2 tự động giảm tốc và chuyển hướng về phía các mốc đặc trưng khi ma trận hiệp phương sai của robot vượt quá ngưỡng an toàn:
+          </p>
+          <pre><code>#include &lt;nav2_core/controller.hpp&gt;
+#include &lt;geometry_msgs/msg/twist_stamped.hpp&gt;
+
+class UncertaintyAwareController : public nav2_core::Controller {
+public:
+  geometry_msgs::msg::TwistStamped computeVelocityCommands(
+    const geometry_msgs::msg::PoseStamped&amp; pose,
+    const geometry_msgs::msg::Twist&amp; velocity,
+    nav2_core::GoalChecker* goal_checker) override {
+    
+    // 1. Kiem tra phuong sai bat dinh vi tri tu AMCL
+    double pose_uncertainty = getTraceOfCovariance();
+
+    geometry_msgs::msg::TwistStamped cmd;
+    cmd.header.stamp = node_-&gt;now();
+
+    if (pose_uncertainty &gt; UNCERTAINTY_THRESHOLD) {
+      // AMDP Logic: Giam toc do dai, tang toc do quay de tim kiem landmarks
+      cmd.twist.linear.x = 0.15; // Chay cham an toan
+      cmd.twist.angular.z = 0.40; // Xoay nhe de camera quet dac trung
+    } else {
+      // Khi do tin cay cao: chay voi toc do toi da
+      cmd.twist.linear.x = 0.80;
+      cmd.twist.angular.z = computePurePursuit(pose);
+    }
+    return cmd;
+  }
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch15.html" class="btn btn-secondary">← Chương 15</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch17.html" class="btn btn-primary">Chương 17 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

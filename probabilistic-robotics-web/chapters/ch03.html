@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Các Bộ Lọc Gauss: Kalman, EKF, UKF & Information Filter | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Robot Học Xác Suất</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 03</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+        <span class="sidebar-badge">19 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-3-1">
+            <span class="nav-text">3.1 Mở Đầu Về Họ Bộ Lọc Gauss</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-2">
+            <span class="nav-text">3.2 Bộ Lọc Kalman Tuyến Tính (KF)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-1">
+            <span class="nav-text">3.2.1 Hệ Thống Tuyến Tính Gauss</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-2">
+            <span class="nav-text">3.2.2 Thuật Toán Bộ Lọc Kalman</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-4">
+            <span class="nav-text">3.2.4 Dẫn Xuất Toán Học Kalman Filter</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-3">
+            <span class="nav-text">3.3 Bộ Lọc Kalman Mở Rộng (EKF)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-1">
+            <span class="nav-text">3.3.1 Tại Sao Cần Tuyến Tính Hóa?</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-2">
+            <span class="nav-text">3.3.2 Tuyến Tính Hóa Qua Khai Triển Taylor</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-3">
+            <span class="nav-text">3.3.3 Thuật Toán EKF & Ma Trận Jacobian</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-4">
+            <span class="nav-text">3.4 Bộ Lọc Kalman Không Mùi (UKF)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-4-1">
+            <span class="nav-text">3.4.1 Biến Đổi Unscented & Sigma Points</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-4-2">
+            <span class="nav-text">3.4.2 Thuật Toán UKF & So Sánh Với EKF</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-5">
+            <span class="nav-text">3.5 Bộ Lọc Thông Tin (Information Filter)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-5-1">
+            <span class="nav-text">3.5.1 Tham Số Hóa Chính Tắc (Canonical)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-5-2">
+            <span class="nav-text">3.5.2 Thuật Toán Information Filter & EIF</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-6">
+            <span class="nav-text">3.6 Tóm Tắt & Bảng So Sánh Các Bộ Lọc</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Cập Nhật EKF Đo Cự Ly</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: So Sánh EKF vs UKF vs Monte Carlo</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Cấu Hình Gói robot_localization</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ ROBOT HỌC XÁC SUẤT</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 03</span>
+        </div>
+        <h1 class="chapter-title">Các Bộ Lọc Gauss: Kalman, EKF, UKF & Information Filter</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-3-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO BỘ LỌC GAUSS THỐNG TRỊ CÁC HỆ DẪN ĐƯỜNG VÀ ĐỊNH VỊ ROBOT?</div>
+        <p>
+          Trong không gian trạng thái liên tục nhiều chiều $\mathbb{R}^n$, việc biểu diễn một phân bố xác suất bất kỳ đòi hỏi vô hạn tham số. Phân bố chuẩn nhiều chiều (Multivariate Gaussian Distribution) là cấu trúc toán học kỳ diệu duy nhất cho phép:
+        </p>
+        <ul>
+          <li><strong>Đóng gói toàn bộ bất định trong 2 tham số:</strong> Vector kỳ vọng $\boldsymbol{\mu} \in \mathbb{R}^n$ và ma trận hiệp phương sai $\boldsymbol{\Sigma} \in \mathbb{R}^{n \times n}$.</li>
+          <li><strong>Tính toán giải tích kín (Closed-form Analytical Solution):</strong> Tích phân tích chập trong bước dự đoán và nhân phân bố trong bước cập nhật của hệ tuyến tính vẫn cho kết quả là một phân bố Gauss hoàn hảo.</li>
+          <li><strong>Ước lượng tối ưu không thiên lệch (BLUE):</strong> Kalman Filter đạt phương sai sai số nhỏ nhất trong toàn bộ lớp các bộ lọc tuyến tính.</li>
+        </ul>
+        <p>
+          Tuy nhiên, khi thế giới thực chứa các hàm phi tuyến mạnh (hàm lượng giác $\sin, \cos$ trong chuyển động góc, khoảng cách Euclidean $\sqrt{\Delta x^2 + \Delta y^2}$ trong lidar), phân bố Gauss bị bẻ cong thành hình quả chuối phi chuẩn. Đây là lý do ra đời của <strong>EKF</strong> (xấp xỉ độ dốc tiếp tuyến bậc nhất) và <strong>UKF</strong> (bắt trọn mô-men thống kê bậc cao qua các điểm Sigma deterministic).
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-3-1" class="content-block">
+        <h2>3.1 Mở Đầu Về Họ Bộ Lọc Gauss (Gaussian Filters)</h2>
+        <p>
+          Mọi thành viên trong họ bộ lọc Gauss đều giả định niềm tin $\text{bel}(x_t)$ tại mọi thời điểm $t$ tuân theo phân bố chuẩn nhiều chiều:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">HÀM MẬT ĐỘ XÁC SUẤT GAUSS NHIỀU CHIỀU</div>
+          $$p(x) = \det(2\pi\boldsymbol{\Sigma})^{-\frac{1}{2}} \exp\left( -\frac{1}{2} (x - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (x - \boldsymbol{\mu}) \right)$$
+        </div>
+      </section>
+
+      <section id="sec-3-2" class="content-block">
+        <h2>3.2 Bộ Lọc Kalman Tuyến Tính (The Kalman Filter)</h2>
+        <h3 id="sec-3-2-1">3.2.1 Hệ Thống Tuyến Tính Gauss (Linear Gaussian Systems)</h3>
+        <p>
+          Hệ thống được mô tả qua phương trình trạng thái và đo lường tuyến tính có nhiễu cộng Gauss độc lập:
+        </p>
+        $$x_t = A_t x_{t-1} + B_t u_t + \epsilon_t, \quad \epsilon_t \sim \mathcal{N}(0, R_t)$$
+        $$z_t = C_t x_t + \delta_t, \quad \delta_t \sim \mathcal{N}(0, Q_t)$$
+
+        <h3 id="sec-3-2-2">3.2.2 Thuật Toán Kalman Filter Cốt Lõi</h3>
+        <div class="formula-hero">
+          $$\begin{aligned}
+          &\textbf{Dự đoán (Prediction):} \\
+          &\quad \bar{\boldsymbol{\mu}}_t = A_t \boldsymbol{\mu}_{t-1} + B_t u_t \\
+          &\quad \bar{\boldsymbol{\Sigma}}_t = A_t \boldsymbol{\Sigma}_{t-1} A_t^T + R_t \\
+          &\textbf{Hiệu chỉnh (Correction):} \\
+          &\quad K_t = \bar{\boldsymbol{\Sigma}}_t C_t^T (C_t \bar{\boldsymbol{\Sigma}}_t C_t^T + Q_t)^{-1} \quad \text{(Kalman Gain)} \\
+          &\quad \boldsymbol{\mu}_t = \bar{\boldsymbol{\mu}}_t + K_t (z_t - C_t \bar{\boldsymbol{\mu}}_t) \\
+          &\quad \boldsymbol{\Sigma}_t = (I - K_t C_t) \bar{\boldsymbol{\Sigma}}_t
+          \end{aligned}$$
+        </div>
+      </section>
+
+      <section id="sec-3-3" class="content-block">
+        <h2>3.3 Bộ Lọc Kalman Mở Rộng (The Extended Kalman Filter - EKF)</h2>
+        <h3 id="sec-3-3-1">3.3.1 Tại Sao Phải Tuyến Tính Hóa?</h3>
+        <p>
+          Trong robot thực tế, mô hình chuyển động $g(u_t, x_{t-1})$ và cảm biến $h(x_t)$ là các hàm phi tuyến:
+          $$x_t = g(u_t, x_{t-1}) + \epsilon_t, \quad z_t = h(x_t) + \delta_t$$
+          Một phân bố Gauss đi qua hàm phi tuyến sẽ biến dạng thành một phân bố phi Gauss bất kỳ, làm mất tính đóng của tích phân Bayes.
+        </p>
+
+        <h3 id="sec-3-3-2">3.3.2 Tuyến Tính Hóa Qua Khai Triển Taylor Bậc 1</h3>
+        <p>
+          EKF xấp xỉ $g$ quanh điểm kỳ vọng $\boldsymbol{\mu}_{t-1}$ và xấp xỉ $h$ quanh điểm tiên nghiệm $\bar{\boldsymbol{\mu}}_t$:
+          $$g(u_t, x_{t-1}) \approx g(u_t, \boldsymbol{\mu}_{t-1}) + G_t (x_{t-1} - \boldsymbol{\mu}_{t-1})$$
+          $$h(x_t) \approx h(\bar{\boldsymbol{\mu}}_t) + H_t (x_t - \bar{\boldsymbol{\mu}}_t)$$
+          Trong đó $G_t = \left. \frac{\partial g}{\partial x} \right|_{\boldsymbol{\mu}_{t-1}}$ và $H_t = \left. \frac{\partial h}{\partial x} \right|_{\bar{\boldsymbol{\mu}}_t}$ là các ma trận đạo hàm riêng (Jacobian).
+        </p>
+
+        <h3 id="sec-3-3-3">3.3.3 Thuật Toán EKF Hoàn Chỉnh</h3>
+        <div class="formula-card">
+          <div class="formula-title">THUẬT TOÁN EXTENDED KALMAN FILTER (EKF)</div>
+          $$\bar{\boldsymbol{\mu}}_t = g(u_t, \boldsymbol{\mu}_{t-1})$$
+          $$\bar{\boldsymbol{\Sigma}}_t = G_t \boldsymbol{\Sigma}_{t-1} G_t^T + R_t$$
+          $$K_t = \bar{\boldsymbol{\Sigma}}_t H_t^T (H_t \bar{\boldsymbol{\Sigma}}_t H_t^T + Q_t)^{-1}$$
+          $$\boldsymbol{\mu}_t = \bar{\boldsymbol{\mu}}_t + K_t (z_t - h(\bar{\boldsymbol{\mu}}_t))$$
+          $$\boldsymbol{\Sigma}_t = (I - K_t H_t) \bar{\boldsymbol{\Sigma}}_t$$
+        </div>
+      </section>
+
+      <section id="sec-3-4" class="content-block">
+        <h2>3.4 Bộ Lọc Kalman Không Mùi (The Unscented Kalman Filter - UKF)</h2>
+        <h3 id="sec-3-4-1">3.4.1 Biến Đổi Unscented (The Unscented Transform)</h3>
+        <p>
+          Julier và Uhlmann đề xuất triết lý đột phá: <em>"Xấp xỉ một phân bố xác suất dễ hơn rất nhiều so với xấp xỉ một hàm phi tuyến phức tạp"</em>.
+        </p>
+        <p>
+          Với không gian $n$ chiều, UKF chọn một tập gồm $2n+1$ điểm mẫu xác định gọi là <strong>Sigma Points</strong> $\mathcal{X}^{[i]}$ nằm đối xứng trên elip phân bố:
+          $$\mathcal{X}^{[0]} = \boldsymbol{\mu}$$
+          $$\mathcal{X}^{[i]} = \boldsymbol{\mu} + \left( \sqrt{(n + \lambda) \boldsymbol{\Sigma}} \right)_i, \quad i = 1, \dots, n$$
+          $$\mathcal{X}^{[i+n]} = \boldsymbol{\mu} - \left( \sqrt{(n + \lambda) \boldsymbol{\Sigma}} \right)_i, \quad i = 1, \dots, n$$
+        </p>
+        <p>
+          Các điểm này được truyền trực tiếp qua hàm phi tuyến thực $g(\mathcal{X}^{[i]})$ mà <strong>hoàn toàn không cần tính đạo hàm Jacobian</strong>. Độ chính xác của UKF đạt độ chính xác Taylor bậc 3 đối với hệ Gauss (so với bậc 1 của EKF).
+        </p>
+      </section>
+
+      <section id="sec-3-5" class="content-block">
+        <h2>3.5 Bộ Lọc Thông Tin (The Information Filter)</h2>
+        <h3 id="sec-3-5-1">3.5.1 Tham Số Hóa Chính Tắc (Canonical Parameterization)</h3>
+        <p>
+          Thay vì lưu $(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, Information Filter lưu <strong>Ma trận thông tin (Information Matrix)</strong> $\Omega$ và <strong>Vector thông tin (Information Vector)</strong> $\xi$:
+        </p>
+        <div class="formula-card">
+          $$\Omega = \boldsymbol{\Sigma}^{-1}, \quad \xi = \boldsymbol{\Sigma}^{-1} \boldsymbol{\mu} = \Omega \boldsymbol{\mu}$$
+        </div>
+        <p>
+          <strong>Ưu thế vượt trội:</strong> Bước cập nhật đo lường trở thành <strong>phép cộng đơn giản</strong> mà không cần nghịch đảo ma trận phức tạp:
+          $$\Omega_t = \bar{\Omega}_t + H_t^T Q_t^{-1} H_t, \quad \xi_t = \bar{\xi}_t + H_t^T Q_t^{-1} z_t$$
+          Đây chính là tiền đề lý thuyết dẫn đến các thuật toán SLAM quy mô lớn như SEIF và GraphSLAM.
+        </p>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-3-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Một Chu Kỳ EKF Đo Cự Ly Mốc Phi Tuyến</h2>
+        <p>
+          Robot 1D chuyển động trên trục $x$. Vị trí mốc $m = 10.0$ m. Cảm biến đo khoảng cách $z = |m - x|$.
+        </p>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo & Dự Đoán Chuyển Động</div>
+            <p>
+              Trạng thái bước trước: $\mu_0 = 2.0$ m, $\Sigma_0 = 1.0$ $\text{m}^2$.<br>
+              Lệnh vận tốc: $u_1 = 1.5$ m/s, $\Delta t = 1.0$ s, nhiễu $R = 0.5$ $\text{m}^2$.<br>
+              Mô hình chuyển động tuyến tính: $x_1 = x_0 + u_1 \Delta t$.
+              $$\bar{\mu}_1 = 2.0 + 1.5 \times 1.0 = \mathbf{3.5\text{ m}}$$
+              $$\bar{\Sigma}_1 = \Sigma_0 + R = 1.0 + 0.5 = \mathbf{1.5\text{ m}^2}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tuyến Tính Hóa Mô Hình Đo & Jacobian</div>
+            <p>
+              Hàm đo phi tuyến: $h(x) = m - x = 10.0 - x$.<br>
+              Dự đoán kết quả đo: $\hat{z}_1 = h(\bar{\mu}_1) = 10.0 - 3.5 = 6.5$ m.<br>
+              Ma trận Jacobian $H_1$:
+              $$H_1 = \left. \frac{\partial h}{\partial x} \right|_{\bar{\mu}_1} = -1.0$$
+              Sai số cảm biến: $Q = 0.5$ $\text{m}^2$. Giả sử thực tế đo được $z_1 = 6.0$ m.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Hệ Số Kalman Gain $K_1$</div>
+            <p>
+              Độ lệch đổi mới (Innovation / Residual):
+              $$y_1 = z_1 - \hat{z}_1 = 6.0 - 6.5 = \mathbf{-0.5\text{ m}}$$
+              Hiệp phương sai đổi mới:
+              $$S_1 = H_1 \bar{\Sigma}_1 H_1^T + Q = (-1.0) \times 1.5 \times (-1.0) + 0.5 = 1.5 + 0.5 = 2.0\text{ m}^2$$
+              Kalman Gain:
+              $$K_1 = \bar{\Sigma}_1 H_1^T S_1^{-1} = 1.5 \times (-1.0) \times \frac{1}{2.0} = \mathbf{-0.75}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Cập Nhật Hiệu Chỉnh Cuối Cùng</div>
+            <p>
+              Cập nhật kỳ vọng vị trí:
+              $$\mu_1 = \bar{\mu}_1 + K_1 y_1 = 3.5 + (-0.75) \times (-0.5) = 3.5 + 0.375 = \mathbf{3.875\text{ m}}$$
+              Cập nhật phương sai:
+              $$\Sigma_1 = (I - K_1 H_1) \bar{\Sigma}_1 = (1 - (-0.75) \times (-1.0)) \times 1.5 = (1 - 0.75) \times 1.5 = \mathbf{0.375\text{ m}^2}$$
+              <strong>Bài học:</strong> Sau khi có phép đo, độ bất định giảm từ $1.5$ xuống còn $0.375$ (giảm $75\%$). Vì khoảng cách đo được ngắn hơn dự đoán ($6.0\text{ m} \lt 6.5\text{ m}$), vị trí robot được kéo dịch lại gần mốc ($3.875\text{ m} \gt 3.5\text{ m}$).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-3-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: So Sánh EKF vs UKF vs Monte Carlo</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch03"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group" style="display: flex; align-items: center; gap: 8px;">
+              <label for="ch03-slider-mu" style="font-size: 0.85rem; color: var(--text-muted);">Giá trị trung bình μ:</label>
+              <input type="range" id="ch03-slider-mu" min="0.2" max="2.5" step="0.1" value="1.2">
+            </div>
+            <div class="control-group" style="display: flex; align-items: center; gap: 8px;">
+              <label for="ch03-slider-sigma" style="font-size: 0.85rem; color: var(--text-muted);">Độ lệch chuẩn σ:</label>
+              <input type="range" id="ch03-slider-sigma" min="0.1" max="1.5" step="0.05" value="0.6">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-3-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Gói robot_localization Trong ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 SENSOR FUSION CONFIGURATION</span>
+            <span class="bridge-file">config/ekf_localization.yaml</span>
+          </div>
+          <p>
+            Gói <code>robot_localization</code> là triển khai EKF/UKF tiêu chuẩn công nghiệp trong hệ sinh thái ROS 2, cho phép hợp nhất đồng thời Wheel Odometry, IMU và GPS:
+          </p>
+          <pre><code>ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # Nguon 1: Wheel Odometry
+    odom0: /wheel_odometry
+    odom0_config: [true,  true,  false,
+                   false, false, true,
+                   true,  false, false,
+                   false, false, true,
+                   false, false, false]
+    odom0_queue_size: 10
+    odom0_differential: false
+
+    # Nguon 2: IMU Sensor
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  true,  false, false]
+    imu0_differential: false
+    imu0_remove_gravitational_acceleration: true
+
+    # Ma tran nhieu tien trinh R (Process Noise Covariance)
+    process_noise_covariance: [0.05, 0.0,  0.0,  0.0,  0.0,  0.0,
+                               0.0,  0.05, 0.0,  0.0,  0.0,  0.0,
+                               0.0,  0.0,  0.06, 0.0,  0.0,  0.0,
+                               0.0,  0.0,  0.0,  0.03, 0.0,  0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.03, 0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.06]</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch02.html" class="btn btn-secondary">← Chương 02</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch04.html" class="btn btn-primary">Chương 04 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 07: Định Vị Robot Di Động: Định Vị Markov & Bộ Lọc Gauss | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Định Vị Robot Di Động</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 07</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 07</span>
+        <span class="sidebar-badge">17 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-7-1">
+            <span class="nav-text">7.1 Phân Loại Các Bài Toán Định Vị</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-1-1">
+            <span class="nav-text">7.1.1 Bám Vị Trí vs Định Vị Toàn Cục</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-1-2">
+            <span class="nav-text">7.1.2 Bài Toán Bắt Cóc Robot (Kidnapping)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-2">
+            <span class="nav-text">7.2 Định Vị Markov (Markov Localization)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-3">
+            <span class="nav-text">7.3 Minh Họa Tiến Trình Định Vị Markov</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-4">
+            <span class="nav-text">7.4 Định Vị Bằng EKF (EKF Localization)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-4-2">
+            <span class="nav-text">7.4.2 Thuật Toán EKF Localization Chi Tiết</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-4-3">
+            <span class="nav-text">7.4.3 Dẫn Xuất Toán Học Ma Trận Hiệp Phương Sai</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-5">
+            <span class="nav-text">7.5 Ước Lượng Liên Kết Dữ Liệu (Data Association)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-5-1">
+            <span class="nav-text">7.5.1 Cực Đại Hợp Lý (Maximum Likelihood ML)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-5-2">
+            <span class="nav-text">7.5.2 Khoảng Cách Mahalanobis Trong Ghép Cặp</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-6">
+            <span class="nav-text">7.6 Theo Dõi Đa Giả Thiết (MHT)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-7">
+            <span class="nav-text">7.7 Định Vị Bằng UKF (UKF Localization)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-8">
+            <span class="nav-text">7.8 Cân Nhắc Thực Tế & Triển Khai Phần Cứng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Ghép Cặp Mốc & Cập Nhật EKF</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Elip Bất Định 2D EKF Localization</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Hợp Nhất UWB & IMU Với EKF Localization</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 2: ĐỊNH VỊ ROBOT DI ĐỘNG</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 07</span>
+        </div>
+        <h1 class="chapter-title">Định Vị Robot Di Động: Định Vị Markov & Bộ Lọc Gauss</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-7-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO BÀI TOÁN ĐỊNH VỊ LÀ BƯỚC ĐẦU TIÊN CỦA ROBOT TỰ HÀNH?</div>
+        <p>
+          Trong tam giác vàng của điều hướng tự động: <em>Định vị (Localization) $\to$ Lập bản đồ (Mapping) $\to$ Dẫn đường (Path Planning)</em>, nếu định vị sai thì toàn bộ bản đồ bị méo mó và quỹ đạo lập ra sẽ đâm thẳng vào chướng ngại vật.
+        </p>
+        <p>
+          Định vị không chỉ đơn thuần là đọc tọa độ GPS (vốn không thể hoạt động trong nhà, đường hầm hoặc dưới nước). Robot phải tự suy luận vị trí từ việc nhìn thấy các đặc trưng môi trường quen thuộc (Landmarks).
+          Chương 7 đặt nền móng với <strong>EKF Localization</strong>: giải thuật định vị nhẹ nhất, chạy ở tần số hàng trăm Hertz trên các vi điều khiển nhúng, duy trì elip bất định hiệp phương sai $2\sigma$ thể hiện trung thực độ tin cậy của robot.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-7-1" class="content-block">
+        <h2>7.1 Phân Loại Các Bài Toán Định Vị (Taxonomy of Localization)</h2>
+        <p>
+          Thrun, Burgard và Fox phân cấp độ khó của bài toán định vị theo 4 tiêu chí cốt tử:
+        </p>
+        <ol>
+          <li><strong>Bám vị trí (Position Tracking):</strong> Vị trí ban đầu đã biết; robot chỉ cần bồi đắp sai số trôi dạt tích lũy của Odometry. Phân bố niềm tin là đơn đỉnh (Unimodal).</li>
+          <li><strong>Định vị toàn cục (Global Localization):</strong> Vị trí ban đầu hoàn toàn không biết; robot có thể ở bất kỳ đâu trong bản đồ. Phân bố niềm tin ban đầu là đều (Uniform), sau đó trở thành đa đỉnh (Multimodal).</li>
+          <li><strong>Bài toán bắt cóc robot (Kidnapped Robot Problem):</strong> Khi đang di chuyển bình thường, robot bị nhấc bổng lên và đặt sang một vị trí hoàn toàn khác mà cảm biến odometry không nhận biết được. Đây là bài kiểm tra khắc nghiệt nhất cho độ bền vững của thuật toán.</li>
+          <li><strong>Môi trường tĩnh vs Môi trường động:</strong> Môi trường có người và xe cộ di chuyển làm thay đổi liên tục các phép đo cảm biến.</li>
+        </ol>
+      </section>
+
+      <section id="sec-7-4" class="content-block">
+        <h2>7.4 Định Vị Bằng EKF (EKF Localization Algorithm)</h2>
+        <h3 id="sec-7-4-2">7.4.2 Thuật Toán Chi Tiết Với Các Mốc Bản Đồ Đã Biết Tọa Độ</h3>
+        <p>
+          Bản đồ gồm $N$ mốc đặc trưng $m = \{m_1, m_2, \dots, m_N\}$, trong đó $m_j = (m_{j,x}, m_{j,y})^T$. Tư thế robot $x_t = (x, y, \theta)^T$.
+        </p>
+        <p>
+          Phép đo mốc thứ $i$ có dạng vector cự ly - góc hướng $z_t^i = (r_t^i, \phi_t^i)^T$:
+        </p>
+        $$\hat{z}_t^i = \begin{bmatrix} \sqrt{(m_{j,x} - \bar{x})^2 + (m_{j,y} - \bar{y})^2} \\ \text{atan2}(m_{j,y} - \bar{y}, m_{j,x} - \bar{x}) - \bar{\theta} \end{bmatrix}$$
+
+        <p>
+          Ma trận Jacobian của phép đo $H_t^i \in \mathbb{R}^{2 \times 3}$:
+        </p>
+        <div class="formula-hero">
+          $$q = (m_{j,x} - \bar{x})^2 + (m_{j,y} - \bar{y})^2$$
+          $$H_t^i = \begin{bmatrix} -\frac{m_{j,x} - \bar{x}}{\sqrt{q}} & -\frac{m_{j,y} - \bar{y}}{\sqrt{q}} & 0 \\ \frac{m_{j,y} - \bar{y}}{q} & -\frac{m_{j,x} - \bar{x}}{q} & -1 \end{bmatrix}$$
+        </div>
+      </section>
+
+      <section id="sec-7-5" class="content-block">
+        <h2>7.5 Ước Lượng Liên Kết Dữ Liệu (Data Association in EKF)</h2>
+        <h3 id="sec-7-5-1">7.5.1 Cực Đại Hợp Lý & Khoảng Cách Mahalanobis</h3>
+        <p>
+          Trong thực tế, cảm biến chỉ thấy một cột mốc nhưng <em>không có bảng tên</em> ghi rõ đó là mốc số mấy trong bản đồ (Unknown Correspondence $c_t$).
+        </p>
+        <p>
+          Để tìm ra mốc $j$ khớp nhất với quan sát $z_t^i$, thuật toán tính <strong>Khoảng cách bình phương Mahalanobis</strong> $D_{i,j}^2$:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">KHOẢNG CÁCH MAHALANOBIS & MAXIMUM LIKELIHOOD</div>
+          $$S_{t}^{i,j} = H_t^j \bar{\boldsymbol{\Sigma}}_t (H_t^j)^T + Q_t$$
+          $$D_{i,j}^2 = (z_t^i - \hat{z}_t^j)^T (S_{t}^{i,j})^{-1} (z_t^i - \hat{z}_t^j)$$
+          $$\hat{c}_t^i = \arg\min_j D_{i,j}^2$$
+        </div>
+        <p>
+          Nếu khoảng cách nhỏ nhất này vượt qua ngưỡng kiểm định $\chi^2$ (Chi-square gating), phép đo bị loại bỏ vì bị coi là vật cản giả/nhiễu ngoại lai (outlier).
+        </p>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-7-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Ghép Cặp Mốc & Cập Nhật EKF Localization</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Tiên Nghiệm Robot & Bản Đồ Mốc</div>
+            <p>
+              Tư thế tiên nghiệm: $\bar{\boldsymbol{\mu}} = (1.0\text{ m}, 2.0\text{ m}, 0.0\text{ rad})^T$.<br>
+              Hiệp phương sai: $\bar{\boldsymbol{\Sigma}} = \text{diag}(0.1, 0.1, 0.02)$.<br>
+              Bản đồ có 2 mốc: $m_1 = (4.0, 2.0)^T$ và $m_2 = (1.0, 6.0)^T$.<br>
+              Nhiễu cảm biến: $Q = \text{diag}(0.04\text{ m}^2, 0.01\text{ rad}^2)$.<br>
+              Robot đo được đặc trưng: $z = (2.9\text{ m}, 0.05\text{ rad})^T$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Dự Đoán Đo Lường Cho Từng Mốc & Chọn Mốc Khớp Nhất</div>
+            <p>
+              Với mốc $m_1$: $\Delta x = 3.0$, $\Delta y = 0.0 \implies \hat{r}_1 = 3.0$ m, $\hat{\phi}_1 = 0.0$ rad.<br>
+              Sai lệch đo: $\Delta z_1 = (2.9 - 3.0, 0.05 - 0.0)^T = (-0.1\text{ m}, 0.05\text{ rad})^T$.<br>
+              Với mốc $m_2$: $\Delta x = 0.0$, $\Delta y = 4.0 \implies \hat{r}_2 = 4.0$ m, $\hat{\phi}_2 = \pi/2 \approx 1.57$ rad.<br>
+              Sai lệch đo mốc 2 rất lớn. Rõ ràng mốc $m_1$ là mốc tương ứng: $\hat{c} = 1$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Jacobian $H$ & Kalman Gain $K$</div>
+            <p>
+              Với mốc $m_1$: $q = 3.0^2 + 0.0^2 = 9.0$, $\sqrt{q} = 3.0$:
+              $$H = \begin{bmatrix} -3.0/3.0 & -0/3.0 & 0 \\ 0/9.0 & -3.0/9.0 & -1 \end{bmatrix} = \begin{bmatrix} -1.0 & 0.0 & 0.0 \\ 0.0 & -0.333 & -1.0 \end{bmatrix}$$
+              Ma trận hiệp phương sai đổi mới:
+              $$S = H \bar{\boldsymbol{\Sigma}} H^T + Q = \begin{bmatrix} 0.1 + 0.04 & 0 \\ 0 & 0.1 \times 0.111 + 0.02 \times 1 + 0.01 \end{bmatrix} = \begin{bmatrix} 0.14 & 0 \\ 0 & 0.0411 \end{bmatrix}$$
+              $$K = \bar{\boldsymbol{\Sigma}} H^T S^{-1} \approx \begin{bmatrix} -0.1 / 0.14 \\ 0 \\ 0 \end{bmatrix} = \begin{bmatrix} -0.714 \\ 0 \\ 0 \end{bmatrix} \quad \text{(cho kênh cự ly)}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Cập Nhật Tư Thế Robot Cuối Cùng</div>
+            <p>
+              Hiệu chỉnh vị trí theo trục $x$:
+              $$x_{\text{new}} = \bar{x} + K_x (z_r - \hat{r}) = 1.0 + (-0.714) \times (-0.1) = 1.0 + 0.0714 = \mathbf{1.0714\text{ m}}$$
+              Hiệp phương sai mới theo trục $x$:
+              $$\Sigma_{xx} = (1 - K_x H_x) \bar{\Sigma}_{xx} = (1 - (-0.714) \times (-1.0)) \times 0.1 = (1 - 0.714) \times 0.1 = \mathbf{0.0286\text{ m}^2}$$
+              Độ bất định phương sai giảm từ $0.100$ xuống $0.0286$ (giảm $71.4\%$).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-7-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Elip Bất Định 2D EKF Localization</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch07"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-7-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Hợp Nhất UWB & IMU Với EKF Localization</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 INDUSTRIAL LOCALIZATION</span>
+            <span class="bridge-file">src/uwb_ekf_localization_node.cpp</span>
+          </div>
+          <p>
+            Trong nhà xưởng thông minh không có GPS, các mốc trạm UWB Anchors cố định đóng vai trò như các mốc landmarks với cự ly đo được qua sóng radio siêu rộng Ultra-Wideband:
+          </p>
+          <pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;geometry_msgs/msg/pose_stamped.hpp&gt;
+#include &lt;sensor_msgs/msg/imu.hpp&gt;
+#include &lt;eigen3/Eigen/Dense&gt;
+
+class UwbEkfLocalizationNode : public rclcpp::Node {
+public:
+  UwbEkfLocalizationNode() : Node("uwb_ekf_localization_node") {
+    // Khoi tao ma tran trang thai mu va covariance Sigma
+    mu_ = Eigen::Vector3d(0.0, 0.0, 0.0);
+    Sigma_ = Eigen::Matrix3d::Identity() * 0.1;
+  }
+
+  void handleUwbMeasurement(int anchor_id, double range, const Eigen::Vector2d&amp; anchor_pos) {
+    // 1. Tinh cu ly du doan hat_z
+    double dx = anchor_pos.x() - mu_(0);
+    double dy = anchor_pos.y() - mu_(1);
+    double q = dx * dx + dy * dy;
+    double hat_z = std::sqrt(q);
+
+    // 2. Jacobian do luong H (1x3)
+    Eigen::RowVector3d H;
+    H &lt;&lt; -dx / hat_z, -dy / hat_z, 0.0;
+
+    // 3. Kalman Gain
+    double Q = 0.04; // Sai so UWB 0.2m -&gt; Q = 0.04
+    double S = H * Sigma_ * H.transpose() + Q;
+    Eigen::Vector3d K = Sigma_ * H.transpose() / S;
+
+    // 4. Cap nhat trang thai
+    double residual = range - hat_z;
+    mu_ += K * residual;
+    Sigma_ = (Eigen::Matrix3d::Identity() - K * H) * Sigma_;
+  }
+
+private:
+  Eigen::Vector3d mu_;
+  Eigen::Matrix3d Sigma_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch06.html" class="btn btn-secondary">← Chương 06</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch08.html" class="btn btn-primary">Chương 08 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

@@ -60,25 +60,25 @@
       </div>
       <h1 class="master-title">Viện Tri Thức Robotics & Hệ Thống Điều Khiển Tự Động</h1>
       <p class="master-subtitle">
-        Cổng thông tin chuyển giao toàn diện 9 bộ chuyên khảo kinh điển thế giới (Springer, Cambridge University Press, CRC Press, Nob Hill Publishing): Giải phẫu tri thức 6 tầng, 120 bài tập tính số thực tế 4 bước, 120 phòng lab mô phỏng Canvas 2D tương tác 60 FPS và cầu nối kiến trúc C++ / ROS 2 chuẩn công nghiệp.
+        Cổng thông tin chuyển giao toàn diện 10 bộ chuyên khảo kinh điển thế giới (The MIT Press, Springer, Cambridge University Press, CRC Press, Nob Hill Publishing): Giải phẫu tri thức 6 tầng, 137 bài tập tính số thực tế 4 bước, 137 phòng lab mô phỏng Canvas 2D tương tác 60 FPS và cầu nối kiến trúc C++ / ROS 2 chuẩn công nghiệp.
       </p>
 
       <!-- Key Stats Bar -->
       <div class="master-stats-row">
         <div class="master-stat-box">
-          <span class="master-stat-val">9</span>
+          <span class="master-stat-val">10</span>
           <span class="master-stat-lbl">Siêu Chuyên Khảo Kinh Điển</span>
         </div>
         <div class="master-stat-box">
-          <span class="master-stat-val">123</span>
+          <span class="master-stat-val">140</span>
           <span class="master-stat-lbl">Chương Học Thuật 6 Tầng</span>
         </div>
         <div class="master-stat-box">
-          <span class="master-stat-val">120</span>
+          <span class="master-stat-val">137</span>
           <span class="master-stat-lbl">Bài Tập Số Học Lời Giải 4 Bước</span>
         </div>
         <div class="master-stat-box">
-          <span class="master-stat-val">120</span>
+          <span class="master-stat-val">137</span>
           <span class="master-stat-lbl">Mô Phỏng Canvas 2D 60 FPS</span>
         </div>
         <div class="master-stat-box">
@@ -91,11 +91,11 @@
       <div class="hub-search-wrapper" style="max-width: 980px;">
         <div class="search-input-box">
           <span class="search-icon">🔍</span>
-          <input type="text" id="master-search-input" placeholder="Tìm kiếm nhanh chuyên khảo, tác giả, thuật toán (PID, Kalman, SLAM, DAgger, LQR, MPC, Euler-Lagrange...)... (Ctrl + K)">
+          <input type="text" id="master-search-input" placeholder="Tìm kiếm nhanh chuyên khảo, tác giả, thuật toán (PID, Kalman, Particle, AMCL, SLAM, GraphSLAM, FastSLAM, POMDP, LQR, MPC...)... (Ctrl + K)">
           <span class="search-shortcut">Ctrl+K</span>
         </div>
         <div class="filter-pills-row">
-          <button class="filter-pill active" data-filter="all">Tất Cả (9 Chuyên Khảo)</button>
+          <button class="filter-pill active" data-filter="all">Tất Cả (10 Chuyên Khảo)</button>
           <button class="filter-pill" data-filter="control">Điều Khiển Tự Động (Control)</button>
           <button class="filter-pill" data-filter="mechanics">Cơ Học & Động Lực Robot (Mechanics)</button>
           <button class="filter-pill" data-filter="estimation">Ước Lượng & SLAM (Estimation)</button>
@@ -385,6 +385,37 @@
         <div class="portal-card-actions">
           <a href="analytical-system-dynamics-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
           <a href="analytical-system-dynamics-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
+        </div>
+      </article>
+
+      <!-- Portal 10: Probabilistic Robotics (Thrun, Burgard, Fox) -->
+      <article class="portal-master-card" data-category="estimation" data-keywords="robot học xác suất probabilistic robotics thrun burgard fox bayes kalman ekf ukf particle filter mcl amcl occupancy grid ekf slam graphslam seif fastslam gmapping mdp pomdp qmdp amdp exploration">
+        <div>
+          <div class="portal-card-head">
+            <div class="portal-icon-wrap" style="color: #4f46e5; background: rgba(79,70,229,0.1);">🎯</div>
+            <div class="portal-badges-col">
+              <span class="badge badge-track-3">Track: Estimation &amp; SLAM</span>
+              <span class="badge badge-alt">17 Chương Chuyên Khảo</span>
+            </div>
+          </div>
+          <h2 class="portal-card-title">Robot Học Xác Suất: Ước Lượng Trạng Thái, Định Vị, SLAM &amp; POMDP</h2>
+          <div class="portal-card-meta">
+            <div class="meta-row"><span class="meta-label">📖 Sách gốc:</span> <span class="book-title-val">Probabilistic Robotics</span> (The MIT Press, 668 trang)</div>
+            <div class="meta-row"><span class="meta-label">✍️ Tác giả:</span> <span class="author-val">GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox</span></div>
+          </div>
+          <p class="portal-card-desc">
+            Kinh thánh của robot tự hành hiện đại: Nền tảng ước lượng trạng thái đệ quy Bayes, các bộ lọc Gauss (Kalman, EKF, UKF, EIF), bộ lọc hạt Particle Filter (SMC), mô hình chuyển động và cảm biến nhận thức, định vị toàn cục Monte Carlo (AMCL, KLD-Sampling), bản đồ lưới Occupancy Grid, 4 trường phái SLAM kinh điển (EKF SLAM, GraphSLAM, SEIF, FastSLAM 2.0 / Gmapping), cùng lý thuyết lập kế hoạch và điều khiển tối ưu dưới bất định MDP và POMDP (QMDP, AMDP, Active Exploration).
+          </p>
+          <ul class="portal-features-list">
+            <li>17 Chương chuyên sâu 6 tầng cấu trúc học thuật toàn diện</li>
+            <li>17 Bài tập số học 4 bước giải chi tiết &amp; kiểm chứng kỹ thuật</li>
+            <li>17 Mô phỏng tương tác Canvas 2D 60 FPS (Bayes, EKF, AMCL, GraphSLAM, FastSLAM, POMDP)</li>
+            <li>Cầu nối kiến trúc robot_localization, nav2_amcl, slam_toolbox, cartographer và explore_lite</li>
+          </ul>
+        </div>
+        <div class="portal-card-actions">
+          <a href="probabilistic-robotics-web/index.html" class="btn btn-secondary">Cổng Chuyên Khảo →</a>
+          <a href="probabilistic-robotics-web/chapters/ch01.html" class="btn btn-primary">Học Chương 1 ↗</a>
         </div>
       </article>
 

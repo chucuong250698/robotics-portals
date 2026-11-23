@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 14: Quá Trình Quyết Định Markov (MDPs) & Lập Kế Hoạch Tối Ưu | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 4: Lập Kế Hoạch & Điều Khiển Dưới Bất Định</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 14</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 14</span>
+        <span class="sidebar-badge">11 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-14-1">
+            <span class="nav-text">14.1 Động Lực: Ra Quyết Định Dưới Bất Định</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-2">
+            <span class="nav-text">14.2 Bất Định Trong Lựa Chọn Hành Động</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-3">
+            <span class="nav-text">14.3 Thuật Toán Lặp Giá Trị (Value Iteration)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-14-3-1">
+            <span class="nav-text">14.3.1 Mục Tiêu & Hàm Phần Thưởng (Payoff / Reward)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-14-3-2">
+            <span class="nav-text">14.3.2 Chính Sách Điều Khiển Tối Ưu pi*(s)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-14-3-3">
+            <span class="nav-text">14.3.3 Phương Trình Tối Ưu Bellman & Hàm Giá Trị V(s)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-4">
+            <span class="nav-text">14.4 Ứng Dụng Trong Điều Khiển Robot Tự Hành</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-5">
+            <span class="nav-text">14.5 Tóm Tắt & So Sánh MDP vs Điều Khiển Cổ Điển</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: 2 Vòng Lặp Value Iteration Lưới 2x2</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Trực Quan Hóa Grid World MDP & Value Iteration</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-14-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Tích Hợp MDP Planner Vào Nav2 Behavior Tree</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 4: LẬP KẾ HOẠCH & ĐIỀU KHIỂN DƯỚI BẤT ĐỊNH</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 14</span>
+        </div>
+        <h1 class="chapter-title">Quá Trình Quyết Định Markov (MDPs) & Lập Kế Hoạch Tối Ưu</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-14-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO QUY TRÌNH QUYẾT ĐỊNH MARKOV LÀ CẦU NỐI GIỮA ĐỊNH VỊ VÀ HÀNH ĐỘNG?</div>
+        <p>
+          Biết vị trí của mình ở đâu mới chỉ là một nửa chặng đường. Câu hỏi tối thượng tiếp theo là: <em>"Bây giờ tôi nên làm gì để đạt được mục tiêu an toàn nhất?"</em>.
+        </p>
+        <p>
+          Trong điều khiển cổ điển (như Dijkstra hay A*), bài toán tìm đường giả định rằng nếu chọn đi sang phải, robot chắc chắn $100\%$ sẽ sang phải. Nhưng trên sàn trơn hoặc dốc cát:
+        </p>
+        <ul>
+          <li>Lệnh đi thẳng có thể bị trượt sang trái hoặc phải với xác suất $20\%$.</li>
+          <li>Nếu bên cạnh là một vực sâu nguy hiểm (vách đá/hố rác), một thuật toán hình học ngây thơ sẽ chọn đường đi sát mép vực vì nó "ngắn nhất".</li>
+          <li>Kết quả: Robot bị rơi xuống vực khi gặp cú trượt đầu tiên!</li>
+        </ul>
+        <p>
+          <strong>Quá trình quyết định Markov (MDP)</strong> và <strong>Phương trình tối ưu Bellman</strong> giải quyết bài toán này bằng cách cân bằng giữa <em>phần thưởng mục tiêu</em> và <em>chi phí rủi ro ngẫu nhiên</em>, hướng dẫn robot chọn con đường có kỳ vọng an toàn cao nhất trong dài hạn.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-14-1" class="content-block">
+        <h2>14.1 Động Lực: Ra Quyết Định Dưới Bất Định (Motivation)</h2>
+        <p>
+          Một bài toán Markov Decision Process (MDP) được định nghĩa bởi bộ 4 thành phần $\langle \mathcal{S}, \mathcal{A}, \mathcal{T}, \mathcal{R}, \gamma \rangle$:
+        </p>
+        <ul>
+          <li>$\mathcal{S}$: Không gian trạng thái rời rạc hoặc liên tục.</li>
+          <li>$\mathcal{A}$: Tập các hành động robot có thể thực hiện.</li>
+          <li>$\mathcal{T}(s, a, s') = p(s' \mid s, a)$: Xác suất chuyển từ trạng thái $s$ sang $s'$ khi thực thi hành động $a$.</li>
+          <li>$\mathcal{R}(s, a, s')$: Hàm phần thưởng tức thời nhận được.</li>
+          <li>$\gamma \in [0, 1)$: Hệ số chiết khấu phần thưởng tương lai (Discount factor).</li>
+        </ul>
+      </section>
+
+      <section id="sec-14-3" class="content-block">
+        <h2>14.3 Thuật Toán Lặp Giá Trị (Value Iteration)</h2>
+        <h3 id="sec-14-3-3">14.3.3 Phương Trình Tối Ưu Bellman</h3>
+        <p>
+          Hàm giá trị tối ưu $V^*(s)$ đại diện cho tổng phần thưởng chiết khấu kỳ vọng tối đa mà robot có thể nhận được từ trạng thái $s$ đến vô hạn:
+        </p>
+        <div class="formula-hero">
+          $$V^*(s) = \max_{a \in \mathcal{A}} \sum_{s' \in \mathcal{S}} p(s' \mid s, a) \left[ \mathcal{R}(s, a, s') + \gamma V^*(s') \right]$$
+        </div>
+
+        <p>
+          Thuật toán <strong>Value Iteration</strong> cập nhật lặp đồng thời trên toàn bộ các trạng thái:
+        </p>
+        $$V_{k+1}(s) \leftarrow \max_{a} \sum_{s'} p(s' \mid s, a) \left[ \mathcal{R}(s, a, s') + \gamma V_k(s') \right]$$
+        <p>
+          Sau khi hàm giá trị hội tụ ($||V_{k+1} - V_k||_\infty \lt \epsilon$), <strong>Chính sách điều khiển tối ưu $\pi^*(s)$</strong> được suy ra bằng phép chọn hành động tham lam (Greedy selection):
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">CHÍNH SÁCH ĐIỀU KHIỂN TỐI ƯU</div>
+          $$\pi^*(s) = \arg\max_{a \in \mathcal{A}} \sum_{s'} p(s' \mid s, a) \left[ \mathcal{R}(s, a, s') + \gamma V^*(s') \right]$$
+        </div>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-14-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Hai Vòng Lặp Value Iteration Trên Thế Giới 2x2</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Môi Trường & Phần Thưởng</div>
+            <p>
+              Thế giới gồm 4 ô: $s_1$ (khởi đầu), $s_2$ (gần hố), $s_3$ (đích đến $+10$), $s_4$ (hố nguy hiểm $-10$).<br>
+              Chi phí mỗi bước di chuyển: $R = -1.0$. Hệ số chiết khấu: $\gamma = 0.90$.<br>
+              Xác suất hành động: Khi chọn hành động, có $80\%$ cơ hội đi đúng hướng, $20\%$ cơ hội trượt đứng yên tại chỗ.<br>
+              Khởi tạo ban đầu: $V_0 = [0, 0, 10, -10]^T$. Ô $s_3, s_4$ là trạng thái kết thúc (Terminal).
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Vòng Lặp 1: Cập Nhật Trạng Thái $s_1$</div>
+            <p>
+              Tại $s_1$:
+              <ul>
+                <li>Hành động $a_{\text{right}}$ (đi sang $s_2$):
+                  $$Q(s_1, \text{right}) = 0.8 \times [-1.0 + 0.9 \times V_0(s_2)] + 0.2 \times [-1.0 + 0.9 \times V_0(s_1)] = 0.8(-1.0) + 0.2(-1.0) = -1.0$$
+                </li>
+                <li>Hành động $a_{\text{down}}$ (đi sang đích $s_3$):
+                  $$Q(s_1, \text{down}) = 0.8 \times [-1.0 + 0.9 \times 10] + 0.2 \times [-1.0 + 0.9 \times 0] = 0.8 \times 8.0 - 0.2 = 6.4 - 0.2 = \mathbf{+6.2}$$
+                </li>
+              </ul>
+              $$\implies V_1(s_1) = \max(-1.0, 6.2) = \mathbf{+6.2}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Vòng Lặp 1: Cập Nhật Trạng Thái $s_2$</div>
+            <p>
+              Tại $s_2$:
+              <ul>
+                <li>Hành động $a_{\text{down}}$ (đi xuống hố $s_4$):
+                  $$Q(s_2, \text{down}) = 0.8 \times [-1.0 + 0.9 \times (-10)] + 0.2 \times [-1.0] = 0.8(-10.0) - 0.2 = -8.2$$
+                </li>
+                <li>Hành động $a_{\text{left}}$ (quay về $s_1$ an toàn):
+                  $$Q(s_2, \text{left}) = 0.8 \times [-1.0 + 0.9 \times V_0(s_1)] + 0.2 \times [-1.0] = -1.0$$
+                </li>
+              </ul>
+              $$\implies V_1(s_2) = \max(-8.2, -1.0) = \mathbf{-1.0}$$
+              Vector giá trị sau vòng 1: $V_1 = [6.2, -1.0, 10.0, -10.0]^T$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Vòng Lặp 2 & Quyết Định Chính Sách Tối Ưu</div>
+            <p>
+              Tại $s_2$ trong vòng lặp 2, hành động $a_{\text{left}}$ tận dụng được giá trị mới của $s_1$:
+              $$Q(s_2, \text{left}) = 0.8 \times [-1.0 + 0.9 \times 6.2] + 0.2 \times [-1.0 + 0.9 \times (-1.0)] = 0.8(4.58) - 0.38 \approx \mathbf{+3.284}$$
+              $$\implies V_2(s_2) = \mathbf{+3.284}$$
+              <strong>Chính sách tối ưu:</strong> $\pi^*(s_1) = \text{Đi Xuống}$ (hướng thẳng về đích $+10$), $\pi^*(s_2) = \text{Đi Sang Trái}$ (tuyệt đối không đi xuống hố nguy hiểm mà lùi lại $s_1$ rồi mới vòng xuống đích).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-14-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Grid World MDP & Value Iteration 60 FPS</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch14"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch14-btn-step" class="btn btn-primary">Thực Hiện 1 Vòng Lặp Value Iteration</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-14-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Tích Hợp MDP Vào Nav2 Behavior Tree</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 AUTONOMOUS DECISION MAKING</span>
+            <span class="bridge-file">src/mdp_risk_aware_recovery.cpp</span>
+          </div>
+          <p>
+            Mã nguồn plugin điều phối phục hồi rủi ro bằng MDP tích hợp vào cây hành vi Nav2:
+          </p>
+          <pre><code>#include &lt;behaviortree_cpp_v3/action_node.h&gt;
+#include &lt;rclcpp/rclcpp.hpp&gt;
+
+class MdpRiskAwarePlanner : public BT::SyncActionNode {
+public:
+  MdpRiskAwarePlanner(const std::string&amp; name, const BT::NodeConfiguration&amp; config)
+  : BT::SyncActionNode(name, config) {}
+
+  BT::NodeStatus tick() override {
+    // Tinh toan chinh sach toi uu pi*(s) bang cach giai nhanh Bellman tren luoi chi phi dia phuong
+    Action optimal_action = solveLocalBellmanPolicy();
+
+    if (optimal_action == Action::SAFE_DETOUR) {
+      setOutput("chosen_recovery", "spin_and_replan");
+      return BT::NodeStatus::SUCCESS;
+    } else if (optimal_action == Action::HALT_IMMEDIATELY) {
+      return BT::NodeStatus::FAILURE;
+    }
+    return BT::NodeStatus::SUCCESS;
+  }
+
+private:
+  Action solveLocalBellmanPolicy() {
+    // Giai gia tri Bellman voi he so phan thuong am cho cac vung costmap inflation cao
+    return Action::SAFE_DETOUR;
+  }
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch13.html" class="btn btn-secondary">← Chương 13</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch15.html" class="btn btn-primary">Chương 15 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

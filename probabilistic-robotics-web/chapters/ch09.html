@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 09: Lập Bản Đồ Lưới Chiếm Chỗ (Occupancy Grid Mapping) | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Lập Bản Đồ & SLAM</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 09</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 09</span>
+        <span class="sidebar-badge">15 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-9-1">
+            <span class="nav-text">9.1 Mở Đầu Về Bản Đồ Chiếm Chỗ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-2">
+            <span class="nav-text">9.2 Thuật Toán Occupancy Grid Mapping</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-2-1">
+            <span class="nav-text">9.2.1 Cập Nhật Đệ Quy Dạng Log-Odds</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-2-2">
+            <span class="nav-text">9.2.2 Mô Hình Cảm Biến Nghịch Đảo</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-2-3">
+            <span class="nav-text">9.2.3 Hợp Nhất Đa Cảm Biến (Multi-Sensor)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-3">
+            <span class="nav-text">9.3 Học Mô Hình Đo Lường Nghịch Đảo</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-3-1">
+            <span class="nav-text">9.3.1 Nghịch Đảo Mô Hình Đo Lường</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-3-3">
+            <span class="nav-text">9.3.3 Hàm Mất Mát & Huấn Luyện Mạng Nơ-ron</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-4">
+            <span class="nav-text">9.4 Bản Đồ Chiếm Chỗ Cực Đại Hậu Nghiệm (MAP)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-4-1">
+            <span class="nav-text">9.4.1 Vấn Đề Duy Trì Phụ Thuộc Không Gian</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-4-2">
+            <span class="nav-text">9.4.2 Lập Bản Đồ Với Forward Models</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-5">
+            <span class="nav-text">9.5 Tóm Tắt & Giới Hạn Của Mô Hình Lưới</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Cập Nhật Log-Odds Một Ô Lưới</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Quét Laser Vẽ Bản Đồ Lưới 2D</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Cấu Trúc Bản Đồ nav_msgs/OccupancyGrid</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: LẬP BẢN ĐỒ & SLAM</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 09</span>
+        </div>
+        <h1 class="chapter-title">Lập Bản Đồ Lưới Chiếm Chỗ (Occupancy Grid Mapping)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-9-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO BẢN ĐỒ OCCUPANCY GRID LÀ BẢN ĐỒ TIÊU CHUẨN CỦA NAV2 VÀ TỰ HÀNH?</div>
+        <p>
+          Làm thế nào để biểu diễn một môi trường tùy ý không có cấu trúc hình học cố định (như cây cối, bàn ghế ngổn ngang, vách đá) vào trong máy tính của robot?
+        </p>
+        <p>
+          Elfes và Moravec (được Thrun hoàn thiện trong cuốn sách này) đã phát minh ra <strong>Bản đồ lưới chiếm chỗ (Occupancy Grid Map)</strong>:
+        </p>
+        <ul>
+          <li>Chia không gian 2D/3D thành một ma trận gồm hàng triệu ô vuông nhỏ độc lập $m_i$.</li>
+          <li>Mỗi ô lưu một giá trị xác suất $p(m_i = 1) \in [0, 1]$ biểu thị khả năng ô đó đang bị chướng ngại vật chiếm giữ ($1$: có vật cản, $0$: vùng trống đi được, $0.5$: vùng mù chưa khám phá).</li>
+          <li>Thông qua phép biến đổi <strong>Log-Odds</strong>, robot tích lũy hàng tỷ tia laser thành các phép cộng số học tức thời $\mathcal{O}(1)$, tự động loại bỏ người đi bộ thoáng qua và chỉ giữ lại những bức tường kiên cố!</li>
+        </ul>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-9-1" class="content-block">
+        <h2>9.1 Mở Đầu Về Bản Đồ Chiếm Chỗ (Introduction)</h2>
+        <p>
+          Bài toán lập bản đồ lưới giả định tư thế robot $x_{1:t}$ đã được biết chính xác (thông qua hệ thống định vị). Mục tiêu là ước lượng xác suất của bản đồ $m = \{m_i\}$:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">GIẢ ĐỊNH ĐỘC LẬP TỪNG Ô LƯỚI</div>
+          $$p(m \mid z_{1:t}, x_{1:t}) = \prod_{i} p(m_i \mid z_{1:t}, x_{1:t})$$
+        </div>
+      </section>
+
+      <section id="sec-9-2" class="content-block">
+        <h2>9.2 Thuật Toán Occupancy Grid Mapping Dạng Log-Odds</h2>
+        <h3 id="sec-9-2-1">9.2.1 Cập Nhật Đệ Quy Từng Ô Lưới</h3>
+        <p>
+          Định nghĩa tỷ số Log-Odds của ô lưới $i$:
+        </p>
+        $$l_{t,i} = \log \frac{p(m_i \mid z_{1:t}, x_{1:t})}{1 - p(m_i \mid z_{1:t}, x_{1:t})}$$
+        <p>
+          Công thức cập nhật đệ quy sau khi nhận phép đo $z_t$:
+        </p>
+        <div class="formula-hero">
+          $$l_{t,i} = l_{t-1,i} + \text{inverse\_sensor\_model}(m_i, x_t, z_t) - l_0$$
+        </div>
+        <p>
+          Trong đó:
+        </p>
+        <ul>
+          <li>$l_0 = \log \frac{p(m_i = 1)}{1 - p(m_i = 1)}$ là log-odds tiên nghiệm ban đầu (thường $p=0.5 \implies l_0 = 0$).</li>
+          <li>$\text{inverse\_sensor\_model}(m_i, x_t, z_t) = \log \frac{p(m_i \mid z_t, x_t)}{1 - p(m_i \mid z_t, x_t)}$ là mô hình cảm biến nghịch đảo:
+            <ul>
+              <li>Nếu ô $m_i$ nằm trên đường tia quét laser (vùng trống): gán $p_{\text{free}} \lt 0.5 \implies \Delta l \lt 0$.</li>
+              <li>Nếu ô $m_i$ nằm ngay tại điểm rơi của tia laser (vật cản): gán $p_{\text{occ}} \gt 0.5 \implies \Delta l \gt 0$.</li>
+              <li>Nếu ô $m_i$ nằm ngoài phạm vi quan sát hoặc sau vật cản: $\Delta l = 0$.</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-9-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Tiến Hóa Log-Odds Của Một Ô Lưới</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Trạng Thái Ô Lưới</div>
+            <p>
+              Ô lưới $m_k$ chưa từng được nhìn thấy: $p_0 = 0.5 \implies l_0 = \log(0.5 / 0.5) = \mathbf{0.0}$.<br>
+              Quy ước cảm biến Lidar:
+              $$p_{\text{occ}} = 0.85 \implies l_{\text{occ}} = \log\frac{0.85}{0.15} = \log(5.6667) \approx \mathbf{+1.7346}$$
+              $$p_{\text{free}} = 0.20 \implies l_{\text{free}} = \log\frac{0.20}{0.80} = \log(0.25) \approx \mathbf{-1.3863}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Lần Quét 1: Tia Laser Chiếu Xuyên Qua (Vùng Trống)</div>
+            <p>
+              Tia laser phát ra và đánh trúng bức tường phía xa; ô $m_k$ nằm trên đường truyền:
+              $$l_1 = l_0 + l_{\text{free}} - l_0 = 0.0 + (-1.3863) - 0.0 = \mathbf{-1.3863}$$
+              Chuyển đổi ngược về xác suất:
+              $$p_1 = 1 - \frac{1}{1 + \exp(-1.3863)} = 1 - \frac{1}{1 + 0.25} = 1 - 0.80 = \mathbf{0.20} \quad (20\%)$$
+              Ô lưới được coi là vùng trống an toàn.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Lần Quét 2 & 3: Robot Đổi Góc, Tia Đánh Trúng Ô $m_k$</div>
+            <p>
+              Lần quét 2 đánh trúng ô $m_k$:
+              $$l_2 = l_1 + l_{\text{occ}} - l_0 = -1.3863 + 1.7346 - 0.0 = \mathbf{+0.3483}$$
+              $$p_2 = 1 - \frac{1}{1 + \exp(0.3483)} = 1 - \frac{1}{1 + 1.4166} \approx \mathbf{0.5862} \quad (58.62\%)$$
+              Lần quét 3 tiếp tục đánh trúng ô $m_k$:
+              $$l_3 = l_2 + l_{\text{occ}} - l_0 = 0.3483 + 1.7346 = \mathbf{+2.0829}$$
+              $$p_3 = 1 - \frac{1}{1 + \exp(2.0829)} = 1 - \frac{1}{1 + 8.0277} = 1 - 0.1108 = \mathbf{0.8892} \quad (88.92\%)$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Kết Luận Kỹ Thuật & Giới Hạn Ngưỡng (Clamping)</div>
+            <p>
+              Sau 2 lần xác nhận đánh trúng liên tiếp, độ tin cậy đây là vật cản tăng vọt lên gần $89\%$.<br>
+              <strong>Kỹ thuật thực tế:</strong> Trong mã nguồn công nghiệp, giá trị $l$ luôn được kẹp giới hạn (clamping) trong đoạn $[l_{\text{min}}, l_{\text{max}}] = [-5.0, +5.0]$ để tránh hiện tượng ô lưới bị "khóa cứng" quá mức, cho phép bản đồ cập nhật lại nếu vật cản sau này được chuyển đi.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-9-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Quét Laser Vẽ Bản Đồ Lưới 2D 60 FPS</h2>
+        <p>
+          Di chuyển chuột trên lưới để mô phỏng quét laser và xem các ô lưới chuyển từ xám (chưa biết) sang trắng (trống) hoặc đen (vật cản).
+        </p>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch09"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-9-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Cấu Trúc Bản Đồ nav_msgs/msg/OccupancyGrid</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 NAVIGATION COSTMAP</span>
+            <span class="bridge-file">nav_msgs/msg/OccupancyGrid.msg</span>
+          </div>
+          <p>
+            Định nghĩa message tiêu chuẩn dùng cho toàn bộ hệ sinh thái SLAM và Nav2:
+          </p>
+          <pre><code># nav_msgs/msg/OccupancyGrid.msg
+std_msgs/Header header
+nav_msgs/MapMetaData info
+  # time map_load_time
+  # float32 resolution    # Do phan giai luoi (vi du: 0.05m = 5cm moi o)
+  # uint32 width          # So cot luoi
+  # uint32 height         # So hang luoi
+  # geometry_msgs/Pose origin # Toa do the gioi cua goc toa do luoi (0,0)
+int8[] data               # Mang 1D chua width * height gia tri:
+                          # -1: Unknown (chua biet)
+                          # 0: Free (trong hoan toan)
+                          # 100: Occupied (vat can chac chan)
+                          # 1-99: Mức độ rủi ro (Costmap inflation)</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch08.html" class="btn btn-secondary">← Chương 08</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch10.html" class="btn btn-primary">Chương 10 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

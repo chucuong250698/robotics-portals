@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 08: Định Vị Robot Di Động: Định Vị Lưới & Monte Carlo (MCL) | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Định Vị Robot Di Động</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 08</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 08</span>
+        <span class="sidebar-badge">15 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-8-1">
+            <span class="nav-text">8.1 Mở Đầu Về Định Vị Phi Tham Số</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-2">
+            <span class="nav-text">8.2 Định Vị Lưới (Grid Localization)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-2-1">
+            <span class="nav-text">8.2.1 Thuật Toán Định Vị Lưới Rời Rạc</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-2-2">
+            <span class="nav-text">8.2.2 Độ Phân Giải & Kỹ Thuật Đa Tầng Lưới</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-3">
+            <span class="nav-text">8.3 Định Vị Monte Carlo (MCL)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-3-2">
+            <span class="nav-text">8.3.2 Thuật Toán MCL Tiêu Chuẩn</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-3-4">
+            <span class="nav-text">8.3.4 Các Đặc Tính Kỹ Thuật Của MCL</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-3-5">
+            <span class="nav-text">8.3.5 Bơm Hạt Ngẫu Nhiên: Augmented MCL</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-3-7">
+            <span class="nav-text">8.3.7 KLD-Sampling: Thích Ứng Số Lượng Hạt</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-4">
+            <span class="nav-text">8.4 Định Vị Trong Môi Trường Động</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-5">
+            <span class="nav-text">8.5 Triển Khai Thực Tế & Tối Ưu Hóa Bộ Nhớ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-6">
+            <span class="nav-text">8.6 Tóm Tắt & So Sánh Grid vs MCL</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: KLD-Sampling Thích Ứng Số Hạt</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Thử Nghiệm AMCL & Bắt Cóc Robot</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Cấu Hình Chi Tiết Tham Số nav2_amcl</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 2: ĐỊNH VỊ ROBOT DI ĐỘNG</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 08</span>
+        </div>
+        <h1 class="chapter-title">Định Vị Robot Di Động: Định Vị Lưới & Monte Carlo (MCL)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-8-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO MONTE CARLO LOCALIZATION (AMCL) LÀ TIÊU CHUẨN CỦA ROBOT THẾ GIỚI?</div>
+        <p>
+          Nếu bạn từng khởi động một robot hút bụi Roomba, robot vận chuyển trong kho Amazon Kiva, hay bất kỳ robot AGV công nghiệp nào chạy hệ điều hành ROS/ROS 2, thuật toán định vị đang chạy ngầm trong máy của chúng gần như chắc chắn là <strong>Adaptive Monte Carlo Localization (AMCL)</strong> được phát minh bởi Thrun, Fox, Burgard và Dellaert.
+        </p>
+        <p>
+          AMCL sở hữu hai phát kiến đột phá vĩ đại:
+        </p>
+        <ul>
+          <li><strong>Augmented MCL (Hồi phục bắt cóc):</strong> Theo dõi trung bình trượt trọng số ngắn hạn $w_{\text{fast}}$ và dài hạn $w_{\text{slow}}$. Khi robot bị bế sang phòng khác, sự sụt giảm đột ngột của khả dĩ đo lường sẽ kích hoạt cơ chế <em>tự động bơm các hạt ngẫu nhiên mới</em> ra khắp bản đồ để tìm lại vị trí!</li>
+          <li><strong>KLD-Sampling (Kullback-Leibler Divergence):</strong> Khi chưa định vị được, hệ thống dùng hàng chục nghìn hạt để quét toàn bản đồ. Khi đã định vị chính xác, hệ thống <em>tự động co cụm giảm số hạt xuống còn vài trăm</em>, giải phóng $95\%$ tài nguyên CPU cho các tác vụ lập kế hoạch khác!</li>
+        </ul>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-8-1" class="content-block">
+        <h2>8.1 Mở Đầu Về Định Vị Phi Tham Số (Introduction)</h2>
+        <p>
+          Khác với EKF vốn bị giới hạn trong giả định phân bố Gauss đơn đỉnh, định vị phi tham số cho phép giải quyết trọn vẹn bài toán <strong>Định vị toàn cục (Global Localization)</strong> từ con số không.
+        </p>
+      </section>
+
+      <section id="sec-8-3" class="content-block">
+        <h2>8.3 Định Vị Monte Carlo (Monte Carlo Localization - MCL)</h2>
+        <h3 id="sec-8-3-2">8.3.2 Thuật Toán MCL Tiêu Chuẩn</h3>
+        <p>
+          MCL biểu diễn niềm tin vị trí robot bằng tập các hạt tư thế $x = (x, y, \theta)$:
+        </p>
+        <div class="formula-hero">
+          $$\mathcal{X}_t = \{ \langle x_t^{[m]}, w_t^{[m]} \rangle \}_{m=1}^M$$
+          $$x_t^{[m]} \sim p(x_t \mid u_t, x_{t-1}^{[m]}) \quad \text{(Lấy mẫu mô hình Odometry)}$$
+          $$w_t^{[m]} = p(z_t \mid x_t^{[m]}, m) \quad \text{(Trọng số Likelihood Field / Beam)}$$
+        </div>
+
+        <h3 id="sec-8-3-5">8.3.5 Cơ Chế Bơm Hạt Ngẫu Nhiên: Augmented MCL</h3>
+        <p>
+          Để tự phục hồi khi bị bắt cóc hoặc khi trôi dạt tích lũy quá lớn, thuật toán duy trì hai ước lượng trung bình trượt hàm mũ của trọng số trung bình $\bar{w} = \frac{1}{M} \sum_m w^{[m]}$:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">BỘ LỌC TRUNG BÌNH TRƯỢT DÀI HẠN & NGẮN HẠN</div>
+          $$w_{\text{slow}} \leftarrow w_{\text{slow}} + \alpha_{\text{slow}} (\bar{w} - w_{\text{slow}})$$
+          $$w_{\text{fast}} \leftarrow w_{\text{fast}} + \alpha_{\text{fast}} (\bar{w} - w_{\text{fast}})$$
+        </div>
+        <p>
+          Quy ước: $0 \le \alpha_{\text{slow}} \ll \alpha_{\text{fast}}$. Xác suất bơm hạt ngẫu nhiên tại bước lấy mẫu lại:
+        </p>
+        $$P_{\text{random}} = \max\left( 0.0, \, 1.0 - \frac{w_{\text{fast}}}{w_{\text{slow}}} \right)$$
+        <p>
+          Khi robot hoạt động bình thường, $w_{\text{fast}} \approx w_{\text{slow}} \implies P_{\text{random}} \approx 0$. Khi robot bị bắt cóc, $w_{\text{fast}}$ sụt giảm rất nhanh trong khi $w_{\text{slow}}$ giảm chậm $\implies P_{\text{random}} \gt 0$, hệ thống tự động phát tán các hạt cứu nguy khắp bản đồ.
+        </p>
+
+        <h3 id="sec-8-3-7">8.3.7 KLD-Sampling: Thích Ứng Động Số Lượng Hạt</h3>
+        <p>
+          Fox đề xuất ràng buộc khoảng cách Kullback-Leibler giữa phân bố xấp xỉ dạng hạt và phân bố thực sự không vượt quá $\epsilon$ với xác suất tin cậy $1 - \delta$.
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">SỐ LƯỢNG HẠN TỐI THIỂU KLD-SAMPLING</div>
+          $$M_k = \frac{k - 1}{2\epsilon} \left( 1 - \frac{2}{9(k - 1)} + \sqrt{\frac{2}{9(k - 1)}} z_{1-\delta} \right)^3$$
+        </div>
+        <p>
+          Trong đó $k$ là <strong>số lượng ô lưới rời rạc có chứa ít nhất một hạt</strong>, và $z_{1-\delta}$ là phân vị chuẩn (ví dụ $\delta = 0.01 \implies z_{0.99} \approx 2.33$).
+        </p>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-8-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Tính Số Hạt Thích Ứng Bằng KLD-Sampling</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo Tiêu Chuẩn Sai Số KLD</div>
+            <p>
+              Ngưỡng sai lệch phân bố: $\epsilon = 0.05$.<br>
+              Xác suất tin cậy: $1 - \delta = 0.99 \implies z_{1-\delta} = 2.3263$.<br>
+              Xét hai kịch bản hoạt động của robot:
+              <ul>
+                <li><strong>Kịch bản A (Đang lạc đường):</strong> Các hạt phân tán rộng, lọt vào $k = 100$ ô lưới.</li>
+                <li><strong>Kịch bản B (Đã hội tụ chính xác):</strong> Các hạt co cụm, chỉ chiếm $k = 4$ ô lưới.</li>
+              </ul>
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Tính Toán Cho Kịch Bản A ($k = 100$)</div>
+            <p>
+              $$k - 1 = 99 \implies \frac{k-1}{2\epsilon} = \frac{99}{2 \times 0.05} = 990$$
+              $$\text{Hạng tử bên trong:} \quad 1 - \frac{2}{9 \times 99} + \sqrt{\frac{2}{9 \times 99}} \times 2.3263$$
+              $$= 1 - 0.002245 + \sqrt{0.002245} \times 2.3263 = 0.997755 + 0.04738 \times 2.3263 \approx 1.1080$$
+              Lũy thừa bậc 3: $1.1080^3 \approx 1.3603$.<br>
+              Số hạt cần thiết:
+              $$M_{100} = 990 \times 1.3603 \approx \mathbf{1,347\text{ hạt}}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Tính Toán Cho Kịch Bản B ($k = 4$)</div>
+            <p>
+              $$k - 1 = 3 \implies \frac{k-1}{2\epsilon} = \frac{3}{0.10} = 30$$
+              $$\text{Hạng tử bên trong:} \quad 1 - \frac{2}{27} + \sqrt{\frac{2}{27}} \times 2.3263 = 1 - 0.07407 + 0.27216 \times 2.3263$$
+              $$= 0.92593 + 0.6331 \approx 1.5590$$
+              Lũy thừa bậc 3: $1.5590^3 \approx 3.789$.<br>
+              Số hạt cần thiết:
+              $$M_4 = 30 \times 3.789 \approx \mathbf{114\text{ hạt}}$$
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Ý Nghĩa Thực Tiễn & Hiệu Năng Tính Toán</div>
+            <p>
+              So sánh: Khi chưa rõ vị trí, robot tự động duy trì $1,347$ hạt để phủ rộng không gian tìm kiếm. Khi đã định vị xong, số hạt giảm xuống chỉ còn $114$ hạt (giảm $91.5\%$ số hạt và tiết kiệm hơn $90\%$ thời gian tính toán của CPU). Đây chính là bí quyết giúp AMCL hoạt động trơn tru trên các phần cứng nhúng công suất thấp.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-8-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Thử Nghiệm AMCL & Bắt Cóc Robot 60 FPS</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch08"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch08-btn-kidnap" class="btn btn-primary">🚨 Bắt Cóc Robot (Kidnap Robot Sang Vị Trí Mới)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-8-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Cấu Hình Toàn Diện Node nav2_amcl Trong ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 NAV2 AMCL CONFIGURATION</span>
+            <span class="bridge-file">nav2_params.yaml</span>
+          </div>
+          <p>
+            File cấu hình tiêu chuẩn của bộ định vị AMCL trong hệ thống điều hướng ROS 2 Nav2:
+          </p>
+          <pre><code>amcl:
+  ros__parameters:
+    use_sim_time: false
+    alpha1: 0.2                          # Nhieu quay theo chuyen dong quay
+    alpha2: 0.2                          # Nhieu quay theo chuyen dong tinh tien
+    alpha3: 0.2                          # Nhieu tinh tien theo chuyen dong tinh tien
+    alpha4: 0.2                          # Nhieu tinh tien theo chuyen dong quay
+    
+    # KLD-Sampling Particle Limits:
+    min_particles: 200                   # So hat toi thieu khi da hoi tu (Kich ban B)
+    max_particles: 3000                  # So hat toi da khi khoi tao toan cuc (Kich ban A)
+    kld_err: 0.05                        # Nguong sai so epsilon trong KLD
+    kld_z: 0.99                          # Nguong do tin cay 1 - delta (z = 2.33)
+
+    # Augmented MCL Recovery:
+    recovery_alpha_slow: 0.001           # Toc do suy giam dai han w_slow
+    recovery_alpha_fast: 0.1             # Toc do suy giam ngan han w_fast
+
+    update_min_d: 0.2                    # Chi cap nhat hat khi robot di chuyen &gt; 20 cm
+    update_min_a: 0.2                    # Chi cap nhat hat khi robot quay &gt; ~11 do
+    resample_interval: 1                 # Tan suat thuc hien lay mau lai</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch07.html" class="btn btn-secondary">← Chương 07</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch09.html" class="btn btn-primary">Chương 09 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

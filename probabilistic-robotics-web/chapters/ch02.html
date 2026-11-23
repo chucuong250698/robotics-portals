@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: Ước Lượng Trạng Thái Đệ Quy & Bộ Lọc Bayes | Probabilistic Robotics</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PR</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Robot Học Xác Suất</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 02</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Probabilistic Robotics • Thrun, Burgard, Fox</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+        <span class="sidebar-badge">16 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-2-1">
+            <span class="nav-text">2.1 Mở Đầu Về Ước Lượng Trạng Thái</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-2">
+            <span class="nav-text">2.2 Các Khái Niệm Xác Suất Cơ Bản</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-3">
+            <span class="nav-text">2.3 Tương Tác Robot - Môi Trường</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-1">
+            <span class="nav-text">2.3.1 Trạng Thái Hoàn Chỉnh (State)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-2">
+            <span class="nav-text">2.3.2 Tương Tác Môi Trường (Control & Measurement)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-3">
+            <span class="nav-text">2.3.3 Quy Luật Sinh Xác Suất</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-4">
+            <span class="nav-text">2.3.4 Phân Bố Niềm Tin (Belief)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-4">
+            <span class="nav-text">2.4 Bộ Lọc Bayes (The Bayes Filter)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-4-1">
+            <span class="nav-text">2.4.1 Thuật Toán Bộ Lọc Bayes</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-4-2">
+            <span class="nav-text">2.4.2 Dẫn Xuất Toán Học Bộ Lọc Bayes</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-4-3">
+            <span class="nav-text">2.4.3 Giả Định Markov & Giới Hạn</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-5">
+            <span class="nav-text">2.5 Biểu Diễn & Độ Phức Tạp Tính Toán</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-6">
+            <span class="nav-text">2.6 Tóm Tắt & Điểm Nhấn Cốt Lõi</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-worked">
+            <span class="nav-text">Ví Dụ Tính Số 4 Bước: Ước Lượng Vị Trí 1D</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-sim">
+            <span class="nav-text">Phòng Lab 60 FPS: Bộ Lọc Bayes Rời Rạc 1D</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-ros2">
+            <span class="nav-text">Cầu Nối ROS 2: Node Ước Lượng Đệ Quy C++</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ ROBOT HỌC XÁC SUẤT</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 02</span>
+        </div>
+        <h1 class="chapter-title">Ước Lượng Trạng Thái Đệ Quy & Bộ Lọc Bayes</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Probabilistic Robotics</em> (The MIT Press) — GS. Sebastian Thrun, GS. Wolfram Burgard, GS. Dieter Fox.
+        </p>
+      </div>
+
+
+      <!-- Layer 2: Why it matters -->
+      <section id="sec-2-why" class="why-matters-box">
+        <div class="why-matters-title">💡 VÌ SAO BỘ LỌC BAYES LÀ TRÁI TIM CỦA MỌI THUẬT TOÁN ĐỊNH VỊ VÀ SLAM?</div>
+        <p>
+          Trong mọi hệ thống robot tự hành, câu hỏi sống còn đầu tiên luôn là: <em>"Tôi đang ở đâu trong không gian này?"</em>. Robot không thể nhìn thấy trạng thái thực $x_t$ của mình mà chỉ có thể thu thập chuỗi lệnh điều khiển trong quá khứ $u_{1:t}$ và chuỗi dữ liệu cảm biến $z_{1:t}$.
+        </p>
+        <p>
+          Nếu mỗi lần ước lượng robot phải lục lại toàn bộ lịch sử từ thời điểm khai sinh vũ trụ ($t=0$ đến $t$), bộ nhớ và khối lượng tính toán sẽ bùng nổ theo cấp số nhân $\mathcal{O}(t^k)$.
+          <strong>Bộ lọc Bayes đệ quy (Recursive Bayes Filter)</strong> giải quyết triệt để điều này bằng cách chứng minh rằng: chỉ cần lưu giữ phân bố niềm tin của bước trước đó $\text{bel}(x_{t-1})$, robot có thể cập nhật trạng thái hiện tại $\text{bel}(x_t)$ trong thời gian không đổi $\mathcal{O}(1)$ sau mỗi chu kỳ điều khiển và quan sát.
+        </p>
+      </section>
+
+      <!-- Layer 1 & 3: Standard ToC & Core Theory -->
+      <section id="sec-2-1" class="content-block">
+        <h2>2.1 Mở Đầu Về Ước Lượng Trạng Thái (Introduction)</h2>
+        <p>
+          Ước lượng trạng thái (State Estimation) là quá trình suy diễn các đại lượng không thể đo trực tiếp từ các đại lượng có thể đo gián tiếp. Trong robot học, trạng thái bao gồm tọa độ, vận tốc, góc hướng, và bản đồ các chướng ngại vật xung quanh.
+        </p>
+      </section>
+
+      <section id="sec-2-2" class="content-block">
+        <h2>2.2 Các Khái Niệm Xác Suất Cơ Bản</h2>
+        <p>
+          Các nền tảng toán học tiên quyết được sử dụng xuyên suốt cuốn sách:
+        </p>
+        <div class="formula-card">
+          <div class="formula-title">ĐỊNH LÝ TỔNG XÁC SUẤT & ĐỊNH LÝ BAYES</div>
+          $$\text{Quy tắc tích (Product rule):} \quad p(x, y) = p(x \mid y) p(y) = p(y \mid x) p(x)$$
+          $$\text{Định lý Bayes (Bayes Rule):} \quad p(x \mid y) = \frac{p(y \mid x) p(x)}{p(y)} = \eta \, p(y \mid x) p(x)$$
+          $$\text{Xác suất biên duyên (Law of Total Probability):} \quad p(x) = \int p(x \mid y) p(y) \, dy$$
+        </div>
+        <p>
+          Trong đó $\eta = [p(y)]^{-1} = [\int p(y \mid x) p(x) dx]^{-1}$ đóng vai trò là hệ số chuẩn hóa (normalizer) để tích phân toàn miền của xác suất bằng $1$.
+        </p>
+      </section>
+
+      <section id="sec-2-3" class="content-block">
+        <h2>2.3 Tương Tác Robot - Môi Trường</h2>
+        <h3 id="sec-2-3-1">2.3.1 Trạng Thái Hoàn Chỉnh (Complete State)</h3>
+        <p>
+          Một trạng thái $x_t$ được gọi là <em>hoàn chỉnh</em> nếu nó mang đầy đủ thông tin để dự đoán tương lai tốt nhất có thể; việc biết thêm các trạng thái trong quá khứ $x_{0:t-1}$ không cung cấp thêm bất kỳ thông tin nào về tương lai.
+        </p>
+
+        <h3 id="sec-2-3-3">2.3.3 Quy Luật Sinh Xác Suất (Probabilistic Generative Laws)</h3>
+        <p>
+          Sự tiến hóa của hệ thống được chi phối bởi hai mô hình điều kiện cốt lõi:
+        </p>
+        <ol>
+          <li><strong>Mô hình chuyển động (State Transition Probability):</strong> $p(x_t \mid x_{t-1}, u_t)$ biểu diễn xác suất chuyển sang trạng thái $x_t$ khi thực hiện hành động $u_t$ từ trạng thái $x_{t-1}$.</li>
+          <li><strong>Mô hình đo lường (Measurement Probability):</strong> $p(z_t \mid x_t)$ biểu diễn xác suất thu được kết quả đo $z_t$ khi hệ thống đang ở trạng thái $x_t$.</li>
+        </ol>
+      </section>
+
+      <section id="sec-2-4" class="content-block">
+        <h2>2.4 Bộ Lọc Bayes (The Bayes Filter Algorithm)</h2>
+        
+        <h3 id="sec-2-4-1">2.4.1 Thuật Toán Bộ Lọc Bayes Đệ Quy Tổng Quát</h3>
+        <p>
+          Bộ lọc Bayes thực hiện luân phiên hai bước toán học trong mỗi chu kỳ thời gian $t$:
+        </p>
+
+        <div class="formula-hero">
+          $$\text{1. Bước Dự Đoán (Control Update / Prediction):} \quad \overline{\text{bel}}(x_t) = \int p(x_t \mid u_t, x_{t-1}) \, \text{bel}(x_{t-1}) \, dx_{t-1}$$
+          $$\text{2. Bước Hiệu Chỉnh (Measurement Update / Correction):} \quad \text{bel}(x_t) = \eta \, p(z_t \mid x_t) \, \overline{\text{bel}}(x_t)$$
+        </div>
+
+        <p>
+          Với không gian trạng thái rời rạc, tích phân được thay thế bằng phép tính tổng:
+          $$\overline{\text{bel}}(x_t) = \sum_{x_{t-1}} p(x_t \mid u_t, x_{t-1}) \, \text{bel}(x_{t-1})$$
+        </p>
+
+        <h3 id="sec-2-4-2">2.4.2 Dẫn Xuất Toán Học Chặt Chẽ</h3>
+        <p>
+          Xuất phát từ định nghĩa niềm tin hậu nghiệm:
+          $$\text{bel}(x_t) = p(x_t \mid z_{1:t}, u_{1:t})$$
+          Áp dụng định lý Bayes bằng cách tách phép đo gần nhất $z_t$:
+          $$p(x_t \mid z_{1:t}, u_{1:t}) = \frac{p(z_t \mid x_t, z_{1:t-1}, u_{1:t}) \, p(x_t \mid z_{1:t-1}, u_{1:t})}{p(z_t \mid z_{1:t-1}, u_{1:t})}$$
+          Áp dụng giả định Markov (phép đo $z_t$ chỉ phụ thuộc vào trạng thái hiện tại $x_t$):
+          $$p(z_t \mid x_t, z_{1:t-1}, u_{1:t}) = p(z_t \mid x_t)$$
+          Thu gọn mẫu số thành hằng số chuẩn hóa $\eta$, ta có:
+          $$\text{bel}(x_t) = \eta \, p(z_t \mid x_t) \, p(x_t \mid z_{1:t-1}, u_{1:t}) = \eta \, p(z_t \mid x_t) \, \overline{\text{bel}}(x_t)$$
+          Mở rộng $\overline{\text{bel}}(x_t)$ qua xác suất toàn phần theo $x_{t-1}$:
+          $$\overline{\text{bel}}(x_t) = \int p(x_t \mid x_{t-1}, z_{1:t-1}, u_{1:t}) \, p(x_{t-1} \mid z_{1:t-1}, u_{1:t}) \, dx_{t-1}$$
+          Theo giả định Markov về chuyển động:
+          $$p(x_t \mid x_{t-1}, z_{1:t-1}, u_{1:t}) = p(x_t \mid u_t, x_{t-1})$$
+          Vì hành động $u_t$ độc lập với trạng thái quá khứ $x_{t-1}$, ta có điều phải chứng minh:
+          $$\overline{\text{bel}}(x_t) = \int p(x_t \mid u_t, x_{t-1}) \, \text{bel}(x_{t-1}) \, dx_{t-1} \quad \blacksquare$$
+        </p>
+
+        <h3 id="sec-2-4-3">2.4.3 Giả Định Markov & Khi Nào Nó Bị Phá Vỡ?</h3>
+        <p>
+          Giả định Markov phát biểu rằng <em>quá khứ và tương lai độc lập có điều kiện khi biết hiện tại</em>. Trong thực tế, giả định này bị vi phạm khi:
+        </p>
+        <ul>
+          <li>Môi trường chứa các yếu tố động không được đưa vào vector trạng thái (ví dụ con người đi lại).</li>
+          <li>Nhiễu cảm biến có tính tương quan theo thời gian (correlated noise).</li>
+          <li>Sai số bản đồ tích lũy.</li>
+        </ul>
+      </section>
+
+      <!-- Layer 4: Worked Numerical Example -->
+      <section id="sec-2-worked" class="content-block">
+        <h2>Ví Dụ Tính Số 4 Bước: Ước Lượng Vị Trí Robot 1D Rời Rạc</h2>
+        <p>
+          Robot di chuyển trên hành lang gồm 3 vị trí $x \in \{1, 2, 3\}$.
+        </p>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 1</div>
+            <div class="step-title">Khởi Tạo & Mô Hình Chuyển Động</div>
+            <p>
+              Niềm tin ban đầu đều nhau: $\text{bel}(x_0) = [0.333, 0.333, 0.334]^T$.<br>
+              Lệnh điều khiển $u_1$: Đi sang phải ($+1$). Do bánh trượt, ma trận chuyển tiếp xác suất $T$:
+              $$P(x_t \mid x_{t-1}, u_1) = \begin{bmatrix} 0.2 & 0.0 & 0.0 \\ 0.8 & 0.2 & 0.0 \\ 0.0 & 0.8 & 1.0 \end{bmatrix}$$
+              (80% di chuyển thành công $+1$, 20% bị trượt đứng yên tại chỗ).
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 2</div>
+            <div class="step-title">Bước Dự Đoán Tiên Nghiệm $\overline{\text{bel}}(x_1)$</div>
+            <p>
+              Thực hiện nhân ma trận $\overline{\text{bel}}(x_1) = T \cdot \text{bel}(x_0)$:
+              $$\overline{\text{bel}}(x_1=1) = 0.2 \times 0.333 = \mathbf{0.0666}$$
+              $$\overline{\text{bel}}(x_1=2) = 0.8 \times 0.333 + 0.2 \times 0.333 = \mathbf{0.3330}$$
+              $$\overline{\text{bel}}(x_1=3) = 0.8 \times 0.333 + 1.0 \times 0.334 = \mathbf{0.6004}$$
+              Phân bố bị đẩy lệch sang phải theo hướng di chuyển.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 3</div>
+            <div class="step-title">Bước Cập Nhật Hiệu Chỉnh Với Đo Lường $z_1$</div>
+            <p>
+              Giả sử tại ô $2$ có một cây cột mốc. Cảm biến phát hiện thấy cột mốc: $z_1 = \text{see\_pillar}$.<br>
+              Khả dĩ đo lường: $p(z \mid x=1) = 0.1$, $p(z \mid x=2) = 0.8$, $p(z \mid x=3) = 0.1$.<br>
+              Tính tử số:
+              $$\text{Tử số} = [0.1 \times 0.0666, \, 0.8 \times 0.3330, \, 0.1 \times 0.6004] = [0.00666, \, 0.26640, \, 0.06004]$$
+              Tổng mẫu số = $0.00666 + 0.26640 + 0.06004 = 0.3331$.<br>
+              Hệ số chuẩn hóa $\eta = 1 / 0.3331 \approx 3.0021$.
+            </p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-num">BƯỚC 4</div>
+            <div class="step-title">Đáp Số Cuối Cùng & Bài Học Thực Tiễn</div>
+            <p>
+              $$\text{bel}(x_1) = [\mathbf{0.020}, \, \mathbf{0.800}, \, \mathbf{0.180}]^T$$
+              Kết quả: Mặc dù bước dự đoán cho thấy robot nhiều khả năng đã đến ô 3 ($60\%$), việc quan sát thấy cây cột mốc đã lập tức kéo niềm tin hội tụ mạnh mẽ về ô 2 ($80\%$). Đây chính là sức mạnh tự hiệu chỉnh sai số trôi dạt odometry của bộ lọc Bayes.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 5: Interactive Simulator -->
+      <section id="sec-2-sim" class="content-block">
+        <h2>Phòng Thí Nghiệm Tương Tác: Bộ Lọc Bayes 1D 60 FPS</h2>
+        <div class="sim-card">
+          <div class="sim-canvas-wrap">
+            <canvas id="sim-canvas-ch02"></canvas>
+          </div>
+          <div class="sim-controls">
+            <button id="ch02-btn-act" class="btn btn-primary">Hành Động: Đi Sang Phải (+1)</button>
+            <button id="ch02-btn-sense" class="btn btn-secondary">Quan Sát: Đo Cự Ly Mốc</button>
+            <button id="ch02-btn-reset" class="btn btn-outline">Đặt Lại Lưới</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Layer 6: ROS 2 Bridge -->
+      <section id="sec-2-ros2" class="content-block">
+        <h2>Cầu Nối Kiến Trúc Thực Chiến: Node Ước Lượng Đệ Quy C++</h2>
+        <div class="ros2-bridge-card">
+          <div class="bridge-header">
+            <span class="badge badge-accent">ROS 2 ESTIMATION NODE</span>
+            <span class="bridge-file">src/recursive_bayes_estimator_node.cpp</span>
+          </div>
+          <p>
+            Mẫu kiến trúc chuẩn cho bộ lọc đệ quy trong ROS 2: luồng điều khiển cập nhật dự đoán trong callback lệnh vận tốc `/cmd_vel` và luồng cảm biến cập nhật hiệu chỉnh trong callback `/scan`:
+          </p>
+          <pre><code>#include &lt;rclcpp/rclcpp.hpp&gt;
+#include &lt;geometry_msgs/msg/twist.hpp&gt;
+#include &lt;sensor_msgs/msg/laser_scan.hpp&gt;
+#include &lt;nav_msgs/msg/odometry.hpp&gt;
+
+class RecursiveBayesNode : public rclcpp::Node {
+public:
+  RecursiveBayesNode() : Node("recursive_bayes_node") {
+    // 1. Subscription nhận lệnh điều khiển (Prediction Step)
+    cmd_sub_ = create_subscription&lt;geometry_msgs::msg::Twist&gt;(
+      "cmd_vel", 10, std::bind(&amp;RecursiveBayesNode::predictCallback, this, std::placeholders::_1));
+
+    // 2. Subscription nhận dữ liệu đo lường (Correction Step)
+    scan_sub_ = create_subscription&lt;sensor_msgs::msg::LaserScan&gt;(
+      "scan", 10, std::bind(&amp;RecursiveBayesNode::correctCallback, this, std::placeholders::_1));
+
+    odom_pub_ = create_publisher&lt;nav_msgs::msg::Odometry&gt;("estimated_state", 10);
+    RCLCPP_INFO(get_logger(), "Recursive Bayes Filter Node Khoi Tao Thanh Cong.");
+  }
+
+private:
+  void predictCallback(const geometry_msgs::msg::Twist::SharedPtr msg) {
+    // Prediction: bel_bar = int p(x_t | u_t, x_{t-1}) * bel(x_{t-1})
+    double v = msg-&gt;linear.x;
+    double w = msg-&gt;angular.z;
+    predictMotion(v, w);
+  }
+
+  void correctCallback(const sensor_msgs::msg::LaserScan::SharedPtr msg) {
+    // Correction: bel = eta * p(z_t | x_t) * bel_bar
+    updateMeasurement(msg);
+    publishState();
+  }
+
+  void predictMotion(double v, double w) { /* Cap nhat ma tran chuyen trang thai */ }
+  void updateMeasurement(const sensor_msgs::msg::LaserScan::SharedPtr &amp; scan) { /* Tinh kha di */ }
+  void publishState() { /* Phat tin hieu uoc luong toi uu */ }
+
+  rclcpp::Subscription&lt;geometry_msgs::msg::Twist&gt;::SharedPtr cmd_sub_;
+  rclcpp::Subscription&lt;sensor_msgs::msg::LaserScan&gt;::SharedPtr scan_sub_;
+  rclcpp::Publisher&lt;nav_msgs::msg::Odometry&gt;::SharedPtr odom_pub_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch01.html" class="btn btn-secondary">← Chương 01</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch03.html" class="btn btn-primary">Chương 03 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>
