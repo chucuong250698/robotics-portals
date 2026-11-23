@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Khai Thác Nền Tảng Mô Phỏng Simulink & CopterSim HIL | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Nền Tảng & Quy Trình MBD</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 03</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+        <span class="sidebar-badge">16 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-3-1">
+            <span class="nav-text">3.1 Giới Thiệu Nền Tảng Thực Nghiệm</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-1-1">
+            <span class="nav-text">3.1.1 Thành Phần Nền Tảng Thực Nghiệm</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-1-2">
+            <span class="nav-text">3.1.2 Ưu Thế Của Nền Tảng Tích Hợp</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-2">
+            <span class="nav-text">3.2 Nền Tảng Điều Khiển & Mô Phỏng Simulink</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-1">
+            <span class="nav-text">3.2.1 Sơ Đồ Khối Bộ Điều Khiển (Controller)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-2">
+            <span class="nav-text">3.2.2 Mô Hình Vật Lý Multicopter Trên Simulink</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-3">
+            <span class="nav-text">3.2.3 Giao Tiếp Trực Quan Hóa FlightGear / 3DDisplay</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-3">
+            <span class="nav-text">3.3 Thư Viện Hộp Công Cụ PSP Toolbox</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-1">
+            <span class="nav-text">3.3.1 Thư Viện Khối Simulink Pixhawk Target</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-2">
+            <span class="nav-text">3.3.2 Cấu Hình Tự Động Sinh Mã Nhúng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-4">
+            <span class="nav-text">3.4 Cấu Hình Phần Cứng Pixhawk Cho Chế Độ HIL</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-5">
+            <span class="nav-text">3.5 Nền Tảng Mô Phỏng HIL CopterSim</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-math">
+            <span class="nav-text">Toán Học Giao Thức MAVLink HIL & Độ Trễ Gói Tin</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Băng Thông UART 921600 bps & 60 FPS</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: So Sánh Vòng Lặp SIL vs HIL</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: Cấu Hình MAVLink UDP Trong PX4 HIL</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: NỀN TẢNG & QUY TRÌNH MBD</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 03</span>
+        </div>
+        <h1 class="chapter-title">Khai Thác Nền Tảng Mô Phỏng Simulink & CopterSim HIL</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 3.1 -->
+      <section class="content-section" id="sec-3-1">
+        <h2 class="section-title">3.1 Giới Thiệu Nền Tảng Thực Nghiệm (Experimental Platform)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Vì Sao Mô Phỏng HIL Là Bước Đệm Sống Còn Trước Khi Cất Cánh?</div>
+          <p>
+            Mô phỏng thuần phần mềm (SIL) chỉ chạy trên CPU máy tính với đồng hồ thời gian ảo hoàn hảo. Nhưng trong thực tế, vi điều khiển nhúng trên máy bay phải đối mặt với: độ trễ ngắt (interrupt latency), hiện tượng trôi xung đồng hồ (clock drift), tràn số bộ nhớ và nhiễu truyền thông bus. <strong>Mô phỏng phần cứng trong vòng lặp (Hardware-in-the-Loop - HIL)</strong> giữ nguyên bo mạch điều khiển thật Pixhawk, chỉ "đánh lừa" nó bằng dữ liệu cảm biến ảo gửi từ mô hình vật lý CopterSim qua cổng MAVLink. Nếu thuật toán vượt qua bài test HIL, xác suất bay thực địa thành công đạt trên $98\%$.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-3-1-1">3.1.1 Cấu Trúc Thành Phần Nền Tảng</h3>
+        <p>
+          Hệ thống HIL khép kín bao gồm:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Máy tính trạm (Host PC):</strong> Chạy phần mềm mô phỏng vật lý đa vật thể thời gian thực <strong>CopterSim</strong> với tần số cập nhật $200\text{--}400\,\text{Hz}$ và phần mềm trực quan hóa không gian 3D <strong>3DDisplay</strong> (dựa trên Unreal Engine 4 / FlightGear).</li>
+          <li><strong>Bộ điều khiển nhúng thật (Pixhawk Autopilot):</strong> Nhận dữ liệu cảm biến ảo (`HIL_SENSOR`) từ CopterSim qua cáp USB UART, giải thuật toán điều khiển bay và xuất ngược lại lệnh điều khiển động cơ ảo (`HIL_ACTUATOR_CONTROLS`) về máy tính.</li>
+          <li><strong>Giao thức liên kết MAVLink:</strong> Giao thức truyền tin nhị phân siêu nhẹ dành cho UAV, truyền các gói dữ liệu kiểm tra tính toàn vẹn bằng mã kiểm tra CRC-16.</li>
+        </ul>
+
+        <h3 class="subsection-title" id="sec-3-1-2">3.1.2 Ưu Thế Của Nền Tảng Tích Hợp</h3>
+        <div class="feature-boxes-grid">
+          <div class="feat-box">
+            <div class="feat-icon">🛡️</div>
+            <h4>Không Rủi Ro Va Chạm (Zero Crash Cost)</h4>
+            <p>Mọi lỗi thuật toán (phân kỳ tích phân, đảo chiều điều khiển, bão hòa góc nghiêng) chỉ dẫn đến máy bay ảo bị rơi trên màn hình, không làm gãy cánh hay hỏng linh kiện thật.</p>
+          </div>
+          <div class="feat-box">
+            <div class="feat-icon">⚡</div>
+            <h4>Tái Lập Môi Trường Khắc Nghiệt</h4>
+            <p>Dễ dàng bơm nhiễu gió bão, trôi dạt cảm biến, hỏng hóc 1 động cơ bất ngờ trong CopterSim để kiểm tra độ bền vững của bộ điều khiển mà ngoài đời thực không dám thử nghiệm.</p>
+          </div>
+          <div class="feat-box">
+            <div class="feat-icon">🔄</div>
+            <h4>Một Nhấp Chuột Sinh Mã (One-Click Deploy)</h4>
+            <p>Chỉ cần nhấn nút <em>Build</em> trong Simulink, toàn bộ thuật toán được tự động biên dịch và nạp thẳng vào bộ nhớ Flash của Pixhawk mà không cần viết tay một dòng mã nhúng nào.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3.2 & 3.3 -->
+      <section class="content-section" id="sec-3-2">
+        <h2 class="section-title">3.2 Nền Tảng Điều Khiển & Mô Phỏng Simulink</h2>
+        <p>
+          Mô hình hệ thống trên Simulink được module hóa thành 3 khối subsystem độc lập:
+        </p>
+        <ol class="academic-numbered-list">
+          <li><strong>Khối Controller Subsystem:</strong> Nhận tín hiệu đặt (Desired Setpoints) và phản hồi ước lượng trạng thái để tính toán lực nâng tổng $f_d$ và các mô-men điều khiển $\boldsymbol{\tau}_d = [\tau_x, \tau_y, \tau_z]^T$.</li>
+          <li><strong>Khối Multicopter Dynamics Model:</strong> Tích hợp phương trình phi tuyến 6-DoF, mô hình khí động cánh quạt và ma trận quán tính $\mathbf{J}$.</li>
+          <li><strong>Khối FlightGear / 3DDisplay Interface:</strong> Đóng gói trạng thái tư thế và tọa độ vào gói tin UDP socket gửi tới bộ kết xuất đồ họa 3D.</li>
+        </ol>
+
+        <h2 class="section-title" id="sec-3-3">3.3 Thư Viện Hộp Công Cụ PSP Toolbox</h2>
+        <p>
+          Hộp công cụ <strong>PSP (Pixhawk Support Package)</strong> cung cấp các khối Simulink ánh xạ trực tiếp phần cứng:
+        </p>
+        <ul class="academic-list">
+          <li><code>PX4 Accelerometer / Gyroscope Read</code>: Đọc dữ liệu gia tốc và vận tốc góc từ cảm biến SPI nội bộ.</li>
+          <li><code>PX4 RC Channels Read</code>: Đọc giá trị micro-giây của 8 đến 16 kênh từ bộ thu SBUS.</li>
+          <li><code>PX4 Actuator Outputs</code>: Xuất tín hiệu điều khiển ra các chân PWM servo/ESC từ 1 đến 8.</li>
+        </ul>
+
+        <h2 class="section-title" id="sec-3-4">3.4 Cấu Hình Phần Cứng Pixhawk Cho Chế Độ HIL</h2>
+        <p>
+          Để chuyển Pixhawk sang chế độ HIL trong QGroundControl:
+        </p>
+        <div class="callout callout-warning">
+          Truy cập <em>Vehicle Setup</em> $\to$ <em>Airframe</em> $\to$ Chọn khung <strong>HIL Quadcopter X</strong> $\to$ Khởi động lại bo mạch. Tham số hệ thống <code>SYS_HITL = 1</code> sẽ vô hiệu hóa việc đọc cảm biến vật lý trên bo mạch và mở luồng nhận dữ liệu từ MAVLink.
+        </div>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-3-math">
+        <h2 class="section-title">Toán Học Giao Thức MAVLink HIL & Độ Trễ Gói Tin</h2>
+        <p>
+          Trong chế độ HIL, luồng trao đổi dữ liệu hai chiều qua cổng UART diễn ra liên tục:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">ĐỊNH DẠNG GÓI TIN MAVLINK V2 TRONG VÒNG LẶP HIL</div>
+          <div class="formula-body">
+            $$\text{Kích thước gói tin: } S_{pkt} = S_{header} + S_{payload} + S_{crc} = 10 + N_{bytes} + 2\,\text{bytes}$$
+          </div>
+          <div class="formula-notes">
+            Gói tin `HIL_SENSOR` có payload $64\,\text{bytes}$ mang dữ liệu gia tốc kế 3 trục, con quay hồi chuyển 3 trục, từ kế 3 trục và khí áp kế. Tổng kích thước gói tin: $S_{sensor} = 10 + 64 + 2 = 76\,\text{bytes}$.
+          </div>
+        </div>
+
+        <p>
+          Băng thông tối thiểu cần thiết để truyền luồng dữ liệu cảm biến ở tần số $f_{sensor}$ và lệnh điều khiển ở tần số $f_{actuator}$:
+        </p>
+        $$B_{min} = 10 \times \left( f_{sensor} \cdot S_{sensor} + f_{actuator} \cdot S_{actuator} \right)\,\text{bps}$$
+        <p>
+          (Nhân 10 bao gồm 8 bit dữ liệu, 1 bit Start và 1 bit Stop trong giao thức truyền thông nối tiếp UART không đồng bộ).
+        </p>
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-3-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Băng Thông UART 921600 bps & 60 FPS</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO TẦN SỐ VÀ CẤU HÌNH GÓI TIN HIL</div>
+            <p>Hệ thống mô phỏng HIL cấu hình với các thông số truyền thông:</p>
+            <ul class="step-param-list">
+              <li>Tần số xuất dữ liệu cảm biến ảo từ CopterSim: $f_{sensor} = 250\,\text{Hz}$ ($S_{sensor} = 76\,\text{bytes}$).</li>
+              <li>Tần số phản hồi lệnh chấp hành từ Pixhawk: $f_{act} = 250\,\text{Hz}$ ($S_{act} = 36\,\text{bytes}$).</li>
+              <li>Tốc độ Baud cổng COM USB nối tiếp: $\text{Baud} = 921600\,\text{bps}$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH TỔNG DUNG LƯỢNG BYTE TRUYỀN MỖI GIÂY</div>
+            <p>Lượng byte truyền từ PC xuống Pixhawk (Downlink):</p>
+            $$Byte_{down} = 250 \times 76 = 19000\,\text{bytes/s}$$
+            <p>Lượng byte truyền từ Pixhawk lên PC (Uplink):</p>
+            $$Byte_{up} = 250 \times 36 = 9000\,\text{bytes/s}$$
+            <p>Tổng lưu lượng byte hai chiều: $\Sigma Byte = 19000 + 9000 = 28000\,\text{bytes/s}$.</p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: QUY ĐỔI RA BĂNG THÔNG BIT & ĐỘ TẢI KÊNH</div>
+            <p>Băng thông bit thực tế cần tiêu thụ (khung 10 bit/byte UART):</p>
+            $$B_{used} = 28000 \times 10 = 280000\,\text{bps} = 280\,\text{kbps}$$
+            <p>Tỉ lệ chiếm dụng băng thông đường truyền (Channel Load):</p>
+            $$\text{Load} = \frac{B_{used}}{\text{Baud}} = \frac{280000}{921600} \approx 30.38\%$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & ĐÁNH GIÁ ĐỘ AN TOÀN TRUYỀN THÔNG</div>
+            <p>
+              Tỉ lệ tải kênh $30.4\% \lt 70\%$ nằm sâu trong ngưỡng truyền thông an toàn, tránh hoàn toàn nguy cơ nghẽn bộ đệm FIFO của chip chuyển đổi UART-USB (CP2102/FTDI). Độ trễ truyền thông một chiều chỉ xấp xỉ $\Delta t_{comm} \approx \frac{76 \times 10}{921600} \approx 0.82\,\text{ms}$, đảm bảo độ chính xác thời gian thực cho vòng lặp điều khiển bay $400\,\text{Hz}$.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-3-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: So Sánh Vòng Lặp SIL vs HIL</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Kiến Trúc Phần Cứng Trong Vòng Lặp (HIL Simulation Loop)</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-sil-hil-sim" width="700" height="360"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
+              <button id="btn-ch03-mode-sil" class="btn btn-secondary">Chuyển Sang Chế Độ SIL (Thuần Ảo)</button>
+              <button id="btn-ch03-mode-hil" class="btn btn-primary">Chuyển Sang Chế Độ HIL (Phần Cứng Thật)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-3-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Cấu Hình MAVLink UDP Socket Cho HIL</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">MAVLINK & COPTERSIM HIL NETWORK BRIDGE</div>
+          <h4>Cấu Hình Cổng Nối Tiếp & UDP Gateway Trong C++</h4>
+          <pre class="code-block"><code class="language-cpp">// Kiến trúc Socket UDP truyền nhận gói tin HIL giữa CopterSim và PX4
+#include &lt;mavlink/v2.0/common/mavlink.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+
+void send_hil_sensor(int sock_fd, struct sockaddr_in &amp;target_addr, 
+                     const float gyro[3], const float accel[3], float baro_alt) {
+  mavlink_message_t msg;
+  mavlink_hil_sensor_t hil_sensor{};
+  
+  hil_sensor.time_usec = get_time_usec();
+  hil_sensor.xacc = accel[0];
+  hil_sensor.yacc = accel[1];
+  hil_sensor.zacc = accel[2];
+  hil_sensor.xgyro = gyro[0];
+  hil_sensor.ygyro = gyro[1];
+  hil_sensor.zgyro = gyro[2];
+  hil_sensor.pressure_alt = baro_alt;
+  hil_sensor.fields_updated = 0x1FFF; // Tất cả cảm biến hợp lệ
+  
+  mavlink_msg_hil_sensor_encode(1, 200, &amp;msg, &amp;hil_sensor);
+  uint8_t buf[MAVLINK_MAX_PACKET_LEN];
+  uint16_t len = mavlink_msg_to_send_buffer(buf, &amp;msg);
+  
+  sendto(sock_fd, buf, len, 0, (struct sockaddr*)&amp;target_addr, sizeof(target_addr));
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch02.html" class="btn btn-secondary">← Chương 02</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch04.html" class="btn btn-primary">Chương 04 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

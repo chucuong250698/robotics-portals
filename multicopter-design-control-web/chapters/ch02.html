@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 02: Thiết Lập Nền Tảng Phần Cứng & Phần Mềm Pixhawk - MATLAB | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Nền Tảng & Quy Trình MBD</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 02</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 02</span>
+        <span class="sidebar-badge">15 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-2-1">
+            <span class="nav-text">2.1 Giới Thiệu Tổng Quan Nền Tảng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-1">
+            <span class="nav-text">2.1.1 Nền Tảng Phần Cứng (Hardware)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-2">
+            <span class="nav-text">2.1.2 Nền Tảng Phần Mềm (Software)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-1-3">
+            <span class="nav-text">2.1.3 Quan Hệ Ghép Nối Phần Cứng & Phần Mềm</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-2">
+            <span class="nav-text">2.2 Cài Đặt Gói Phần Mềm & PSP Toolbox</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-2-1">
+            <span class="nav-text">2.2.1 Quy Trình Cài Đặt MATLAB & Toolchain</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-2-2">
+            <span class="nav-text">2.2.2 Cấu Hình Nâng Cao Môi Trường Nhúng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-3">
+            <span class="nav-text">2.3 Cấu Hình Nền Tảng Phần Cứng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-1">
+            <span class="nav-text">2.3.1 Cấu Hình Hệ Thống Tay Điều Khiển (RC)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-2">
+            <span class="nav-text">2.3.2 Cấu Hình Autopilot Pixhawk</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-2-3-3">
+            <span class="nav-text">2.3.3 Khung Thân & Hệ Thống Động Lực</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-math">
+            <span class="nav-text">Toán Học Tín Hiệu Xung PWM & Chuẩn Hóa Lệnh</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Độ Rộng Xung & Băng Thông 400Hz</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Luồng Tín Hiệu Pixhawk</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-2-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: Đọc Tín Hiệu RC Trong PX4 C++</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: NỀN TẢNG & QUY TRÌNH MBD</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 02</span>
+        </div>
+        <h1 class="chapter-title">Thiết Lập Nền Tảng Phần Cứng & Phần Mềm Pixhawk - MATLAB</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 2.1 -->
+      <section class="content-section" id="sec-2-1">
+        <h2 class="section-title">2.1 Giới Thiệu Tổng Quan Nền Tảng (Overall Introduction)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Vì Sao Tích Hợp Phần Cứng & Phần Mềm Là Chìa Khóa Thành Bại?</div>
+          <p>
+            Rất nhiều dự án máy bay không người lái thất bại vì sự phân mảnh: người thiết kế thuật toán thì dùng công cụ toán trừu tượng không hiểu độ trễ phần cứng nhúng; còn kỹ sư điện tử thì chỉ lập trình vi điều khiển mà thiếu các mô hình toán học dự đoán. Bộ đôi <strong>Pixhawk Autopilot (Phần cứng FMU)</strong> và <strong>MATLAB/Simulink PSP (Phần mềm thiết kế thuật toán)</strong> sinh ra để giải quyết dứt điểm nỗi đau này bằng cơ chế sinh mã tự động khép kín.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-2-1-1">2.1.1 Nền Tảng Phần Cứng (Hardware Platform)</h3>
+        <p>
+          Hệ thống phần cứng thử nghiệm hoàn chỉnh bao gồm:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Bộ điều khiển bay Pixhawk Autopilot (FMU):</strong> Sử dụng vi điều khiển 32-bit ARM Cortex-M4/M7 (STM32F427 / STM32F765), xung nhịp $168\text{--}216\,\text{MHz}$, bộ nhớ Flash $2\,\text{MB}$, RAM $256\,\text{KB}$. Tích hợp cảm biến kép IMU dự phòng chống rung (InvenSense MPU-6000, ICM-20689), khí áp kế MS5611 đo độ cao siêu nhạy, từ kế HMC5883L/IST8310 xác định hướng la bàn.</li>
+          <li><strong>Hệ thống thu phát sóng vô tuyến (RC System):</strong> Tay điều khiển mặt đất (Transmitter) và bộ thu (Receiver) chuẩn giao thức số SBUS / PPM tần số $2.4\,\text{GHz}$.</li>
+          <li><strong>Khung máy bay và hệ thống đẩy:</strong> Khung sợi carbon F450, 4 động cơ BLDC, 4 bộ điều tốc ESC hỗ trợ giao thức PWM $400\,\text{Hz}$ hoặc OneShot/DShot, cánh quạt $10\text{ inch}$, pin LiPo $3S\text{--}4S$.</li>
+        </ul>
+
+        <h3 class="subsection-title" id="sec-2-1-2">2.1.2 Nền Tảng Phần Mềm (Software Platform)</h3>
+        <p>
+          Hệ thống phần mềm gồm các tầng công nghệ liên kết chặt chẽ:
+        </p>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. MATLAB & Simulink</h4>
+            <p>Môi trường mô phỏng toán học, phân tích hệ thống điều khiển tuyến tính/phi tuyến và thiết kế sơ đồ khối trực quan.</p>
+          </div>
+          <div class="comp-card">
+            <h4>2. PSP Toolbox (Pixhawk Support Package)</h4>
+            <p>Hộp công cụ chính thức cung cấp các khối I/O Simulink chuyên biệt cho Pixhawk: đọc cảm biến IMU, đọc kênh RC, xuất xung PWM điều khiển động cơ.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>3. CopterSim & QGroundControl</h4>
+            <p>CopterSim chịu trách nhiệm mô phỏng vật lý đa vật thể thời gian thực 60 FPS; QGroundControl (QGC) phụ trách nạp firmware, hiệu chuẩn cảm biến và giám sát đường bay trạm mặt đất GCS.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-2-1-3">2.1.3 Mối Quan Hệ Ghép Nối Giữa Phần Cứng và Phần Mềm</h3>
+        <p>
+          Quan hệ ghép nối tuân thủ triết lý MBD:
+        </p>
+        <div class="callout callout-info">
+          Simulink Controller Model $\xrightarrow{\text{Embedded Coder}}$ C/C++ Code $\xrightarrow{\text{ARM GCC Toolchain}}$ PX4 Firmware Binary (.px4) $\xrightarrow{\text{QGC / USB}}$ Pixhawk FMU $\xleftrightarrow{\text{MAVLink}}$ CopterSim HIL
+        </div>
+      </section>
+
+      <!-- Section 2.2 & 2.3 -->
+      <section class="content-section" id="sec-2-2">
+        <h2 class="section-title">2.2 Cài Đặt Bộ Phần Mềm & PSP Toolbox</h2>
+        <p>
+          Để đảm bảo mã nguồn C++ sinh ra tương thích $100\%$ với RTOS NuttX và kiến trúc PX4:
+        </p>
+        <ol class="academic-numbered-list">
+          <li>Cài đặt MATLAB/Simulink (phiên bản R2017b đến R2022b trở lên) kèm theo <em>Simulink Coder</em> và <em>Embedded Coder</em>.</li>
+          <li>Cài đặt trình biên dịch chéo <strong>GNU Arm Embedded Toolchain (arm-none-eabi-gcc)</strong>.</li>
+          <li>Cài đặt gói hỗ trợ <strong>Pixhawk Support Package (PSP)</strong> vào thư viện Simulink.</li>
+          <li>Cấu hình biến môi trường và liên kết cổng giao tiếp ảo qua USB Virtual COM Port driver.</li>
+        </ol>
+
+        <h2 class="section-title" id="sec-2-3">2.3 Cấu Hình Nền Tảng Phần Cứng</h2>
+        <h3 class="subsection-title" id="sec-2-3-1">2.3.1 Cấu Hình Hệ Thống Tay Điều Khiển (RC)</h3>
+        <p>
+          4 kênh điều khiển bay cơ bản từ 2 cần gạt (Gimbals) trên tay điều khiển:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Kênh 1 - Roll (Lăn ngang):</strong> Cần gạt bên phải di chuyển theo trục ngang $\to$ Nghiêng máy bay sang trái/phải.</li>
+          <li><strong>Kênh 2 - Pitch (Gật dọc):</strong> Cần gạt bên phải di chuyển theo trục dọc $\to$ Nghiêng đầu máy bay chúi xuống / ngửa lên.</li>
+          <li><strong>Kênh 3 - Throttle (Bướm ga):</strong> Cần gạt bên trái di chuyển theo trục dọc $\to$ Tăng/giảm tổng lực nâng.</li>
+          <li><strong>Kênh 4 - Yaw (Bánh lái xoay thân):</strong> Cần gạt bên trái di chuyển theo trục ngang $\to$ Xoay mũi máy bay sang trái/phải.</li>
+        </ul>
+      </section>
+
+      <!-- Section Math: PWM Signals -->
+      <section class="content-section" id="sec-2-math">
+        <h2 class="section-title">Toán Học Tín Hiệu Xung PWM & Chuẩn Hóa Lệnh Điều Khiển</h2>
+        <div class="formula-hero">
+          <div class="formula-title">QUY ĐỔI ĐỘ RỘNG XUNG PWM VÀO LỆNH ĐIỀU KHIỂN CHUẨN HÓA</div>
+          <div class="formula-body">
+            $$u_{norm} = \frac{PWM_{us} - PWM_{mid}}{PWM_{half}}, \quad PWM_{us} \in [1000, 2000]\,\mu\text{s}$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $PWM_{mid} = 1500\,\mu\text{s}$ (vị trí giữa cần gạt), $PWM_{half} = 500\,\mu\text{s}$ (nửa biên độ hành trình). Giá trị chuẩn hóa đạt $u_{norm} \in [-1.0, +1.0]$.
+          </div>
+        </div>
+
+        <p>
+          Đối với kênh Bướm ga (Throttle), phạm vi hoạt động từ vị trí thấp nhất ($1000\,\mu\text{s}$) đến cao nhất ($2000\,\mu\text{s}$), quy đổi về khoảng đơn vị $[0.0, 1.0]$:
+        </p>
+        $$u_{throttle} = \frac{PWM_{us} - 1000}{1000} \in [0.0, 1.0]$$
+        <p>
+          Trong vòng lặp điều khiển thời gian thực với chu kỳ trích mẫu $T_s = \frac{1}{f_{loop}}$, tín hiệu trễ truyền thông $\tau_{comm}$ và độ giật xung (jitter) được giới hạn chặt chẽ:
+        </p>
+        $$\tau_{latency} = \Delta t_{RC\_sample} + \Delta t_{FMU\_calc} + \Delta t_{PWM\_out} \le 2.5\,\text{ms} \quad (\text{tại } f_{loop} = 400\,\text{Hz})$$
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-2-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Độ Rộng Xung PWM & Băng Thông 400Hz</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO ĐO ĐẠC XUNG TỪ BỘ THU RC</div>
+            <p>Bộ thu RC đo được độ rộng xung trên Kênh 1 (Roll) và Kênh 3 (Throttle):</p>
+            <ul class="step-param-list">
+              <li>Độ rộng xung kênh Roll: $PWM_{roll} = 1750\,\mu\text{s}$.</li>
+              <li>Độ rộng xung kênh Throttle: $PWM_{thr} = 1620\,\mu\text{s}$.</li>
+              <li>Tần số xuất xung ESC: $f_{PWM} = 400\,\text{Hz}$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: CHUẨN HÓA LỆNH ĐIỀU KHIỂN ĐẦU VÀO</div>
+            <p>Lệnh điều khiển nghiêng góc Roll chuẩn hóa:</p>
+            $$u_{roll} = \frac{1750 - 1500}{500} = \frac{250}{500} = +0.50 \quad (+50\% \text{ hành trình sang phải})$$
+            <p>Lệnh bướm ga chuẩn hóa:</p>
+            $$u_{thr} = \frac{1620 - 1000}{1000} = \frac{620}{1000} = 0.62 \quad (62\% \text{ công suất})$$
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH TOÁN CHU KỲ VÀ THỜI GIAN TRỐNG KHUNG</div>
+            <p>Chu kỳ xung của hệ thống ESC ở tần số $400\,\text{Hz}$:</p>
+            $$T_{period} = \frac{1}{400} = 0.0025\,\text{s} = 2500\,\mu\text{s}$$
+            <p>Với độ rộng xung cực đại $2000\,\mu\text{s}$, thời gian nghỉ an toàn (Dead time) giữa 2 xung liên tiếp:</p>
+            $$t_{dead} = T_{period} - PWM_{max} = 2500 - 2000 = 500\,\mu\text{s} \gt 0$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & ĐÁNH GIÁ ĐỘ AN TOÀN NHÚNG</div>
+            <p>
+              Khoảng nghỉ an toàn $500\,\mu\text{s}$ đảm bảo các cổng quang cách ly (Optocoupler) trên mạch ESC kịp phục hồi trạng thái tắt (turn-off), không bị hiện tượng chồng lấn xung gây cháy cầu H MOSFET. Tần số $400\,\text{Hz}$ là mức chuẩn mực tối đa của giao thức PWM truyền thống trước khi chuyển sang các giao thức số như DShot300/DShot600.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-2-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Dòng Tín Hiệu Thời Gian Thực Pixhawk</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Kiến Trúc Phần Cứng/Phần Mềm Pixhawk & Độ Trễ Xung</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-pixhawk-signal-flow" width="700" height="360"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group">
+              <label>Tần số chu kỳ ngắt điều khiển FMU Loop Rate:</label>
+              <input type="range" id="slider-ch02-rate" min="100" max="800" step="50" value="400">
+            </div>
+            <div class="control-status" id="val-ch02-rate">
+              400 Hz (2.50 ms)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-2-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Xử Lý Tín Hiệu RC Trong PX4 C++</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PIXHAWK / PX4 EMBEDDED C++</div>
+          <h4>Xử Lý Chuẩn Hóa Tín Hiệu SBUS Trong PX4 Module `rc_update`</h4>
+          <pre class="code-block"><code class="language-cpp">// Trích xuất xử lý chuẩn hóa tín hiệu RC trong mã nguồn lõi PX4
+#include &lt;px4_platform_common/module.h&gt;
+#include &lt;uORB/topics/input_rc.h&gt;
+#include &lt;uORB/topics/manual_control_setpoint.h&gt;
+
+void RCUpdate::process_rc_input(const input_rc_s &amp;rc_in) {
+  manual_control_setpoint_s manual_sp{};
+  
+  // Chuẩn hóa kênh Roll (kênh 0)
+  float raw_roll = (float)rc_in.values[0];
+  float roll_norm = (raw_roll - 1500.0f) / 500.0f;
+  manual_sp.y = math::constrain(roll_norm, -1.0f, 1.0f); // Roll rate command
+  
+  // Chuẩn hóa kênh Throttle (kênh 2)
+  float raw_thr = (float)rc_in.values[2];
+  float thr_norm = (raw_thr - 1000.0f) / 1000.0f;
+  manual_sp.z = math::constrain(thr_norm, 0.0f, 1.0f); // Collective thrust
+  
+  manual_sp.timestamp = hrt_absolute_time();
+  _manual_control_pub.publish(manual_sp);
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch01.html" class="btn btn-secondary">← Chương 01</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch03.html" class="btn btn-primary">Chương 03 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

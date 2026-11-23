@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 01: Tổng Quan & Triết Lý Thiết Kế Multicopter | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Nền Tảng & Quy Trình MBD</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 01</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 01</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-1-1">
+            <span class="nav-text">1.1 Khái Niệm Multicopter</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-1">
+            <span class="nav-text">1.1.1 Phân Loại Thiết Bị Bay Nhỏ</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-1-2">
+            <span class="nav-text">1.1.2 UAV vs Máy Bay Mô Hình</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-2">
+            <span class="nav-text">1.2 Tại Sao Chọn Multicopter?</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-3">
+            <span class="nav-text">1.3 Cấu Trúc Khóa Học & Nền Tảng Thực Nghiệm</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-3-1">
+            <span class="nav-text">1.3.1 Nền Tảng Thực Nghiệm Phần Cứng/Mềm</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-1-3-2">
+            <span class="nav-text">1.3.2 Khung Các Bài Thực Hành</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-4">
+            <span class="nav-text">1.4 Tiêu Chuẩn Kiểm Định Kỹ Thuật (CDIO/ABET)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-math">
+            <span class="nav-text">Bóc Tách Khí Động & Cân Bằng Lực Nâng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Lực Nâng & Tỉ Lệ T/W</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Cân Bằng Cánh Quạt</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-1-ros2">
+            <span class="nav-text">Cầu Nối PX4 Autopilot & ROS 2 Micro-XRCE-DDS</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: NỀN TẢNG & QUY TRÌNH MBD</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 01</span>
+        </div>
+        <h1 class="chapter-title">Tổng Quan & Triết Lý Thiết Kế Multicopter</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 1.1 -->
+      <section class="content-section" id="sec-1-1">
+        <h2 class="section-title">1.1 Khái Niệm Multicopter (What Are Multicopters)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Vì Sao Khái Niệm Này Cốt Lõi Trong Kỹ Thuật Hàng Không?</div>
+          <p>
+            Trước khi đi vào phương trình vi phân và mạch điều khiển nhúng, người kỹ sư cần hiểu rõ ranh giới vật lý: <strong>Multicopter</strong> là loại máy bay cánh quạt quay sử dụng từ 3 cánh quạt trở lên gắn trên các trục cố định để đồng thời tạo ra lực nâng và điều khiển tư thế 6 bậc tự do (6-DoF). Không giống trực thăng truyền thống (phải dùng đĩa lắc <em>Swashplate</em> cơ khí vô cùng tinh xảo và đắt đỏ) hay máy bay cánh bằng (đòi hỏi đường băng dài), multicopter thay đổi tư thế và hướng bay hoàn toàn bằng cách <strong>điều chế tốc độ quay vi sai của các động cơ điện</strong>.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-1-1-1">1.1.1 Phân Loại Thiết Bị Bay Nhỏ (Classification of Small Aerial Vehicles)</h3>
+        <p>
+          Trong miền thiết bị bay không người lái cỡ nhỏ (Small UAVs), ba trường phái khí động chính cùng tồn tại với các ưu nhược điểm kỹ thuật bù trừ nhau:
+        </p>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Máy Bay Cánh Bằng (Fixed-Wing)</h4>
+            <p><strong>Ưu điểm:</strong> Lực nâng sinh ra từ vận tốc tới của cánh lượn, hiệu suất khí động $L/D$ cao, thời gian bay dài (hơn 60 phút), tầm hoạt động rộng.</p>
+            <p><strong>Nhược điểm:</strong> Không thể đứng yên một chỗ (Hover), yêu cầu bãi cất/hạ cánh hoặc máy phóng/lưới thu hồi, cơ chế lái cơ khí phức tạp (Ailerons, Elevator, Rudder).</p>
+          </div>
+          <div class="comp-card">
+            <h4>2. Trực Thăng Truyền Thống (Helicopter)</h4>
+            <p><strong>Ưu điểm:</strong> Cất hạ cánh thẳng đứng (VTOL), có thể bay lơ lửng, hiệu suất đĩa cánh quạt lớn rất cao.</p>
+            <p><strong>Nhược điểm:</strong> Cơ cấu cơ khí Swashplate cực kỳ phức tạp, độ rung lớn, chi phí bảo dưỡng cao, nguy hiểm khi cánh quạt dài quay tốc độ cao.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>3. Máy Bay Nhiều Cánh Quạt (Multicopter)</h4>
+            <p><strong>Ưu điểm:</strong> Kết cấu cơ khí đơn giản nhất (cánh quạt bắt thẳng vào trục động cơ BLDC), cất hạ cánh thẳng đứng, cơ động tuyệt vời, dễ bảo trì, an toàn và giá thành rẻ.</p>
+            <p><strong>Nhược điểm:</strong> Hiệu suất khí động thấp hơn cánh bằng, thời gian bay hạn chế (thường từ 20 đến 40 phút với pin LiPo hiện nay).</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-1-1-2">1.1.2 Máy Bay Không Người Lái (UAV) và Máy Bay Mô Hình (Model Aircraft)</h3>
+        <p>
+          Sách phân định rạch ròi giữa <strong>UAV</strong> và <strong>Model Aircraft</strong>:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Máy bay mô hình (Model Aircraft):</strong> Hoàn toàn phụ thuộc vào mắt nhìn và tay điều khiển của phi công mặt đất (LOS - Line of Sight). Nếu mất tín hiệu sóng điều khiển hoặc người lái mất tập trung, máy bay sẽ rơi ngay lập tức.</li>
+          <li><strong>UAV / Drone:</strong> Được trang bị <strong>Hệ thống lái tự động (Autopilot / Flight Controller)</strong> bao gồm máy tính nhúng thời gian thực, khối đo quán tính (IMU), cảm biến áp suất khí quyển (Barometer), từ kế (Magnetometer) và định vị vệ tinh GNSS/GPS. UAV có khả năng tự cân bằng góc nghiêng, tự giữ vị trí không gian 3D và tự thực hiện nhiệm vụ theo lịch trình hoặc tự động quay về hạ cánh (Failsafe RTL).</li>
+        </ul>
+      </section>
+
+      <!-- Section 1.2 -->
+      <section class="content-section" id="sec-1-2">
+        <h2 class="section-title">1.2 Tại Sao Chọn Multicopter? (Why Multicopters)</h2>
+        <p>
+          Lý do multicopter bùng nổ mạnh mẽ trong thập kỷ qua và trở thành nền tảng nghiên cứu/thương mại thống trị:
+        </p>
+        <div class="feature-boxes-grid">
+          <div class="feat-box">
+            <div class="feat-icon">⚙️</div>
+            <h4>Độ Tin Cậy Cơ Khí Tuyệt Đối</h4>
+            <p>Không có ổ bi khớp quay phức tạp, không có đĩa lắc swashplate, không có servo lái khí động. Chỉ có các động cơ điện một chiều không chổi than (BLDC) gắn trực tiếp với cánh quạt cứng.</p>
+          </div>
+          <div class="feat-box">
+            <div class="feat-icon">📐</div>
+            <h4>Mô Hình Toán Học Đối Xứng & Thuần Khiết</h4>
+            <p>Cấu trúc chữ thập (+) hoặc chữ X có tính đối xứng hình học và quán tính cao, giúp các phương trình động lực học Newton-Euler tách bạch rõ ràng giữa các kênh góc nghiêng Roll, Pitch và Yaw.</p>
+          </div>
+          <div class="feat-box">
+            <div class="feat-icon">💻</div>
+            <h4>Lý Tưởng Cho Thiết Kế Dựa Trên Mô Hình (MBD)</h4>
+            <p>Đặc tính động lực học nhanh, tần số lấy mẫu điều khiển cao ($400\text{ Hz}$) là bài kiểm tra hoàn hảo cho các bộ điều khiển hiện đại từ PID phân tầng, LQR, H-infinity đến điều khiển thích nghi và học tăng cường.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 1.3 & 1.4 -->
+      <section class="content-section" id="sec-1-3">
+        <h2 class="section-title">1.3 Cấu Trúc Khóa Học & Nền Tảng Thực Nghiệm</h2>
+        <p>
+          Cuốn sách thiết kế một hệ sinh thái thực nghiệm hoàn chỉnh gồm 3 thành phần trụ cột:
+        </p>
+        <ol class="academic-numbered-list">
+          <li><strong>Nền tảng Thiết kế Điều khiển & Mô phỏng trên MATLAB/Simulink:</strong> Thiết kế thuật toán, mô phỏng SIL (Software-In-The-Loop) với mô hình động lực học phi tuyến và giao diện trực quan 3D FlightGear.</li>
+          <li><strong>Hộp công cụ sinh mã PSP (Pixhawk Support Package):</strong> Biên dịch sơ đồ khối Simulink thành mã nguồn C/C++ nhúng thời gian thực và nạp tự động vào vi điều khiển Pixhawk STM32.</li>
+          <li><strong>Nền tảng mô phỏng HIL CopterSim:</strong> Máy tính chạy phần mềm vật lý thời gian thực CopterSim kết nối cổng nối tiếp MAVLink với bo mạch Pixhawk phần cứng thật để kiểm thử vòng lặp kín trước khi bay thật.</li>
+        </ol>
+
+        <h3 class="subsection-title" id="sec-1-4">1.4 Tiêu Chuẩn Kiểm Định Giáo Dục Kỹ Thuật (CDIO / ABET)</h3>
+        <p>
+          Chuỗi 12 bài thực hành được thiết kế bám sát chuẩn kiểm định kỹ thuật quốc tế <strong>CDIO (Conceive - Design - Implement - Operate)</strong> và tiêu chí <strong>ABET</strong>:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Conceive (Hình thành ý tưởng):</strong> Phân tích nhiệm vụ bay, tính toán yêu cầu lực nâng, thời gian bay và biên độ an toàn.</li>
+          <li><strong>Design (Thiết kế hệ thống):</strong> Thiết kế hệ động lực, mô hình hóa động lực học 6-DoF, thiết kế bộ lọc trạng thái và bộ điều khiển phân tầng.</li>
+          <li><strong>Implement (Hiện thực hóa):</strong> Nạp firmware vào Pixhawk FMU, hiệu chuẩn cảm biến trên bàn thử nghiệm và chạy mô phỏng HIL.</li>
+          <li><strong>Operate (Vận hành & Đánh giá):</strong> Bay thực địa, thu thập nhật ký bay (Flight Logs ULog/CSV), phân tích đáp ứng và xử lý tình huống khẩn cấp.</li>
+        </ul>
+      </section>
+
+      <!-- Section Math: Lift Aerodynamics & Equilibrium -->
+      <section class="content-section" id="sec-1-math">
+        <h2 class="section-title">Bóc Tách Khí Động & Cân Bằng Lực Nâng Multicopter</h2>
+        <div class="formula-hero">
+          <div class="formula-title">ĐIỀU KIỆN CÂN BẰNG LỰC NÂNG & TRIỆT TIÊU MÔ-MEN XOAY THÂN</div>
+          <div class="formula-body">
+            $$\sum_{i=1}^4 T_i \ge m g, \quad \sum_{i=1}^4 \tau_{z,i} = 0$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $T_i$ là lực nâng của động cơ thứ $i$ ($\text{N}$), $m$ là tổng khối lượng máy bay ($\text{kg}$), $g \approx 9.81\,\text{m/s}^2$ là gia tốc trọng trường, và $\tau_{z,i}$ là mô-men phản lực xoắn do cánh quạt gây ra quanh trục thẳng đứng.
+          </div>
+        </div>
+
+        <p>
+          Lực nâng sinh ra từ mỗi cánh quạt quay ở tốc độ góc $\varpi_i\,(\text{rad/s})$ (hoặc $n_i\,\text{vòng/giây}$) được tính theo công thức khí động cánh quạt đĩa mỏng:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">MÔ HÌNH LỰC ĐẨY VÀ MÔ-MEN PHẢN LỰC CỦA CÁNH QUẠT</div>
+          <div class="formula-body">
+            $$T_i = c_T \varpi_i^2 = C_T \rho n_i^2 D^4, \quad Q_i = c_M \varpi_i^2 = C_Q \rho n_i^2 D^5$$
+          </div>
+        </div>
+        <p>
+          Trong đó:
+        </p>
+        <ul class="academic-list">
+          <li>$c_T\,(\text{N}\cdot\text{s}^2/\text{rad}^2)$: Hệ số lực nâng tính theo vận tốc góc; $C_T$: Hệ số lực nâng không thứ nguyên.</li>
+          <li>$c_M\,(\text{N}\cdot\text{m}\cdot\text{s}^2/\text{rad}^2)$: Hệ số mô-men phản lực; $C_Q$: Hệ số mô-men không thứ nguyên.</li>
+          <li>$\rho \approx 1.225\,\text{kg/m}^3$: Khối lượng riêng của không khí ở mực nước biển.</li>
+          <li>$D\,(\text{m})$: Đường kính đĩa cánh quạt ($1\text{ inch} = 0.0254\,\text{m}$).</li>
+        </ul>
+
+        <p>
+          <strong>Cơ chế triệt tiêu mô-men xoay thân (Yaw Cancellation):</strong> Trong quadcopter, 2 cánh quạt quay thuận chiều kim đồng hồ (CW) và 2 cánh quạt quay ngược chiều kim đồng hồ (CCW). Khi cả 4 động cơ quay cùng tốc độ, tổng mô-men xoay bằng không:
+        </p>
+        $$(-Q_1) + Q_2 + (-Q_3) + Q_4 = c_M (-\varpi_1^2 + \varpi_2^2 - \varpi_3^2 + \varpi_4^2) = 0$$
+        <p>
+          Khi cần quay thân sang trái hoặc phải, autopilot chỉ cần tăng tốc 2 động cơ cùng chiều và giảm tốc 2 động cơ ngược chiều, tạo ra mô-men quay thân mà vẫn bảo toàn tổng lực nâng thẳng đứng!
+        </p>
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-1-worked">
+        <h2 class="section-title">Ví Dụ Tính Toán Số 4 Bước Thực Tế</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO THÔNG SỐ VẬT LÝ KHUNG BAY</div>
+            <p>Xét một khung Quadcopter chuẩn phục vụ nghiên cứu trong phòng thí nghiệm:</p>
+            <ul class="step-param-list">
+              <li>Tổng khối lượng cất cánh: $m = 1.50\,\text{kg}$ (gồm khung sợi carbon, 4 động cơ, pin LiPo 4S và Pixhawk FMU).</li>
+              <li>Gia tốc trọng trường: $g = 9.81\,\text{m/s}^2$.</li>
+              <li>Yêu cầu thiết kế hàng không: Tỉ lệ Lực nâng cực đại trên Trọng lượng $T/W \ge 2.2$ để đảm bảo cơ động dưới gió giật.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH TRỌNG LƯỢNG & LỰC NÂNG LƠ LỬNG</div>
+            <p>Trọng lượng toàn phần của máy bay:</p>
+            $$W = m \cdot g = 1.50 \cdot 9.81 = 14.715\,\text{N}$$
+            <p>Ở trạng thái bay lơ lửng cân bằng (Hovering State), mỗi động cơ trong số 4 động cơ phải chịu tải một phần tư trọng lượng:</p>
+            $$T_{hover,i} = \frac{W}{4} = \frac{14.715}{4} = 3.67875\,\text{N} \approx 3.68\,\text{N}$$
+            <p>Quy đổi ra gam lực: $T_{hover,i} \approx \frac{3.67875}{9.81} \times 1000 \approx 375\,\text{g/động cơ}$.</p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH LỰC NÂNG CỰC ĐẠI THEO CHUẨN T/W = 2.2</div>
+            <p>Để đạt chỉ số an toàn $T/W = 2.2$, tổng lực nâng tối đa của cả 4 cánh quạt phải đạt:</p>
+            $$T_{max} = 2.2 \times W = 2.2 \times 14.715 = 32.373\,\text{N}$$
+            <p>Lực đẩy tối đa mỗi động cơ cần sinh ra khi bướm ga $100\%$ (Full Throttle):</p>
+            $$T_{max,i} = \frac{T_{max}}{4} = \frac{32.373}{4} = 8.093\,\text{N} \approx 825\,\text{g/động cơ}$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN KỸ THUẬT & ĐIỂM ĐẶT BƯỚM GA</div>
+            <p>
+              Tỉ lệ bướm ga lý tưởng ở trạng thái bay lơ lửng:
+            </p>
+            $$\text{Throttle}_{hover} \approx \sqrt{\frac{T_{hover,i}}{T_{max,i}}} = \sqrt{\frac{3.679}{8.093}} = \sqrt{0.4546} \approx 67.4\% \text{ (tương đương } \approx 50\% \text{ lực đẩy)}$$
+            <p>
+              <strong>Bài học thiết kế thực tế:</strong> Nếu điểm đặt bướm ga khi lơ lửng vượt quá $70\%$, máy bay sẽ không còn đủ biên độ công suất dự trữ để dập tắt nhiễu gió hoặc thực hiện các pha bổ nhào/lật góc nghiêng gắt, dễ dẫn đến mất kiểm soát và rơi tự do.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-1-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Cân Bằng Cánh Quạt & Lực Nâng</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Cân Bằng Lực Nâng & Triệt Tiêu Mô-Men Quadcopter</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-lift-equilibrium" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group">
+              <label>Tốc độ quay gốc (Tất cả 4 động cơ):</label>
+              <input type="range" id="slider-ch01-all-rpm" min="2000" max="8000" step="50" value="5000">
+            </div>
+            <div class="control-group">
+              <label>Lệch tốc độ Pitch (Động cơ trước vs Động cơ sau):</label>
+              <input type="range" id="slider-ch01-pitch-diff" min="-1500" max="1500" step="25" value="0">
+            </div>
+            <div class="control-group">
+              <label>Lệch tốc độ Yaw (CW vs CCW):</label>
+              <input type="range" id="slider-ch01-yaw-diff" min="-1000" max="1000" step="25" value="0">
+            </div>
+            <div class="control-status" id="val-ch01-rpms">
+              R1: 5000 | R2: 5000 | R3: 5000 | R4: 5000 RPM
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-1-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Pixhawk Firmware & ROS 2 Micro-XRCE-DDS</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PIXHAWK / PX4 & ROS 2 ARCHITECTURE</div>
+          <h4>Quản Lý Trạng Thái Bay Qua `px4_msgs::msg::VehicleStatus`</h4>
+          <p>
+            Trong hệ sinh thái hiện đại, bo mạch Pixhawk chạy PX4 Autopilot được kết nối với máy tính nhúng (Nvidia Jetson / Raspberry Pi 5) thông qua giao thức truyền thông hiệu năng cao <strong>Micro-XRCE-DDS</strong>, xuất bản trạng thái bay trực tiếp vào mạng topic ROS 2:
+          </p>
+          <pre class="code-block"><code class="language-cpp">// ROS 2 C++ Subscriber lắng nghe trạng thái bay từ Pixhawk Autopilot
+#include "rclcpp/rclcpp.hpp"
+#include "px4_msgs/msg/vehicle_status.hpp"
+
+class FlightStatusMonitor : public rclcpp::Node {
+public:
+  FlightStatusMonitor() : Node("flight_status_monitor") {
+    auto qos = rclcpp::SensorDataQoS();
+    sub_ = this->create_subscription&lt;px4_msgs::msg::VehicleStatus&gt;(
+      "/fmu/out/vehicle_status", qos,
+      [this](const px4_msgs::msg::VehicleStatus::SharedPtr msg) {
+        bool is_armed = (msg-&gt;arming_state == px4_msgs::msg::VehicleStatus::ARMING_STATE_ARMED);
+        RCLCPP_INFO_THROTTLE(this-&gt;get_logger(), *this-&gt;get_clock(), 1000,
+          "Pixhawk FMU: %s | Chế độ bay: %d | Failsafe: %s",
+          is_armed ? "ARMED (ĐÃ KHỞI ĐỘNG)" : "DISARMED (KHÓA)",
+          msg-&gt;nav_state,
+          msg-&gt;failsafe ? "🚨 KÍCH HOẠT" : "BÌNH THƯỜNG");
+      });
+  }
+private:
+  rclcpp::Subscription&lt;px4_msgs::msg::VehicleStatus&gt;::SharedPtr sub_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <span class="btn btn-secondary disabled">← Bắt đầu</span>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch02.html" class="btn btn-primary">Chương 02 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

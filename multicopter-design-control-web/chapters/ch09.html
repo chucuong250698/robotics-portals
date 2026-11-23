@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 09: Thí Nghiệm Thiết Kế Bộ Điều Khiển Tư Thế (Attitude Controller Design) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Ước Lượng Trạng Thái & Điều Khiển Bay</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 09</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 09</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-9-1">
+            <span class="nav-text">9.1 Kiến Thức Nền Tảng Điều Khiển Tư Thế</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-1-1">
+            <span class="nav-text">9.1.1 Cấu Trúc Điều Khiển Phân Tầng (Cascade Architecture)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-1-2">
+            <span class="nav-text">9.1.2 Điều Khiển Dựa Trên Ma Trận Quay Sai Số SO(3)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-9-1-3">
+            <span class="nav-text">9.1.3 Hiện Thực Hóa Phân Phối Điều Khiển (Mixer)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-2">
+            <span class="nav-text">9.2 Thí Nghiệm Cơ Bản: Vòng Hở vs Vòng Kín</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-3">
+            <span class="nav-text">9.3 Thí Nghiệm Phân Tích: Đáp Ứng Bậc Nhảy & Quá Độ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-4">
+            <span class="nav-text">9.4 Thí Nghiệm Thiết Kế: Tinh Chỉnh Tham Số PID & Bay Thử</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-5">
+            <span class="nav-text">9.5 Tóm Tắt Quy Chuẩn Điều Khiển Tư Thế</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-math">
+            <span class="nav-text">Toán Học Cascade PID & Hình Học Nhóm Lie SO(3)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Gán Cực Hệ Thống Bậc Hai Kênh Roll</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Bộ Điều Khiển Phân Tầng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-9-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: PX4 Module `mc_att_control` C++</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: ƯỚC LƯỢNG TRẠNG THÁI & ĐIỀU KHIỂN BAY</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 09</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Thiết Kế Bộ Điều Khiển Tư Thế (Attitude Controller Design)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 9.1 -->
+      <section class="content-section" id="sec-9-1">
+        <h2 class="section-title">9.1 Kiến Thức Nền Tảng Điều Khiển Tư Thế (Attitude Preliminary)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Vì Sao Cấu Trúc Phân Tầng Cascade Là Tiêu Chuẩn Vàng Của Hàng Không?</div>
+          <p>
+            Nếu cố gắng điều khiển góc nghiêng bằng một bộ PID đơn duy nhất (nhận sai số góc $\theta_d - \theta$ và xuất thẳng ra mô-men $\tau$), hệ thống sẽ cực kỳ dễ dao động tự kích hoặc mất ổn định khi gặp gió giật. Lý do là động cơ sinh ra gia tốc góc, tức là đạo hàm bậc hai của góc nghiêng. <strong>Cấu trúc điều khiển phân tầng (Cascade PID Control)</strong> tách bài toán thành 2 vòng lặp khép kín: <em>Vòng ngoài (Outer Loop)</em> chạy chậm hơn để tính vận tốc góc mong muốn $\boldsymbol{\omega}_d$; và <em>Vòng trong (Inner Loop)</em> chạy cực nhanh ($400\text{--}1000\,\text{Hz}$) để sinh mô-men dập tắt dao động và triệt tiêu quán tính.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-9-1-1">9.1.1 Cấu Trúc Điều Khiển Phân Tầng (Cascade Architecture)</h3>
+        <p>
+          Quy trình điều khiển 2 vòng lặp nối tiếp:
+        </p>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Vòng Ngoài: Điều Khiển Góc Tư Thế (Attitude Loop)</h4>
+            <p><strong>Tần số:</strong> $100\text{--}250\,\text{Hz}$. Thường chỉ dùng khâu tỷ lệ <strong>P Controller</strong> (để tránh trễ pha và vọt lố). Nhận sai số góc $[\phi_d - \phi, \theta_d - \theta]^T$, sinh ra lệnh vận tốc góc mong muốn $\boldsymbol{\omega}_d = [p_d, q_d, r_d]^T$.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>2. Vòng Trong: Điều Khiển Vận Tốc Góc (Rate Loop)</h4>
+            <p><strong>Tần số:</strong> $400\text{--}1000\,\text{Hz}$. Sử dụng bộ <strong>PID Controller</strong> hoàn chỉnh. Khâu D đóng vai trò hãm giảm chấn tức thời, khâu I loại bỏ sai lệch tĩnh do khí động học bất đối xứng hoặc gió tạt liên tục.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-9-1-2">9.1.2 Điều Khiển Dựa Trên Ma Trận Quay Sai Số Trong Nhóm Lie $\text{SO}(3)$</h3>
+        <p>
+          Khi multicopter nhào lộn hoặc bay lật góc nghiêng lớn, cách biểu diễn góc Euler thất bại do kỳ dị. Phương pháp điều khiển hiện đại tính toán ma trận sai số quay:
+        </p>
+        $$\mathbf{R}_e = \mathbf{R}_d^T \mathbf{R} \in \text{SO}(3)$$
+        <p>
+          Vector sai số góc được ánh xạ từ đại số Lie $\mathfrak{so}(3)$ về không gian vector thông qua toán tử vee $(\cdot)^\vee$:
+        </p>
+        $$\mathbf{e}_R = \frac{1}{2} (\mathbf{R}_e - \mathbf{R}_e^T)^\vee$$
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-9-math">
+        <h2 class="section-title">Toán Học Cascade PID & Hình Học Nhóm Lie $\text{SO}(3)$</h2>
+        <div class="formula-hero">
+          <div class="formula-title">HỆ PHƯƠNG TRÌNH ĐIỀU KHIỂN TƯ THẾ PHÂN TẦNG CASCADE</div>
+          <div class="formula-body">
+            $$\boldsymbol{\omega}_d = \mathbf{K}_{p,\Theta} (\boldsymbol{\Theta}_d - \boldsymbol{\Theta})$$
+            $$\boldsymbol{\tau}_d = \mathbf{K}_{p,\omega} (\boldsymbol{\omega}_d - \boldsymbol{\omega}) + \mathbf{K}_{i,\omega} \int (\boldsymbol{\omega}_d - \boldsymbol{\omega}) dt + \mathbf{K}_{d,\omega} \frac{d}{dt}(\boldsymbol{\omega}_d - \boldsymbol{\omega})$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $\boldsymbol{\Theta} = [\phi, \theta, \psi]^T$ là vector góc Euler; $\boldsymbol{\omega} = [p, q, r]^T$ là vector vận tốc góc đo từ con quay hồi chuyển; $\mathbf{K}_{p,\Theta}$ là ma trận độ lợi vòng ngoài; và $\mathbf{K}_{p,\omega}, \mathbf{K}_{i,\omega}, \mathbf{K}_{d,\omega}$ là các ma trận độ lợi PID vòng trong.
+          </div>
+        </div>
+
+        <p>
+          Quy đổi mô-men điều khiển mong muốn $\boldsymbol{\tau}_d = [\tau_x, \tau_y, \tau_z]^T$ kết hợp với lực nâng tổng $f_d$ xuống lệnh lực đẩy của từng động cơ thông qua ma trận Mixer:
+        </p>
+        $$\mathbf{\varpi}^2 = \mathbf{M}^{-1} \begin{bmatrix} f_d \\ \boldsymbol{\tau}_d \end{bmatrix}$$
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-9-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Gán Cực Hệ Thống Bậc Hai Kênh Roll</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO CHỈ TIÊU CHẤT LƯỢNG ĐỘNG HỌC</div>
+            <p>Thiết kế bộ điều khiển cho kênh góc Roll của Quadcopter có mô-men quán tính $J_x = 0.015\,\text{kg}\cdot\text{m}^2$:</p>
+            <ul class="step-param-list">
+              <li>Chỉ tiêu quá độ: Hệ số suy giảm tối ưu Butterworth $\zeta = 0.707$.</li>
+              <li>Tần số tự nhiên vòng lặp kín mong muốn: $\omega_n = 15.0\,\text{rad/s}$ (tương đương băng thông $\approx 2.4\,\text{Hz}$).</li>
+              <li>Bỏ qua ma sát khí động nhỏ: $J_x \ddot{\phi}(t) = \tau_x(t)$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: THIẾT LẬP PHƯƠNG TRÌNH ĐẶC TRƯNG VÒNG KÍN</div>
+            <p>Áp dụng bộ điều khiển PD cho kênh Roll: $\tau_x = K_p (\phi_d - \phi) - K_d \dot{\phi}$. Phương trình vi phân vòng kín:</p>
+            $$J_x \ddot{\phi} + K_d \dot{\phi} + K_p \phi = K_p \phi_d \implies \ddot{\phi} + \frac{K_d}{J_x} \dot{\phi} + \frac{K_p}{J_x} \phi = \frac{K_p}{J_x} \phi_d$$
+            <p>Đồng nhất với phương trình chuẩn hệ bậc hai: $s^2 + 2\zeta\omega_n s + \omega_n^2 = 0$.</p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH TOÁN CÁC HỆ SỐ ĐỘ LỢI $K_p$ VÀ $K_d$</div>
+            <p>Tính hệ số tỷ lệ $K_p$:</p>
+            $$\frac{K_p}{J_x} = \omega_n^2 \implies K_p = J_x \cdot \omega_n^2 = 0.015 \times (15.0)^2 = 0.015 \times 225 = 3.375\,\text{N}\cdot\text{m/rad}$$
+            <p>Tính hệ số vi phân $K_d$:</p>
+            $$\frac{K_d}{J_x} = 2\zeta\omega_n \implies K_d = 2 \zeta \omega_n \cdot J_x = 2 \times 0.707 \times 15.0 \times 0.015 \approx 0.318\,\text{N}\cdot\text{m}\cdot\text{s/rad}$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & ĐÁNH GIÁ ĐÁP ỨNG QUÁ ĐỘ</div>
+            <p>Với các thông số $K_p = 3.375$ và $K_d = 0.318$:</p>
+            <ul class="step-param-list">
+              <li>Độ vọt lố (Overshoot): $M_p = e^{-\frac{\pi \zeta}{\sqrt{1 - \zeta^2}}} \approx e^{-\frac{3.1416 \times 0.707}{0.707}} = e^{-\pi} \approx 4.3\% \lt 5\%$.</li>
+              <li>Thời gian quá độ tiêu chuẩn $2\%$: $t_s \approx \frac{4}{\zeta \omega_n} = \frac{4}{0.707 \times 15.0} \approx 0.377\,\text{s}$.</li>
+            </ul>
+            <p>Hệ thống đáp ứng góc nghiêng cực nhanh trong chưa đầy $0.4\,\text{giây}$, triệt tiêu hoàn toàn rung lắc!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-9-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Bộ Điều Khiển Phân Tầng</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Đáp Ứng Bậc Nhảy & Khả Năng Dập Tắt Nhiễu Gió Của Cascade PID</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-cascade-attitude-pid" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
+              <button id="btn-ch09-step" class="btn btn-primary">Phát Lệnh Bước Nhảy (Góc θd: 0° $\leftrightarrow$ 20°)</button>
+              <button id="btn-ch09-wind" class="btn btn-secondary">Bơm Nhiễu Gió Giật Bất Ngờ (Wind Gust)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-9-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: PX4 Module `mc_att_control` C++</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PX4 FLIGHT CONTROL ARCHITECTURE</div>
+          <h4>Mã Nguồn C++ Vòng Điều Khiển Tư Thế Trong `src/modules/mc_att_control`</h4>
+          <pre class="code-block"><code class="language-cpp">// Kiến trúc vòng lặp điều khiển tư thế góc nghiêng trong PX4
+#include &lt;matrix/matrix.hpp&gt;
+
+matrix::Vector3f AttitudeControl::update(const matrix::Quatf &amp;q, const matrix::Quatf &amp;q_sp, float yaw_sp_move_rate) {
+  // Tính ma trận quay tư thế hiện tại và mong muốn
+  matrix::Dcmf R = matrix::Dcmf(q);
+  matrix::Dcmf R_sp = matrix::Dcmf(q_sp);
+  
+  // Tính vector sai số quay trên nhóm Lie SO(3)
+  matrix::Vector3f e_R;
+  matrix::Dcmf R_err = R.transpose() * R_sp;
+  e_R(0) = 0.5f * (R_err(1, 2) - R_err(2, 1));
+  e_R(1) = 0.5f * (R_err(2, 0) - R_err(0, 2));
+  e_R(2) = 0.5f * (R_err(0, 1) - R_err(1, 0));
+  
+  // Vòng ngoài: Tạo vận tốc góc đặt cho vòng trong
+  matrix::Vector3f rate_sp;
+  rate_sp(0) = e_R(0) * _param_mc_roll_p.get();
+  rate_sp(1) = e_R(1) * _param_mc_pitch_p.get();
+  rate_sp(2) = e_R(2) * _param_mc_yaw_p.get() + yaw_sp_move_rate;
+  
+  return rate_sp; // Gửi sang module mc_rate_control ở tần số 1000Hz
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch08.html" class="btn btn-secondary">← Chương 08</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch10.html" class="btn btn-primary">Chương 10 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

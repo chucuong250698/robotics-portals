@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 04: Quy Trình Thí Nghiệm Dựa Trên Mô Hình (Model-Based Design) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Nền Tảng & Quy Trình MBD</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 04</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 04</span>
+        <span class="sidebar-badge">14 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-4-1">
+            <span class="nav-text">4.1 Quy Trình MBD Tổng Thể 4 Pha</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-2">
+            <span class="nav-text">4.2 Thí Nghiệm Điều Khiển Đèn LED Nhúng</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-2-1">
+            <span class="nav-text">4.2.1 Mục Tiêu & Sơ Đồ Khối LED</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-2-2">
+            <span class="nav-text">4.2.2 Quy Trình Sinh Mã & Nạp Firmware</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-2-3">
+            <span class="nav-text">4.2.3 Kết Quả & Đánh Giá Tần Số Nhấp Nháy</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-3">
+            <span class="nav-text">4.3 Thí Nghiệm Điều Khiển Góc Nghiêng (Attitude)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-1">
+            <span class="nav-text">4.3.1 Thuật Toán Simulink & Mô Phỏng SIL</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-2">
+            <span class="nav-text">4.3.2 Sinh Mã Nhúng C/C++ & Cấu Hình</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-3">
+            <span class="nav-text">4.3.3 Kiểm Thử HIL Với CopterSim</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-4-3-4">
+            <span class="nav-text">4.3.4 Thử Nghiệm Bay Thực Tế (Flight Test)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-math">
+            <span class="nav-text">Toán Học Động Lực Góc Nghiêng Sơ Cấp & Độ Lệch MBD</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Thiết Kế Bộ Điều Khiển P & Thời Gian Quá Độ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: 4 Pha MBD Tương Tác</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-4-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: Đóng Gói Mã Simulink Vào Task PX4</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: NỀN TẢNG & QUY TRÌNH MBD</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 04</span>
+        </div>
+        <h1 class="chapter-title">Quy Trình Thí Nghiệm Dựa Trên Mô Hình (Model-Based Design)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 4.1 -->
+      <section class="content-section" id="sec-4-1">
+        <h2 class="section-title">4.1 Quy Trình MBD Tổng Thể 4 Pha (Model-Based Design Workflow)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Triết Lý MBD: "Thử Nghiệm Sớm, Phát Hiện Lỗi Sớm, Không Tai Nạn"</div>
+          <p>
+            Trong phát triển hàng không vũ trụ hiện đại (Boeing, Airbus, NASA), không ai lập trình trực tiếp bộ điều khiển bay bằng ngôn ngữ C thủ công rồi mang ra sân bay thử nghiệm ngay. <strong>Quy trình Thiết kế Dựa trên Mô hình (MBD)</strong> quy định mọi ý tưởng điều khiển phải đi qua 4 cửa ải nghiêm ngặt: <em>SIL (Mô phỏng phần mềm) $\to$ Auto CodeGen (Sinh mã nhúng tự động) $\to$ HIL (Kiểm thử phần cứng trong vòng lặp) $\to$ Flight Test (Bay thực địa)</em>. Mỗi bước đóng vai trò như một bộ lọc loại bỏ $80\text{--}90\%$ rủi ro còn sót lại.
+          </p>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>Pha 1: SIL (Software-in-the-Loop)</h4>
+            <p>Xây dựng thuật toán trên sơ đồ khối Simulink, nối trực tiếp với mô hình toán học động lực học phi tuyến của multicopter. Kiểm tra tính ổn định Lyapunov, khảo sát cực trị và tối ưu tham số $K_p, K_i, K_d$.</p>
+          </div>
+          <div class="comp-card">
+            <h4>Pha 2: Auto Code Generation</h4>
+            <p>Sử dụng <em>Simulink Embedded Coder</em> chuyển đổi sơ đồ khối thành mã nguồn C/C++ chuẩn ANSI/ISO. Mã nguồn được tối ưu hóa cho vi xử lý Cortex-M4 có tính toán dấu phẩy động FPU phần cứng.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>Pha 3: HIL (Hardware-in-the-Loop)</h4>
+            <p>Nạp mã nhúng vào vi điều khiển Pixhawk thật. Máy tính chạy mô hình CopterSim bơm dữ liệu cảm biến ảo qua cáp MAVLink. Kiểm tra hiện tượng nghẽn xung nhịp, tràn ngăn xếp (stack overflow) và trễ truyền thông.</p>
+          </div>
+          <div class="comp-card">
+            <h4>Pha 4: Flight Test (Bay Thực Địa)</h4>
+            <p>Lắp bo mạch đã được kiểm định HIL lên khung bay thật, tiến hành bay ngoài trời với đầy đủ gió giật và nhiễu loạn môi trường thực tế.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4.2 & 4.3 -->
+      <section class="content-section" id="sec-4-2">
+        <h2 class="section-title">4.2 Thí Nghiệm Điều Khiển Đèn LED Nhúng</h2>
+        <p>
+          Để làm quen với chu trình sinh mã từ Simulink xuống phần cứng Pixhawk, bài thực hành khởi đầu bằng việc điều khiển đèn LED RGB trên bo mạch:
+        </p>
+        <ol class="academic-numbered-list">
+          <li><strong>Mục tiêu:</strong> Tạo bộ phát xung vuông tần số $f = 1\,\text{Hz}$ (chu kỳ $1000\,\text{ms}$, nhấp nháy $500\,\text{ms}$ BẬT / $500\,\text{ms}$ TẮT).</li>
+          <li><strong>Sơ đồ Simulink:</strong> Khối <code>Pulse Generator</code> nối tới khối <code>PX4 RGB LED</code> từ thư viện PSP Toolbox.</li>
+          <li><strong>Sinh mã & Nạp:</strong> Nhấn tổ hợp phím <code>Ctrl + B</code>. Trình biên dịch <code>arm-none-eabi-gcc</code> tạo tệp <code>.px4</code> và tự động gọi trình nạp qua cổng USB COM ảo.</li>
+        </ol>
+
+        <h2 class="section-title" id="sec-4-3">4.3 Thí Nghiệm Điều Khiển Góc Nghiêng (Attitude Control Experiment)</h2>
+        <p>
+          Nâng cấp lên bài toán điều khiển bay: Giữ góc nghiêng (Pitch/Roll) bám theo góc đặt $\theta_d$ từ cần gạt điều khiển.
+        </p>
+        <ul class="academic-list">
+          <li><strong>Bước 1 (SIL):</strong> Thiết kế bộ điều khiển tỷ lệ P kết hợp phản hồi vận tốc góc. Chạy mô phỏng kiểm tra đáp ứng quá độ.</li>
+          <li><strong>Bước 2 (Sinh mã):</strong> Chuyển khối Controller thành mã C++ nhúng.</li>
+          <li><strong>Bước 3 (HIL):</strong> Kết nối Pixhawk với CopterSim. Cần gạt trên tay điều khiển RC được di chuyển, quan sát mô hình 3D trên màn hình máy tính nghiêng góc chính xác theo lệnh.</li>
+          <li><strong>Bước 4 (Bay thử):</strong> Khởi động máy bay F450 ngoài sân, bật công tắc chuyển sang chế độ tự ổn định (Stabilize Mode) và kiểm tra khả năng giữ thăng bằng.</li>
+        </ul>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-4-math">
+        <h2 class="section-title">Toán Học Động Lực Góc Nghiêng Sơ Cấp & Độ Lệch MBD</h2>
+        <p>
+          Ở dải góc nghiêng nhỏ ($\theta \lt 15^\circ$), động lực học kênh góc nghiêng được tuyến tính hóa thành hệ quán tính bậc nhất đối với vận tốc góc và bậc hai đối với góc nghiêng:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">HÀM TRUYỀN ĐỘNG LỰC HỌC GÓC NGHIÊNG TUYẾN TÍNH HÓA</div>
+          <div class="formula-body">
+            $$J_y \ddot{\theta}(t) + d_\theta \dot{\theta}(t) = \tau_y(t) \implies G_\theta(s) = \frac{\theta(s)}{\tau_y(s)} = \frac{1}{s (J_y s + d_\theta)}$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $J_y$ là mô-men quán tính quanh trục pitch ($\text{kg}\cdot\text{m}^2$), $d_\theta$ là hệ số cản khí động góc ($\text{N}\cdot\text{m}\cdot\text{s/rad}$), và $\tau_y$ là mô-men điều khiển do vi sai lực đẩy cánh quạt sinh ra.
+          </div>
+        </div>
+
+        <p>
+          Khi chuyển đổi thuật toán từ mô phỏng SIL sang phần cứng nhúng HIL, sai số mô hình (Model Discrepancy Error) xuất hiện do lượng tử hóa số học dấu phẩy động và trễ ngắt:
+        </p>
+        $$e_{MBD}(t) = |\theta_{SIL}(t) - \theta_{HIL}(t)| \le \epsilon_{allowable} \approx 0.05 \cdot |\theta_{cmd}|$$
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-4-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Thiết Kế Bộ Điều Khiển P & Thời Gian Quá Độ</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO THÔNG SỐ VẬT LÝ KÊNH PITCH</div>
+            <p>Xét kênh góc nghiêng Pitch của quadcopter có thông số thực nghiệm:</p>
+            <ul class="step-param-list">
+              <li>Mô-men quán tính trục pitch: $J_y = 0.015\,\text{kg}\cdot\text{m}^2$.</li>
+              <li>Hệ số cản khí động nội tại: $d_\theta = 0.03\,\text{N}\cdot\text{m}\cdot\text{s/rad}$.</li>
+              <li>Yêu cầu bám lệnh góc đặt: Thời gian quá độ $t_s \le 0.40\,\text{s}$ (tiêu chuẩn $2\%$).</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: THIẾT KẾ BỘ ĐIỀU KHIỂN TỶ LỆ P VÒNG NGOÀI</div>
+            <p>Giả sử vòng trong điều khiển vận tốc góc đã được ổn định với độ lợi $K_{rate}$, hàm truyền vòng kín gần đúng dạng quán tính bậc nhất:</p>
+            $$\dot{\theta}(t) = K_p (\theta_d(t) - \theta(t)) \implies \frac{\theta(s)}{\theta_d(s)} = \frac{K_p}{s + K_p}$$
+            <p>Nghiệm quá độ với đáp ứng bước nhảy:</p>
+            $$\theta(t) = \theta_d \left(1 - e^{-K_p t}\right)$$
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH ĐỘ LỢI $K_p$ THEO THỜI GIAN QUÁ ĐỘ $t_s$</div>
+            <p>Theo tiêu chuẩn sai số $2\%$ ($e^{-K_p t_s} = 0.02$):</p>
+            $$K_p \cdot t_s = \ln(50) \approx 3.912 \implies K_p = \frac{3.912}{t_s} = \frac{3.912}{0.40} = 9.78\,\text{s}^{-1}$$
+            <p>Chọn độ lợi thực tế làm tròn an toàn: $K_p = 10.0\,\text{rad}/(\text{s}\cdot\text{rad}) = 10.0\,\text{s}^{-1}$.</p>
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & ĐÁNH GIÁ ĐỘ TRỄ KHI NẠP HIL</div>
+            <p>
+              Với độ lợi $K_p = 10.0$, chu kỳ trích mẫu của vi điều khiển Pixhawk ($T_s = 2.5\,\text{ms} = 0.0025\,\text{s}$) hoàn toàn thỏa mãn định lý lấy mẫu Nyquist:
+            </p>
+            $$f_{sampling} = 400\,\text{Hz} \gg 20 \times \frac{K_p}{2\pi} \approx 20 \times 1.59\,\text{Hz} \approx 31.8\,\text{Hz}$$
+            <p>
+              Điều này chứng minh thuật toán điều khiển sau khi sinh mã C++ sẽ không bị bất ổn định do hiệu ứng trễ pha rời rạc hóa.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-4-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: 4 Pha MBD Tương Tác</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Tiến Trình MBD & So Sánh Sai Lệch Đáp Ứng Giữa Các Pha</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-mbd-pipeline" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; width: 100%;">
+              <button id="btn-ch04-next-phase" class="btn btn-primary">Chuyển Sang Pha Tiếp Theo (Pha 1 $\to$ 2 $\to$ 3 $\to$ 4)</button>
+              <span class="control-status" id="val-ch04-phase">Pha 1/4</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-4-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Nhúng Mã C++ Sinh Từ Simulink Vào Task PX4</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">EMBEDDED CODER & PX4 RTOS TASK INTEGRATION</div>
+          <h4>Cấu Trúc Tích Hợp Hàm `step()` Sinh Tự Động Vào Vòng Lặp NuttX 400Hz</h4>
+          <pre class="code-block"><code class="language-cpp">// Tích hợp mã C++ sinh tự động từ Simulink model "AttitudeController.slx"
+#include "AttitudeController.h" // Header do Embedded Coder sinh ra
+
+class PX4SimulinkBridgeModule : public ModuleBase&lt;PX4SimulinkBridgeModule&gt; {
+public:
+  void run() override {
+    // Khởi tạo mô hình điều khiển Simulink
+    AttitudeController_initialize();
+    
+    px4_pollfd_struct_t fds[1];
+    fds[0].fd = _vehicle_attitude_sub;
+    fds[0].events = POLLIN;
+    
+    while (!should_exit()) {
+      // Chờ ngắt cảm biến 400Hz từ IMU
+      int pret = px4_poll(fds, 1, 10);
+      if (pret &gt; 0) {
+        // 1. Đưa dữ liệu đầu vào vào biến ngoài của Simulink
+        AttitudeController_U.target_theta = _setpoint.pitch;
+        AttitudeController_U.actual_theta = _attitude.pitch;
+        AttitudeController_U.actual_q = _angular_velocity.pitch_rate;
+        
+        // 2. Chạy 1 bước tính toán chu kỳ thời gian thực
+        AttitudeController_step();
+        
+        // 3. Lấy kết quả điều khiển xuất ra actuator
+        float torque_cmd = AttitudeController_Y.torque_output;
+        publish_actuator_controls(torque_cmd);
+      }
+    }
+  }
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch03.html" class="btn btn-secondary">← Chương 03</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch05.html" class="btn btn-primary">Chương 05 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

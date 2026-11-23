@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 11: Thí Nghiệm Thiết Kế Chế Độ Bay Bán Tự Hành (Semi-Autonomous Control Mode) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 4: Chế Độ Bay, An Toàn & Failsafe</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 11</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 11</span>
+        <span class="sidebar-badge">13 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-11-1">
+            <span class="nav-text">11.1 Kiến Thức Nền Tảng Điều Khiển Bán Tự Hành</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-1-1">
+            <span class="nav-text">11.1.1 Khái Niệm Bán Tự Hành (Semi-Autonomous)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-1-2">
+            <span class="nav-text">11.1.2 Kênh Điều Khiển Bằng Tay (Radio Control - RC)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-1-3">
+            <span class="nav-text">11.1.3 Kênh Điều Khiển Tự Động (Automatic Control - AC)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-11-1-4">
+            <span class="nav-text">11.1.4 Logic Chuyển Đổi An Toàn Giữa RC và AC</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-2">
+            <span class="nav-text">11.2 Thí Nghiệm Cơ Bản: Xử Lý Vùng Chết Cần Gạt (Deadzone)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-3">
+            <span class="nav-text">11.3 Thí Nghiệm Phân Tích: Chuyển Trạng Thái Không Giật (Bumpless)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-4">
+            <span class="nav-text">11.4 Thí Nghiệm Thiết Kế: Máy Trạng Thái Chế Độ Bay & Bay Thử</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-5">
+            <span class="nav-text">11.5 Tóm Tắt Nguyên Tắc Bán Tự Hành</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-math">
+            <span class="nav-text">Toán Học Hàm Vùng Chết & Logic Máy Trạng Thái</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Quy Đổi Tín Hiệu Cần Gạt Có Vùng Chết</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Máy Trạng Thái Chế Độ Bay</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-11-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: PX4 Module `commander` State Machine</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 4: CHẾ ĐỘ BAY, AN TOÀN & FAILSAFE</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 11</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Thiết Kế Chế Độ Bay Bán Tự Hành (Semi-Autonomous Control Mode)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 11.1 -->
+      <section class="content-section" id="sec-11-1">
+        <h2 class="section-title">11.1 Kiến Thức Nền Tảng Điều Khiển Bán Tự Hành (Semi-Autonomous)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Sự Hòa Quyện Hoàn Hảo Giữa Bản Năng Con Người & Độ Chuẩn Xác Máy Móc</div>
+          <p>
+            Bay thuần thủ công (Manual) đòi hỏi kỹ năng phi công siêu đẳng vì máy bay không thể tự giữ thăng bằng hay giữ vị trí; chỉ một giây lơ là máy bay sẽ trôi dạt và đâm vào chướng ngại vật. Ngược lại, bay hoàn toàn tự động (Full Autonomous) lại thiếu khả năng linh hoạt xử lý các tình huống bất ngờ không lường trước. <strong>Chế độ bay bán tự hành (Semi-Autonomous Control Mode)</strong> là triết lý trung tâm của các dòng drone hiện đại (DJI, PX4, Skydio): máy bay tự động ổn định góc nghiêng và khóa chặt vị trí tọa độ khi phi công thả tay khỏi cần gạt; nhưng ngay khi phi công gạt cần, máy tính lập tức nhường quyền điều khiển để máy bay bay theo ý muốn người lái.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-11-1-1">11.1.1 Bốn Cấp Độ Chế Độ Bay Trong Autopilot</h3>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Manual / Acro Mode</h4>
+            <p>Cần gạt ánh xạ thẳng vào vận tốc góc hoặc mô-men. Không tự cân bằng góc nghiêng. Dùng cho bay biểu diễn nhào lộn FPV.</p>
+          </div>
+          <div class="comp-card">
+            <h4>2. Stabilize / Angle Mode</h4>
+            <p>Cần gạt ánh xạ vào góc nghiêng $[\phi_d, \theta_d]$. Thả tay về giữa, máy bay tự thăng bằng góc bằng phẳng nhưng vẫn trôi theo gió.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>3. Altitude Hold (AltHold)</h4>
+            <p>Khí áp kế và gia tốc kế tự động khóa cao độ cố định khi cần ga ở giữa. Cần ga đẩy lên/xuống ánh xạ vào <em>vận tốc leo/hạ</em> thay vì lực đẩy.</p>
+          </div>
+          <div class="comp-card">
+            <h4>4. Position Hold (PosHold / Loiter)</h4>
+            <p>Cần gạt ánh xạ vào <em>vận tốc di chuyển ngang</em> theo hướng Đông-Bắc. Thả tay cần gạt, máy bay tự phanh và đứng yên bất động tại tọa độ GPS.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-11-1-4">11.1.4 Logic Chuyển Đổi An Toàn Không Giật Cục (Bumpless Transfer)</h3>
+        <p>
+          Khi phi công đang gạt cần bướm ga ở mức $75\%$ và đột ngột chuyển công tắc từ Manual sang AltHold, nếu thuật toán nạp ngay giá trị điểm đặt mới mà không làm mịn, máy bay sẽ giật nảy lên gây sốc cơ khí. Kỹ thuật <strong>Chuyển đổi trạng thái không giật (Bumpless Transfer)</strong> quy định:
+        </p>
+        <div class="callout callout-success">
+          Tại thời điểm chuyển chế độ $t = t_{switch}$, điểm đặt mới tự động khởi tạo bằng đúng trạng thái hiện tại của máy bay ($z_d = z_{current}$, $x_d = x_{current}$), sau đó mới tăng dần theo lệnh cần gạt qua một bộ lọc thông thấp làm mịn (Slew-Rate Limiter).
+        </div>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-11-math">
+        <h2 class="section-title">Toán Học Hàm Vùng Chết (Deadzone) & Chế Độ Cần Gạt</h2>
+        <p>
+          Do sai số cơ khí của lò xo trong tay điều khiển RC, khi phi công thả tay, cần gạt không bao giờ trở về đúng tuyệt đối vị trí $0.000$ mà luôn dao động nhẹ trong khoảng $[-0.05, +0.05]$. Nếu không có <strong>Vùng chết (Deadzone)</strong>, máy bay sẽ liên tục bị trôi dạt chậm.
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">HÀM PHI TUYẾN VÙNG CHẾT CHUẨN HÓA (DEADZONE FUNCTION)</div>
+          <div class="formula-body">
+            $$\delta_{stick}(u) = \begin{cases} 0 & \text{nếu } |u| \le \epsilon_{dead} \\ \text{sgn}(u) \frac{|u| - \epsilon_{dead}}{1 - \epsilon_{dead}} & \text{nếu } |u| \gt \epsilon_{dead} \end{cases}$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $u \in [-1, 1]$ là tín hiệu cần gạt thô, $\epsilon_{dead} \in [0.10, 0.15]$ là ngưỡng vùng chết (thường chọn $15\%$). Hàm toán học này đảm bảo tính liên tục $C^0$ tại biên vùng chết, không gây bước nhảy đột ngột.
+          </div>
+        </div>
+
+        <p>
+          Quy đổi lệnh cần gạt sau vùng chết thành vận tốc mong muốn trong chế độ Position Hold và Altitude Hold:
+        </p>
+        $$v_{z,d} = -v_{z,max} \cdot \delta_{stick}(u_{throttle}), \quad \dot{\psi}_d = \dot{\psi}_{max} \cdot \delta_{stick}(u_{yaw})$$
+        $$\begin{bmatrix} v_{x,d} \\ v_{y,d} \end{bmatrix} = v_{xy,max} \begin{bmatrix} \cos\psi & -\sin\psi \\ \sin\psi & \cos\psi \end{bmatrix} \begin{bmatrix} \delta_{stick}(u_{pitch}) \\ \delta_{stick}(u_{roll}) \end{bmatrix}$$
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-11-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Quy Đổi Tín Hiệu Cần Gạt Có Vùng Chết</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO TÍN HIỆU ĐO RC & THAM SỐ VẬN TỐC</div>
+            <p>Tay điều khiển RC gửi các tín hiệu cần gạt chuẩn hóa:</p>
+            <ul class="step-param-list">
+              <li>Tín hiệu bướm ga thô: $u_{thr} = +0.08$ (cần ga thả gần giữa nhưng lệch nhẹ).</li>
+              <li>Tín hiệu Pitch thô: $u_{pitch} = +0.55$ (đẩy cần chúi mũi tới trước).</li>
+              <li>Ngưỡng vùng chết: $\epsilon_{dead} = 0.15$ ($15\%$).</li>
+              <li>Vận tốc tối đa cho phép: $v_{xy,max} = 5.0\,\text{m/s}$, $v_{z,max} = 2.0\,\text{m/s}$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH TOÁN QUA HÀM VÙNG CHẾT DEADZONE</div>
+            <p>Đối với kênh bướm ga:</p>
+            $$|u_{thr}| = 0.08 \le 0.15 \implies \delta_{stick}(u_{thr}) = 0.00$$
+            <p>Đối với kênh Pitch:</p>
+            $$|u_{pitch}| = 0.55 \gt 0.15 \implies \delta_{stick}(u_{pitch}) = \frac{0.55 - 0.15}{1.0 - 0.15} = \frac{0.40}{0.85} \approx +0.4706$$
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: QUY ĐỔI THÀNH VẬN TỐC MỤC TIÊU KHÔNG GIAN</div>
+            <p>Vận tốc thẳng đứng mong muốn:</p>
+            $$v_{z,d} = -v_{z,max} \times 0.00 = 0.0\,\text{m/s} \quad (\text{Tự động giữ nguyên cao độ!})$$
+            <p>Vận tốc bay tới trước mong muốn (giả sử góc hướng $\psi = 0^\circ$):</p>
+            $$v_{x,d} = v_{xy,max} \times \delta_{stick}(u_{pitch}) = 5.0 \times 0.4706 \approx +2.35\,\text{m/s}$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & ĐÁNH GIÁ TRẢI NGHIỆM ĐIỀU KHIỂN</div>
+            <p>
+              Nhờ có vùng chết $15\%$, sai lệch nhỏ $0.08$ của cần ga bị triệt tiêu hoàn toàn, máy bay duy trì cao độ ổn định tuyệt đối mà không bị hiện tượng tự ý bay lên/hạ xuống. Đồng thời, hành trình di chuyển $0.55$ được ánh xạ mượt mà thành vận tốc bay đều đặn $2.35\,\text{m/s}$, mang lại cảm giác lái êm ái và an toàn tối đa cho phi công!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-11-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Máy Trạng Thái Chế Độ Bay</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Chuyển Đổi Máy Trạng Thái (Manual $\leftrightarrow$ AltHold $\leftrightarrow$ PosHold $\leftrightarrow$ RTL)</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-flight-mode-state-machine" width="700" height="360"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
+              <button id="btn-ch11-next-mode" class="btn btn-primary">Chuyển Đổi Chế Độ Bay (Mode Switch Toggle)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-11-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: PX4 Module `commander` State Machine</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PX4 FLIGHT MODE MANAGER ARCHITECTURE</div>
+          <h4>Máy Trạng Thái Điều Khiển Chế Độ Bay Trong `src/modules/commander`</h4>
+          <pre class="code-block"><code class="language-cpp">// Kiến trúc máy trạng thái chế độ bay trong module lõi Commander của PX4
+#include &lt;uORB/topics/vehicle_status.h&gt;
+
+void Commander::handle_flight_mode_switch(uint8_t switch_pos) {
+  switch (switch_pos) {
+    case 1:
+      set_nav_state(vehicle_status_s::NAVIGATION_STATE_MANUAL);
+      PX4_INFO("Chuyển chế độ: MANUAL (Thủ công thuần)");
+      break;
+    case 2:
+      set_nav_state(vehicle_status_s::NAVIGATION_STATE_ALTCTL);
+      PX4_INFO("Chuyển chế độ: ALT_HOLD (Tự giữ cao độ bằng khí áp kế)");
+      break;
+    case 3:
+      set_nav_state(vehicle_status_s::NAVIGATION_STATE_POSCTL);
+      PX4_INFO("Chuyển chế độ: POS_HOLD (Tự giữ vị trí 3D bằng GPS & IMU)");
+      break;
+    default:
+      set_nav_state(vehicle_status_s::NAVIGATION_STATE_AUTO_RTL);
+      PX4_WARN("Kích hoạt chế độ khẩn cấp: RETURN_TO_LAUNCH");
+      break;
+  }
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch10.html" class="btn btn-secondary">← Chương 10</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch12.html" class="btn btn-primary">Chương 12 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

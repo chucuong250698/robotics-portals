@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 10: Thí Nghiệm Thiết Kế Bộ Điều Khiển Điểm Đặt Vị Trí (Set-Point Control) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Ước Lượng Trạng Thái & Điều Khiển Bay</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 10</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 10</span>
+        <span class="sidebar-badge">13 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-10-1">
+            <span class="nav-text">10.1 Kiến Thức Nền Tảng Điều Khiển Điểm Đặt</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-1-1">
+            <span class="nav-text">10.1.1 Khái Niệm Điều Khiển Điểm Đặt (Set-Point)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-1-2">
+            <span class="nav-text">10.1.2 Bộ Điều Khiển PID Truyền Thống</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-1-3">
+            <span class="nav-text">10.1.3 Cấu Trúc PID Trong Autopilot Mã Nguồn Mở</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-10-1-4">
+            <span class="nav-text">10.1.4 Bộ Điều Khiển PID Có Bão Hòa (Anti-Windup)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-2">
+            <span class="nav-text">10.2 Thí Nghiệm Cơ Bản: Giữ Cao Độ (AltHold)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-3">
+            <span class="nav-text">10.3 Thí Nghiệm Phân Tích: Bám Điểm Mặt Phẳng Ngang</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-4">
+            <span class="nav-text">10.4 Thí Nghiệm Thiết Kế: Bay Bám Waypoints 3D</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-5">
+            <span class="nav-text">10.5 Tóm Tắt Quy Chuẩn Điều Khiển Vị Trí</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-math">
+            <span class="nav-text">Toán Học Quy Đổi Gia Tốc Sang Tư Thế & Anti-Windup</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Quy Đổi Sai Số 3D Sang Góc Nghiêng Đặt</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Điều Khiển Vị Trí 3D</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-10-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: PX4 Module `mc_pos_control` & Nav2</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: ƯỚC LƯỢNG TRẠNG THÁI & ĐIỀU KHIỂN BAY</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 10</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Thiết Kế Bộ Điều Khiển Điểm Đặt Vị Trí (Set-Point Control)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 10.1 -->
+      <section class="content-section" id="sec-10-1">
+        <h2 class="section-title">10.1 Kiến Thức Nền Tảng Điều Khiển Điểm Đặt (Set-Point Control)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Từ Cân Bằng Góc Nghiêng Đến Tự Hành Không Gian 3D Hoàn Toàn</div>
+          <p>
+            Bộ điều khiển tư thế (Chương 9) chỉ đảm bảo máy bay không bị lật. Nhưng để thực hiện nhiệm vụ thực tế (giao hàng tự động, lập bản đồ, bám quỹ đạo waypoint), máy bay cần một tầng điều khiển cấp cao hơn: <strong>Bộ điều khiển vị trí điểm đặt (Set-Point Position Controller)</strong>. Tầng này nhận tọa độ đích mong muốn $(x_d, y_d, z_d)$ từ người điều khiển hoặc bộ lập kế hoạch đường đi, tính toán vector gia tốc cần thiết trong không gian Trái đất, rồi "dịch" vector gia tốc đó thành <strong>góc nghiêng đặt $(\phi_d, \theta_d)$ và lực nâng đặt $f_d$</strong> nạp vào bộ điều khiển tư thế.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-10-1-2">10.1.2 Bộ Điều Khiển PID Truyền Thống Kênh Vị Trí</h3>
+        <p>
+          Trong mô hình tuyến tính hóa, kênh chuyển động ngang $(x, y)$ và kênh cao độ thẳng đứng $z$ được phân rã thành các bộ điều khiển PID độc lập:
+        </p>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Kênh Vị Trí Ngang (Horizontal Position X-Y)</h4>
+            <p>Nhận sai số vị trí $[x_d - x, y_d - y]^T$, tính ra gia tốc mong muốn $[\ddot{x}_d, \ddot{y}_d]^T$. Quy đổi trực tiếp sang góc nghiêng Pitch $\theta_d$ và Roll $\phi_d$.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>2. Kênh Cao Độ Thẳng Đứng (Altitude Z Channel)</h4>
+            <p>Nhận sai số độ cao $z_d - z$, tính ra gia tốc thẳng đứng $\ddot{z}_d$. Bù trừ trực tiếp lực hút trọng trường $mg$ và chia cho $\cos\phi \cos\theta$ để duy trì lực nâng khi nghiêng thân.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-10-1-4">10.1.4 Hiện Tượng Bão Hòa Tích Phân & Kỹ Thuật Anti-Windup</h3>
+        <p>
+          Động cơ có giới hạn công suất vật lý cực đại (lực nâng không thể vượt quá $f_{max}$ và không thể âm $f \ge 0$). Khi máy bay bị giữ lại bằng tay hoặc gặp gió giật quá lớn khiến vị trí không thể đạt được, thành phần tích phân $\int e(t) dt$ sẽ tiếp tục tích lũy tăng vọt tới vô cực (hiện tượng <em>Integral Windup</em>). Khi thả tay ra, máy bay sẽ phóng đi mất kiểm soát và vọt lố nghiêm trọng.
+        </p>
+        <div class="callout callout-danger">
+          <strong>Kỹ thuật Anti-Windup (Clamping / Conditional Integration):</strong> Tạm dừng tích phân ngay khi tín hiệu điều khiển chạm ngưỡng bão hòa ($|u| \ge u_{max}$) và dấu của sai số tiếp tục đẩy tín hiệu ra xa vùng an toàn.
+        </div>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-10-math">
+        <h2 class="section-title">Toán Học Quy Đổi Gia Tốc Sang Tư Thế & Anti-Windup</h2>
+        <div class="formula-hero">
+          <div class="formula-title">QUY ĐỔI VECTOR GIA TỐC MONG MUỐN SANG GÓC NGHIÊNG ĐẶT VÀ LỰC NÂNG</div>
+          <div class="formula-body">
+            $$\phi_d = \frac{1}{g} (\ddot{x}_d \sin\psi - \ddot{y}_d \cos\psi), \quad \theta_d = \frac{1}{g} (\ddot{x}_d \cos\psi + \ddot{y}_d \sin\psi)$$
+            $$f_d = m (g - \ddot{z}_d) \frac{1}{\cos\phi \cos\theta}$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $\psi$ là góc hướng la bàn hiện tại của máy bay, $g \approx 9.81\,\text{m/s}^2$ là gia tốc trọng trường, và $[\ddot{x}_d, \ddot{y}_d, \ddot{z}_d]^T$ là vector gia tốc điều khiển sinh ra từ vòng PID vị trí.
+          </div>
+        </div>
+
+        <p>
+          Thuật toán chống tích lũy bão hòa tích phân kiểu tính lùi (Back-Calculation Anti-Windup):
+        </p>
+        $$e_I(k) = e(k) + \frac{1}{K_p} (u_{sat}(k) - u(k))$$
+        $$I(k) = I(k-1) + K_i \cdot T_s \cdot e_I(k)$$
+        <p>
+          Khi cơ cấu chấp hành chạm ngưỡng bão hòa ($u_{sat} \ne u$), đại lượng hiệu chỉnh $\frac{1}{K_p} (u_{sat} - u) \lt 0$ tự động hãm và xả bớt lượng tích phân dư thừa.
+        </p>
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-10-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Quy Đổi Sai Số 3D Sang Góc Nghiêng Đặt</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO TỌA ĐỘ VÀ GIA TỐC ĐIỀU KHIỂN</div>
+            <p>Quadcopter $m = 1.5\,\text{kg}$ đang hướng mũi về phía Bắc ($\psi = 0^\circ$). Vòng điều khiển PID vị trí tính ra yêu cầu gia tốc:</p>
+            <ul class="step-param-list">
+              <li>Gia tốc về hướng Bắc (trục X): $\ddot{x}_d = +1.50\,\text{m/s}^2$.</li>
+              <li>Gia tốc về hướng Đông (trục Y): $\ddot{y}_d = -1.00\,\text{m/s}^2$ (yêu cầu bay sang Tây).</li>
+              <li>Gia tốc thẳng đứng: $\ddot{z}_d = 0.0\,\text{m/s}^2$ (duy trì bằng cao độ).</li>
+              <li>Gia tốc trọng trường: $g = 9.81\,\text{m/s}^2$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH GÓC NGHIÊNG PITCH VÀ ROLL ĐẶT</div>
+            <p>Với góc xoay mũi $\psi = 0^\circ \implies \cos\psi = 1.0, \sin\psi = 0.0$:</p>
+            $$\theta_d = \frac{1}{g} (\ddot{x}_d \cos 0 + \ddot{y}_d \sin 0) = \frac{1.50 \times 1.0 + 0}{9.81} = \frac{1.50}{9.81} \approx +0.1529\,\text{rad} \approx +8.76^\circ$$
+            $$\phi_d = \frac{1}{g} (\ddot{x}_d \sin 0 - \ddot{y}_d \cos 0) = \frac{0 - (-1.00) \times 1.0}{9.81} = \frac{1.00}{9.81} \approx +0.1019\,\text{rad} \approx +5.84^\circ$$
+            <p>Máy bay cần chúi mũi về trước $8.76^\circ$ và nghiêng cánh sang phải $5.84^\circ$.</p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH LỰC NÂNG TỔNG BÙ NGHIÊNG $f_d$</div>
+            <p>Khi thân máy bay bị nghiêng, vector lực nâng bị phân rã, nếu giữ nguyên lực nâng sẽ bị mất độ cao:</p>
+            $$\cos\theta_d = \cos(8.76^\circ) \approx 0.9883, \quad \cos\phi_d = \cos(5.84^\circ) \approx 0.9948$$
+            $$f_d = \frac{m (g - \ddot{z}_d)}{\cos\phi_d \cos\theta_d} = \frac{1.50 \times 9.81}{0.9948 \times 0.9883} = \frac{14.715}{0.9831} \approx 14.968\,\text{N}$$
+            <p>Lực nâng phải tăng thêm: $\Delta f = 14.968 - 14.715 = +0.253\,\text{N}$ ($+1.7\%$).</p>
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & KIỂM TRA NGƯỠNG AN TOÀN BÃO HÒA</div>
+            <p>
+              Góc nghiêng đặt $\theta_d = 8.76^\circ \lt 35.0^\circ$ (ngưỡng giới hạn góc tối đa an toàn trong PX4 <code>MPC_TILTMAX_AIR</code>). Lực nâng $14.97\,\text{N} \lt 32.0\,\text{N}$ (lực đẩy cực đại), hệ thống hoàn toàn nằm trong miền điều khiển tuyến tính mượt mà, không kích hoạt cơ chế bão hòa Anti-windup!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-10-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Điều Khiển Vị Trí 3D & Anti-Windup</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Bám Điểm Đích (Setpoint Tracking) & So Sánh Có vs Không Có Anti-Windup</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-position-3d-setpoint" width="700" height="360"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
+              <button id="btn-ch10-toggle-aw" class="btn btn-primary">Anti-Windup: BẬT (Enabled)</button>
+            </div>
+            <div class="control-status">
+              💡 Hướng dẫn: Nhấp chuột vào bất kỳ vị trí nào trên đường ray mô phỏng để di chuyển cờ đích!
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-10-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: PX4 Module `mc_pos_control` & Nav2</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">ROS 2 NAVIGATION 2 & PX4 OFFBOARD POSITION BRIDGE</div>
+          <h4>Cấu Trúc Điều Khiển Vị Trí Ngoài (Offboard Position Control) Trong C++</h4>
+          <pre class="code-block"><code class="language-cpp">// ROS 2 C++ Node gửi điểm đặt quỹ đạo (Trajectory Setpoint) tới Pixhawk FMU
+#include "rclcpp/rclcpp.hpp"
+#include "px4_msgs/msg/trajectory_setpoint.hpp"
+#include "px4_msgs/msg/offboard_control_mode.hpp"
+
+class OffboardPositionClient : public rclcpp::Node {
+public:
+  OffboardPositionClient() : Node("offboard_position_client") {
+    traj_pub_ = this-&gt;create_publisher&lt;px4_msgs::msg::TrajectorySetpoint&gt;("/fmu/in/trajectory_setpoint", 10);
+    mode_pub_ = this-&gt;create_publisher&lt;px4_msgs::msg::OffboardControlMode&gt;("/fmu/in/offboard_control_mode", 10);
+    
+    timer_ = this-&gt;create_wall_timer(std::chrono::milliseconds(50), [this]() {
+      // 1. Duy trì chế độ Offboard ở tần số 20Hz
+      px4_msgs::msg::OffboardControlMode mode{};
+      mode.position = true;
+      mode.velocity = false;
+      mode.acceleration = false;
+      mode_pub_-&gt;publish(mode);
+      
+      // 2. Gửi tọa độ mục tiêu không gian NED (X=5m Bắc, Y=2m Đông, Z=-3m Cao độ)
+      px4_msgs::msg::TrajectorySetpoint sp{};
+      sp.position = {5.0f, 2.0f, -3.0f};
+      sp.yaw = 0.0f; // Hướng Bắc
+      traj_pub_-&gt;publish(sp);
+    });
+  }
+private:
+  rclcpp::Publisher&lt;px4_msgs::msg::TrajectorySetpoint&gt;::SharedPtr traj_pub_;
+  rclcpp::Publisher&lt;px4_msgs::msg::OffboardControlMode&gt;::SharedPtr mode_pub_;
+  rclcpp::TimerBase::SharedPtr timer_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch09.html" class="btn btn-secondary">← Chương 09</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch11.html" class="btn btn-primary">Chương 11 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

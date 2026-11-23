@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multicopter Design and Control Practice - Portal Hub Gateway</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Viện Tri Thức Robotics</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Multicopter Design & Control Hub</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <span class="header-book-ref">📖 GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Springer)</span>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="portal-hero">
+    <div class="hero-container">
+      <div class="hero-badge-pill">
+        <span>🚁</span>
+        <span>CHUYÊN KHẢO THIẾT KẾ & ĐIỀU KHIỂN UAV THỰC HÀNH CÔNG NGHỆ CAO</span>
+      </div>
+      <h1 class="hero-title">Thiết Kế & Điều Khiển Thực Hành Multicopter</h1>
+      <p class="hero-desc">
+        Hệ thống chuyển giao toàn diện 414 trang giáo trình cao học kinh điển <em>Multicopter Design and Control Practice</em> (Springer): Phương pháp Thiết kế Dựa trên Mô hình (MBD), phần cứng Pixhawk FMU, mô phỏng CopterSim HIL và chuỗi 12 thí nghiệm điều khiển bay thực chứng từ SIL đến bay thực tế.
+      </p>
+
+      <!-- Stats Bar -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-number">12</span>
+          <span class="stat-label">Chương Học Thuật 6 Tầng</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">12</span>
+          <span class="stat-label">Mô Phỏng Canvas 60 FPS</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">12</span>
+          <span class="stat-label">Bài Tập Số Học 4 Bước</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Zero-Error MathJax 3 & C++</span>
+        </div>
+      </div>
+
+      <!-- Live Search & Filter Bar -->
+      <div class="hub-search-wrapper">
+        <div class="search-input-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="live-search-input" placeholder="Tìm kiếm chương, thuật toán (PID, EKF, Propulsion, Newton-Euler, Failsafe, HIL...)... (Ctrl + K)">
+          <span class="search-shortcut">Ctrl+K</span>
+        </div>
+        <div class="filter-pills-row">
+          <button class="filter-pill active" data-filter="all">Tất Cả (12 Chương)</button>
+          <button class="filter-pill" data-filter="track-1">Track 1: Nền Tảng & MBD (Ch 1-4)</button>
+          <button class="filter-pill" data-filter="track-2">Track 2: Động Lực & Cảm Biến (Ch 5-7)</button>
+          <button class="filter-pill" data-filter="track-3">Track 3: Ước Lượng & Điều Khiển (Ch 8-10)</button>
+          <button class="filter-pill" data-filter="track-4">Track 4: Chế Độ Bay & An Toàn (Ch 11-12)</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 Chapter Cards Grid -->
+  <main class="hub-main-container">
+    <div class="chapter-grid" id="chapter-grid">
+      <!-- Card Ch 01 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 01</span>
+        </div>
+        <h3 class="card-title">Tổng Quan & Triết Lý Thiết Kế Multicopter</h3>
+        <p class="card-desc">
+          Phân loại thiết bị bay cỡ nhỏ, UAV và máy bay mô hình. Tại sao multicopter chiếm ưu thế? Cơ cấu khí động tối giản, cất hạ cánh thẳng đứng VTOL và chuẩn kiểm định kỹ thuật CDIO / ABET.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Khái Niệm Multicopter</span>
+          <span class="tag-chip">VTOL & Động Học</span>
+          <span class="tag-chip">Cân Bằng Lực Nâng</span>
+          <span class="tag-chip">Chuẩn ABET/CDIO</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch01.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch01.html#sec-1-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 02 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 02</span>
+        </div>
+        <h3 class="card-title">Thiết Lập Nền Tảng Phần Cứng & Phần Mềm Pixhawk - MATLAB</h3>
+        <p class="card-desc">
+          Kiến trúc phần cứng Pixhawk STM32 FMU, các cảm biến bay IMU/Baro/Mag. Môi trường thiết kế MATLAB/Simulink và gói hỗ trợ PSP Toolbox. Cấu hình tay điều khiển RC và hệ thống động lực.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Pixhawk FMU</span>
+          <span class="tag-chip">PSP Toolbox</span>
+          <span class="tag-chip">Tín Hiệu PWM RC</span>
+          <span class="tag-chip">PX4 Toolchain</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch02.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch02.html#sec-2-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 03 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 03</span>
+        </div>
+        <h3 class="card-title">Khai Thác Nền Tảng Mô Phỏng Simulink & CopterSim HIL</h3>
+        <p class="card-desc">
+          Mô hình toán học multicopter trên Simulink, giao diện trực quan 3D FlightGear và 3DDisplay. Nền tảng mô phỏng phần cứng trong vòng lặp CopterSim HIL kết nối Pixhawk qua giao thức MAVLink.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Simulink Model</span>
+          <span class="tag-chip">CopterSim HIL</span>
+          <span class="tag-chip">MAVLink UDP</span>
+          <span class="tag-chip">3DDisplay UE4</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch03.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch03.html#sec-3-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 04 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-head">
+          <span class="badge badge-track-1">TRACK 1</span>
+          <span class="card-ch-num">CHƯƠNG 04</span>
+        </div>
+        <h3 class="card-title">Quy Trình Thí Nghiệm Dựa Trên Mô Hình (Model-Based Design)</h3>
+        <p class="card-desc">
+          Bốn pha MBD kinh điển: SIL mô phỏng thuần -> Sinh mã C/C++ tự động -> HIL kiểm thử phần cứng -> Thử nghiệm bay thực địa. Thực nghiệm điều khiển LED nhúng và điều khiển góc nghiêng sơ cấp.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">MBD Workflow</span>
+          <span class="tag-chip">SIL -> HIL -> Flight</span>
+          <span class="tag-chip">Embedded Coder</span>
+          <span class="tag-chip">Thử Nghiệm Bay</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch04.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch04.html#sec-4-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 05 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 05</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Thiết Kế Hệ Thống Động Lực (Propulsion System)</h3>
+        <p class="card-desc">
+          Giải phẫu động cơ không chổi than BLDC (Kv, nội trở, dòng không tải), cánh quạt (đường kính, bước, CT, CQ), ESC và pin LiPo. Mô hình lực nâng T = CT rho n^2 D^4, tỉ lệ T/W >= 2 và thời gian bay lơ lửng.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Động Cơ BLDC</span>
+          <span class="tag-chip">Cánh Quạt Propeller</span>
+          <span class="tag-chip">Mô Hình Lực Nâng</span>
+          <span class="tag-chip">Tỉ Lệ T/W >= 2</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch05.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch05.html#sec-5-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 06 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 06</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Mô Hình Hóa Động Lực Học 6 Bậc Tự Do (6-DoF Dynamics)</h3>
+        <p class="card-desc">
+          Hệ quy chiếu Trái đất EFCF và Thân ABCF. Ba cách biểu diễn tư thế (Euler, Ma trận quay, Quaternions). Phương trình Newton-Euler 6-DoF phi tuyến và ma trận phân phối điều khiển Control Allocation.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Newton-Euler 6-DoF</span>
+          <span class="tag-chip">Quaternions & Euler</span>
+          <span class="tag-chip">Control Allocation</span>
+          <span class="tag-chip">Khí Động Cánh Quạt</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch06.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch06.html#sec-6-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 07 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-head">
+          <span class="badge badge-track-2">TRACK 2</span>
+          <span class="card-ch-num">CHƯƠNG 07</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Hiệu Chuẩn Cảm Biến Ba Trục (Sensor Calibration)</h3>
+        <p class="card-desc">
+          Nguyên lý gia tốc kế 3 trục, từ kế 3 trục và con quay hồi chuyển. Mô hình sai số cảm biến (Zero-bias, Scale factor matrix, Misalignment). Thuật toán khớp hình elip số học (Ellipsoid Fitting Least Squares).
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Gia Tốc Kế & Từ Kế</span>
+          <span class="tag-chip">Zero-Bias & Scale Factor</span>
+          <span class="tag-chip">Ellipsoid Fitting</span>
+          <span class="tag-chip">Hiệu Chuẩn 6 Hướng</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch07.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch07.html#sec-7-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 08 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 08</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Ước Lượng Trạng Thái & Thiết Kế Bộ Lọc (State Estimation)</h3>
+        <p class="card-desc">
+          Nguyên lý dung hợp cảm biến IMU/Baro. Bộ lọc bù tuyến tính rời rạc (Complementary Filter) khử trôi con quay và nhiễu gia tốc kế. Bộ lọc Kalman rời rạc KF và Kalman mở rộng EKF ước lượng góc nghiêng và cao độ.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Complementary Filter</span>
+          <span class="tag-chip">Kalman Filter (KF)</span>
+          <span class="tag-chip">EKF Ước Lượng</span>
+          <span class="tag-chip">Dung Hợp IMU/Baro</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch08.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch08.html#sec-8-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 09 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 09</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Thiết Kế Bộ Điều Khiển Tư Thế (Attitude Controller)</h3>
+        <p class="card-desc">
+          Cấu trúc điều khiển phân tầng Cascade: Vòng ngoài góc tư thế (P) -> Vòng trong vận tốc góc (PID). Bộ điều khiển góc Euler vs Ma trận sai số tư thế SO(3). Phân phối lực điều khiển xuống 4/6 động cơ.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Cascade Attitude PID</span>
+          <span class="tag-chip">Vòng Vận Tốc Góc</span>
+          <span class="tag-chip">Điều Khiển SO(3)</span>
+          <span class="tag-chip">Phân Phối Lực Mixer</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch09.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch09.html#sec-9-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 10 -->
+      <article class="chapter-card" data-track="track-3">
+        <div class="card-head">
+          <span class="badge badge-track-3">TRACK 3</span>
+          <span class="card-ch-num">CHƯƠNG 10</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Thiết Kế Bộ Điều Khiển Điểm Đặt Vị Trí (Set-Point Control)</h3>
+        <p class="card-desc">
+          Cấu trúc PID điều khiển vị trí mặt phẳng ngang (x, y) và kênh cao độ z. Quy đổi gia tốc mong muốn sang góc nghiêng đặt và lực nâng fd. Xử lý bão hòa chấp hành và kỹ thuật chống tích lũy bão hòa Anti-windup.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Điều Khiển Vị Trí 3D</span>
+          <span class="tag-chip">Set-Point PID</span>
+          <span class="tag-chip">Anti-Windup Clamping</span>
+          <span class="tag-chip">Cấu Trúc PX4/ArduPilot</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch10.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch10.html#sec-10-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 11 -->
+      <article class="chapter-card" data-track="track-4">
+        <div class="card-head">
+          <span class="badge badge-track-4">TRACK 4</span>
+          <span class="card-ch-num">CHƯƠNG 11</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Thiết Kế Chế Độ Bay Bán Tự Hành (Semi-Autonomous)</h3>
+        <p class="card-desc">
+          Khái niệm điều khiển bán tự hành kết hợp phi công RC và máy tính tự động AC. Xử lý vùng chết cần gạt (Deadzone). Máy trạng thái chuyển đổi chế độ bay trơn tru giữa Manual, AltHold, PosHold và Mission.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Semi-Autonomous</span>
+          <span class="tag-chip">Vùng Chết Deadzone</span>
+          <span class="tag-chip">Bumpless Transfer</span>
+          <span class="tag-chip">Chế Độ Manual/Alt/Pos</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch11.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch11.html#sec-11-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+
+      <!-- Card Ch 12 -->
+      <article class="chapter-card" data-track="track-4">
+        <div class="card-head">
+          <span class="badge badge-track-4">TRACK 4</span>
+          <span class="card-ch-num">CHƯƠNG 12</span>
+        </div>
+        <h3 class="card-title">Thí Nghiệm Thiết Kế Logic An Toàn & Xử Lý Sự Cố (Failsafe Logic)</h3>
+        <p class="card-desc">
+          Phân tích cây rủi ro an toàn bay: Pin yếu 2 cấp độ, Vượt hàng rào địa lý Geofence, Mất sóng RC/Data-link, Hỏng động cơ. Máy trạng thái Failsafe: Cảnh báo -> Tự động quay về Return-To-Launch RTL -> Hạ cánh khẩn cấp.
+        </p>
+        <div class="card-tags">
+          <span class="tag-chip">Failsafe Protection</span>
+          <span class="tag-chip">Return-To-Launch (RTL)</span>
+          <span class="tag-chip">Hàng Rào Geofence</span>
+          <span class="tag-chip">Hạ Cánh Khẩn Cấp</span>
+        </div>
+        <div class="card-footer">
+          <a href="chapters/ch12.html" class="btn btn-primary btn-block">Khám Phá Chi Tiết →</a>
+          <a href="chapters/ch12.html#sec-12-worked" class="btn btn-secondary btn-block">Bài Tập & Code ↗</a>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="hub-footer">
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="../index.html" class="btn btn-secondary">← Về Master Gateway 11 Chuyên Khảo</a>
+        <a href="chapters/ch01.html" class="btn btn-primary">Bắt Đầu Học Chương 01 →</a>
+      </div>
+      <p class="footer-copy">
+        Multicopter Design and Control Practice Interactive Knowledge Portal • Springer Nature & Beihang University
+      </p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

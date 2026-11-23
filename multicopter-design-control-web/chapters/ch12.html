@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 12: Thí Nghiệm Thiết Kế Logic An Toàn & Xử Lý Sự Cố (Failsafe Logic Design) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 4: Chế Độ Bay, An Toàn & Failsafe</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 12</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 12</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-12-1">
+            <span class="nav-text">12.1 Kiến Thức Nền Tảng An Toàn Hàng Không & Failsafe</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-12-1-1">
+            <span class="nav-text">12.1.1 Bốn Nguy Cơ Mất An Toàn Phổ Biến</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-12-1-2">
+            <span class="nav-text">12.1.2 Đề Xuất Xử Lý Sự Cố Khẩn Cấp (Failsafe)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-12-1-3">
+            <span class="nav-text">12.1.3 Thiết Kế Logic Autopilot Bán Tự Hành An Toàn</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-2">
+            <span class="nav-text">12.2 Thí Nghiệm Cơ Bản: Cảnh Báo Pin & Mất Sóng RC</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-3">
+            <span class="nav-text">12.3 Thí Nghiệm Phân Tích: Cây Quyết Định An Toàn</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-4">
+            <span class="nav-text">12.4 Thí Nghiệm Thiết Kế: Máy Trạng Thái Failsafe & RTL</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-5">
+            <span class="nav-text">12.5 Tóm Tắt Quy Chuẩn Bảo Vệ An Toàn</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-math">
+            <span class="nav-text">Toán Học Cây Quyết Định An Toàn & Quỹ Đạo RTL</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Năng Lượng Tối Thiểu Để Bay Về Home Dưới Gió Ngược</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Hệ Thống Failsafe & RTL</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-12-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: PX4 Failsafe State Machine C++</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 4: CHẾ ĐỘ BAY, AN TOÀN & FAILSAFE</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 12</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Thiết Kế Logic An Toàn & Xử Lý Sự Cố (Failsafe Logic Design)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 12.1 -->
+      <section class="content-section" id="sec-12-1">
+        <h2 class="section-title">12.1 Kiến Thức Nền Tảng An Toàn Hàng Không & Failsafe (Safety Preliminary)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 "Máy Bay Có Thể Hỏng, Nhưng Tuyệt Đối Không Thể Gây Thương Vong Con Người"</div>
+          <p>
+            Trên không gian ba chiều, multicopter không có phanh dừng khẩn cấp như ô tô hay robot mặt đất. Nếu một sự cố xảy ra (hết pin đột ngột, mất sóng điều khiển do bị che khuất bởi tòa nhà, bay lạc ra khỏi ranh giới cho phép, hoặc hỏng hóc 1 cánh quạt) mà hệ thống không có <strong>Cơ chế xử lý sự cố an toàn (Failsafe Logic)</strong>, máy bay sẽ rơi tự do hoặc bay mất tích (Fly-away), đe dọa trực tiếp tính mạng con người và tài sản mặt đất. Failsafe là "chiếc phao cứu sinh" kỹ thuật cao nhất của ngành công nghiệp máy bay không người lái.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-12-1-1">12.1.1 Bốn Nguy Cơ Mất An Toàn Phổ Biến</h3>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Pin Yếu / Tụt Áp (Low Battery)</h4>
+            <p>Điện áp pin LiPo giảm xuống dưới $3.5\,\text{V/cell}$. Nếu tiếp tục bay, dòng xả lớn sẽ làm sập nguồn vi điều khiển FMU dẫn đến rơi tự do.</p>
+          </div>
+          <div class="comp-card">
+            <h4>2. Mất Sóng Điều Khiển (RC Loss / Datalink Loss)</h4>
+            <p>Bộ thu RC mất tín hiệu quá $1.5\,\text{giây}$ do khoảng cách xa, vật cản kim loại hoặc nhiễu tần số $2.4\,\text{GHz}$.</p>
+          </div>
+          <div class="comp-card">
+            <h4>3. Vượt Ranh Giới Địa Lý (Geofence Breach)</h4>
+            <p>Máy bay bay ra khỏi bán kính cho phép (ví dụ $R \gt 200\,\text{m}$) hoặc bay vượt quá độ cao pháp lý ($H \gt 120\,\text{m}$).</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>4. Hỏng Hóc Cảm Biến Hoặc Động Cơ</h4>
+            <p>Rơi 1 cánh quạt, kẹt động cơ BLDC, hoặc la bàn bị nhiễu từ trường nghiêm trọng giữa không trung.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-12-1-2">12.1.2 Đề Xuất Xử Lý Sự Cố Khẩn Cấp (Failsafe Strategies)</h3>
+        <p>
+          Các hành động can thiệp tự động theo thứ bậc ưu tiên:
+        </p>
+        <ol class="academic-numbered-list">
+          <li><strong>Cảnh báo (Warning):</strong> Đèn LED nhấp nháy đỏ, còi Buzzer kêu ngắt quãng, gửi tin nhắn cảnh báo MAVLink về trạm mặt đất GCS.</li>
+          <li><strong>Tự động quay về điểm cất cánh (Return-To-Launch - RTL):</strong> Nếu có tín hiệu định vị GPS và khoảng cách về Home xa hơn $2\,\text{m}$, máy bay tự động leo lên độ cao hành trình an toàn (Safe Cruise Altitude, ví dụ $z_{safe} = 30\,\text{m}$ để vượt qua ngọn cây và nhà cửa), bay thẳng về tọa độ Home, hạ độ cao từ từ và tiếp đất.</li>
+          <li><strong>Hạ cánh tại chỗ khẩn cấp (Emergency Land):</strong> Khi pin quá cạn không đủ bay về Home, hoặc mất tín hiệu GPS, máy bay tự động giữ thăng bằng góc nghiêng và giảm dần lực nâng với vận tốc hạ đều $v_z \approx 0.8\text{--}1.0\,\text{m/s}$.</li>
+          <li><strong>Tắt động cơ khẩn cấp (Emergency Disarm):</strong> Khi cảm biến phát hiện máy bay đã chạm đất hoặc lật úp trên mặt đất ($\text{Tilt} \gt 80^\circ$), autopilot lập tức ngắt xung PWM động cơ để chống cháy motor và bảo vệ người xung quanh.</li>
+        </ol>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-12-math">
+        <h2 class="section-title">Toán Học Cây Quyết Định An Toàn & Quỹ Đạo RTL</h2>
+        <div class="formula-hero">
+          <div class="formula-title">THUẬT TOÁN ĐỘ CAO HÀNH TRÌNH AN TOÀN TRONG QUY TRÌNH RTL</div>
+          <div class="formula-body">
+            $$z_{cruise} = \max(z_{current}, z_{rtl\_safe}), \quad \mathbf{v}_{nav} = v_{cruise} \frac{\mathbf{p}_{home} - \mathbf{p}}{\|\mathbf{p}_{home} - \mathbf{p}\|}$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $z_{rtl\_safe}$ là độ cao an toàn cấu hình trước (thường $20\text{--}30\,\text{m}$). Nếu máy bay đang ở độ cao thấp ($10\,\text{m}$), nó sẽ bay thẳng đứng lên $30\,\text{m}$ trước rồi mới bay ngang về Home; nếu máy bay đang ở độ cao lớn ($50\,\text{m}$), nó sẽ giữ nguyên độ cao $50\,\text{m}$ để bay về, tránh bổ nhào vào chướng ngại vật phía dưới.
+          </div>
+        </div>
+
+        <p>
+          Điều kiện phát hiện hạ cánh hoàn tất (Land Detection Criteria):
+        </p>
+        $$\text{Landed} = \left( |a_z - g| \le 0.3\,\text{m/s}^2 \right) \land \left( \|\boldsymbol{\omega}\| \le 0.1\,\text{rad/s} \right) \land \left( \text{Throttle} \le Thresh_{min} \right) \quad \text{trong } \Delta t \ge 2.0\,\text{s}$$
+        <p>
+          Khi thỏa mãn đồng thời cả 3 điều kiện trên liên tục trong 2 giây, hệ thống kích hoạt tự động khóa động cơ (Auto-Disarm).
+        </p>
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-12-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Năng Lượng Tối Thiểu Để Bay Về Home Dưới Gió Ngược</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO THÔNG SỐ VỊ TRÍ & KHÍ TƯỢNG</div>
+            <p>Máy bay đang thực hiện nhiệm vụ khảo sát ở xa:</p>
+            <ul class="step-param-list">
+              <li>Khoảng cách đường chim bay về Home: $d = 400\,\text{m}$.</li>
+              <li>Vận tốc bay hành trình theo thiết kế: $v_{cruise} = 8.0\,\text{m/s}$.</li>
+              <li>Gió thổi ngược hướng bay về: $v_{wind} = 3.0\,\text{m/s}$.</li>
+              <li>Công suất tiêu thụ khi bay hành trình: $P = 120\,\text{W}$. Điện áp pin LiPo: $U = 14.8\,\text{V}$.</li>
+              <li>Dung lượng dự trữ an toàn bắt buộc khi chạm đất: $15\%$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH THỜI GIAN BAY VỀ THỰC TẾ TRÊN MẶT ĐẤT</div>
+            <p>Vận tốc bay đối đất thực tế (Ground Speed) khi đối đầu với gió ngược:</p>
+            $$v_{ground} = v_{cruise} - v_{wind} = 8.0 - 3.0 = 5.0\,\text{m/s}$$
+            <p>Thời gian cần thiết để vượt qua $400\,\text{m}$ về tới Home:</p>
+            $$t_{return} = \frac{d}{v_{ground}} = \frac{400}{5.0} = 80\,\text{s}$$
+            <p>Cộng thêm thời gian hạ độ cao từ từ từ $30\,\text{m}$ xuống đất ở vận tốc hạ $1.0\,\text{m/s}$: $t_{land} = 30\,\text{s}$.</p>
+            <p>Tổng thời gian quy trình RTL: $t_{total} = 80 + 30 = 110\,\text{s} \approx 1.83\,\text{phút}$.</p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH DUNG LƯỢNG ĐIỆN TIÊU THỤ</div>
+            <p>Dòng điện trung bình trong suốt quá trình bay về:</p>
+            $$I = \frac{P}{U} = \frac{120\,\text{W}}{14.8\,\text{V}} \approx 8.11\,\text{A}$$
+            <p>Dung lượng pin tiêu hao trong $110\,\text{giây}$:</p>
+            $$C_{consumed} = I \times t_{total} = 8.11\,\text{A} \times \frac{110}{3600}\,\text{h} \approx 8.11 \times 0.03056 \approx 0.248\,\text{Ah} = 248\,\text{mAh}$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: THIẾT LẬP NGƯỠNG KÍCH HOẠT FAILSAFE PIN</div>
+            <p>Xét pin LiPo dung lượng $4500\,\text{mAh}$:</p>
+            <p>Tỉ lệ pin tiêu hao để thực hiện RTL: $\frac{248}{4500} \approx 5.5\%$.</p>
+            <p>Cộng với $15\%$ dung lượng dự trữ an toàn khi tiếp đất, ngưỡng kích hoạt tự động quay về (RTL Battery Threshold) bắt buộc phải thiết lập ở mức:</p>
+            $$\text{Threshold}_{RTL} = 15\% + 5.5\% = 20.5\% \approx 21\%$$
+            <p>
+              Nếu để pin tụt xuống dưới $20\%$, máy bay sẽ rơi dọc đường do không đủ năng lượng vượt qua cơn gió ngược để chạm tới điểm cất cánh an toàn!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-12-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Hệ Thống Failsafe & RTL</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Xử Lý Sự Cố Khẩn Cấp: Mất Sóng RC $\to$ Bay Về Home RTL $\to$ Tự Hạ Cánh</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-failsafe-protection" width="700" height="360"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
+              <button id="btn-ch12-rc-lost" class="btn btn-primary">Giả Lập Mất Sóng RC (Kích Hoạt RTL Khẩn Cấp)</button>
+              <button id="btn-ch12-low-bat" class="btn btn-secondary">Giả Lập Cạn Pin Cấp 2 (Hạ Cánh Tại Chỗ)</button>
+              <button id="btn-ch12-reset" class="btn btn-outline">Đặt Lại Ban Đầu (Reset)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-12-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: PX4 Failsafe State Machine C++</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PX4 SAFETY CRITICAL ARCHITECTURE</div>
+          <h4>Cấu Hình Logic Failsafe Và Bảng Tham Số Bảo Vệ Trong PX4 Autopilot</h4>
+          <pre class="code-block"><code class="language-cpp">// Trích xuất xử lý sự cố an toàn trong PX4 module Commander
+#include &lt;px4_platform_common/defines.h&gt;
+
+void Commander::check_failsafe_conditions() {
+  // 1. Kiểm tra mất sóng điều khiển RC
+  if (_rc_signal_lost &amp;&amp; _is_armed) {
+    if (_param_nav_rcl_act.get() == 2) { // 2 = Auto RTL
+      set_nav_state(vehicle_status_s::NAVIGATION_STATE_AUTO_RTL);
+      send_mavlink_critical("🚨 MẤT SÓNG RC &gt; 1.5S: KÍCH HOẠT RETURN_TO_LAUNCH!");
+    } else {
+      set_nav_state(vehicle_status_s::NAVIGATION_STATE_AUTO_LAND);
+    }
+  }
+  
+  // 2. Kiểm tra hàng rào địa lý Geofence
+  if (_geofence_breached &amp;&amp; _is_armed) {
+    set_nav_state(vehicle_status_s::NAVIGATION_STATE_AUTO_RTL);
+    send_mavlink_critical("🚨 VƯỢT GEOFENCE: QUAY VỀ HOME NGAY LẬP TỨC!");
+  }
+  
+  // 3. Kiểm tra tự động ngắt động cơ sau khi hạ cánh
+  if (_land_detector.is_landed() &amp;&amp; _is_armed) {
+    disarm();
+    PX4_INFO("✓ ĐÃ TIẾP ĐẤT AN TOÀN: TỰ ĐỘNG KHÓA ĐỘNG CƠ (AUTO-DISARM).");
+  }
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch11.html" class="btn btn-secondary">← Chương 11</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="../index.html" class="btn btn-primary">Hoàn Thành Chuyên Khảo 🎓</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

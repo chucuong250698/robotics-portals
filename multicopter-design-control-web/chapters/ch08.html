@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 08: Thí Nghiệm Ước Lượng Trạng Thái & Thiết Kế Bộ Lọc (State Estimation) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 3: Ước Lượng Trạng Thái & Điều Khiển Bay</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 08</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 08</span>
+        <span class="sidebar-badge">13 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-8-1">
+            <span class="nav-text">8.1 Kiến Thức Nền Tảng Ước Lượng Trạng Thái</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-1-1">
+            <span class="nav-text">8.1.1 Nguyên Lý Đo Lường Cảm Biến Bay</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-1-2">
+            <span class="nav-text">8.1.2 Bộ Lọc Bù Tuyến Tính (Complementary Filter)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-1-3">
+            <span class="nav-text">8.1.3 Bộ Lọc Kalman Tuyến Tính Rời Rạc (KF)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-8-1-4">
+            <span class="nav-text">8.1.4 Bộ Lọc Kalman Mở Rộng (EKF)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-2">
+            <span class="nav-text">8.2 Thí Nghiệm Cơ Bản: Tín Hiệu Thô vs Nhiễu</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-3">
+            <span class="nav-text">8.3 Thí Nghiệm Phân Tích: Đánh Giá So Sánh Bộ Lọc</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-4">
+            <span class="nav-text">8.4 Thí Nghiệm Thiết Kế: Bộ Lọc Tư Thế & Cao Độ</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-5">
+            <span class="nav-text">8.5 Tóm Tắt Quy Trình Ước Lượng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-math">
+            <span class="nav-text">Toán Học Bộ Lọc Bù & Thuật Toán Kalman Đệ Quy</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Ước Lượng Cao Độ & Vận Tốc Bằng Kalman</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: So Sánh Các Bộ Lọc Tư Thế</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-8-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: PX4 Module `ekf2` & `robot_localization`</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 3: ƯỚC LƯỢNG TRẠNG THÁI & ĐIỀU KHIỂN BAY</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 08</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Ước Lượng Trạng Thái & Thiết Kế Bộ Lọc (State Estimation)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 8.1 -->
+      <section class="content-section" id="sec-8-1">
+        <h2 class="section-title">8.1 Kiến Thức Nền Tảng Ước Lượng Trạng Thái (State Estimation)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Nghịch Lý Cảm Biến: Tần Số Cao Trôi Dạt vs Tần Số Thấp Nhiễu Rung</div>
+          <p>
+            Trên máy bay multicopter, không có một cảm biến đơn lẻ nào có thể cho biết trực tiếp góc nghiêng và độ cao hoàn hảo:
+            <strong>Con quay hồi chuyển (Gyroscope)</strong> đo vận tốc góc cực kỳ nhạy và không bị ảnh hưởng bởi rung động cơ, nhưng khi tích phân theo thời gian để tính góc $\theta = \int \omega dt$, sai số bias tích tụ khiến góc bị trôi dạt vô tận (Drift).
+            Ngược lại, <strong>Gia tốc kế (Accelerometer)</strong> có thể tính góc nghiêng tĩnh tuyệt đối qua trọng trường $\theta = \arctan(a_x / a_z)$, nhưng khi động cơ quay ở $6000\,\text{RPM}$, độ rung cơ học tạo ra sóng nhiễu khổng lồ. <strong>Dung hợp cảm biến (Sensor Fusion)</strong> là nghệ thuật kết hợp ưu điểm của cả hai để tạo ra trạng thái ước lượng vừa mượt mà vừa không trôi dạt.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-8-1-2">8.1.2 Bộ Lọc Bù Tuyến Tính (Complementary Filter)</h3>
+        <p>
+          Ý tưởng thanh lịch: Cho tín hiệu con quay hồi chuyển đi qua bộ lọc thông cao (High-pass Filter) để lấy thành phần biến thiên nhanh và loại bỏ trôi dạt một chiều; đồng thời cho tín hiệu gia tốc kế đi qua bộ lọc thông thấp (Low-pass Filter) để lấy thành phần góc tĩnh và triệt tiêu rung động tần số cao:
+        </p>
+        $$\hat{\theta}(s) = \frac{\tau s}{\tau s + 1} \left(\frac{1}{s} \omega_y(s)\right) + \frac{1}{\tau s + 1} \theta_{acc}(s) = \frac{\tau}{\tau s + 1} \omega_y(s) + \frac{1}{\tau s + 1} \theta_{acc}(s)$$
+        <p>
+          Hai bộ lọc có tổng hàm truyền đúng bằng $1.0$ trên mọi dải tần số ($\frac{\tau s}{\tau s + 1} + \frac{1}{\tau s + 1} = 1$), do đó được gọi là <em>Bộ lọc bù (Complementary Filter)</em>.
+        </p>
+
+        <h3 class="subsection-title" id="sec-8-1-3">8.1.3 Bộ Lọc Kalman Rời Rạc (Kalman Filter - KF)</h3>
+        <p>
+          Khi nhiễu của cảm biến và nhiễu của quá trình vật lý có đặc tính phân bố chuẩn Gauss với ma trận hiệp sai $\mathbf{Q}$ và $\mathbf{R}$, <strong>Bộ lọc Kalman (KF)</strong> là bộ ước lượng tuyến tính tối ưu nhất (Linear Quadratic Estimator - LQE), cực tiểu hóa phương sai sai số ước lượng.
+        </p>
+
+        <h3 class="subsection-title" id="sec-8-1-4">8.1.4 Bộ Lọc Kalman Mở Rộng (Extended Kalman Filter - EKF)</h3>
+        <p>
+          Trong bài toán tư thế multicopter đầy đủ, mô hình quay 3D là phi tuyến mạnh: $\dot{\mathbf{q}} = \frac{1}{2} \mathbf{q} \otimes \boldsymbol{\omega}$. <strong>EKF</strong> tuyến tính hóa mô hình phi tuyến tại từng bước ước lượng thông qua các ma trận đạo hàm riêng Jacobian $\mathbf{F}_k = \left.\frac{\partial f}{\partial \mathbf{x}}\right|_{\hat{\mathbf{x}}}$ và $\mathbf{H}_k = \left.\frac{\partial h}{\partial \mathbf{x}}\right|_{\hat{\mathbf{x}}}$.
+        </p>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-8-math">
+        <h2 class="section-title">Toán Học Bộ Lọc Bù & Thuật Toán Kalman Đệ Quy</h2>
+        <div class="formula-hero">
+          <div class="formula-title">BỘ LỌC BÙ RỜI RẠC HÓA THỜI GIAN THỰC (DISCRETE COMPLEMENTARY FILTER)</div>
+          <div class="formula-body">
+            $$\hat{\theta}(k) = \frac{\tau}{\tau + T_s} \left(\hat{\theta}(k-1) + T_s \omega_y(k)\right) + \frac{T_s}{\tau + T_s} \theta_{acc}(k)$$
+            $$\hat{\phi}(k) = \frac{\tau}{\tau + T_s} \left(\hat{\phi}(k-1) + T_s \omega_x(k)\right) + \frac{T_s}{\tau + T_s} \phi_{acc}(k)$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $T_s$ là chu kỳ trích mẫu điều khiển (ví dụ $T_s = 0.0025\,\text{s}$ tại $400\,\text{Hz}$), $\tau$ là hằng số thời gian của bộ lọc (thường chọn $\tau = 0.5\text{--}2.0\,\text{s}$). Nếu đặt $\alpha = \frac{\tau}{\tau + T_s} \approx 0.98$, công thức trở thành: $\hat{\theta}(k) = \alpha (\hat{\theta}(k-1) + T_s \omega_y) + (1 - \alpha) \theta_{acc}$.
+          </div>
+        </div>
+
+        <p>
+          Hai bước đệ quy của Bộ lọc Kalman rời rạc cho hệ trạng thái tuyến tính:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">CHU TRÌNH 2 PHA DỰ ĐOÁN - CẬP NHẬT KALMAN FILTER</div>
+          <div class="formula-body">
+            $$\text{1. Dự đoán (Predict): } \hat{\mathbf{x}}_{k|k-1} = \mathbf{A} \hat{\mathbf{x}}_{k-1|k-1} + \mathbf{B} \mathbf{u}_{k-1}, \quad \mathbf{P}_{k|k-1} = \mathbf{A} \mathbf{P}_{k-1|k-1} \mathbf{A}^T + \mathbf{Q}$$
+            $$\text{2. Độ lợi Kalman (Gain): } \mathbf{K}_k = \mathbf{P}_{k|k-1} \mathbf{H}^T (\mathbf{H} \mathbf{P}_{k|k-1} \mathbf{H}^T + \mathbf{R})^{-1}$$
+            $$\text{3. Cập nhật (Update): } \hat{\mathbf{x}}_{k|k} = \hat{\mathbf{x}}_{k|k-1} + \mathbf{K}_k (\mathbf{z}_k - \mathbf{H} \hat{\mathbf{x}}_{k|k-1}), \quad \mathbf{P}_{k|k} = (\mathbf{I} - \mathbf{K}_k \mathbf{H}) \mathbf{P}_{k|k-1}$$
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-8-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Ước Lượng Cao Độ & Vận Tốc Bằng Kalman</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: THIẾT LẬP MÔ HÌNH TRẠNG THÁI CAO ĐỘ</div>
+            <p>Xét bài toán ước lượng cao độ $z$ và vận tốc thẳng đứng $v_z$:</p>
+            <ul class="step-param-list">
+              <li>Vector trạng thái: $\mathbf{x} = [z, v_z]^T$. Đầu vào: gia tốc thẳng đứng $u = a_z$.</li>
+              <li>Chu kỳ trích mẫu: $T_s = 0.10\,\text{s}$.</li>
+              <li>Ma trận chuyển trạng thái và ma trận đầu vào:
+                $$\mathbf{A} = \begin{bmatrix} 1 & T_s \\ 0 & 1 \end{bmatrix} = \begin{bmatrix} 1 & 0.1 \\ 0 & 1 \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0.5 T_s^2 \\ T_s \end{bmatrix} = \begin{bmatrix} 0.005 \\ 0.1 \end{bmatrix}$$
+              </li>
+              <li>Phép đo từ khí áp kế: $z_m = z \implies \mathbf{H} = [1, 0]$.</li>
+              <li>Hiệp sai nhiễu: $\mathbf{Q} = \text{diag}(0.01, 0.04)$, phương sai nhiễu khí áp kế $R = 0.25\,\text{m}^2$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: PHA DỰ ĐOÁN (PREDICTION STEP)</div>
+            <p>Trạng thái ban đầu: $\hat{\mathbf{x}}_0 = [10.0, 0.0]^T$, $\mathbf{P}_0 = \begin{bmatrix} 0.1 & 0 \\ 0 & 0.1 \end{bmatrix}$, gia tốc đo được $a_z = 2.0\,\text{m/s}^2$:</p>
+            $$\hat{\mathbf{x}}_{1|0} = \mathbf{A} \hat{\mathbf{x}}_0 + \mathbf{B} u = \begin{bmatrix} 1 & 0.1 \\ 0 & 1 \end{bmatrix} \begin{bmatrix} 10.0 \\ 0.0 \end{bmatrix} + \begin{bmatrix} 0.005 \\ 0.1 \end{bmatrix} (2.0) = \begin{bmatrix} 10.0 + 0.01 \\ 0.0 + 0.2 \end{bmatrix} = \begin{bmatrix} 10.01 \\ 0.20 \end{bmatrix}$$
+            <p>Hiệp sai tiên nghiệm:</p>
+            $$\mathbf{P}_{1|0} = \mathbf{A} \mathbf{P}_0 \mathbf{A}^T + \mathbf{Q} = \begin{bmatrix} 0.101 & 0.01 \\ 0.01 & 0.1 \end{bmatrix} + \begin{bmatrix} 0.01 & 0 \\ 0 & 0.04 \end{bmatrix} = \begin{bmatrix} 0.111 & 0.01 \\ 0.01 & 0.14 \end{bmatrix}$$
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH ĐỘ LỢI KALMAN GAIN $\mathbf{K}_1$</div>
+            <p>Hiệp sai phần dư đo lường (Innovation Covariance):</p>
+            $$S = \mathbf{H} \mathbf{P}_{1|0} \mathbf{H}^T + R = [1, 0] \begin{bmatrix} 0.111 & 0.01 \\ 0.01 & 0.14 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} + 0.25 = 0.111 + 0.25 = 0.361$$
+            <p>Độ lợi Kalman:</p>
+            $$\mathbf{K}_1 = \mathbf{P}_{1|0} \mathbf{H}^T S^{-1} = \begin{bmatrix} 0.111 \\ 0.01 \end{bmatrix} \frac{1}{0.361} \approx \begin{bmatrix} 0.3075 \\ 0.0277 \end{bmatrix}$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: CẬP NHẬT TRẠNG THÁI VỚI ĐO ĐẠC KHÍ ÁP KẾ</div>
+            <p>Khí áp kế đo được độ cao thực tế $z_{baro} = 10.40\,\text{m}$. Sai số phần dư: $y = 10.40 - 10.01 = +0.39\,\text{m}$.</p>
+            <p>Trạng thái cập nhật hậu nghiệm:</p>
+            $$\hat{\mathbf{x}}_{1|1} = \hat{\mathbf{x}}_{1|0} + \mathbf{K}_1 y = \begin{bmatrix} 10.01 \\ 0.20 \end{bmatrix} + \begin{bmatrix} 0.3075 \\ 0.0277 \end{bmatrix} (0.39) = \begin{bmatrix} 10.01 + 0.120 \\ 0.20 + 0.011 \end{bmatrix} = \begin{bmatrix} 10.13\,\text{m} \\ 0.211\,\text{m/s} \end{bmatrix}$$
+            <p>
+              <strong>Ý nghĩa:</strong> Khí áp kế kéo ước lượng độ cao từ $10.01\,\text{m}$ lên $10.13\,\text{m}$ một cách êm ái, đồng thời gián tiếp hiệu chỉnh cả vận tốc thẳng đứng mà không bị giật cục bởi nhiễu tức thời!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-8-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: So Sánh Các Bộ Lọc Tư Thế</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Trực Tiếp Tín Hiệu: Góc Thật vs Con Quay (Drift) vs Gia Tốc (Noise) vs Bộ Lọc Bù</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-attitude-filter" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group">
+              <label>Hệ số lọc bù Tau Weight (Trọng số con quay hồi chuyển):</label>
+              <input type="range" id="slider-ch08-tau" min="0.80" max="0.99" step="0.01" value="0.95">
+            </div>
+            <div class="control-status" id="val-ch08-tau">
+              0.95
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-8-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: PX4 Module `ekf2` & `robot_localization`</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PX4 EKF2 24-STATE ESTIMATOR ARCHITECTURE</div>
+          <h4>Cấu Trúc Dung Hợp IMU, GPS, Khí Áp Kế & Từ Kế 24 Trạng Thái Trong `ekf2`</h4>
+          <pre class="code-block"><code class="language-cpp">// Vector 24 trạng thái chuẩn của bộ lọc EKF2 trong PX4 Autopilot
+// States:
+//  0-3:   Quaternions tư thế [q0, q1, q2, q3]
+//  4-6:   Vận tốc không gian Trái đất [vn, ve, vd] (m/s)
+//  7-9:   Vị trí không gian Trái đất [pn, pe, pd] (m)
+//  10-12: Delta angle bias con quay [bx, by, bz] (rad)
+//  13-15: Delta velocity bias gia tốc kế [ax, ay, az] (m/s)
+//  16-18: Từ trường Trái đất [Bx, By, Bz] (Gauss)
+//  19-21: Từ trường thân máy bay [bx, by, bz] (Gauss)
+//  22-23: Vận tốc gió ngang 2D [wn, we] (m/s)
+
+#include &lt;uORB/topics/vehicle_attitude.h&gt;
+#include &lt;uORB/topics/vehicle_local_position.h&gt;
+
+void print_ekf_status(const vehicle_attitude_s &amp;att, const vehicle_local_position_s &amp;pos) {
+  // Xuất dữ liệu ước lượng chuẩn xác cho các bộ điều khiển vòng kín
+  PX4_INFO("EKF2 Ước Lượng: Roll=%.2f° Pitch=%.2f° Yaw=%.2f° | Độ cao Z=%.2fm",
+           (double)att.roll * 57.2958, (double)att.pitch * 57.2958, (double)att.yaw * 57.2958,
+           -(double)pos.z);
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch07.html" class="btn btn-secondary">← Chương 07</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch09.html" class="btn btn-primary">Chương 09 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

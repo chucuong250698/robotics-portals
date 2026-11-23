@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 06: Thí Nghiệm Mô Hình Hóa Động Lực Học 6 Bậc Tự Do (6-DoF Dynamics) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Khí Động, Động Lực Học & Cảm Biến</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 06</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 06</span>
+        <span class="sidebar-badge">13 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-6-1">
+            <span class="nav-text">6.1 Kiến Thức Nền Tảng Động Lực Học Vật Rắn</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-1">
+            <span class="nav-text">6.1.1 Hệ Quy Chiếu Trái Đất (EFCF) & Thân (ABCF)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-2">
+            <span class="nav-text">6.1.2 Ba Biểu Diễn Tư Thế: Euler, Ma Trận Quay & Quaternions</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-3">
+            <span class="nav-text">6.1.3 Phương Trình Newton-Euler 6 Bậc Tự Do</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-6-1-4">
+            <span class="nav-text">6.1.4 Ma Trận Phân Phối Lực (Control Allocation)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-2">
+            <span class="nav-text">6.2 Thí Nghiệm Cơ Bản: Kiểm Tra Động Lực Học</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-3">
+            <span class="nav-text">6.3 Thí Nghiệm Phân Tích: Khảo Sát Ma Trận Quán Tính</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-4">
+            <span class="nav-text">6.4 Thí Nghiệm Thiết Kế: Xây Dựng Khối Mô Hình Simulink</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-5">
+            <span class="nav-text">6.5 Tóm Tắt Mô Hình Động Lực Học</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-math">
+            <span class="nav-text">Hệ Phương Trình Newton-Euler & Đại Số Quaternions</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Nghịch Đảo Ma Trận Phân Phối Lực Quad X</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Động Lực Học 6-DoF & Mixer</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-6-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: Triển Khai Mixer Multirotor Trong PX4</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 2: KHÍ ĐỘNG, ĐỘNG LỰC HỌC & CẢM BIẾN</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 06</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Mô Hình Hóa Động Lực Học 6 Bậc Tự Do (6-DoF Dynamics)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 6.1 -->
+      <section class="content-section" id="sec-6-1">
+        <h2 class="section-title">6.1 Kiến Thức Nền Tảng Động Lực Học Vật Rắn (6-DoF Preliminary)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Vì Sao Mô Hình 6-DoF Là Kim Chỉ Nam Của Mọi Thuật Toán Điều Khiển?</div>
+          <p>
+            Máy bay multicopter chuyển động tự do trong không gian 3 chiều với 6 bậc tự do: 3 bậc tịnh tiến $(x, y, z)$ và 3 bậc quay quanh các trục thân $(\phi, \theta, \psi)$. Tuy nhiên, máy bay chỉ có 4 đầu vào điều khiển độc lập (tốc độ quay của 4 động cơ $\varpi_1, \dots, \varpi_4$). Đây là một hệ thống <strong>thiếu cơ cấu chấp hành (Under-actuated System)</strong>: muốn di chuyển sang ngang, máy bay bắt buộc phải nghiêng thân để hướng vector lực nâng sang bên. Nắm vững phương trình động học và động lực học 6-DoF là điều kiện tiên quyết để giải bài toán phân phối lực (Control Allocation).
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-6-1-1">6.1.1 Hệ Quy Chiếu Trái Đất (EFCF) & Hệ Quy Chiếu Thân Máy Bay (ABCF)</h3>
+        <p>
+          Quy chuẩn tọa độ hàng không quốc tế:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Hệ quy chiếu cố định Trái đất (Earth-Fixed Coordinate Frame - EFCF, ký hiệu $e$):</strong> Gốc tọa độ đặt tại điểm cất cánh. Trục $o_e x_e$ hướng Bắc (North), trục $o_e y_e$ hướng Đông (East), trục $o_e z_e$ hướng thẳng đứng xuống tâm Trái đất (Down) theo chuẩn NED.</li>
+          <li><strong>Hệ quy chiếu gắn liền thân máy bay (Aircraft-Body Coordinate Frame - ABCF, ký hiệu $b$):</strong> Gốc tọa độ đặt tại trọng tâm CoG của máy bay. Trục $o_b x_b$ hướng thẳng về phía đầu máy bay, trục $o_b y_b$ hướng sang cánh bên phải, trục $o_b z_b$ hướng thẳng xuống dưới bụng máy bay.</li>
+        </ul>
+
+        <h3 class="subsection-title" id="sec-6-1-2">6.1.2 Ba Cách Biểu Diễn Tư Thế Không Gian (Attitude Representations)</h3>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Góc Euler (Roll, Pitch, Yaw)</h4>
+            <p>Trực quan nhất với con người: $\phi$ (Roll - Lăn), $\theta$ (Pitch - Gật), $\psi$ (Yaw - Xoay mũi). <strong>Nhược điểm:</strong> Bị điểm kỳ dị hình học (Gimbal Lock) tại $\theta = \pm 90^\circ$.</p>
+          </div>
+          <div class="comp-card">
+            <h4>2. Ma Trận Quay $\mathbf{R}_b^e \in \text{SO}(3)$</h4>
+            <p>Ma trận trực giao $3 \times 3$ ($\mathbf{R}^T \mathbf{R} = \mathbf{I}$, $\det(\mathbf{R}) = +1$). Không bị kỳ dị nhưng chứa 9 phần tử với 6 ràng buộc phi tuyến, tốn kém tài nguyên tính toán nhúng.</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>3. Đơn Vị Quaternion $\mathbf{q} \in \mathbb{H}$</h4>
+            <p>Vector 4 chiều $\mathbf{q} = [q_0, q_1, q_2, q_3]^T$ thỏa mãn $\|\mathbf{q}\| = 1$. <strong>Ưu điểm vượt trội:</strong> Không có kỳ dị, tính toán đại số ma trận cực nhanh, độ ổn định số học cao, là chuẩn mực mặc định trên mọi Autopilot công nghiệp.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-6-1-3">6.1.3 Phương Trình Động Lực Học Newton-Euler 6-DoF</h3>
+        <p>
+          Giả thiết máy bay là vật rắn cứng (Rigid Body), khối lượng $m$ và ma trận quán tính $\mathbf{J} = \text{diag}(J_x, J_y, J_z)$ không đổi:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">HỆ PHƯƠNG TRÌNH ĐỘNG LỰC HỌC TỊNH TIẾN VÀ QUAY VẬT RẮN</div>
+          <div class="formula-body">
+            $$m \ddot{\mathbf{p}}^e = \mathbf{R}_b^e \mathbf{f}^b + m \mathbf{g}^e$$
+            $$\mathbf{J} \dot{\boldsymbol{\omega}}^b + \boldsymbol{\omega}^b \times (\mathbf{J} \boldsymbol{\omega}^b) = \boldsymbol{\tau}^b$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $\mathbf{p}^e = [x, y, z]^T$ là vị trí trong hệ Trái đất; $\mathbf{f}^b = [0, 0, -f]^T$ là lực nâng tổng hợp tác dụng dọc trục âm $z_b$; $\boldsymbol{\omega}^b = [p, q, r]^T$ là vector vận tốc góc thân; và $\boldsymbol{\tau}^b = [\tau_x, \tau_y, \tau_z]^T$ là mô-men điều khiển 3 trục.
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-6-1-4">6.1.4 Ma Trận Phân Phối Lực Điều Khiển (Control Allocation Matrix)</h3>
+        <p>
+          Đối với Quadcopter cấu hình chữ X với chiều dài cánh tay đòn $d$:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">MA TRẬN HIỆU QUẢ ĐIỀU KHIỂN CẤU HÌNH CHỮ X (QUAD X MIXER)</div>
+          <div class="formula-body">
+            $$\begin{bmatrix} f \\ \tau_x \\ \tau_y \\ \tau_z \end{bmatrix} = \begin{bmatrix} c_T & c_T & c_T & c_T \\ -\frac{\sqrt{2}}{2} d c_T & \frac{\sqrt{2}}{2} d c_T & \frac{\sqrt{2}}{2} d c_T & -\frac{\sqrt{2}}{2} d c_T \\ \frac{\sqrt{2}}{2} d c_T & \frac{\sqrt{2}}{2} d c_T & -\frac{\sqrt{2}}{2} d c_T & -\frac{\sqrt{2}}{2} d c_T \\ -c_M & c_M & -c_M & c_M \end{bmatrix} \begin{bmatrix} \varpi_1^2 \\ \varpi_2^2 \\ \varpi_3^2 \\ \varpi_4^2 \end{bmatrix}$$
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-6-math">
+        <h2 class="section-title">Hệ Phương Trình Vi Phân Động Lực Học Quaternions</h2>
+        <p>
+          Đạo hàm thời gian của Quaternion tư thế theo vector vận tốc góc thân $\boldsymbol{\omega}^b = [p, q, r]^T$:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">PHƯƠNG TRÌNH VI PHÂN QUATERNION</div>
+          <div class="formula-body">
+            $$\begin{bmatrix} \dot{q}_0 \\ \dot{q}_1 \\ \dot{q}_2 \\ \dot{q}_3 \end{bmatrix} = \frac{1}{2} \begin{bmatrix} 0 & -p & -q & -r \\ p & 0 & r & -q \\ q & -r & 0 & p \\ r & q & -p & 0 \end{bmatrix} \begin{bmatrix} q_0 \\ q_1 \\ q_2 \\ q_3 \end{bmatrix}$$
+          </div>
+        </div>
+        <p>
+          Ma trận quay từ thân sang Trái đất $\mathbf{R}_b^e$ được tính trực tiếp từ 4 thành phần quaternion:
+        </p>
+        $$\mathbf{R}_b^e = \begin{bmatrix} 1 - 2(q_2^2 + q_3^2) & 2(q_1 q_2 - q_0 q_3) & 2(q_1 q_3 + q_0 q_2) \\ 2(q_1 q_2 + q_0 q_3) & 1 - 2(q_1^2 + q_3^2) & 2(q_2 q_3 - q_0 q_1) \\ 2(q_1 q_3 - q_0 q_2) & 2(q_2 q_3 + q_0 q_1) & 1 - 2(q_1^2 + q_2^2) \end{bmatrix}$$
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-6-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Nghịch Đảo Ma Trận Phân Phối Lực Quad X</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO LỆNH LỰC & THÔNG SỐ KHÍ ĐỘNG</div>
+            <p>Bộ điều khiển bay yêu cầu tổng hợp lực và mô-men tại thời điểm $t$:</p>
+            <ul class="step-param-list">
+              <li>Lực nâng tổng: $f = 16.0\,\text{N}$.</li>
+              <li>Mô-men lật ngang (Roll): $\tau_x = +0.40\,\text{N}\cdot\text{m}$.</li>
+              <li>Mô-men gật dọc (Pitch): $\tau_y = 0.0\,\text{N}\cdot\text{m}$.</li>
+              <li>Mô-men xoay thân (Yaw): $\tau_z = 0.0\,\text{N}\cdot\text{m}$.</li>
+              <li>Hệ số cánh quạt: $c_T = 1.10 \times 10^{-5}\,\text{N}\cdot\text{s}^2/\text{rad}^2$, $c_M = 1.80 \times 10^{-7}\,\text{N}\cdot\text{m}\cdot\text{s}^2/\text{rad}^2$.</li>
+              <li>Bán kính cánh tay đòn: $d = 0.225\,\text{m} \implies k = \frac{\sqrt{2}}{2} d c_T \approx 1.75 \times 10^{-6}$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: NGHỊCH ĐẢO GIẢI BÌNH PHƯƠNG TỐC ĐỘ GÓC $\varpi_i^2$</div>
+            <p>Áp dụng công thức giải tích nghịch đảo của ma trận đối xứng Quad X:</p>
+            $$\varpi_1^2 = \frac{f}{4 c_T} - \frac{\tau_x}{4 k} + \frac{\tau_y}{4 k} - \frac{\tau_z}{4 c_M}$$
+            $$\varpi_2^2 = \frac{f}{4 c_T} + \frac{\tau_x}{4 k} + \frac{\tau_y}{4 k} + \frac{\tau_z}{4 c_M}$$
+            $$\varpi_3^2 = \frac{f}{4 c_T} + \frac{\tau_x}{4 k} - \frac{\tau_y}{4 k} - \frac{\tau_z}{4 c_M}$$
+            $$\varpi_4^2 = \frac{f}{4 c_T} - \frac{\tau_x}{4 k} - \frac{\tau_y}{4 k} + \frac{\tau_z}{4 c_M}$$
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: RÁP SỐ TÍNH TỐC ĐỘ QUAY TỪNG ĐỘNG CƠ</div>
+            <p>Thành phần nâng cơ sở: $\frac{f}{4 c_T} = \frac{16.0}{4 \times 1.1 \times 10^{-5}} = \frac{4.0}{1.1 \times 10^{-5}} \approx 363636\,\text{rad}^2/\text{s}^2$.</p>
+            <p>Thành phần vi sai mô-men Roll: $\frac{\tau_x}{4 k} = \frac{0.40}{4 \times 1.75 \times 10^{-6}} = \frac{0.40}{7.0 \times 10^{-6}} \approx 57143\,\text{rad}^2/\text{s}^2$.</p>
+            $$\varpi_1^2 = 363636 - 57143 = 306493 \implies \varpi_1 \approx 553.6\,\text{rad/s} \approx 5287\,\text{RPM}$$
+            $$\varpi_2^2 = 363636 + 57143 = 420779 \implies \varpi_2 \approx 648.7\,\text{rad/s} \approx 6194\,\text{RPM}$$
+            $$\varpi_3^2 = 363636 + 57143 = 420779 \implies \varpi_3 \approx 648.7\,\text{rad/s} \approx 6194\,\text{RPM}$$
+            $$\varpi_4^2 = 363636 - 57143 = 306493 \implies \varpi_4 \approx 553.6\,\text{rad/s} \approx 5287\,\text{RPM}$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: KẾT LUẬN & KIỂM CHỨNG TÍNH VẬT LÝ</div>
+            <p>
+              Để sinh ra mô-men lật nghiêng sang phải ($\tau_x \gt 0$), động cơ 2 và 3 (bên cánh trái) phải tăng tốc lên $6194\,\text{RPM}$, trong khi động cơ 1 và 4 (bên cánh phải) phải giảm tốc về $5287\,\text{RPM}$. Tổng bình phương tốc độ góc được bảo toàn:
+            </p>
+            $$\sum_{i=1}^4 c_T \varpi_i^2 = c_T (306493 + 420779 + 420779 + 306493) = 1.1 \times 10^{-5} \times 1454544 = 16.0\,\text{N}$$
+            <p>Lực nâng tổng vẫn đúng $16.0\,\text{N}$, đảm bảo máy bay không bị tụt cao độ khi thực hiện pha nghiêng cánh!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-6-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Động Lực Học 6-DoF & Mixer</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Phân Phối Lực Control Allocation & Tốc Độ 4 Động Cơ</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-6dof-dynamics" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group">
+              <label>Lực nâng tổng f (N):</label>
+              <input type="range" id="slider-ch06-f" min="8" max="28" step="0.5" value="16">
+            </div>
+            <div class="control-group">
+              <label>Mô-men Roll τx (N.m):</label>
+              <input type="range" id="slider-ch06-tx" min="-1.5" max="1.5" step="0.05" value="0">
+            </div>
+            <div class="control-group">
+              <label>Mô-men Pitch τy (N.m):</label>
+              <input type="range" id="slider-ch06-ty" min="-1.5" max="1.5" step="0.05" value="0">
+            </div>
+            <div class="control-group">
+              <label>Mô-men Yaw τz (N.m):</label>
+              <input type="range" id="slider-ch06-tz" min="-0.5" max="0.5" step="0.02" value="0">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-6-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Triển Khai Mixer Multirotor Trong PX4</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PX4 ACTUATOR MIXER ARCHITECTURE</div>
+          <h4>Thuật Toán Ma Trận Phân Phối Lực Trong `lib/mixer_module`</h4>
+          <pre class="code-block"><code class="language-cpp">// Thuật toán Mixer phân phối lực xuống 4 động cơ trong PX4 Autopilot
+#include &lt;matrix/matrix.hpp&gt;
+
+void MultirotorMixer::mix(float roll, float pitch, float yaw, float thrust, float outputs[4]) {
+  // Ma trận trọng số hình học Quad X
+  const float roll_scale  = 0.70710678f;
+  const float pitch_scale = 0.70710678f;
+  
+  // Tính toán xung lực thô
+  outputs[0] = thrust - roll * roll_scale + pitch * pitch_scale - yaw; // Motor 1 (Front-Right, CCW)
+  outputs[1] = thrust + roll * roll_scale + pitch * pitch_scale + yaw; // Motor 2 (Rear-Right, CW)
+  outputs[2] = thrust + roll * roll_scale - pitch * pitch_scale - yaw; // Motor 3 (Rear-Left, CCW)
+  outputs[3] = thrust - roll * roll_scale - pitch * pitch_scale + yaw; // Motor 4 (Front-Left, CW)
+  
+  // Xử lý bão hòa cơ cấu chấp hành (Actuator Desaturation)
+  float min_out = outputs[0], max_out = outputs[0];
+  for (int i = 1; i &lt; 4; ++i) {
+    if (outputs[i] &lt; min_out) min_out = outputs[i];
+    if (outputs[i] &gt; max_out) max_out = outputs[i];
+  }
+  
+  if (max_out &gt; 1.0f) {
+    float diff = max_out - 1.0f;
+    for (int i = 0; i &lt; 4; ++i) outputs[i] = matrix::constrain(outputs[i] - diff, 0.0f, 1.0f);
+  }
+}</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch05.html" class="btn btn-secondary">← Chương 05</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch07.html" class="btn btn-primary">Chương 07 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

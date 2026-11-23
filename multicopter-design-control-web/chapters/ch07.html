@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 07: Thí Nghiệm Hiệu Chuẩn Cảm Biến Ba Trục (Sensor Calibration) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Khí Động, Động Lực Học & Cảm Biến</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 07</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 07</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-7-1">
+            <span class="nav-text">7.1 Kiến Thức Nền Tảng Cảm Biến Quán Tính</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-1-1">
+            <span class="nav-text">7.1.1 Gia Tốc Kế Ba Trục (Accelerometer)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-1-2">
+            <span class="nav-text">7.1.2 Từ Kế Ba Trục (Magnetometer)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-7-1-3">
+            <span class="nav-text">7.1.3 Con Quay Hồi Chuyển (Gyroscope)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-2">
+            <span class="nav-text">7.2 Thí Nghiệm Cơ Bản: Thu Thập Dữ Liệu Thô</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-3">
+            <span class="nav-text">7.3 Thí Nghiệm Phân Tích Mô Hình Sai Số</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-4">
+            <span class="nav-text">7.4 Thí Nghiệm Thiết Kế: Khớp Hình Elip (Ellipsoid Fitting)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-5">
+            <span class="nav-text">7.5 Tóm Tắt Quy Trình Hiệu Chuẩn</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-math">
+            <span class="nav-text">Toán Học Mô Hình Sai Số Tuyến Tính & Bài Toán Khớp Elip</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Khử Bias & Chuẩn Hóa Về Mặt Cầu Đơn Vị</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Hiệu Chuẩn Ellipsoid</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-7-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: Hiệu Chuẩn 6 Hướng Trong PX4 C++</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 2: KHÍ ĐỘNG, ĐỘNG LỰC HỌC & CẢM BIẾN</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 07</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Hiệu Chuẩn Cảm Biến Ba Trục (Sensor Calibration)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 7.1 -->
+      <section class="content-section" id="sec-7-1">
+        <h2 class="section-title">7.1 Kiến Thức Nền Tảng Cảm Biến Quán Tính (Sensor Preliminary)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 "Rác Vào - Rác Ra": Tầm Quan Trọng Tuyệt Đối Của Hiệu Chuẩn</div>
+          <p>
+            Mọi bộ lọc ước lượng trạng thái tinh vi (như EKF hay Complementary Filter) đều chỉ xử lý các con số nhận được từ cảm biến. Nếu cảm biến bị lệch điểm không (Zero-Bias) hoặc độ lợi các trục không đều nhau (Scale Factor Asymmetry), máy bay sẽ lầm tưởng nó đang nghiêng trong khi đang bay bằng phẳng, hoặc lầm tưởng hướng Bắc ở một góc lệch $30^\circ$ do nhiễu từ trường của dây dẫn động cơ. <strong>Hiệu chuẩn cảm biến ba trục (Sensor Calibration)</strong> là bước tiền xử lý bắt buộc để chuyển đổi dữ liệu thô méo mó thành các đại lượng vật lý chuẩn mực.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-7-1-1">7.1.1 Gia Tốc Kế Ba Trục (Three-Axis Accelerometer)</h3>
+        <p>
+          Đo lực riêng quy chiếu (Specific Force) bao gồm cả gia tốc quán tính và phản lực pháp tuyến chống lại trọng trường Trái đất:
+        </p>
+        $$\mathbf{a}_m = \ddot{\mathbf{p}} - \mathbf{g}$$
+        <p>
+          Khi máy bay đứng yên trên mặt đất tĩnh: $\ddot{\mathbf{p}} = 0 \implies \mathbf{a}_m = -\mathbf{g} = [0, 0, -9.81]^T\,\text{m/s}^2$ (theo chiều trục Z hướng xuống). Độ lớn tổng hợp của vector gia tốc khi đứng yên luôn đúng bằng $1.0\text{ g}$.
+        </p>
+
+        <h3 class="subsection-title" id="sec-7-1-2">7.1.2 Từ Kế Ba Trục & Nhiễu Sắt Cứng / Sắt Mềm (Magnetometer & Magnetic Distortions)</h3>
+        <p>
+          Từ kế đo vector từ trường Trái đất $\mathbf{h}_{earth}$ để định hướng góc la bàn Yaw. Tuy nhiên, trên máy bay có 2 nguồn nhiễu từ trường nghiêm trọng:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Nhiễu sắt cứng (Hard-Iron Distortion):</strong> Sinh ra bởi các chi tiết có từ tính vĩnh cửu (nam châm động cơ BLDC, bu lông thép, loa buzzer). Gây ra sự <em>dịch chuyển tâm tọa độ (Offset / Bias)</em> của mặt cầu từ trường.</li>
+          <li><strong>Nhiễu sắt mềm (Soft-Iron Distortion):</strong> Sinh ra do sự biến dạng đường sức từ trường khi đi qua vật liệu sắt từ xung quanh hoặc cảm ứng điện từ của dòng điện lớn chạy qua dây pin. Biến đổi mặt cầu lý tưởng thành một <em>hình elipsoid bị kéo dãn và nghiêng góc</em>.</li>
+        </ul>
+      </section>
+
+      <!-- Section 7.2, 7.3, 7.4 -->
+      <section class="content-section" id="sec-7-2">
+        <h2 class="section-title">7.2 Mô Hình Sai Số Tuyến Tính & Bài Toán Khớp Elip</h2>
+        <p>
+          Quan hệ giữa vector đo thô $\mathbf{h}_m \in \mathbb{R}^3$ và vector từ trường thật $\mathbf{h}_{true} \in \mathbb{R}^3$ (thỏa mãn $\|\mathbf{h}_{true}\| = 1$ sau khi chuẩn hóa):
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">MÔ HÌNH SAI SỐ TOÀN DIỆN CẢM BIẾN 3 TRỤC</div>
+          <div class="formula-body">
+            $$\mathbf{h}_m = \mathbf{T}_a \mathbf{K}_a (\mathbf{h}_{true} + \mathbf{b}_a) + \mathbf{v}_a$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $\mathbf{b}_a = [b_x, b_y, b_z]^T$ là vector độ lệch điểm không (Hard-iron Bias); $\mathbf{K}_a = \text{diag}(k_x, k_y, k_z)$ là ma trận tỉ lệ trục; $\mathbf{T}_a$ là ma trận bất trực giao giữa 3 trục cơ khí; và $\mathbf{v}_a$ là nhiễu trắng đo lường Gauss.
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-7-4">7.4 Thuật Toán Khớp Hình Elip (Ellipsoid Fitting via Least Squares)</h3>
+        <p>
+          Phương trình tổng quát của một hình elipsoid trong không gian 3 chiều:
+        </p>
+        $$A x^2 + B y^2 + C z^2 + 2 D x y + 2 E x z + 2 F y z + 2 G x + 2 H y + 2 I z = 1$$
+        <p>
+          Từ tập hợp $N$ điểm đo thô $(x_i, y_i, z_i)$ thu thập được khi xoay tròn máy bay theo mọi hướng, thiết lập phương trình ma trận $\mathbf{A} \mathbf{X} = \mathbf{B}$:
+        </p>
+        $$\min_{\mathbf{X}} \|\mathbf{A} \mathbf{X} - \mathbf{B}\|^2 \implies \mathbf{X}^* = (\mathbf{A}^T \mathbf{A})^{-1} \mathbf{A}^T \mathbf{B}$$
+        <p>
+          Sau khi giải được vector tham số $\mathbf{X}^*$, phân rã ma trận suy ra vector dịch tâm $\mathbf{b}$ và ma trận bù tỉ lệ $\mathbf{K}^{-1}$. Phép hiệu chuẩn thời gian thực diễn ra siêu tốc:
+        </p>
+        $$\mathbf{h}_{calibrated} = \mathbf{K}^{-1} (\mathbf{h}_m - \mathbf{b})$$
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-7-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Khử Bias & Chuẩn Hóa Về Mặt Cầu Đơn Vị</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO TẬP ĐIỂM CỰC TRỊ ĐO THÔ</div>
+            <p>Xoay máy bay quanh cả 3 trục, thu được các giá trị cực đại và cực tiểu của cảm biến từ kế thô:</p>
+            <ul class="step-param-list">
+              <li>Trục X: $x_{max} = +650\,\text{mG}$, $x_{min} = -150\,\text{mG}$.</li>
+              <li>Trục Y: $y_{max} = +420\,\text{mG}$, $y_{min} = -380\,\text{mG}$.</li>
+              <li>Trục Z: $z_{max} = +280\,\text{mG}$, $z_{min} = -520\,\text{mG}$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH VECTOR DỊCH TÂM (HARD-IRON BIAS)</div>
+            <p>Tọa độ tâm elipsoid bị lệch do nhiễu sắt cứng:</p>
+            $$b_x = \frac{x_{max} + x_{min}}{2} = \frac{650 + (-150)}{2} = \frac{500}{2} = +250\,\text{mG}$$
+            $$b_y = \frac{y_{max} + y_{min}}{2} = \frac{420 + (-380)}{2} = \frac{40}{2} = +20\,\text{mG}$$
+            $$b_z = \frac{z_{max} + z_{min}}{2} = \frac{280 + (-520)}{2} = \frac{-240}{2} = -120\,\text{mG}$$
+            <p>Vector Bias: $\mathbf{b} = [250, 20, -120]^T\,\text{mG}$.</p>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH BÁN TRỤC & HỆ SỐ TỈ LỆ (SCALE FACTOR)</div>
+            <p>Bán trục của từng trục đo:</p>
+            $$r_x = \frac{x_{max} - x_{min}}{2} = \frac{650 - (-150)}{2} = 400\,\text{mG}$$
+            $$r_y = \frac{y_{max} - y_{min}}{2} = \frac{420 - (-380)}{2} = 400\,\text{mG}$$
+            $$r_z = \frac{z_{max} - z_{min}}{2} = \frac{280 - (-520)}{2} = 400\,\text{mG}$$
+            <p>Bán kính trung bình chuẩn: $r_{avg} = \frac{r_x + r_y + r_z}{3} = 400\,\text{mG}$.</p>
+            <p>Hệ số bù tỉ lệ: $k_x = \frac{r_{avg}}{r_x} = 1.0$, $k_y = \frac{r_{avg}}{r_y} = 1.0$, $k_z = \frac{r_{avg}}{r_z} = 1.0$.</p>
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: THỰC THI HIỆU CHUẨN MẪU & KẾT LUẬN</div>
+            <p>Giả sử cảm biến đo được điểm dữ liệu thô $\mathbf{h}_m = [550, 20, -120]^T\,\text{mG}$:</p>
+            $$\mathbf{h}_{cal} = \mathbf{K} (\mathbf{h}_m - \mathbf{b}) = \begin{bmatrix} 1.0 & 0 & 0 \\ 0 & 1.0 & 0 \\ 0 & 0 & 1.0 \end{bmatrix} \begin{bmatrix} 550 - 250 \\ 20 - 20 \\ -120 - (-120) \end{bmatrix} = \begin{bmatrix} 300 \\ 0 \\ 0 \end{bmatrix}\,\text{mG}$$
+            <p>Chuẩn hóa đơn vị: $\frac{\mathbf{h}_{cal}}{r_{avg}} = \left[\frac{300}{400}, 0, 0\right]^T = [0.75, 0, 0]^T$.</p>
+            <p>Dữ liệu sau hiệu chuẩn đã trở về hệ tọa độ tâm đối xứng hoàn hảo, sẵn sàng cung cấp góc hướng chuẩn xác cho thuật toán ước lượng la bàn EKF!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-7-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Hiệu Chuẩn Ellipsoid Fitting</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Mô Phỏng Hiệu Chuẩn Cảm Biến Ba Trục: Nắn Elipsoid Về Mặt Cầu Đơn Vị</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-sensor-calibration" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div style="display: flex; gap: 1rem; justify-content: center; width: 100%;">
+              <button id="btn-ch07-calibrate" class="btn btn-primary">Chạy Hiệu Chuẩn Ellipsoid (Least Squares)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-7-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Hiệu Chuẩn 6 Hướng Trong PX4 C++</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">PX4 SENSOR CALIBRATION ARCHITECTURE</div>
+          <h4>Thuật Toán Khớp Bình Phương Tối Thiểu Trong `lib/conversion/sensor_params`</h4>
+          <pre class="code-block"><code class="language-cpp">// Thuật toán hiệu chuẩn 6 hướng gia tốc kế trong mã nguồn PX4
+#include &lt;matrix/matrix.hpp&gt;
+
+class AccelCalibration {
+public:
+  matrix::Vector3f calibrate(const matrix::Vector3f &amp;raw_accel) {
+    // raw_accel: Dữ liệu thô từ chip IMU ICM-20689
+    // _offset: Vector bias [CAL_ACC0_XOFF, CAL_ACC0_YOFF, CAL_ACC0_ZOFF]
+    // _scale:  Vector tỉ lệ [CAL_ACC0_XSCALE, CAL_ACC0_YSCALE, CAL_ACC0_ZSCALE]
+    
+    matrix::Vector3f corrected;
+    corrected(0) = (raw_accel(0) - _offset(0)) * _scale(0);
+    corrected(1) = (raw_accel(1) - _offset(1)) * _scale(1);
+    corrected(2) = (raw_accel(2) - _offset(2)) * _scale(2);
+    
+    return corrected; // Gia tốc chuẩn m/s^2 không còn sai số bias
+  }
+private:
+  matrix::Vector3f _offset{0.12f, -0.08f, 0.25f};
+  matrix::Vector3f _scale{1.002f, 0.995f, 1.015f};
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch06.html" class="btn btn-secondary">← Chương 06</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch08.html" class="btn btn-primary">Chương 08 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>

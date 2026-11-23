@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 05: Thí Nghiệm Thiết Kế Hệ Thống Động Lực (Propulsion System Design) | Multicopter Design and Control Practice</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình Drone MBD</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 2: Khí Động, Động Lực Học & Cảm Biến</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 05</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Multicopter Design & Control • Quan Quan, Beihang</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 05</span>
+        <span class="sidebar-badge">12 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-5-1">
+            <span class="nav-text">5.1 Kiến Thức Nền Tảng Hệ Thống Động Lực</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-1-1">
+            <span class="nav-text">5.1.1 Bốn Thành Phần Cốt Lõi: Động Cơ, Cánh Quạt, ESC, Pin</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-1-2">
+            <span class="nav-text">5.1.2 Tỉ Lệ Bán Kính Cánh Quạt & Khung Thân</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-5-1-3">
+            <span class="nav-text">5.1.3 Mô Hình Hóa Toán Học Hệ Thống Động Lực</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-2">
+            <span class="nav-text">5.2 Thí Nghiệm Cơ Bản: Cấu Hình Hệ Thống</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-3">
+            <span class="nav-text">5.3 Thí Nghiệm Phân Tích: Hiệu Suất & Điểm Lơ Lửng</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-4">
+            <span class="nav-text">5.4 Thí Nghiệm Thiết Kế: Quy Trình Chọn Linh Kiện Tối Ưu</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-5">
+            <span class="nav-text">5.5 Tóm Tắt Nguyên Tắc Vàng Hệ Thống Đẩy</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-math">
+            <span class="nav-text">Toán Học Khí Động Cánh Quạt & Mạch Động Cơ BLDC</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-worked">
+            <span class="nav-text">Ví Dụ Tính Số: Khung 1.6kg, Động Cơ 2216 & Pin 4S</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-sim">
+            <span class="nav-text">Phòng Lab Mô Phỏng 60 FPS: Thiết Kế Động Lực Tương Tác</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-5-ros2">
+            <span class="nav-text">Cầu Nối Kiến Trúc: Giám Sát Năng Lượng Trong PX4 / ROS 2</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content Right Column -->
+    <main class="main-content">
+      <div class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 2: KHÍ ĐỘNG, ĐỘNG LỰC HỌC & CẢM BIẾN</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 05</span>
+        </div>
+        <h1 class="chapter-title">Thí Nghiệm Thiết Kế Hệ Thống Động Lực (Propulsion System Design)</h1>
+        <p class="chapter-subtitle">
+          Chuyên khảo <em>Multicopter Design and Control Practice</em> (Springer) — GS. Quan Quan, TS. Xunhua Dai, ThS. Shuai Wang (Đại học Bắc Kinh Beihang).
+        </p>
+      </div>
+
+
+      <!-- Section 5.1 -->
+      <section class="content-section" id="sec-5-1">
+        <h2 class="section-title">5.1 Kiến Thức Nền Tảng Hệ Thống Động Lực (Propulsion Preliminary)</h2>
+        <div class="why-matters-box">
+          <div class="why-matters-title">🎯 Vì Sao Thiết Kế Hệ Thống Đẩy Quyết Định Sinh Tử Của Máy Bay?</div>
+          <p>
+            Mọi thuật toán điều khiển tinh xảo nhất sẽ hoàn toàn vô dụng nếu hệ thống đẩy được thiết kế sai: động cơ quá yếu khiến máy bay không thể cất cánh hoặc bị gió thổi bay; cánh quạt quá lớn khiến dòng điện vượt ngưỡng xả làm nổ ESC; hoặc dung lượng pin quá nặng khiến thời gian bay giảm xuống dưới 5 phút. <strong>Hệ thống động lực (Propulsion System)</strong> là trái tim cung cấp năng lượng và lực nâng cho toàn bộ phương tiện, đòi hỏi sự phối hợp trở kháng và công suất hoàn hảo giữa 4 mắt xích: <em>Pin LiPo $\to$ Bộ điều tốc ESC $\to$ Động cơ BLDC $\to$ Cánh quạt Propeller</em>.
+          </p>
+        </div>
+
+        <h3 class="subsection-title" id="sec-5-1-1">5.1.1 Bốn Thành Phần Cốt Lõi Của Hệ Thống Động Lực</h3>
+        <div class="comparison-grid">
+          <div class="comp-card">
+            <h4>1. Động Cơ BLDC (Brushless DC Motor)</h4>
+            <p>Sử dụng nam châm vĩnh cửu quay ngoài (Outrunner) cho mô-men xoắn cao. Đặc trưng bởi chỉ số $K_v$ (RPM/V - số vòng quay trên 1 vôn điện áp khi không tải), nội trở cuộn dây $R_m\,(\Omega)$ và dòng không tải $I_0\,(\text{A})$.</p>
+          </div>
+          <div class="comp-card">
+            <h4>2. Cánh Quạt (Propeller)</h4>
+            <p>Đặc trưng bởi đường kính $D$ và bước xoắn $P$ (Pitch). Ví dụ cánh $1045$ có đường kính $10\text{ inch}$ và bước tiến lý thuyết $4.5\text{ inch/vòng}$. Tạo ra lực nâng $T$ và mô-men cản $Q$.</p>
+          </div>
+          <div class="comp-card">
+            <h4>3. Bộ Điều Tốc Điện Tử (ESC)</h4>
+            <p>Chuyển đổi dòng một chiều DC từ pin thành dòng xoay chiều 3 pha tần số cao điều khiển stator động cơ. Chịu trách nhiệm bảo vệ quá dòng (ví dụ $30\text{A}$ liên tục, $40\text{A}$ tức thời).</p>
+          </div>
+          <div class="comp-card highlight-card">
+            <h4>4. Pin Lithium Polymer (LiPo Battery)</h4>
+            <p>Nguồn cung cấp năng lượng mật độ cao. Đặc trưng bởi số cell mắc nối tiếp $S$ (mỗi cell $3.7\,\text{V}$ danh định, $4.2\,\text{V}$ nạp đầy), dung lượng $C\,(\text{mAh})$ và hệ số xả an toàn $C_{rate}$ (ví dụ $45\text{C}$).</p>
+          </div>
+        </div>
+
+        <h3 class="subsection-title" id="sec-5-1-2">5.1.2 Tỉ Lệ Bán Kính Cánh Quạt & Khung Thân (Propeller & Airframe Geometry)</h3>
+        <p>
+          Gọi $R_p = \frac{D}{2}$ là bán kính cánh quạt và $R_b$ là bán kính khung thân tính từ tâm trọng tâm CoG tới trục motor. Để luồng khí thổi qua các cánh quạt không bị nhiễu loạn giao thoa (Aerodynamic Wake Interference) và các đầu cánh không chém vào nhau:
+        </p>
+        <div class="callout callout-warning">
+          Khoảng cách giữa hai trục động cơ lân cận $d_{motor}$ phải thỏa mãn: $d_{motor} \gt 2 R_p + \delta_{gap}$, trong đó khe hở tối thiểu $\delta_{gap} \ge 1.5\text{--}2.0\,\text{cm}$.
+        </div>
+      </section>
+
+      <!-- Section 5.2, 5.3, 5.4, 5.5 -->
+      <section class="content-section" id="sec-5-2">
+        <h2 class="section-title">5.2 Thí Nghiệm Cơ Bản, Phân Tích & Thiết Kế Hệ Động Lực</h2>
+        <p>
+          Chuỗi thí nghiệm thiết kế hệ động lực được tiến hành theo 3 tầng từ đo đạc đến tổng hợp:
+        </p>
+        <ul class="academic-list">
+          <li><strong>Thí nghiệm cơ bản (5.2):</strong> Đo đạc đường cong bướm ga thực tế trên bàn thử lực tĩnh (Thrust Test Stand), thu thập quan hệ giữa xung PWM, tốc độ vòng quay $n\,(\text{RPM})$, lực nâng $T\,(\text{g})$ và công suất tiêu thụ $P\,(\text{W})$.</li>
+          <li><strong>Thí nghiệm phân tích (5.3):</strong> Vẽ đồ thị hiệu suất lực đẩy riêng (Specific Thrust $\eta = T/P\,\text{g/W}$) theo bướm ga. Xác định điểm lơ lửng tối ưu nơi động cơ đạt hiệu suất chuyển đổi năng lượng cao nhất ($8\text{--}10\,\text{g/W}$).</li>
+          <li><strong>Thí nghiệm thiết kế (5.4):</strong> Quy trình chọn linh kiện tối ưu từ yêu cầu tải trọng (Payload) và thời gian bay mục tiêu.</li>
+        </ul>
+
+        <h3 class="subsection-title" id="sec-5-5">5.5 Tóm Tắt Các Nguyên Tắc Vàng Khi Thiết Kế Hệ Thống Đẩy</h3>
+        <ol class="academic-numbered-list">
+          <li><strong>Nguyên tắc T/W:</strong> Tỉ lệ Lực nâng cực đại trên Trọng lượng toàn phần bắt buộc phải đạt $T/W \ge 2.0$ đối với máy bay chụp ảnh/khảo sát và $T/W \ge 3.0\text{--}4.0$ đối với máy bay đua FPV/nhào lộn.</li>
+          <li><strong>Nguyên tắc bướm ga lơ lửng:</strong> Điểm lơ lửng phải nằm trong khoảng $40\%\text{--}60\%$ bướm ga để ESC không bị quá nhiệt và còn dồi dào biên độ dự trữ điều khiển.</li>
+          <li><strong>Quy tắc phối hợp $K_v$ và cánh quạt:</strong> Động cơ $K_v$ cao (ví dụ $2300\text{--}2700\,\text{RPM/V}$) chỉ đi với cánh nhỏ ($5\text{ inch}$) và pin $3S\text{--}4S$; động cơ $K_v$ thấp (ví dụ $300\text{--}800\,\text{RPM/V}$) đi với cánh quạt lớn ($12\text{--}18\text{ inch}$) và pin $4S\text{--}6S$ để đạt hiệu suất khí động tối đa.</li>
+        </ol>
+      </section>
+
+      <!-- Section Math -->
+      <section class="content-section" id="sec-5-math">
+        <h2 class="section-title">Toán Học Khí Động Cánh Quạt & Mạch Điện Động Cơ BLDC</h2>
+        <div class="formula-hero">
+          <div class="formula-title">MÔ HÌNH LỰC NÂNG & MÔ-MEN CẢN KHÍ ĐỘNG CỦA CÁNH QUẠT</div>
+          <div class="formula-body">
+            $$T = C_T \rho n^2 D^4, \quad Q = C_Q \rho n^2 D^5$$
+          </div>
+          <div class="formula-notes">
+            Trong đó: $n$ là tốc độ quay (vòng/giây), $D$ là đường kính cánh quạt ($\text{m}$), $\rho \approx 1.225\,\text{kg/m}^3$ là khối lượng riêng không khí, $C_T$ và $C_Q$ là các hệ số khí động không thứ nguyên phụ thuộc vào bước xoắn $P$ và hình dạng cánh.
+          </div>
+        </div>
+
+        <p>
+          Mô hình mạch điện tương đương của động cơ BLDC ở chế độ xác lập:
+        </p>
+        <div class="formula-hero">
+          <div class="formula-title">PHƯƠNG TRÌNH ĐIỆN ÁP & DÒNG ĐIỆN ĐỘNG CƠ BLDC</div>
+          <div class="formula-body">
+            $$U_m = I_m R_m + E_a, \quad E_a = K_e \omega_m = \frac{\omega_m}{K_v}$$
+            $$I_m = \frac{U_m - \frac{\omega_m}{K_v}}{R_m} + I_0, \quad P_{mech} = Q \cdot \omega_m$$
+          </div>
+        </div>
+        <p>
+          Thời gian bay lơ lửng ước tính phụ thuộc vào dung lượng khả dụng của pin LiPo (khuyến nghị chỉ dùng tối đa $80\%$ dung lượng để tránh chai pin):
+        </p>
+        $$t_{hover} = \frac{C_{bat} \cdot \text{DoD}}{I_{total,hover}} \times 60 \quad (\text{phút})$$
+        <p>
+          Với $C_{bat}$ tính bằng Ampe-giờ ($\text{Ah}$), $\text{DoD} = 0.80$ (Depth of Discharge), và $I_{total,hover} = 4 \times I_{m,hover}$.
+        </p>
+      </section>
+
+      <!-- Section Worked Numerical Example -->
+      <section class="content-section" id="sec-5-worked">
+        <h2 class="section-title">Ví Dụ Tính Số: Khung 1.6kg, Động Cơ 2216 & Pin 4S</h2>
+        <div class="worked-step-grid">
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 1: KHỞI TẠO CẤU HÌNH HỆ THỐNG ĐẨY</div>
+            <p>Thiết kế hệ thống đẩy cho Quadcopter khảo sát địa hình:</p>
+            <ul class="step-param-list">
+              <li>Tổng khối lượng bay: $m = 1.60\,\text{kg} \implies W = 1.60 \times 9.81 = 15.696\,\text{N}$.</li>
+              <li>Động cơ BLDC 2216: $K_v = 920\,\text{RPM/V}$, $R_m = 0.12\,\Omega$, $I_0 = 0.6\,\text{A}$.</li>
+              <li>Cánh quạt: $1045$ ($D = 10\text{ inch} = 0.254\,\text{m}$, $C_T = 0.11$, $C_Q = 0.04$).</li>
+              <li>Pin LiPo 4S: Điện áp danh định $U = 4 \times 3.7 = 14.8\,\text{V}$, dung lượng $4500\,\text{mAh}$.</li>
+            </ul>
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 2: TÍNH TỐC ĐỘ QUAY & CÔNG SUẤT LƠ LỬNG</div>
+            <p>Lực nâng mỗi động cơ khi lơ lửng: $T_{hover} = \frac{15.696}{4} = 3.924\,\text{N}$.</p>
+            <p>Tốc độ vòng quay yêu cầu:</p>
+            $$n_{hover} = \sqrt{\frac{T_{hover}}{C_T \rho D^4}} = \sqrt{\frac{3.924}{0.11 \times 1.225 \times (0.254)^4}} = \sqrt{\frac{3.924}{0.13475 \times 0.00416}} = \sqrt{7001.3} \approx 83.67\,\text{vòng/s}$$
+            $$\implies RPM_{hover} = 83.67 \times 60 \approx 5020\,\text{RPM}$$
+            <p>Công suất cơ cần thiết mỗi trục:</p>
+            $$Q_{hover} = C_Q \rho n^2 D^5 = 0.04 \times 1.225 \times (83.67)^2 \times (0.254)^5 \approx 0.000343 \times 1056 \approx 0.0362\,\text{N}\cdot\text{m}$$
+            $$P_{mech,hover} = Q_{hover} \times 2\pi n_{hover} = 0.0362 \times 2\pi \times 83.67 \approx 19.03\,\text{W/động cơ}$$
+          </div>
+
+          <div class="worked-step-card">
+            <div class="step-badge">BƯỚC 3: TÍNH DÒNG ĐIỆN VÀ TỈ LỆ T/W TỐI ĐA</div>
+            <p>Hiệu suất chuyển đổi động cơ $\approx 80\% \implies P_{elec,hover} \approx \frac{19.03}{0.80} \approx 23.79\,\text{W}$.</p>
+            <p>Dòng điện mỗi động cơ: $I_{hover} = \frac{23.79}{14.8} \approx 1.61\,\text{A}$.</p>
+            <p>Tổng dòng điện cả 4 động cơ khi lơ lửng: $I_{total,hover} = 4 \times 1.61 = 6.44\,\text{A}$.</p>
+            <p>Ở bướm ga tối đa $100\%$, động cơ đạt $RPM_{max} \approx 9500\,\text{RPM} \implies T_{max,i} \approx 14.1\,\text{N} \implies T_{max,total} \approx 56.4\,\text{N} \approx 5.75\,\text{kg}$.</p>
+            $$\text{Tỉ lệ } T/W = \frac{5.75}{1.60} \approx 3.59 \gt 2.0 \quad (\text{Xuất sắc!})$$
+          </div>
+
+          <div class="worked-step-card highlight-step-card">
+            <div class="step-badge">BƯỚC 4: TÍNH THỜI GIAN BAY & ĐÁNH GIÁ THỰC TẾ</div>
+            <p>Dung lượng pin khả dụng an toàn ($80\%$ DoD):</p>
+            $$C_{usable} = 4.5\,\text{Ah} \times 0.80 = 3.6\,\text{Ah}$$
+            <p>Thời gian bay lơ lửng liên tục:</p>
+            $$t_{hover} = \frac{3.6\,\text{Ah}}{6.44\,\text{A}} \times 60\,\text{phút} \approx 33.5\,\text{phút}$$
+            <p>
+              <strong>Kết luận kỹ thuật:</strong> Thời gian bay $33.5$ phút và tỉ lệ $T/W = 3.59$ là cấu hình hoàn hảo cho một multicopter khảo sát thực địa, mang lại khả năng chống gió cấp 5 và độ ổn định pin tuyệt đối.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section Simulator -->
+      <section class="content-section" id="sec-5-sim">
+        <h2 class="section-title">Phòng Thí Nghiệm Tương Tác 60 FPS: Thiết Kế Động Lực Tương Tác</h2>
+        <div class="sim-card">
+          <div class="sim-header">
+            <span class="sim-badge">HTML5 CANVAS 2D SIMULATOR</span>
+            <span class="sim-title">Phòng Thí Nghiệm Thiết Kế Hệ Động Lực: Ghép Nối Động Cơ - Cánh - Pin</span>
+          </div>
+          <div class="sim-canvas-container">
+            <canvas id="canvas-propulsion-design" width="700" height="380"></canvas>
+          </div>
+          <div class="sim-controls">
+            <div class="control-group">
+              <label>Khối lượng máy bay (kg):</label>
+              <input type="range" id="slider-ch05-mass" min="0.8" max="3.5" step="0.1" value="1.6">
+            </div>
+            <div class="control-group">
+              <label>Hệ số động cơ Motor Kv (RPM/V):</label>
+              <input type="range" id="slider-ch05-kv" min="400" max="1800" step="20" value="920">
+            </div>
+            <div class="control-group">
+              <label>Đường kính cánh quạt (inch):</label>
+              <input type="range" id="slider-ch05-prop" min="6" max="15" step="1" value="10">
+            </div>
+            <div class="control-group">
+              <label>Loại Pin LiPo (Số cell S):</label>
+              <select id="select-ch05-battery" style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 0.4rem; border-radius: 6px;">
+                <option value="3">3S LiPo (11.1V)</option>
+                <option value="4" selected>4S LiPo (14.8V)</option>
+                <option value="6">6S LiPo (22.2V)</option>
+              </select>
+            </div>
+            <div class="control-status" id="val-ch05-specs">
+              Khối lượng: 1.6kg | Động cơ: 920KV | Cánh: 10" | Pin: 4S (14.8V)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section ROS 2 / Pixhawk Bridge -->
+      <section class="content-section" id="sec-5-ros2">
+        <h2 class="section-title">Cầu Nối Kiến Trúc Thực Tế: Giám Sát Năng Lượng Trong PX4 / ROS 2</h2>
+        <div class="ros2-bridge-card">
+          <div class="ros2-badge">BATTERY MANAGEMENT SYSTEM (BMS) & PX4 DRIVER</div>
+          <h4>Đọc Điện Áp, Dòng Tải & Trạng Thái Xả Pin Qua `px4_msgs::msg::BatteryStatus`</h4>
+          <pre class="code-block"><code class="language-cpp">// ROS 2 C++ Node giám sát năng lượng và cảnh báo pin yếu
+#include "rclcpp/rclcpp.hpp"
+#include "px4_msgs/msg/battery_status.hpp"
+
+class PowerMonitorNode : public rclcpp::Node {
+public:
+  PowerMonitorNode() : Node("power_monitor_node") {
+    sub_ = this->create_subscription&lt;px4_msgs::msg::BatteryStatus&gt;(
+      "/fmu/out/battery_status", rclcpp::SensorDataQoS(),
+      [this](const px4_msgs::msg::BatteryStatus::SharedPtr msg) {
+        float voltage_v = msg-&gt;voltage_v;
+        float current_a = msg-&gt;current_a;
+        float remaining_pct = msg-&gt;remaining * 100.0f;
+        
+        if (msg-&gt;warning == px4_msgs::msg::BatteryStatus::BATTERY_WARNING_CRITICAL) {
+          RCLCPP_ERROR(this-&gt;get_logger(), "🪫 PIN NGUY HIỂM: %.2fV (%.1f%%) - KÍCH HOẠT HẠ CÁNH KHẨN!", voltage_v, remaining_pct);
+        } else {
+          RCLCPP_INFO_THROTTLE(this-&gt;get_logger(), *this-&gt;get_clock(), 2000,
+            "Pin: %.2fV | Dòng: %.2fA | Công suất: %.1fW | Còn lại: %.1f%%",
+            voltage_v, current_a, voltage_v * current_a, remaining_pct);
+        }
+      });
+  }
+private:
+  rclcpp::Subscription&lt;px4_msgs::msg::BatteryStatus&gt;::SharedPtr sub_;
+};</code></pre>
+        </div>
+      </section>
+    
+
+      <!-- Chapter Bottom Navigation -->
+      <nav class="chapter-nav-bottom">
+        <a href="ch04.html" class="btn btn-secondary">← Chương 04</a>
+        <a href="../index.html" class="btn btn-outline">🏠 Mục Lục Hub</a>
+        <a href="ch06.html" class="btn btn-primary">Chương 06 →</a>
+      </nav>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>
