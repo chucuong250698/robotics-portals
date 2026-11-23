@@ -1,0 +1,243 @@
+# -*- coding: utf-8 -*-
+"""
+Index / Hub Dashboard Builder for Particle Filter Made Simple Knowledge Portal (#12)
+"""
+
+import os
+from build_portal import CHAPTER_INFO, PORTAL_DIR
+
+index_html = f"""<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bộ Lọc Hạt Đơn Giản & Trực Quan: Nền Tảng Monte Carlo, SIR & Định Vị Robot - Portal Hub</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <a href="../index.html" class="brand-logo">
+        <span class="logo-icon">🌐</span>
+        <span class="logo-text">Master Robotics Portals</span>
+      </a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Particle Filter Made Simple Portal Hub</span>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">🏛️ Viện Tri Thức Robotics</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="portal-hero">
+    <div class="portal-hero-inner">
+      <div class="hero-badge-row">
+        <span class="hero-badge badge-primary">ARIZONA STATE UNIVERSITY • MONOGRAPH SERIES</span>
+        <span class="hero-badge badge-accent">SIÊU CHUYÊN KHẢO #12</span>
+      </div>
+      <h1 class="hero-title">Bộ Lọc Hạt Đơn Giản & Trực Quan: Từ Ý Tưởng Đến Thực Thi Định Vị Robot</h1>
+      <p class="hero-subtitle">
+        Khám phá toàn diện chuyên khảo <em>Particle Filter Made Simple: A Step-by-Step Beginner-friendly Guide</em> (Sahil Rajesh Dhayalkar, Arizona State University). 
+        Hệ thống hóa toàn bộ triết lý phân bố niềm tin phi Gauss, sự thất bại của Kalman Filter trước tính phi tuyến gắt, phương pháp Monte Carlo, thuật toán SIR chuẩn mực 6 bước, hiện tượng thoái hóa trọng số & kích thước hiệu dụng $N_{{eff}}$, giải chi tiết bài tập số học 1D bằng tay, mở rộng vector trạng thái 2D/4D và ứng dụng định vị robot AMCL trong ROS 2.
+      </p>
+
+      <!-- Key Portal Stats -->
+      <div class="portal-stats-row">
+        <div class="stat-box">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Chương Học Thuật 6 Tầng</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Mô Phỏng Canvas 60 FPS</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">5</span>
+          <span class="stat-label">Bài Tập Số Học 4 Bước</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-value">100%</span>
+          <span class="stat-label">Zero-Error MathJax 3 & C++20</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="portal-main">
+    <!-- Live Search & Filter Bar -->
+    <div class="portal-controls-bar">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="chapter-search" class="search-input" placeholder="Tìm kiếm chương, thuật toán, công thức, mô phỏng (Ctrl + K)..." autocomplete="off">
+        <span class="search-shortcut">Ctrl+K</span>
+      </div>
+
+      <div class="filter-pills-row" id="filter-pills">
+        <button class="filter-pill active" data-filter="all">Tất Cả (5 Chương)</button>
+        <button class="filter-pill" data-filter="track-1">Track 1: Cơ Sở Lý Thuyết & Thuật Toán SIR (3 Chương)</button>
+        <button class="filter-pill" data-filter="track-2">Track 2: Thực Hành Số Học & Lọc Đa Chiều (2 Chương)</button>
+      </div>
+    </div>
+
+    <!-- Chapter Matrix Grid -->
+    <div class="chapters-grid" id="chapters-grid">
+      <!-- Card 1 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-header">
+          <span class="track-tag">Track 1: Cơ Sở SIR</span>
+          <span class="chapter-index">CHƯƠNG 01</span>
+        </div>
+        <h2 class="card-title">
+          <a href="chapters/ch01.html">Giới Thiệu & Nhu Cầu Của Bộ Lọc Hạt</a>
+        </h2>
+        <p class="card-subtitle-en">Introduction & The Need for Particle Filters</p>
+        <p class="card-desc">
+          Sự thất bại của bộ lọc Kalman trước tính phi tuyến và phân bố đa đỉnh (multimodal). Triết lý biểu diễn phân bố xác suất tùy ý thông qua đám mây mẫu ngẫu nhiên không tham số.
+        </p>
+        <ul class="card-highlights">
+          <li>📐 <strong>Toán học:</strong> Tuyến tính hóa Taylor EKF vs Phân bố chuẩn ép buộc</li>
+          <li>🎮 <strong>Canvas 60 FPS:</strong> Mô phỏng hành lang 2 cửa đối xứng bimodal</li>
+          <li>🤖 <strong>ROS 2 Bridge:</strong> Phân tầng EKF robot_localization vs AMCL</li>
+        </ul>
+        <div class="card-footer">
+          <span class="card-time">⏱️ 25 phút đọc</span>
+          <a href="chapters/ch01.html" class="btn btn-primary btn-sm">Khám Phá Chương →</a>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-header">
+          <span class="track-tag">Track 1: Cơ Sở SIR</span>
+          <span class="chapter-index">CHƯƠNG 02</span>
+        </div>
+        <h2 class="card-title">
+          <a href="chapters/ch02.html">Từ Ý Tưởng Đến Biểu Diễn Toán Học</a>
+        </h2>
+        <p class="card-subtitle-en">From Idea to Mathematical Representation</p>
+        <p class="card-desc">
+          Bản chất của niềm tin (Belief), mô hình xác suất như một Histogram chuyển động, nguyên lý tích phân Monte Carlo, Luật Số Lớn, Định lý Giới hạn Trung tâm và giải phẫu hạt mẫu.
+        </p>
+        <ul class="card-highlights">
+          <li>📐 <strong>Toán học:</strong> Chuyển tích phân thành trung bình mẫu Monte Carlo</li>
+          <li>🎮 <strong>Canvas 60 FPS:</strong> Histogram xác suất động truyền qua hàm phi tuyến</li>
+          <li>⚡ <strong>C++20 SIMD:</strong> Cấu trúc bộ nhớ SoA và tăng tốc OpenMP</li>
+        </ul>
+        <div class="card-footer">
+          <span class="card-time">⏱️ 25 phút đọc</span>
+          <a href="chapters/ch02.html" class="btn btn-primary btn-sm">Khám Phá Chương →</a>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="chapter-card" data-track="track-1">
+        <div class="card-header">
+          <span class="track-tag">Track 1: Cơ Sở SIR</span>
+          <span class="chapter-index">CHƯƠNG 03</span>
+        </div>
+        <h2 class="card-title">
+          <a href="chapters/ch03.html">Thuật Toán Bộ Lọc Hạt Toàn Diện (SIR Filter)</a>
+        </h2>
+        <p class="card-subtitle-en">The Complete Particle Filter Algorithm</p>
+        <p class="card-desc">
+          Giải phẫu toàn diện 6 bước thuật toán SIR (Sampling Importance Resampling), nguồn gốc toán học lấy mẫu tầm quan trọng, hiện tượng thoái hóa mẫu, kích thước hiệu dụng Neff và tái chọn mẫu có hệ thống.
+        </p>
+        <ul class="card-highlights">
+          <li>📐 <strong>Toán học:</strong> 6 bước SIR, công thức Neff và điều kiện kích hoạt N/2</li>
+          <li>🎮 <strong>Canvas 60 FPS:</strong> Mô phỏng cột trọng số thoái hóa & con trỏ Systematic</li>
+          <li>⚙️ <strong>Zero-Alloc C++:</strong> Thuật toán Systematic Resampling O(N) không cấp phát</li>
+        </ul>
+        <div class="card-footer">
+          <span class="card-time">⏱️ 30 phút đọc</span>
+          <a href="chapters/ch03.html" class="btn btn-primary btn-sm">Khám Phá Chương →</a>
+        </div>
+      </article>
+
+      <!-- Card 4 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-header">
+          <span class="track-tag">Track 2: Thực Hành Số Học</span>
+          <span class="chapter-index">CHƯƠNG 04</span>
+        </div>
+        <h2 class="card-title">
+          <a href="chapters/ch04.html">Ví Dụ Số Học: Bám Vết Vật Thể 1D & Code Lab</a>
+        </h2>
+        <p class="card-subtitle-en">Numerical Example: 1D Object Tracking & Code Lab</p>
+        <p class="card-desc">
+          Từng phép tính số học cụ thể cho các bước thời gian k=1, 2, 3 với Q=1.0, R=4.0; trực quan hóa phân tán và hội tụ hạt; xây dựng bộ lọc 1D hoàn chỉnh bằng Python và ROS 2.
+        </p>
+        <ul class="card-highlights">
+          <li>📐 <strong>Số học bằng tay:</strong> Bảng số liệu chi tiết 5 hạt tại k=1 (z=3.2m)</li>
+          <li>🎮 <strong>Canvas 60 FPS:</strong> Bám vết quỹ đạo thời gian thực True vs PF Estimate</li>
+          <li>🤖 <strong>ROS 2 Node:</strong> OneDParticleFilterNode lắng nghe sensor_msgs/Range</li>
+        </ul>
+        <div class="card-footer">
+          <span class="card-time">⏱️ 30 phút đọc</span>
+          <a href="chapters/ch04.html" class="btn btn-primary btn-sm">Khám Phá Chương →</a>
+        </div>
+      </article>
+
+      <!-- Card 5 -->
+      <article class="chapter-card" data-track="track-2">
+        <div class="card-header">
+          <span class="track-tag">Track 2: Thực Hành Số Học</span>
+          <span class="chapter-index">CHƯƠNG 05</span>
+        </div>
+        <h2 class="card-title">
+          <a href="chapters/ch05.html">Bộ Lọc Hạt Trong Không Gian Đa Chiều & Code Lab 2D</a>
+        </h2>
+        <p class="card-subtitle-en">Particle Filter in Higher Dimensions & Code Lab 2D</p>
+        <p class="card-desc">
+          Mở rộng vector trạng thái [x, y, vx, vy]^T; mô hình chuyển động và cảm biến khoảng cách mốc 2D; khắc phục lời nguyền số chiều; Code Lab Python 2D và khôi phục sự cố bắt cóc robot.
+        </p>
+        <ul class="card-highlights">
+          <li>📐 <strong>Toán học:</strong> Ma trận chuyển trạng thái 4D, Lời nguyền số chiều O(C^n)</li>
+          <li>🎮 <strong>Canvas 60 FPS:</strong> Định vị 4 cột mốc & Nút bấm "Bắt cóc Robot" (Kidnap)</li>
+          <li>🏗️ <strong>ROS 2 AMCL:</strong> Thuật toán KLD-Sampling thích nghi số hạt của Dieter Fox</li>
+        </ul>
+        <div class="card-footer">
+          <span class="card-time">⏱️ 35 phút đọc</span>
+          <a href="chapters/ch05.html" class="btn btn-primary btn-sm">Khám Phá Chương →</a>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h4>Về Chuyên Khảo</h4>
+        <p><em>Particle Filter Made Simple: A Step-by-Step Beginner-friendly Guide</em> là tài liệu chuyên khảo xuất sắc của nghiên cứu sinh Sahil Rajesh Dhayalkar (Đại học Bang Arizona - ASU), cung cấp góc nhìn sư phạm trực quan và tường minh nhất về phương pháp Lọc Hạt Tuần Tự.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Liên Kết Nhanh</h4>
+        <ul class="footer-links">
+          <li><a href="../index.html">Master Robotics Portals Gateway</a></li>
+          <li><a href="../probabilistic-robotics-web/index.html">Siêu Chuyên Khảo #10: Probabilistic Robotics</a></li>
+          <li><a href="../multicopter-design-web/index.html">Siêu Chuyên Khảo #11: Multicopter Design & Control</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Viện Tri Thức Robotics & AI. Được số hóa và chưng cất theo chuẩn quốc tế 6 tầng tri thức.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>"""
+
+out_index = os.path.join(PORTAL_DIR, "index.html")
+with open(out_index, "w", encoding="utf-8") as f:
+    f.write(index_html)
+
+print(f"Successfully generated Hub Index at {out_index} ({len(index_html)} bytes)")

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chương 03: Thuật Toán Bộ Lọc Hạt Toàn Diện (SIR Filter) | Particle Filter Made Simple</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  
+  <!-- MathJax 3 Strict Zero-Error Configuration -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$']],
+        displayMath: [['$$', '$$']],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <div id="reading-progress"></div>
+
+  <!-- Global Header -->
+  <header class="site-header">
+    <div class="header-left">
+      <nav class="header-breadcrumbs">
+        <a href="../index.html" class="breadcrumb-item">🏠 Lộ trình PF</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-item">Track 1: Cơ Sở Lý Thuyết & Thuật Toán SIR</span>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current">Chương 03</span>
+      </nav>
+    </div>
+    <div class="header-right">
+      <a href="../index.html" class="header-book-ref">📖 Particle Filter Made Simple • Dhayalkar</a>
+      <button id="theme-toggle" class="btn btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.85rem;" title="Chuyển chế độ Sáng / Tối">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Chế độ sáng</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- 320px Sticky Left Sidebar TOC -->
+    <aside class="sidebar-container">
+      <div class="sidebar-header">
+        <span class="sidebar-title">MỤC LỤC CHƯƠNG 03</span>
+        <span class="sidebar-badge">13 MỤC</span>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item">
+          <a href="#sec-3-1">
+            <span class="nav-text">3.1 Tổng Quan Về Bộ Lọc SIR (Overview of the SIR Filter)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-2">
+            <span class="nav-text">3.2 Quy Trình 6 Bước Chuẩn Mực Của Thuật Toán SIR (Step-by-Step Algorithm)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-1">
+            <span class="nav-text">3.2.1 Bước 1: Khởi tạo đám mây hạt (Initialization)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-2">
+            <span class="nav-text">3.2.2 Bước 2: Dự đoán trạng thái theo mô hình chuyển động (Prediction)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-3">
+            <span class="nav-text">3.2.3 Bước 3: Cập nhật trọng số theo hợp lý cảm biến (Weighting)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-4">
+            <span class="nav-text">3.2.4 Bước 4: Chuẩn hóa tổng trọng số (Normalization)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-5">
+            <span class="nav-text">3.2.5 Bước 5: Ước lượng trạng thái hệ thống (State Estimation)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-2-6">
+            <span class="nav-text">3.2.6 Bước 6: Tái chọn mẫu loại bỏ hạt yếu (Resampling)</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="#sec-3-3">
+            <span class="nav-text">3.3 Nền Tảng Toán Học & Nhận Thức Chuyên Sâu (Mathematical Derivation & Insights)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-1">
+            <span class="nav-text">3.3.1 Bản chất của lấy mẫu tầm quan trọng (Importance Sampling)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-2">
+            <span class="nav-text">3.3.2 Vấn đề thoái hóa trọng số (Weight Degeneracy Problem)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-3">
+            <span class="nav-text">3.3.3 Kích thước mẫu hiệu dụng Neff (Effective Sample Size)</span>
+          </a>
+        </div>
+        <div class="nav-item sub-item">
+          <a href="#sec-3-3-4">
+            <span class="nav-text">3.3.4 Chiến lược tái chọn mẫu thích nghi (When to Resample)</span>
+          </a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html" class="sidebar-back-link">← Trở về Hub Dashboard</a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Chapter Hero Banner -->
+      <section class="chapter-hero">
+        <div class="hero-badge-row">
+          <span class="hero-badge badge-primary">TRACK 1: CƠ SỞ LÝ THUYẾT & THUẬT TOÁN SIR</span>
+          <span class="hero-badge badge-accent">CHƯƠNG 03</span>
+        </div>
+        <h1 class="chapter-title">Thuật Toán Bộ Lọc Hạt Toàn Diện (SIR Filter)</h1>
+        <p class="chapter-subtitle-en">The Complete Particle Filter Algorithm</p>
+        <p class="chapter-lead">Giải phẫu toàn diện 6 bước thuật toán SIR (Sampling Importance Resampling), nguồn gốc toán học, hiện tượng thoái hóa mẫu, kích thước hiệu dụng Neff và tái chọn mẫu có hệ thống.</p>
+        <div class="chapter-meta-row">
+          <span>⏱️ Thời gian đọc: ~25 phút</span>
+          <span>📐 Mô hình Toán 6 tầng</span>
+          <span>🎮 Canvas 2D 60 FPS</span>
+          <span>🤖 C++20 / ROS 2 Bridge</span>
+        </div>
+      </section>
+
+      <!-- Chapter Detailed Content -->
+      <div class="chapter-body">
+
+<!-- Layer 2: Why It Matters Box -->
+<div class="why-matters-box">
+  <div class="why-matters-header">
+    <span class="why-matters-icon">💡</span>
+    <h3 class="why-matters-title">Tại Sao Thuật Toán SIR Là Bước Ngoặt Lịch Sử Của Bộ Lọc Hạt?</h3>
+  </div>
+  <p class="why-matters-text">
+    Ý tưởng dùng mẫu ngẫu nhiên để lọc trạng thái đã manh nha từ những năm 1950, nhưng đều thất bại hoàn toàn vì một "căn bệnh chết người": <strong>sự thoái hóa trọng số (Weight Degeneracy)</strong>. Sau vài chu kỳ cập nhật, phương sai trọng số tăng vọt, dẫn đến 99.9% hạt có trọng số bằng 0, chỉ còn duy nhất 1 hạt "sống sót" mang toàn bộ trọng số — hệ thống sụp đổ thành một ước lượng vô nghĩa. Bước đột phá lịch sử xuất hiện vào năm 1993 khi Neil Gordon, David Salmond và Adrian Smith (IEE Proceedings) đề xuất cơ chế <strong>Tái Chọn Mẫu (Resampling)</strong>, khai sinh ra bộ lọc <strong>SIR (Sampling Importance Resampling / Bootstrap Filter)</strong>. Chương này mổ xẻ tường tận quy trình 6 bước chuẩn mực, công thức toán học tính kích thước mẫu hiệu dụng $N_{eff}$ và thuật toán Systematic Resampling $\mathcal{O}(N)$ được dùng trong mọi robot tự hành ngày nay.
+  </p>
+</div>
+
+<!-- Section 3.1 -->
+<section id="sec-3-1" class="content-section">
+  <h2 class="section-heading">3.1 Tổng Quan Về Bộ Lọc SIR (Overview of the SIR Filter)</h2>
+  <p class="lead-text">
+    Bộ lọc SIR (Sampling Importance Resampling), còn được gọi là <em>Bootstrap Filter</em> hoặc <em>Condensation Algorithm</em> trong thị giác máy tính, là dạng cài đặt cơ bản và mạnh mẽ nhất của họ thuật toán Lọc Hạt Tuần Tự Monte Carlo (Sequential Monte Carlo - SMC).
+  </p>
+  <p>
+    Trong bộ lọc SIR cổ điển, hàm phân bố đề xuất (importance proposal distribution) được chọn chính là <strong>mô hình chuyển động tiên nghiệm</strong> của hệ thống:
+  </p>
+  <div class="formula-card">
+    <div class="formula-header">
+      <span class="formula-badge">Phân Bố Đề Xuất Chuẩn Của Bộ Lọc SIR</span>
+    </div>
+    <div class="formula-body">
+      $$q(x_k | x_{k-1}^{(i)}, z_k) = p(x_k | x_{k-1}^{(i)}, u_k)$$
+    </div>
+    <div class="formula-legend">
+      <strong>Hệ quả toán học kỳ diệu:</strong> Khi chọn phân bố đề xuất là mô hình chuyển động, công thức tính tỷ số trọng số quan trọng (importance weight ratio) được triệt tiêu và rút gọn đơn giản thành chính <strong>hàm hợp lý của cảm biến (sensor likelihood)</strong>:
+      $$w_k^{(i)} \propto p(z_k | x_k^{(i)})$$
+    </div>
+  </div>
+</section>
+
+<!-- Section 3.2 -->
+<section id="sec-3-2" class="content-section">
+  <h2 class="section-heading">3.2 Quy Trình 6 Bước Chuẩn Mực Của Thuật Toán SIR (Step-by-Step Algorithm)</h2>
+  <p>
+    Thuật toán SIR vận hành theo một chu trình tuần tự khép kín gồm đúng 6 bước toán học:
+  </p>
+
+  <div class="algorithm-steps" style="display: flex; flex-direction: column; gap: 1.25rem; margin: 1.5rem 0;">
+    <!-- Step 1 -->
+    <div class="algo-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+      <h3 id="sec-3-2-1" style="color: var(--primary); margin-top: 0; font-size: 1.15rem;">
+        Bước 1: Khởi Tạo Đám Mây Hạt (Initialization, $k = 0$)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Rút $N$ hạt mẫu độc lập từ phân bố tiên nghiệm ban đầu $p(x_0)$. Nếu không có thông tin vị trí ban đầu (bài toán Global Localization), các hạt được rải đều khắp không gian hoạt động:
+      </p>
+      <div class="formula-card">
+        <div class="formula-body">
+          $$x_0^{(i)} \sim p(x_0), \quad w_0^{(i)} = \frac{1}{N}, \quad \forall i = 1, \dots, N$$
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="algo-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+      <h3 id="sec-3-2-2" style="color: var(--accent-purple); margin-top: 0; font-size: 1.15rem;">
+        Bước 2: Dự Đoán Trạng Thái (Prediction Phase)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Với mỗi hạt $i$, đưa trạng thái trước đó $x_{k-1}^{(i)}$ qua hàm động học phi tuyến $f(\cdot)$ cùng với lệnh điều khiển $u_k$, kèm theo một giá trị nhiễu hệ thống ngẫu nhiên $w_k^{(i)}$:
+      </p>
+      <div class="formula-card">
+        <div class="formula-body">
+          $$x_k^{(i)} = f(x_{k-1}^{(i)}, u_k) + w_k^{(i)}, \quad w_k^{(i)} \sim p(w_k)$$
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="algo-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+      <h3 id="sec-3-2-3" style="color: var(--accent-amber); margin-top: 0; font-size: 1.15rem;">
+        Bước 3: Đánh Trọng Số Hợp Lý (Weighting Phase)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Khi nhận được vector đo lường cảm biến thực tế $z_k$, đánh giá độ tin cậy của từng hạt thông qua hàm mật độ xác suất đo lường (measurement likelihood):
+      </p>
+      <div class="formula-card">
+        <div class="formula-body">
+          $$w_k^{(i)} = p(z_k | x_k^{(i)}) = \frac{1}{\sqrt{(2\pi)^p \det(R)}} \exp\left( -\frac{1}{2} (z_k - h(x_k^{(i)}))^T R^{-1} (z_k - h(x_k^{(i)})) \right)$$
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="algo-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+      <h3 id="sec-3-2-4" style="color: var(--accent-cyan); margin-top: 0; font-size: 1.15rem;">
+        Bước 4: Chuẩn Hóa Trọng Số (Normalization Phase)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Chia từng trọng số cho tổng trọng số của toàn bộ đám mây để đảm bảo tổng xác suất bằng đúng 1:
+      </p>
+      <div class="formula-card">
+        <div class="formula-body">
+          $$\tilde{w}_k^{(i)} = \frac{w_k^{(i)}}{\sum_{j=1}^N w_k^{(j)}}, \quad \sum_{i=1}^N \tilde{w}_k^{(i)} = 1.0$$
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="algo-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+      <h3 id="sec-3-2-5" style="color: var(--accent-emerald); margin-top: 0; font-size: 1.15rem;">
+        Bước 5: Ước Lượng Trạng Thái & Bất Định (State Estimation)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Tính toán giá trị kỳ vọng ước lượng trung bình $\hat{x}_k$ và ma trận hiệp phương sai sai số $\Sigma_k$ phục vụ bộ điều khiển phản hồi:
+      </p>
+      <div class="formula-card">
+        <div class="formula-body">
+          $$\hat{x}_k = \sum_{i=1}^N \tilde{w}_k^{(i)} x_k^{(i)}, \quad \Sigma_k = \sum_{i=1}^N \tilde{w}_k^{(i)} (x_k^{(i)} - \hat{x}_k)(x_k^{(i)} - \hat{x}_k)^T$$
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="algo-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+      <h3 id="sec-3-2-6" style="color: var(--accent-rose); margin-top: 0; font-size: 1.15rem;">
+        Bước 6: Tái Chọn Mẫu Loại Bỏ Hạt Yếu (Resampling Phase)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Rút lại $N$ hạt mới $\{x_k^{\prime(i)}\}_{i=1}^N$ từ tập $\{x_k^{(i)}\}$ với xác suất trúng tỉ lệ thuận với $\tilde{w}_k^{(i)}$. Sau khi tái chọn mẫu, đặt lại toàn bộ trọng số về đồng nhất:
+      </p>
+      <div class="formula-card">
+        <div class="formula-body">
+          $$\mathbb{P}(x_k^{\prime(i)} = x_k^{(j)}) = \tilde{w}_k^{(j)}, \quad w_k^{\prime(i)} = \frac{1}{N}, \quad \forall i = 1, \dots, N$$
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Section 3.3 -->
+<section id="sec-3-3" class="content-section">
+  <h2 class="section-heading">3.3 Nền Tảng Toán Học & Nhận Thức Chuyên Sâu (Mathematical Derivation & Insights)</h2>
+
+  <h3 id="sec-3-3-1" class="subsection-heading">3.3.1 Bản chất của lấy mẫu tầm quan trọng (Importance Sampling)</h3>
+  <p>
+    Trong thực tế, ta cần lấy mẫu từ phân bố hậu nghiệm $p(x_k | z_{1:k})$, nhưng hàm mật độ này chưa biết hằng số chuẩn hóa mẫu số tích phân Bayes. Ta chọn một phân bố đề xuất dễ sinh mẫu $q(x_k | z_{1:k})$. Để khử độ lệch (bias), mỗi mẫu cần được gán một trọng số sửa sai:
+  </p>
+  <div class="formula-card">
+    <div class="formula-body">
+      $$w(x) = \frac{p(x)}{q(x)} \implies \mathbb{E}_p[g(x)] = \int g(x) \frac{p(x)}{q(x)} q(x) \, dx = \mathbb{E}_q[g(x) w(x)]$$
+    </div>
+  </div>
+
+  <h3 id="sec-3-3-2" class="subsection-heading">3.3.2 Vấn đề thoái hóa trọng số (Weight Degeneracy Problem)</h3>
+  <p>
+    Kong, Liu và Wong (1994) đã chứng minh một định lý toán học nghiệt ngã: <strong>Phương sai vô điều kiện của trọng số quan trọng $\text{Var}(w_k^{(i)})$ luôn tăng đơn điệu theo thời gian $k$</strong>.
+  </p>
+  <p>
+    Điều này đồng nghĩa với việc: nếu không thực hiện tái chọn mẫu, chỉ sau một vài bước thời gian, toàn bộ trọng số sẽ dồn tụ vào một hạt duy nhất ($w^{(i)} \approx 1.0$), trong khi $N-1$ hạt còn lại có trọng số xấp xỉ 0. Kỹ sư lãng phí 99.9% tài nguyên CPU để tính toán cho các hạt "chết".
+  </p>
+
+  <h3 id="sec-3-3-3" class="subsection-heading">3.3.3 Kích thước mẫu hiệu dụng $N_{eff}$ (Effective Sample Size)</h3>
+  <p>
+    Để đo lường định lượng mức độ thoái hóa của đám mây hạt, ta sử dụng chỉ số <strong>Kích thước mẫu hiệu dụng</strong> $N_{eff}$:
+  </p>
+  <div class="formula-card">
+    <div class="formula-header">
+      <span class="formula-badge">Công Thức Kích Thước Mẫu Hiệu Dụng Neff</span>
+    </div>
+    <div class="formula-body">
+      $$N_{eff} \approx \frac{1}{\sum_{i=1}^N (\tilde{w}_k^{(i)})^2}$$
+    </div>
+    <div class="formula-legend">
+      <strong>Khoảng giá trị & Ý nghĩa vật lý:</strong>
+      <ul>
+        <li>$N_{eff} = N$: Trường hợp lý tưởng nhất, mọi hạt đều có trọng số đồng đều bằng $1/N$. Đám mây phong phú đa dạng.</li>
+        <li>$N_{eff} = 1$: Trường hợp thoái hóa cùng cực, duy nhất 1 hạt có trọng số bằng 1, các hạt khác bằng 0.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="sec-3-3-4" class="subsection-heading">3.3.4 Chiến lược tái chọn mẫu thích nghi (When to Resample)</h3>
+  <p>
+    Mặc dù tái chọn mẫu cứu bộ lọc khỏi thoái hóa, nhưng nó mang lại một tác dụng phụ tiêu cực: <strong>sự nghèo nàn mẫu (sample impoverishment / loss of diversity)</strong> — các hạt có trọng số cao bị nhân bản nhiều lần dẫn đến việc toàn bộ đám mây chỉ còn là con cháu của một vài hạt tổ tiên.
+  </p>
+  <p>
+    Do đó, quy chuẩn thiết kế tối ưu là <strong>Tái chọn mẫu thích nghi (Adaptive Resampling)</strong>: chỉ kích hoạt bước tái chọn mẫu khi $N_{eff}$ tụt xuống dưới một ngưỡng định trước:
+  </p>
+  <div class="formula-card">
+    <div class="formula-body">
+      $$\text{Thực hiện Resampling} \iff N_{eff} \lt N_{threshold} = \frac{N}{2}$$
+    </div>
+  </div>
+</section>
+
+<!-- Layer 4: Worked Numerical Example -->
+<section id="worked-example-ch03" class="content-section">
+  <div class="worked-example-card">
+    <div class="worked-example-header">
+      <span class="worked-badge">VÍ DỤ SỐ HỌC 4 BƯỚC</span>
+      <h3 class="worked-title">Tính Toán $N_{eff}$ & Thực Thi Thuật Toán Vòng Quay Chọn Mẫu Có Hệ Thống (Systematic Resampling)</h3>
+    </div>
+    <p class="worked-intro">
+      Cho một hệ thống gồm $N=5$ hạt mẫu tại thời điểm $k$. Trọng số chưa chuẩn hóa đo được từ cảm biến là $w = [0.10, 0.80, 0.05, 0.03, 0.02]$. Ta thực hiện kiểm tra thoái hóa mẫu qua $N_{eff}$ và mô phỏng chi tiết thuật toán Systematic Resampling với số ngẫu nhiên ban đầu $U \sim \mathcal{U}[0, 1/N]$.
+    </p>
+
+    <div class="worked-step-grid">
+      <div class="step-card">
+        <div class="step-num">BƯỚC 1</div>
+        <div class="step-title">Chuẩn Hóa Trọng Số Hạt</div>
+        <div class="step-body">
+          <p>Tổng trọng số: $\sum w^{(i)} = 0.10 + 0.80 + 0.05 + 0.03 + 0.02 = 1.00$.</p>
+          <p>Trọng số đã chuẩn hóa:</p>
+          <ul>
+            <li>$\tilde{w}^{(1)} = 0.10$</li>
+            <li>$\tilde{w}^{(2)} = 0.80$ (Hạt chiếm ưu thế áp đảo!)</li>
+            <li>$\tilde{w}^{(3)} = 0.05$</li>
+            <li>$\tilde{w}^{(4)} = 0.03$</li>
+            <li>$\tilde{w}^{(5)} = 0.02$</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">BƯỚC 2</div>
+        <div class="step-title">Tính Kích Thước Hiệu Dụng $N_{eff}$</div>
+        <div class="step-body">
+          <p>Tính tổng bình phương trọng số:</p>
+          $$\sum (\tilde{w}^{(i)})^2 = 0.10^2 + 0.80^2 + 0.05^2 + 0.03^2 + 0.02^2$$
+          $$= 0.01 + 0.64 + 0.0025 + 0.0009 + 0.0004 = 0.6538$$
+          <p>Kích thước hiệu dụng:</p>
+          $$N_{eff} = \frac{1}{0.6538} \approx 1.53$$
+          <p>So sánh ngưỡng $N/2 = 2.5$: Vì $1.53 \lt 2.5$, hệ thống <strong>bị thoái hóa nghiêm trọng</strong> và kích hoạt Resampling ngay lập tức!</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">BƯỚC 3</div>
+        <div class="step-title">Xây Dựng Mảng Tích Lũy CDF & Con Trỏ Đều</div>
+        <div class="step-body">
+          <p>Mảng cộng dồn tích lũy (Cumulative Sum):</p>
+          <ul>
+            <li>$c_1 = 0.10$</li>
+            <li>$c_2 = 0.10 + 0.80 = 0.90$</li>
+            <li>$c_3 = 0.90 + 0.05 = 0.95$</li>
+            <li>$c_4 = 0.95 + 0.03 = 0.98$</li>
+            <li>$c_5 = 1.00$</li>
+          </ul>
+          <p>Rút số ngẫu nhiên khởi tạo: $U = 0.12 \in [0, 1/5] = [0, 0.20]$.</p>
+          <p>Bước nhảy đều $\Delta = \frac{1}{N} = 0.20$. Năm con trỏ $u_j = U + (j-1)\Delta$:</p>
+          <p>$u_1 = 0.12, \quad u_2 = 0.32, \quad u_3 = 0.52, \quad u_4 = 0.72, \quad u_5 = 0.92$.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">BƯỚC 4</div>
+        <div class="step-title">Ghép Mẫu & Sinh Thế Hệ Hạt Con Cháu</div>
+        <div class="step-body">
+          <p>Đối chiếu từng $u_j$ với mảng $c_i$ ($u_j \le c_i$):</p>
+          <ul>
+            <li>$u_1 = 0.12$: Nằm giữa $c_1(0.10)$ và $c_2(0.90) \implies$ Chọn hạt <strong>2</strong>.</li>
+            <li>$u_2 = 0.32$: Nằm dưới $c_2(0.90) \implies$ Chọn hạt <strong>2</strong>.</li>
+            <li>$u_3 = 0.52$: Nằm dưới $c_2(0.90) \implies$ Chọn hạt <strong>2</strong>.</li>
+            <li>$u_4 = 0.72$: Nằm dưới $c_2(0.90) \implies$ Chọn hạt <strong>2</strong>.</li>
+            <li>$u_5 = 0.92$: Nằm giữa $c_2(0.90)$ và $c_3(0.95) \implies$ Chọn hạt <strong>3</strong>.</li>
+          </ul>
+          <p><strong>Kết quả thế hệ mới:</strong> Hạt 2 sinh ra 4 con cháu; Hạt 3 sinh ra 1 con cháu; Hạt 1, 4, 5 bị đào thải hoàn toàn. Toàn bộ 5 hạt mới nhận lại trọng số $1/5 = 0.20$.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Layer 5: Interactive Simulator -->
+<section id="sim-ch03" class="content-section">
+  <div class="sim-card">
+    <div class="sim-header">
+      <div class="sim-title-group">
+        <span class="sim-badge">MÔ PHỎNG TƯƠNG TÁC 60 FPS</span>
+        <h3 class="sim-title">Thí Nghiệm Thoái Hóa Trọng Số, Đo $N_{eff}$ & Vòng Quay Systematic Resampling</h3>
+      </div>
+      <p class="sim-desc">
+        Hệ thống gồm 16 hạt mẫu. Bấm "Cập nhật đo lường" nhiều lần liên tiếp để thấy hiện tượng trọng số bị hút sạch về 1-2 hạt (cột đỏ nhô cao, các cột khác biến mất) khiến $N_{eff}$ rơi tự do dưới ngưỡng an toàn $N/2 = 8$. Bấm "Systematic Resampling" để quan sát các con trỏ đều quét qua thanh tích lũy và nhân bản các hạt ưu tú.
+      </p>
+    </div>
+
+    <!-- Canvas -->
+    <div class="sim-canvas-wrapper" style="background: #0f172a; border-radius: 8px; overflow: hidden; margin: 1rem 0;">
+      <canvas id="sim-canvas-ch03" style="width: 100%; height: 360px; display: block;"></canvas>
+    </div>
+
+    <!-- Controls -->
+    <div class="sim-controls-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+      <div class="controls-left" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button id="btn-update-w-ch03" class="btn btn-primary">
+          <span>📉 Cập Nhật Quan Sát (Tạo Thoái Hóa Mẫu)</span>
+        </button>
+        <button id="btn-resample-ch03" class="btn btn-outline" style="border-color: var(--accent-emerald); color: var(--accent-emerald);">
+          <span>🎯 Thực Thi Systematic Resampling</span>
+        </button>
+        <button id="btn-reset-ch03" class="btn btn-secondary">
+          <span>🔄 Đặt Lại Trọng Số Đồng Đều</span>
+        </button>
+      </div>
+      <div class="controls-right" style="font-size: 0.85rem; color: var(--text-muted);">
+        <span>💡 Systematic Resampling có độ phức tạp tuyến tính O(N) và phương sai nhỏ nhất.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Layer 6: Practical ROS 2 / C++ Architecture Bridge -->
+<section id="ros2-bridge-ch03" class="content-section">
+  <div class="ros2-bridge-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-emerald); border-radius: 8px; padding: 1.5rem; margin: 2rem 0;">
+    <div class="bridge-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.5rem;">⚙️</span>
+        <h3 style="margin: 0; color: var(--text-main);">Triển Khai Thuật Toán Systematic Resampler Chuẩn O(N) Trong C++20</h3>
+      </div>
+      <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-emerald); font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 4px;">Zero-Allocation C++20</span>
+    </div>
+
+    <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">
+      Trong các bộ thư viện SLAM và định vị chuyên nghiệp (như OpenSLAM Gmapping, MRPT, Nav2 AMCL), thuật toán <em>Low Variance / Systematic Resampling</em> được ưu tiên tuyệt đối so với Multinomial Resampling vì hai lý do: <strong>độ phức tạp thời gian $\mathcal{O}(N)$ thay vì $\mathcal{O}(N \log N)$</strong>, và <strong>không bao giờ làm mất mẫu nếu hạt có trọng số lớn hơn $1/N$</strong>:
+    </p>
+
+    <div class="code-header" style="display: flex; justify-content: space-between; align-items: center; background: #1e293b; color: #94a3b8; padding: 0.4rem 0.8rem; border-radius: 6px 6px 0 0; font-family: monospace; font-size: 0.85rem;">
+      <span>systematic_resampler.hpp (Thuật toán con thoi không cấp phát bộ nhớ động)</span>
+    </div>
+    <pre style="margin-top: 0; border-radius: 0 0 6px 6px; background: #0f172a; padding: 1rem; overflow-x: auto;"><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;random&gt;
+#include &lt;numeric&gt;
+
+template &lt;typename Particle&gt;
+class SystematicResampler {
+public:
+    // Tái chọn mẫu tại chỗ (in-place) với độ phức tạp tuyến tính O(N)
+    static void resample(const std::vector&lt;Particle&gt;&amp; current_particles,
+                         const std::vector&lt;float&gt;&amp; weights,
+                         std::vector&lt;Particle&gt;&amp; new_particles) {
+        const size_t N = current_particles.size();
+        new_particles.resize(N);
+
+        // Sinh số ngẫu nhiên duy nhất U ~ Uniform[0, 1/N)
+        static thread_local std::mt19937 gen(std::random_device{}());
+        std::uniform_real_distribution&lt;float&gt; dist(0.0f, 1.0f / static_cast&lt;float&gt;(N));
+        const float r = dist(gen);
+        const float step = 1.0f / static_cast&lt;float&gt;(N);
+
+        float cumulative_sum = weights[0];
+        size_t source_idx = 0;
+
+        // Vòng lặp đơn O(N) dịch chuyển con trỏ đều
+        for (size_t m = 0; m &lt; N; ++m) {
+            const float u = r + static_cast&lt;float&gt;(m) * step;
+            while (u &gt; cumulative_sum &amp;&amp; source_idx &lt; N - 1) {
+                source_idx++;
+                cumulative_sum += weights[source_idx];
+            }
+            new_particles[m] = current_particles[source_idx];
+        }
+    }
+};</code></pre>
+  </div>
+</section>
+
+      </div>
+
+      <!-- Navigation Row -->
+      <nav class="chapter-nav-row">
+      <a href="ch02.html" class="ch-nav-btn ch-nav-prev">
+        <span class="ch-nav-label">← BÀI TRƯỚC</span>
+        <span class="ch-nav-title">Chương 02: Từ Ý Tưởng Đến Biểu Diễn Toán Học</span>
+      </a>
+      <a href="ch04.html" class="ch-nav-btn ch-nav-next">
+        <span class="ch-nav-label">BÀI TIẾP THEO →</span>
+        <span class="ch-nav-title">Chương 04: Ví Dụ Số Học: Bám Vết Vật Thể 1D & Code Lab</span>
+      </a>
+      </nav>
+
+      <!-- Footer -->
+      <footer class="site-footer">
+        <p>© 2026 Viện Tri Thức Robotics & AI. Chưng cất học thuật từ chuyên khảo <em>Particle Filter Made Simple</em> (Sahil Rajesh Dhayalkar, Arizona State University).</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="../assets/js/app.js"></script>
+  <script src="../assets/js/simulators.js"></script>
+</body>
+</html>
